@@ -15,7 +15,7 @@ import cn.edu.cqupt.dmb.player.R;
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.banner
- * @ProjectName : Android TV Tset-1
+ * @ProjectName : DMB Player For Android 
  * @Version : 1.0.0
  */
 public class BannerDataBean {
