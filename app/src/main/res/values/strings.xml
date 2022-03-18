@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Android TV Tset-1</string>
+    <string name="zhanshi">切换到图片展示页面</string>
+    <string name="sushe">切换到宿舍安全教育页面</string>
+</resources>
