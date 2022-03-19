@@ -1,7 +1,5 @@
 package cn.edu.cqupt.dmb.player.domain;
 
-import java.util.Arrays;
-
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -14,13 +12,19 @@ import java.util.Arrays;
  * @Version : 1.0.0
  */
 public class ChannelInfo {
-    public static final String[] DATA_TYPE = {"stream audio","stream data","reserved","packet data"};
 
-    /** Sub-channel organization,it can determine a channel,
-     * 0: start address, 1: Sub-channel size (CU), 6: Bit rate (Kbit/s)*/
-    public int subChOrganization[] = new int[7];
+    public static final String[] DATA_TYPE = {"stream audio", "stream data", "reserved", "packet data"};
+
+    /**
+     * Sub-channel organization,it can determine a channel,
+     * 0: start address, 1: Sub-channel size (CU), 6: Bit rate (Kbit/s)
+     */
+    public int[] subChOrganization = new int[7];
     private int serviceId;
-    private String label;/** channel name */
+    private String label;
+    /**
+     * channel name
+     */
     private boolean isSelect = false;
     private int transmissionMode = 0;
     private int type;
@@ -28,15 +32,8 @@ public class ChannelInfo {
 
     @Override
     public String toString() {
-        return "ChannelInfo{" +
-                "subChOrganization=" + Arrays.toString(subChOrganization) +
-                ", serviceId=" + serviceId +
-                ", label='" + label + '\'' +
-                ", isSelect=" + isSelect +
-                ", transmissionMode=" + transmissionMode +
-                ", type=" + type +
-                ", subCh=" + subCh +
-                '}';
+        return "channel = " + subCh + "  type = " + DATA_TYPE[type] + "  label = " + label + "  " + "Bitrate = " +
+                subChOrganization[6];
     }
 
     public int[] getSubChOrganization() {
