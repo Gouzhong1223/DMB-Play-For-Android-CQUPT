@@ -36,7 +36,7 @@ public class FicDecoder {
     private int ficCh = 0xFF;
     private int ficDataLen;
     private final ChannelInfo[] channelInfos;
-    public int mYear, mMonth, mDay, mHour, mMinute, mSecond;
+    public int year, month, day, hour, minute, second;
 
 
     public FicDecoder(int id, boolean isEncrypted) {
@@ -97,25 +97,32 @@ public class FicDecoder {
         if (dataCrc != preferenceCrc) { /* crc check fail frequently */
             return;
         }
-        /* if the data is encrypted, get the original data */
+        // 判断fic数据是否加密,如果是加密的数据,那就先在密码表上解密
         if (isEncrypted) {
             for (int i = 0; i < 30; i++) {
+                // 解密的逻辑就是在密码表上进行^操作
                 fib[i] = (byte) (fib[i] ^ DAB_ENCRYPT_CODE[i]);
             }
         }
-        /* find a FIG(fast information group), and decode it according to it's type */
+        // find a FIG(fast information group), and decode it according to it's type
+        // 寻找 FIG 头数据
         figHeader = 0;
-        while (figHeader < 30 && fib[figHeader] != (byte) 0xFF) { /* check end mark */
+
+        // check end mark
+        while (figHeader < 30 && fib[figHeader] != (byte) 0xFF) {
             int mFigType = (fib[figHeader] >>> 5) & 0x07;
             figLength = fib[figHeader] & 0x1f;
             switch (mFigType) {
-                case 0: /* standard fib type 0 */
+                // standard fib type 0
+                case 0:
                     fibType0();
                     break;
-                case 1: /* standard fib type 1 */
+                // standard fib type 1
+                case 1:
                     decodeLabel();
                     break;
-                case 3:/*  custom types, id select check */
+                // custom types, id select check
+                case 3:
                     selectSubCh();
                     break;
                 case 5:
@@ -124,10 +131,14 @@ public class FicDecoder {
                 default:
                     break;
             }
-            figHeader += figLength + 1; /* point to next fig header */
+            //  point to next fig header
+            figHeader += figLength + 1;
         }
     }
 
+    /**
+     * 寻找子频道
+     */
     private void selectSubCh() {
         int index = figHeader + 1;
         int groupId = (fib[index] & 0xE0) >>> 5;
@@ -151,6 +162,11 @@ public class FicDecoder {
         }
     }
 
+    /**
+     * 从fic数据中解析ChannelInfo
+     *
+     * @return {@link ChannelInfo} 已经解析好了的ChannelInfo
+     */
     public ChannelInfo getSelectChannelInfo() {
         for (int i = 0; i < CHANNEL_SIZE; i++) {
             if (channelInfos[i].isSelect()) {
@@ -164,6 +180,9 @@ public class FicDecoder {
         return null;
     }
 
+    /**
+     * 解码FicData
+     */
     private void decodeFicData() {
         int index = figHeader + 1;
         int ficId = (fib[index] >>> 5) & 0x07;
@@ -184,6 +203,9 @@ public class FicDecoder {
         ficDataLen = total;
     }
 
+    /**
+     * 解码Lable
+     */
     private void decodeLabel() {
         int index = figHeader + 1;
         int oe = fib[index] & 0x08; /* char set is same */
@@ -222,6 +244,9 @@ public class FicDecoder {
         }
     }
 
+    /**
+     * fibType0 解码
+     */
     private void fibType0() {
         int header = ((fib[figHeader + 1] >>> 5) & 0x0007); /* C/N, OE, P/D, standard page 25 */
         int extension = (fib[figHeader + 1] & 0x001F);
@@ -251,7 +276,12 @@ public class FicDecoder {
         }
     }
 
+
     /* decode service id according to standard page 45 */
+
+    /**
+     * 从Fic中解码ServiceId
+     */
     private void decodeServiceId() {
         int header = ((fib[figHeader + 1] >>> 5) & 0x0001);
         int index = figHeader + 2;
@@ -365,32 +395,32 @@ public class FicDecoder {
     /* decode local time offset, according to standard page 69 */
     private void decodeLto() {
         int lto = fib[figHeader + 2] & 0x3F;
-        if (lto == 0 || mHour + mMinute + mSecond == 0) {
+        if (lto == 0 || hour + minute + second == 0) {
             return;
         }
         int negative = (lto >>> 5) & 0x1;
         int hour = (lto >>> 1) & 0x0F;
         int minute = (lto & 0x01) * 30;
         if (negative == 1) {
-            mHour -= hour;
-            mMinute -= minute;
+            this.hour -= hour;
+            this.minute -= minute;
         } else {
-            mHour += hour;
-            mMinute += minute;
+            this.hour += hour;
+            this.minute += minute;
         }
-        if (mMinute < 0) {
-            mMinute = 60 - mMinute;
-            mHour--;
+        if (this.minute < 0) {
+            this.minute = 60 - this.minute;
+            this.hour--;
         }
-        if (mMinute > 60) {
-            mMinute -= 60;
-            mHour++;
+        if (this.minute > 60) {
+            this.minute -= 60;
+            this.hour++;
         }
-        if (mHour > 24) {
-            mHour -= 24;
+        if (this.hour > 24) {
+            this.hour -= 24;
         }
-        if (mHour < 0) {
-            mHour = 23;
+        if (this.hour < 0) {
+            this.hour = 23;
         }
     }
 
@@ -416,9 +446,9 @@ public class FicDecoder {
         k = (month == 14 || month == 15) ? 1 : 0;
         year = year + k;
         month = month - 1 - k * 12;
-        mYear = (int) year + 1900;
-        mMonth = (int) month;
-        mDay = (int) day;
+        this.year = (int) year + 1900;
+        this.month = (int) month;
+        this.day = (int) day;
 
         /* get utc and decode it, it is simple,21bit flag,
         then fallow 5bit hour,6bit minute, 6bit second,10bit millisecond */
@@ -431,10 +461,10 @@ public class FicDecoder {
             utc = (utc + ((int) fib[index + 3] & 0x0FF)) << 8;
             utc = (utc + ((int) fib[index + 4] & 0x0FF)) << 12;
         }
-        mHour = (int) ((utc & 0x7C000000) >>> 26);
-        mMinute = (int) ((utc & 0x03F00000) >>> 20);
+        hour = (int) ((utc & 0x7C000000) >>> 26);
+        minute = (int) ((utc & 0x03F00000) >>> 20);
         if ((utc & 0x80000000) != 0) {
-            mSecond = (int) ((utc & 0x000FC000) >>> 14);
+            second = (int) ((utc & 0x000FC000) >>> 14);
         }
     }
 
@@ -458,6 +488,9 @@ public class FicDecoder {
     }
 
 
+    /**
+     * Fic数据解密的密码表
+     */
     private final byte[] DAB_ENCRYPT_CODE = {
             48, 49, 50, 51, 52, 53, 54, 55,
             56, 57, 97, 98, 99, 100, 101, 102,

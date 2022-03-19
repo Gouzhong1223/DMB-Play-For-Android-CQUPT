@@ -4,11 +4,14 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.util.Log;
 
+import java.io.IOException;
+
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.domain.ChannelInfo;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 
 /**
@@ -33,10 +36,14 @@ public class ReceiveUsbDataTask implements Runnable {
 
     private final Dangle dangle;
 
+    private int ber;
+
+    private int bitRate;
+
     /**
      * 存储从USB中读取到的数据
      */
-    private byte[] bytes;
+    private final byte[] bytes;
     /**
      * 读取USB数据的端口
      */
@@ -68,6 +75,7 @@ public class ReceiveUsbDataTask implements Runnable {
     public void run() {
         // 必须是USB设备已经就绪的情况下才执行,如果USB设备是未就绪或是终端没有插入USB的情况下就直接退出
         if (MainActivity.USB_READY) {
+            int dataLength, bbReg0, bbReg3;
             // 每次从USB接收数据的时候,都先将isSelectId设置为false
             boolean isSelectId;
             // 这里读数据必须是获取到读数据的锁才可以操作,这样是为了同步写数据的操作
@@ -78,12 +86,23 @@ public class ReceiveUsbDataTask implements Runnable {
             switch (bytes[3]) {
                 // 伪误码率
                 case 0x00:
-                    System.out.println(System.currentTimeMillis() + "现在接收到的是0x00,类型为伪误码率");
-                    break;
-                // dmb 数据
+                    if (bytes[6] == 0) {
+                        bbReg0 = ((((int) bytes[8]) & 0x00ff) << 8) + ((int) bytes[9] & 0x00ff);
+                        bbReg3 = (((int) bytes[14] & 0x00FF) << 8) | (((int) bytes[15]) & 0x00FF);
+                        if (bbReg3 == 0) {
+                            ber = 2500;
+                        } else {
+                            ber = bbReg0 * 104 / (32 + bitRate);
+                        }
+                    }
+                    // dmb 数据
                 case 0x03:
-                    // 有效数据长度，从buf[8] 开始
-                    int dataLength = (((int) bytes[7]) & 0x0FF);
+                    dataLength = (((int) bytes[7]) & 0x0FF);
+                    try {
+                        DataReadWriteUtil.getOutputStream().write(bytes, 8, dataLength);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
                 case 0x04:
                     // 从接收到的数据中的第八位开始拷贝fic数据,长度为32

@@ -1,9 +1,8 @@
 package cn.edu.cqupt.dmb.player.utils;
 
-import static java.lang.System.arraycopy;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedOutputStream;
 
 /**
  * @Author : Gouzhong
@@ -13,10 +12,16 @@ import java.io.InputStream;
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.utils
- * @ProjectName : DMB Player For Android 
+ * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class DataReadUtil {
+public class DataReadWriteUtil {
+
+    private static final PipedOutputStream outputStream;
+
+    static {
+        outputStream = new PipedOutputStream();
+    }
 
     /**
      * 从输入流中读取固定长度的数据
@@ -33,7 +38,7 @@ public class DataReadUtil {
                 if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
                     break;
                 }
-                arraycopy(bytes, 1, bytes, 0, 3);
+                System.arraycopy(bytes, 1, bytes, 0, 3);
             }
             if (nRead <= 0) {
                 return false;
@@ -54,4 +59,7 @@ public class DataReadUtil {
         return true;
     }
 
+    public static PipedOutputStream getOutputStream() {
+        return outputStream;
+    }
 }
