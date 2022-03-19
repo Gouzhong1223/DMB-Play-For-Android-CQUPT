@@ -3,8 +3,9 @@ package cn.edu.cqupt.dmb.player.task;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 
+import java.util.concurrent.Callable;
+
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
-import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
 
 
 /**
@@ -15,10 +16,10 @@ import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.task
- * @ProjectName : DMB Player For Android 
+ * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class PutDataToUsbTask implements Runnable {
+public class PutDataToUsbTask implements Callable<Integer> {
 
 
     /**
@@ -46,14 +47,15 @@ public class PutDataToUsbTask implements Runnable {
 
 
     @Override
-    public void run() {
+    public Integer call() {
+        int bulkTransfer = 0;
         // 必须是USB设备已经就绪的情况下才执行,如果USB设备是未就绪或是终端没有插入USB的情况下就直接退出
         if (MainActivity.USB_READY) {
-            int bulkTransfer = usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, 1000);
+            bulkTransfer = usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, 1000);
             if (bulkTransfer != bytes.length) {
                 System.out.println("写入数据失败了!");
             }
-            System.out.println("写入:" + BaseConversionUtil.bytes2hex(bytes));
         }
+        return bulkTransfer;
     }
 }

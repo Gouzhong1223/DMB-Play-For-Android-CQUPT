@@ -6,6 +6,8 @@ import android.util.Log;
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
+import cn.edu.cqupt.dmb.player.domain.ChannelInfo;
+import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
 
 
@@ -17,29 +19,24 @@ import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.task
- * @ProjectName : DMB Player For Android 
+ * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
 public class ReceiveUsbDataTask implements Runnable {
 
-    public final Object READ_WRITE_DATA_LOCK_OBJECT = new Object();
 
-    private int dataLength;
-
-    private byte[] ficBuf = new byte[32];
+    private final byte[] ficBuf = new byte[32];
 
     private static final String TAG = "DMB-";
 
-    private FicDecoder ficDecoder = new FicDecoder(MainActivity.mId, MainActivity.mIsEncrypted);
+    private final FicDecoder ficDecoder = new FicDecoder(MainActivity.mId, MainActivity.mIsEncrypted);
 
-    /**
-     * 读取数据的超时时间
-     */
-    int TIMEOUT = 0;
+    private final Dangle dangle;
+
     /**
      * 存储从USB中读取到的数据
      */
-    private final byte[] bytes;
+    private byte[] bytes;
     /**
      * 读取USB数据的端口
      */
@@ -60,7 +57,8 @@ public class ReceiveUsbDataTask implements Runnable {
      * @param usbEndpointIn       读取USB数据的端口
      * @param usbDeviceConnection 已经打开的USB链接
      */
-    public ReceiveUsbDataTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection) {
+    public ReceiveUsbDataTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection, Dangle dangle) {
+        this.dangle = dangle;
         this.bytes = bytes;
         this.usbEndpointIn = usbEndpointIn;
         this.usbDeviceConnection = usbDeviceConnection;
@@ -70,10 +68,13 @@ public class ReceiveUsbDataTask implements Runnable {
     public void run() {
         // 必须是USB设备已经就绪的情况下才执行,如果USB设备是未就绪或是终端没有插入USB的情况下就直接退出
         if (MainActivity.USB_READY) {
+            // 每次从USB接收数据的时候,都先将isSelectId设置为false
+            boolean isSelectId;
             // 这里读数据必须是获取到读数据的锁才可以操作,这样是为了同步写数据的操作
             usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, 5000);
             // 这里开始判断接收到的DMB数据类型
             // 第三位(从零开始)数据代表当前接收到的数据类型
+            ChannelInfo channelInfo;
             switch (bytes[3]) {
                 // 伪误码率
                 case 0x00:
@@ -82,17 +83,26 @@ public class ReceiveUsbDataTask implements Runnable {
                 // dmb 数据
                 case 0x03:
                     // 有效数据长度，从buf[8] 开始
-                    dataLength = (((int) bytes[7]) & 0x0FF);
+                    int dataLength = (((int) bytes[7]) & 0x0FF);
                     break;
                 case 0x04:
+                    // 从接收到的数据中的第八位开始拷贝fic数据,长度为32
                     System.arraycopy(bytes, 8, ficBuf, 0, 32);
+                    // 调用ficDecoder解码器解码fic数据
                     ficDecoder.decode(ficBuf);
-                    System.out.println("--------");
-                    System.out.println(BaseConversionUtil.bytes2hex(ficBuf));
-                    Log.e(TAG, "现在接收到的是0x04,类型为伪误码率");
+                    // 如果现在的isSelectId为false,那就从fic数据中将ChannelInfo解码提取出来
+                    if ((channelInfo = ficDecoder.getSelectChannelInfo()) != null) {
+                        // 提取出来之后再写回到USB中,也就是设置ChannelInfo
+                        isSelectId = dangle.SetChannel(channelInfo);
+                        if (!isSelectId) {
+                            Log.e(TAG, "设置channelInfo失败!" + channelInfo);
+                        }
+                        Log.e(TAG, channelInfo.toString());
+                    }
                     break;
                 case 0x05:
-                    System.out.println(System.currentTimeMillis() + "现在接收到的是0x05,类型为伪误码率");
+                    System.arraycopy(bytes, 8, ficBuf, 0, 32);
+                    ficDecoder.decode(ficBuf);
                     break;
                 case 0x06:
                     // FIC 数据,从buf[8] 开始，32 字节

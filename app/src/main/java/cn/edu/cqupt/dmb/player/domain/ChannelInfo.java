@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.domain;
 
+import java.util.Arrays;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -8,7 +10,7 @@ package cn.edu.cqupt.dmb.player.domain;
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.domain
- * @ProjectName : DMB Player For Android 
+ * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
 public class ChannelInfo {
@@ -26,8 +28,15 @@ public class ChannelInfo {
 
     @Override
     public String toString() {
-        return "channel = "+subCh +"  type = "+DATA_TYPE[type] + "  label = " + label + "  " + "Bitrate = " +
-                subChOrganization[6];
+        return "ChannelInfo{" +
+                "subChOrganization=" + Arrays.toString(subChOrganization) +
+                ", serviceId=" + serviceId +
+                ", label='" + label + '\'' +
+                ", isSelect=" + isSelect +
+                ", transmissionMode=" + transmissionMode +
+                ", type=" + type +
+                ", subCh=" + subCh +
+                '}';
     }
 
     public int[] getSubChOrganization() {

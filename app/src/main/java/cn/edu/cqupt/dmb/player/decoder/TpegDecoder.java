@@ -33,16 +33,16 @@ public class TpegDecoder extends Thread {
     private static final int LAST_FRAME = 3;
     private static final String TAG = "TpegDecoder";
 
-    private PipedInputStream mPipedInputStream;
-    private BufferedInputStream mInputStream;
-    private Listener mListener;
-    private boolean mIsStop;
+    private final PipedInputStream pipedInputStream;
+    private final BufferedInputStream inputStream;
+    private final Listener listener;
+    private boolean isStop;
 
 
     public TpegDecoder(Listener listener) {
-        mPipedInputStream = new PipedInputStream(1024 * 2);
-        mInputStream = new BufferedInputStream(mPipedInputStream);
-        mListener = listener;
+        pipedInputStream = new PipedInputStream(1024 * 2);
+        inputStream = new BufferedInputStream(pipedInputStream);
+        this.listener = listener;
     }
 
     private boolean readTpegFrame(InputStream inputStream, byte[] bytes) {
@@ -77,12 +77,12 @@ public class TpegDecoder extends Thread {
 
 
     public void stopDecode() {
-        mIsStop = true;
+        isStop = true;
     }
 
     @Override
     public void run() {
-        mIsStop = false;
+        isStop = false;
         int length = 0;
         int total = 0;
         byte[] tpegBuffer = new byte[TPEG_SIZE];
@@ -94,9 +94,9 @@ public class TpegDecoder extends Thread {
         String fileName = null;
         Log.e(TAG, "tpeg decoder start");
         NativeMethod.tpegInit();
-        while (!mIsStop) {
+        while (!isStop) {
             tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
-            if (!readTpegFrame(mInputStream, tpegBuffer)) {
+            if (!readTpegFrame(inputStream, tpegBuffer)) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -143,8 +143,8 @@ public class TpegDecoder extends Thread {
 //                            Utils.writeFile(fileBuffer,0,total,Utils.CACHE_DIRECTORY + fileName);
 //                            mReceivedFile.add(Utils.CACHE_DIRECTORY + fileName);
 //                        }
-                        if (mListener != null) {
-                            mListener.onSuccess(fileName, fileBuffer, total);
+                        if (listener != null) {
+                            listener.onSuccess(fileName, fileBuffer, total);
                         }
                         isReceiveFirstFrame = false;
                         fileName = null;
@@ -159,7 +159,7 @@ public class TpegDecoder extends Thread {
 
 
     public PipedInputStream getPipedInputStream() {
-        return mPipedInputStream;
+        return pipedInputStream;
     }
 
     public interface Listener {

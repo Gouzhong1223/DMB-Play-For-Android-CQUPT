@@ -9,11 +9,14 @@ import android.hardware.usb.UsbManager;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import cn.edu.cqupt.dmb.player.task.PutDataToUsbTask;
+import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 
 /**
@@ -24,41 +27,26 @@ import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.utils
- * @ProjectName : DMB Player For Android 
+ * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
 public class UsbUtil {
-
-    private final byte[] reqMsg = new byte[48];
-    private final byte[] reqMsg2 = new byte[48];
 
 
     /**
      * 定时任务线程池
      */
     private static ScheduledExecutorService scheduledExecutorService;
+    private static ExecutorService executorService;
 
     static {
         // JVM启动的时候初始化线程池,由于只有一个任务,所以核心线程就只设置一个
+        // 这个线程池是专门用来定时执行接收USB数据任务的
         scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+        // 这个线程池是用于执行普通的读写线程的线程池
+        executorService = new ThreadPoolExecutor(5, 10,
+                60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
     }
-
-    /**
-     * MX_RF_I2C_ADDRESS
-     */
-    private static final byte MX_RF_I2C_ADDRESS = (byte) 0xc0;
-
-    /**
-     * 重邮DMB频点
-     */
-    public static final int FREQKHZ = 220352;
-
-    /**
-     * 装载RF信息
-     */
-    private final static byte[] frequency = new byte[48];
-
-    private final byte[] rxMsg = new byte[64];
 
     /**
      * 默认的任务延迟时间
@@ -67,7 +55,7 @@ public class UsbUtil {
     /**
      * 默认的任务间隔时间
      */
-    private static final long TASK_DEFAULT_INTERVAL = 10L;
+    private static final long TASK_DEFAULT_INTERVAL = 3L;
     /**
      * 用于缓存USB设备的Map
      */
@@ -76,7 +64,7 @@ public class UsbUtil {
      * 缓存从USB读取到的数据,2048是一个待定值
      * TODO 后续根据测试情况修改大小
      */
-    private static final byte[] bytes = new byte[1024];
+    private static final byte[] bytes = new byte[64 * 15];
     /**
      * 读取USB数据的UsbEndpoint
      */
@@ -117,20 +105,13 @@ public class UsbUtil {
             usbDeviceConnection = manager.openDevice(usbDevice);
             // 获取读写USB权限
             usbDeviceConnection.claimInterface(usbInterface, true);
+            Dangle dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
+            // 先完成dangle连接认证
+            dangle.dangleConnectCertification();
+            // 先清除Dangle的设置
+            dangle.clearRegister();
             // 设置RF频段
-            UsbUtil.initFrequency(frequency);
-            // 发送RF设置
-            new PutDataToUsbTask(frequency, usbEndpointOut, usbDeviceConnection).run();
-            System.out.println("设置频点为:" + FREQKHZ);
-            new ReceiveUsbDataTask(new byte[64], usbEndpointIn, usbDeviceConnection).run();
-            // 生成第一次写入USB的数据
-            generateReqMsg(1, reqMsg);
-            // 生成第二次写入USB的数据
-            generateReqMsg(2, reqMsg2);
-            // 在真正读取数据之前,应该先完成一次收,两次发的动作,先后顺序是发收发
-            new PutDataToUsbTask(reqMsg, usbEndpointOut, usbDeviceConnection).run();
-            new ReceiveUsbDataTask(rxMsg, usbEndpointIn, usbDeviceConnection).run();
-            new PutDataToUsbTask(reqMsg2, usbEndpointOut, usbDeviceConnection).run();
+            dangle.setFrequency();
             // 完成上述任务之后才可以开始定时从USB中读取数据
             // 交给定时任务线程池去做,延迟一秒之后,每三秒从USB读取一次数据
             if (UsbUtil.getScheduledExecutorService().isShutdown()) {
@@ -138,7 +119,7 @@ public class UsbUtil {
                 UsbUtil.setScheduledExecutorService(new ScheduledThreadPoolExecutor(1));
             }
             // 如果没有Shutdown就直接提交任务
-            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn, usbDeviceConnection),
+            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn, usbDeviceConnection, dangle),
                     TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.SECONDS);
         }
     }
@@ -151,57 +132,11 @@ public class UsbUtil {
         UsbUtil.scheduledExecutorService = scheduledExecutorService;
     }
 
-    /**
-     * 根据类型生成发送的数据格式
-     *
-     * @param type   类型
-     * @param reqMsg 数据
-     */
-    public static void generateReqMsg(int type, byte[] reqMsg) {
-        if (reqMsg == null || reqMsg.length == 0) {
-            return;
-        }
-        reqMsg[0] = (byte) 0xff;
-        reqMsg[1] = (byte) 0xff;
-        if (type == 1) {
-            reqMsg[2] = (byte) 0x10;
-        } else if (type == 2) {
-            reqMsg[2] = (byte) 0x11;
-        }
-        reqMsg[3] = (byte) '9';
-        reqMsg[4] = (byte) 'C';
-        reqMsg[5] = (byte) 'Q';
-        reqMsg[6] = (byte) 'U';
-        reqMsg[7] = (byte) 'P';
-        reqMsg[8] = (byte) 'T';
-        reqMsg[9] = (byte) 'D';
-        reqMsg[10] = (byte) 'M';
-        reqMsg[11] = (byte) 'B';
-        reqMsg[12] = (byte) 0x00;
+    public static ExecutorService getExecutorService() {
+        return executorService;
     }
 
-    /**
-     * 设置DMB接收机的频点并且发送
-     */
-    public static void initFrequency(byte[] frequency) {
-
-        int byte_cnt = 0;
-
-        frequency[byte_cnt++] = (byte) 0xff;
-        frequency[byte_cnt++] = (byte) 0xff;
-        frequency[byte_cnt++] = 0x01;
-        frequency[byte_cnt++] = 0x2c;
-        frequency[byte_cnt++] = MX_RF_I2C_ADDRESS;
-        frequency[byte_cnt++] = 1;
-        frequency[byte_cnt++] = 1;
-        frequency[byte_cnt++] = 0;
-        frequency[byte_cnt++] = 0;
-        frequency[byte_cnt++] = 0;
-        frequency[byte_cnt++] = 0;
-        frequency[byte_cnt++] = 4;
-        frequency[byte_cnt++] = (FREQKHZ >> 24);
-        frequency[byte_cnt++] = (FREQKHZ >> 16);
-        frequency[byte_cnt++] = (byte) (FREQKHZ >> 8);
-        frequency[byte_cnt] = (byte) (FREQKHZ);
+    public static void setExecutorService(ExecutorService executorService) {
+        UsbUtil.executorService = executorService;
     }
 }
