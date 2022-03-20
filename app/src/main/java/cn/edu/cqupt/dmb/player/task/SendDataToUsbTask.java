@@ -2,6 +2,7 @@ package cn.edu.cqupt.dmb.player.task;
 
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
+import android.util.Log;
 
 import java.util.concurrent.Callable;
 
@@ -19,13 +20,15 @@ import cn.edu.cqupt.dmb.player.actives.MainActivity;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class PutDataToUsbTask implements Callable<Integer> {
+public class SendDataToUsbTask implements Callable<Integer> {
+
+    private static final String TAG = "SendDataToUsbTask-";
 
 
     /**
      * 读取数据的超时时间
      */
-    int TIMEOUT = 0;
+    int TIMEOUT = 1000;
     /**
      * 存储从USB中读取到的数据
      */
@@ -39,7 +42,7 @@ public class PutDataToUsbTask implements Callable<Integer> {
      */
     private final UsbDeviceConnection usbDeviceConnection;
 
-    public PutDataToUsbTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection) {
+    public SendDataToUsbTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection) {
         this.bytes = bytes;
         this.usbEndpointIn = usbEndpointIn;
         this.usbDeviceConnection = usbDeviceConnection;
@@ -51,9 +54,9 @@ public class PutDataToUsbTask implements Callable<Integer> {
         int bulkTransfer = 0;
         // 必须是USB设备已经就绪的情况下才执行,如果USB设备是未就绪或是终端没有插入USB的情况下就直接退出
         if (MainActivity.USB_READY) {
-            bulkTransfer = usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, 1000);
+            bulkTransfer = usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, TIMEOUT);
             if (bulkTransfer != bytes.length) {
-                System.out.println("写入数据失败了!");
+                Log.e(TAG, "发送数据到USB失败!");
             }
         }
         return bulkTransfer;

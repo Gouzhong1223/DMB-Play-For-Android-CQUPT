@@ -8,7 +8,7 @@ import android.util.Log;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import cn.edu.cqupt.dmb.player.task.PutDataToUsbTask;
+import cn.edu.cqupt.dmb.player.task.SendDataToUsbTask;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
@@ -87,7 +87,7 @@ public class Dangle {
                 (byte) 0x00, (byte) 0x2c, (byte) 0x00, (byte) 0x10
         };
         Future<Integer> futureForClearBBChReg = UsbUtil.getExecutorService()
-                .submit(new PutDataToUsbTask(clearBBChReg, usbEndpointOut, usbDeviceConnection));
+                .submit(new SendDataToUsbTask(clearBBChReg, usbEndpointOut, usbDeviceConnection));
         try {
             ret1 = futureForClearBBChReg.get() == clearBBChReg.length;
         } catch (ExecutionException | InterruptedException e) {
@@ -106,7 +106,7 @@ public class Dangle {
                 (byte) 0x40, (byte) 0x70, (byte) 0xFF, (byte) 0xFF
         };
         Future<Integer> futureForClearBBFicData1 = UsbUtil.getExecutorService()
-                .submit(new PutDataToUsbTask(clearBBFicData1, usbEndpointOut, usbDeviceConnection));
+                .submit(new SendDataToUsbTask(clearBBFicData1, usbEndpointOut, usbDeviceConnection));
 
         try {
             ret2 = futureForClearBBFicData1.get() == clearBBFicData1.length;
@@ -127,7 +127,7 @@ public class Dangle {
                 (byte) 0x00, (byte) 0x07, (byte) 0x00, (byte) 0x00
         };
         Future<Integer> futureForClearBBFicData2 = UsbUtil.getExecutorService()
-                .submit(new PutDataToUsbTask(clearBBFicData2, usbEndpointOut, usbDeviceConnection));
+                .submit(new SendDataToUsbTask(clearBBFicData2, usbEndpointOut, usbDeviceConnection));
 
         try {
             ret3 = futureForClearBBFicData2.get() == clearBBFicData2.length;
@@ -145,7 +145,7 @@ public class Dangle {
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
         Future<Integer> futureForClearMcuReg = UsbUtil.getExecutorService()
-                .submit(new PutDataToUsbTask(clearMcuReg, usbEndpointOut, usbDeviceConnection));
+                .submit(new SendDataToUsbTask(clearMcuReg, usbEndpointOut, usbDeviceConnection));
         try {
             ret4 = futureForClearMcuReg.get() == clearMcuReg.length;
         } catch (ExecutionException | InterruptedException e) {
@@ -166,7 +166,7 @@ public class Dangle {
         // 初始化frequency信息
         initFrequency(frequency);
         Future<Integer> future = UsbUtil.getExecutorService()
-                .submit(new PutDataToUsbTask(frequency, usbEndpointOut, usbDeviceConnection));
+                .submit(new SendDataToUsbTask(frequency, usbEndpointOut, usbDeviceConnection));
         try {
             // 如果返回的长度和发送的长度不一致,说明发送到USB的过程中出现错误!
             if (future.get() != frequency.length) {
@@ -289,7 +289,7 @@ public class Dangle {
         bb_cmd[31] = 0x02;
 
         Future<Integer> futureForPutBbCmdData = UsbUtil.getExecutorService()
-                .submit(new PutDataToUsbTask(bb_cmd, usbEndpointOut, usbDeviceConnection));
+                .submit(new SendDataToUsbTask(bb_cmd, usbEndpointOut, usbDeviceConnection));
 
         try {
             if (futureForPutBbCmdData.get() != bb_cmd.length) {
@@ -301,7 +301,7 @@ public class Dangle {
         }
 
         Future<Integer> futureForPutMcuCmdData = UsbUtil.getExecutorService()
-                .submit(new PutDataToUsbTask(mcu_cmd, usbEndpointOut, usbDeviceConnection));
+                .submit(new SendDataToUsbTask(mcu_cmd, usbEndpointOut, usbDeviceConnection));
 
         try {
             if (futureForPutMcuCmdData.get() != mcu_cmd.length) {
@@ -320,9 +320,9 @@ public class Dangle {
         // 生成第二次写入USB的数据
         generateReqMsg(2, reqMsg2);
         // 在真正读取数据之前,应该先完成一次收,两次发的动作,先后顺序是发收发
-        new PutDataToUsbTask(reqMsg, usbEndpointOut, usbDeviceConnection).call();
+        new SendDataToUsbTask(reqMsg, usbEndpointOut, usbDeviceConnection).call();
         new ReceiveUsbDataTask(rxMsg, usbEndpointIn, usbDeviceConnection, this).run();
-        new PutDataToUsbTask(reqMsg2, usbEndpointOut, usbDeviceConnection).call();
+        new SendDataToUsbTask(reqMsg2, usbEndpointOut, usbDeviceConnection).call();
     }
 
 
