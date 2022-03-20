@@ -28,17 +28,29 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 public class ReceiveUsbDataTask implements Runnable {
 
 
+    /**
+     * 接收单个Fic
+     */
     private final byte[] ficBuf = new byte[32];
 
+    /**
+     * LOG TAG
+     */
     private static final String TAG = "DMB-";
 
+    /**
+     * 初始化Fic解码器
+     */
     private final FicDecoder ficDecoder = new FicDecoder(MainActivity.mId, MainActivity.mIsEncrypted);
 
+    /**
+     * dangle类
+     */
     private final Dangle dangle;
 
-    private int ber;
+    private volatile int ber;
 
-    private int bitRate;
+    private volatile int bitRate;
 
     /**
      * 存储从USB中读取到的数据
@@ -52,10 +64,6 @@ public class ReceiveUsbDataTask implements Runnable {
      * 已经打开的USB链接
      */
     private final UsbDeviceConnection usbDeviceConnection;
-
-    public byte[] getBytes() {
-        return bytes;
-    }
 
     /**
      * 定时任务构造器
@@ -140,6 +148,18 @@ public class ReceiveUsbDataTask implements Runnable {
             System.out.println(BaseConversionUtil.bytes2hex(bytes));
             System.out.println();
         }
+    }
+
+    public int getBer() {
+        return ber;
+    }
+
+    public int getBitRate() {
+        return bitRate;
+    }
+
+    public byte[] getBytes() {
+        return bytes;
     }
 }
 
