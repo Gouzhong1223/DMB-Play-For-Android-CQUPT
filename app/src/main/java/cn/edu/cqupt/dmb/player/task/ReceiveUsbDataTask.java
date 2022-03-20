@@ -10,7 +10,8 @@ import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.domain.ChannelInfo;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
-import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
+import cn.edu.cqupt.dmb.player.processor.DataProcessing;
+import cn.edu.cqupt.dmb.player.processor.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 
@@ -27,11 +28,26 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  */
 public class ReceiveUsbDataTask implements Runnable {
 
+    /**
+     * 一个FIC的长度
+     */
+    private static final int DEFAULT_FIC_SIZE = 32;
+
+    /**
+     * 读取USB数据的延迟时间
+     */
+    private static final int DEFAULT_READ_TIME_OUT = 5000;
+
+    /**
+     * 读取USB只要数据的偏移量,从data[DEFAULT_DATA_READ_OFFSET]开始读
+     */
+    private static final int DEFAULT_DATA_READ_OFFSET = 8;
+
 
     /**
      * 接收单个Fic
      */
-    private final byte[] ficBuf = new byte[32];
+    private final byte[] ficBuf = new byte[DEFAULT_FIC_SIZE];
 
     /**
      * LOG TAG
@@ -87,10 +103,12 @@ public class ReceiveUsbDataTask implements Runnable {
             // 每次从USB接收数据的时候,都先将isSelectId设置为false
             boolean isSelectId;
             // 这里读数据必须是获取到读数据的锁才可以操作,这样是为了同步写数据的操作
-            usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, 5000);
+            usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, DEFAULT_READ_TIME_OUT);
             // 这里开始判断接收到的DMB数据类型
             // 第三位(从零开始)数据代表当前接收到的数据类型
             ChannelInfo channelInfo;
+            DataProcessing dataProcessor = DataProcessingFactory.getDataProcessor(bytes[3]);
+            dataProcessor.processData(bytes);
             switch (bytes[3]) {
                 // 伪误码率
                 case 0x00:
@@ -107,14 +125,17 @@ public class ReceiveUsbDataTask implements Runnable {
                 case 0x03:
                     dataLength = (((int) bytes[7]) & 0x0FF);
                     try {
-                        DataReadWriteUtil.getOutputStream().write(bytes, 8, dataLength);
+                        DataReadWriteUtil.getOutputStream().write(bytes, DEFAULT_DATA_READ_OFFSET, dataLength);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     break;
                 case 0x04:
+                case 0x05:
+                case 0x06:
+                case 0x07:
                     // 从接收到的数据中的第八位开始拷贝fic数据,长度为32
-                    System.arraycopy(bytes, 8, ficBuf, 0, 32);
+                    System.arraycopy(bytes, DEFAULT_DATA_READ_OFFSET, ficBuf, 0, DEFAULT_FIC_SIZE);
                     // 调用ficDecoder解码器解码fic数据
                     ficDecoder.decode(ficBuf);
                     // 如果现在的isSelectId为false,那就从fic数据中将ChannelInfo解码提取出来
@@ -127,17 +148,6 @@ public class ReceiveUsbDataTask implements Runnable {
                         Log.e(TAG, channelInfo.toString());
                     }
                     break;
-                case 0x05:
-                    System.arraycopy(bytes, 8, ficBuf, 0, 32);
-                    ficDecoder.decode(ficBuf);
-                    break;
-                case 0x06:
-                    // FIC 数据,从buf[8] 开始，32 字节
-                    System.out.println(System.currentTimeMillis() + "现在接收到的是0x06,类型为伪误码率");
-                    break;
-                case 0x07:
-                    System.out.println(System.currentTimeMillis() + "现在接收到的是0x07,类型为伪误码率");
-                    break;
                 // 频点设置成功返回信息
                 case 0x09:
                     System.out.println(System.currentTimeMillis() + "现在接收到的是0x09,类型为频点设置成功返回信息");
@@ -145,8 +155,8 @@ public class ReceiveUsbDataTask implements Runnable {
                 default:
                     break;
             }
-            System.out.println(BaseConversionUtil.bytes2hex(bytes));
-            System.out.println();
+//            System.out.println(BaseConversionUtil.bytes2hex(bytes));
+//            System.out.println();
         }
     }
 
