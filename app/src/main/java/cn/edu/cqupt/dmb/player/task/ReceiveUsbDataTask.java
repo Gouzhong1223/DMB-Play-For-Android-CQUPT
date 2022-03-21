@@ -2,18 +2,11 @@ package cn.edu.cqupt.dmb.player.task;
 
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
-import android.util.Log;
-
-import java.io.IOException;
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
-import cn.edu.cqupt.dmb.player.domain.ChannelInfo;
-import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.processor.DataProcessing;
 import cn.edu.cqupt.dmb.player.processor.DataProcessingFactory;
-import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 
 /**
@@ -59,13 +52,20 @@ public class ReceiveUsbDataTask implements Runnable {
     public void run() {
         // 必须是USB设备已经就绪的情况下才执行,如果USB设备是未就绪或是终端没有插入USB的情况下就直接退出
         if (MainActivity.USB_READY) {
-            // 每次从USB接收数据的时候,都先将isSelectId设置为false
-            // 这里读数据必须是获取到读数据的锁才可以操作,这样是为了同步写数据的操作
+            // 初始化一个packetBuf用于装载单个 DMB 数据
+            byte[] packetBuf = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()];
+            // 从 USB 中读取数据装载在bytes中
             usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, DmbPlayerConstant.DEFAULT_READ_TIME_OUT.getDmbConstantValue());
-            // 这里开始判断接收到的DMB数据类型
-            // 第三位(从零开始)数据代表当前接收到的数据类型
-            DataProcessing dataProcessor = DataProcessingFactory.getDataProcessor(bytes[3]);
-            dataProcessor.processData(bytes);
+            // 由于 bytes 中包含 DmbPlayerConstant.DMB_READ_TIME 个 DMB 数据包,所以这里采用一个循环的方式分包,分成 DmbPlayerConstant.DMB_READ_TIME 个
+            for (int i = 0; i < DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(); i++) {
+                // 分包
+                System.arraycopy(bytes, i * DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
+                        , packetBuf, 0, DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue());
+                // 从数据处理器的静态工程获取数据处理器
+                DataProcessing dataProcessor = DataProcessingFactory.getDataProcessor(packetBuf[3]);
+                // 处理数据
+                dataProcessor.processData(packetBuf);
+            }
         }
     }
 

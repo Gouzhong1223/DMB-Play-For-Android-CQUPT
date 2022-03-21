@@ -21,6 +21,9 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
  * @Version : 1.0.0
  */
 public class FicDataProcessor implements DataProcessing {
+
+    private static final String TAG = "FicDataProcessor";
+
     /**
      * 初始化Fic解码器
      */
@@ -34,11 +37,10 @@ public class FicDataProcessor implements DataProcessing {
     ChannelInfo channelInfo;
     boolean isSelectId;
     Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
-    private static final String TAG = "FicDataProcessor";
 
     @Override
     public void processData(byte[] usbData) {
-// 从接收到的数据中的第八位开始拷贝fic数据,长度为32
+        // 从接收到的数据中的第八位开始拷贝fic数据,长度为32
         System.arraycopy(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), ficBuf, 0, DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue());
         // 调用ficDecoder解码器解码fic数据
         ficDecoder.decode(ficBuf);

@@ -19,6 +19,8 @@ public enum DmbPlayerConstant {
     DEFAULT_REQ_MSG_SIZE("DEFAULT_REQ_MSG_SIZE", 48, "默认发送到 DMB 一个数据包的大小"),
     DEFAULT_DMB_DATA_SIZE("DEFAULT_DMB_DATA_SIZE", 64, "一个 DMB 数据包的长度"),
     FREQKHZ("FREQKHZ", 220352, "重邮 DMB 频点"),
+    DMB_READ_TIME("DMB_READ_TIME", 15, "一次 IO 从 USB 中读取数据的次数,"),
+
     ;
     private final String dmbConstantName;
     private final Integer dmbConstantValue;

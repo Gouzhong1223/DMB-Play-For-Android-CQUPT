@@ -28,7 +28,8 @@ public class Dangle {
 
     private final byte[] reqMsg = new byte[DmbPlayerConstant.DEFAULT_REQ_MSG_SIZE.getDmbConstantValue()];
     private final byte[] reqMsg2 = new byte[DmbPlayerConstant.DEFAULT_REQ_MSG_SIZE.getDmbConstantValue()];
-    private final byte[] rxMsg = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()];
+    private final byte[] rxMsg = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
+            * DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()];
 
 
     private static final String TAG = "Dangle";

@@ -7,6 +7,7 @@ import android.util.Log;
 import java.util.concurrent.Callable;
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
+import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 
 
 /**
@@ -26,9 +27,9 @@ public class SendDataToUsbTask implements Callable<Integer> {
 
 
     /**
-     * 读取数据的超时时间
+     * 读写数据的超时时间
      */
-    int TIMEOUT = 1000;
+    int TIMEOUT = DmbPlayerConstant.DEFAULT_READ_TIME_OUT.getDmbConstantValue();
     /**
      * 存储从USB中读取到的数据
      */

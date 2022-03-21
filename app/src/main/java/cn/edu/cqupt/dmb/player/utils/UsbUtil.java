@@ -16,6 +16,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 
@@ -64,7 +65,8 @@ public class UsbUtil {
      * 缓存从USB读取到的数据,2048是一个待定值
      * TODO 后续根据测试情况修改大小
      */
-    private static final byte[] bytes = new byte[64 * 15];
+    private static final byte[] bytes = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
+            * DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()];
     /**
      * 读取USB数据的UsbEndpoint
      */
