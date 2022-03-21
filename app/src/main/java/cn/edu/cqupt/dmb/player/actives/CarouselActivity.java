@@ -73,4 +73,11 @@ public class CarouselActivity extends FragmentActivity {
             }
         }, 5000L, 5000L, TimeUnit.SECONDS);
     }
+
+    @Override
+    protected void onDestroy() {
+        // 如果activity被关闭了就应该立马销毁线程池并且终止正在运行的线程
+        scheduledExecutorService.shutdownNow();
+        super.onDestroy();
+    }
 }
