@@ -153,7 +153,7 @@ public class FicDecoder {
         }
         if (groupId == groupIndex && (fib[index + 2 + byteIndex] & bitMask) != 0) {
             if (groupFlag == 0x01 && channelInfos[subChId].getLabel() != null
-                    && channelInfos[subChId].getSubChOrganization()[6] != 0) { /* msc id */
+                    && channelInfos[subChId].subChOrganization[6] != 0) { /* msc id */
                 channelInfos[subChId].setSelect(true);
             }
             if (groupFlag == 0x02 && ficCh > subChId) { /* sub id */
@@ -170,7 +170,7 @@ public class FicDecoder {
     public ChannelInfo getSelectChannelInfo() {
         for (int i = 0; i < CHANNEL_SIZE; i++) {
             if (channelInfos[i].isSelect()) {
-                if (channelInfos[i].getSubChOrganization()[6] > 0) {
+                if (channelInfos[i].subChOrganization[6] > 0) {
                     return channelInfos[i];
                 } else {
                     return null;
