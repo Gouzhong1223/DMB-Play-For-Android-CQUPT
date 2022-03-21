@@ -46,6 +46,9 @@ public class FicDataProcessor implements DataProcessing {
         ficDecoder.decode(ficBuf);
         // 如果现在的isSelectId为false,那就从fic数据中将ChannelInfo解码提取出来
         if (!isSelectId && (channelInfo = ficDecoder.getSelectChannelInfo()) != null) {
+            PseudoBitErrorRateProcessor pseudoBitErrorRateProcessor = (PseudoBitErrorRateProcessor) DataProcessingFactory.getDataProcessor(0x00);
+            // 这里需要获取重新设置pseudoBitErrorRateProcessor中的BitRate方便展示信号
+            pseudoBitErrorRateProcessor.setBitRate(channelInfo.subChOrganization[6]);
             // 提取出来之后再写回到USB中,也就是设置ChannelInfo
             isSelectId = dangle.SetChannel(channelInfo);
             if (!isSelectId) {

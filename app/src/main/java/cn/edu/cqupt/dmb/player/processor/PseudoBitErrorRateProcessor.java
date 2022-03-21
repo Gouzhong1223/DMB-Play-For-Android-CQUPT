@@ -29,4 +29,24 @@ public class PseudoBitErrorRateProcessor implements DataProcessing {
             }
         }
     }
+
+    public int getBer() {
+        return ber;
+    }
+
+    public int getBitRate() {
+        return bitRate;
+    }
+
+    public int getBbReg0() {
+        return bbReg0;
+    }
+
+    public int getBbReg3() {
+        return bbReg3;
+    }
+
+    public void setBitRate(int bitRate) {
+        this.bitRate = bitRate;
+    }
 }
