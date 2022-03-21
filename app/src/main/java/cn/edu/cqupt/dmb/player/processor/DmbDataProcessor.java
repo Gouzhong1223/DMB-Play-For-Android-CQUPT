@@ -1,9 +1,14 @@
 package cn.edu.cqupt.dmb.player.processor;
 
+import java.io.IOException;
+
+import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : DMB 类型的数据处理器
  * @Date : create by QingSong in 2022-03-20 23:41
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
@@ -11,9 +16,21 @@ package cn.edu.cqupt.dmb.player.processor;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class DmbDataProcessor implements DataProcessing{
+public class DmbDataProcessor implements DataProcessing {
+
+    private int dataLength;
+
     @Override
     public void processData(byte[] usbData) {
+        dataLength = (((int) usbData[7]) & 0x0FF);
+        try {
+            DataReadWriteUtil.getOutputStream().write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    public int getDataLength() {
+        return dataLength;
     }
 }

@@ -8,6 +8,7 @@ import android.util.Log;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.task.SendDataToUsbTask;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
@@ -25,9 +26,9 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
  */
 public class Dangle {
 
-    private final byte[] reqMsg = new byte[48];
-    private final byte[] reqMsg2 = new byte[48];
-    private final byte[] rxMsg = new byte[64];
+    private final byte[] reqMsg = new byte[DmbPlayerConstant.DEFAULT_REQ_MSG_SIZE.getDmbConstantValue()];
+    private final byte[] reqMsg2 = new byte[DmbPlayerConstant.DEFAULT_REQ_MSG_SIZE.getDmbConstantValue()];
+    private final byte[] rxMsg = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()];
 
 
     private static final String TAG = "Dangle";
@@ -49,7 +50,7 @@ public class Dangle {
     /**
      * 装载RF信息
      */
-    private final static byte[] frequency = new byte[48];
+    private final static byte[] frequency = new byte[DmbPlayerConstant.DEFAULT_REQ_MSG_SIZE.getDmbConstantValue()];
 
     /**
      * MX_RF_I2C_ADDRESS
@@ -59,7 +60,7 @@ public class Dangle {
     /**
      * 重邮DMB频点
      */
-    public static final int FREQKHZ = 220352;
+    public static final int FREQKHZ = DmbPlayerConstant.FREQKHZ.getDmbConstantValue();
 
     public Dangle(UsbEndpoint usbEndpointIn, UsbEndpoint usbEndpointOut, UsbDeviceConnection usbDeviceConnection) {
         this.usbEndpointIn = usbEndpointIn;
@@ -321,7 +322,7 @@ public class Dangle {
         generateReqMsg(2, reqMsg2);
         // 在真正读取数据之前,应该先完成一次收,两次发的动作,先后顺序是发收发
         new SendDataToUsbTask(reqMsg, usbEndpointOut, usbDeviceConnection).call();
-        new ReceiveUsbDataTask(rxMsg, usbEndpointIn, usbDeviceConnection, this).run();
+        new ReceiveUsbDataTask(rxMsg, usbEndpointIn, usbDeviceConnection).run();
         new SendDataToUsbTask(reqMsg2, usbEndpointOut, usbDeviceConnection).call();
     }
 
@@ -345,8 +346,8 @@ public class Dangle {
         frequency[byte_cnt++] = 0;
         frequency[byte_cnt++] = 0;
         frequency[byte_cnt++] = 4;
-        frequency[byte_cnt++] = (FREQKHZ >> 24);
-        frequency[byte_cnt++] = (FREQKHZ >> 16);
+        frequency[byte_cnt++] = (byte) (FREQKHZ >> 24);
+        frequency[byte_cnt++] = (byte) (FREQKHZ >> 16);
         frequency[byte_cnt++] = (byte) (FREQKHZ >> 8);
         frequency[byte_cnt] = (byte) (FREQKHZ);
     }

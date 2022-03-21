@@ -3,7 +3,7 @@ package cn.edu.cqupt.dmb.player.processor;
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : 获取 DMB 数据处理器的静态工厂类
  * @Date : create by QingSong in 2022-03-20 23:53
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8

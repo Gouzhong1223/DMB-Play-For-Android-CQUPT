@@ -3,7 +3,7 @@ package cn.edu.cqupt.dmb.player.processor;
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : 频点设置成功的数据处理器
  * @Date : create by QingSong in 2022-03-20 23:52
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
@@ -14,6 +14,6 @@ package cn.edu.cqupt.dmb.player.processor;
 public class FrequencySetSuccessProcessor implements DataProcessing{
     @Override
     public void processData(byte[] usbData) {
-
+        System.out.println(System.currentTimeMillis() + "现在接收到的是0x09,类型为频点设置成功返回信息");
     }
 }

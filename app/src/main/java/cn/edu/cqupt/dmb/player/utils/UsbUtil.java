@@ -119,7 +119,7 @@ public class UsbUtil {
                 UsbUtil.setScheduledExecutorService(new ScheduledThreadPoolExecutor(1));
             }
             // 如果没有Shutdown就直接提交任务
-            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn, usbDeviceConnection, dangle),
+            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn, usbDeviceConnection),
                     TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.SECONDS);
         }
     }
