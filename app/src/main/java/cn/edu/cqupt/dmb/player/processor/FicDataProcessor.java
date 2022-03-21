@@ -45,7 +45,7 @@ public class FicDataProcessor implements DataProcessing {
         // 调用ficDecoder解码器解码fic数据
         ficDecoder.decode(ficBuf);
         // 如果现在的isSelectId为false,那就从fic数据中将ChannelInfo解码提取出来
-        if ((channelInfo = ficDecoder.getSelectChannelInfo()) != null) {
+        if (!isSelectId && (channelInfo = ficDecoder.getSelectChannelInfo()) != null) {
             // 提取出来之后再写回到USB中,也就是设置ChannelInfo
             isSelectId = dangle.SetChannel(channelInfo);
             if (!isSelectId) {

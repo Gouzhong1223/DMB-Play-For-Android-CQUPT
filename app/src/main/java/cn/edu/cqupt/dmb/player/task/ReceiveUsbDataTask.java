@@ -2,6 +2,8 @@ package cn.edu.cqupt.dmb.player.task;
 
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
+import android.util.Log;
+
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
@@ -21,6 +23,8 @@ import cn.edu.cqupt.dmb.player.processor.DataProcessingFactory;
  * @Version : 1.0.0
  */
 public class ReceiveUsbDataTask implements Runnable {
+
+    private static final String TAG = "ReceiveUsbDataTask";
 
     /**
      * 存储从USB中读取到的数据
@@ -55,7 +59,12 @@ public class ReceiveUsbDataTask implements Runnable {
             // 初始化一个packetBuf用于装载单个 DMB 数据
             byte[] packetBuf = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()];
             // 从 USB 中读取数据装载在bytes中
-            usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, DmbPlayerConstant.DEFAULT_READ_TIME_OUT.getDmbConstantValue());
+            int readLength = usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, DmbPlayerConstant.DEFAULT_READ_TIME_OUT.getDmbConstantValue());
+            if (readLength != bytes.length) {
+                // 这里是从 USB 中读取数据的时候失败了,所以直接返回,等待下一个任务来读取
+                Log.e(TAG, "从 USB 中读取数据失败!");
+                return;
+            }
             // 由于 bytes 中包含 DmbPlayerConstant.DMB_READ_TIME 个 DMB 数据包,所以这里采用一个循环的方式分包,分成 DmbPlayerConstant.DMB_READ_TIME 个
             for (int i = 0; i < DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(); i++) {
                 // 分包
