@@ -27,7 +27,7 @@ public class FicDataProcessor implements DataProcessing {
     /**
      * 初始化Fic解码器
      */
-    private final FicDecoder ficDecoder = new FicDecoder(MainActivity.mId, MainActivity.mIsEncrypted);
+    private final FicDecoder ficDecoder = new FicDecoder(MainActivity.id, MainActivity.mIsEncrypted);
 
     /**
      * 接收单个Fic

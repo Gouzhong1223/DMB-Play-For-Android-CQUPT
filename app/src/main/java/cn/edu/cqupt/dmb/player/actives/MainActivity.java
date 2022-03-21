@@ -19,19 +19,20 @@ import android.view.View;
 import android.widget.Button;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 public class MainActivity extends Activity {
 
-    private static final int VID = 1155;
-    private static final int PID = 22336;
+    private static final int VID = DmbPlayerConstant.DMB_V_ID.getDmbConstantValue();
+    private static final int PID = DmbPlayerConstant.DMB_P_ID.getDmbConstantValue();
     public volatile static boolean USB_READY = false;
 
-    private static final String ACTION_USB_PERMISSION = "com.android.example.USB_PERMISSION";
+    private static final String ACTION_USB_PERMISSION = DmbPlayerConstant.ACTION_USB_PERMISSION.getDmbConstantDescribe();
 
     private UsbManager usbManager;
-    public static int mId;
+    public static int id;
     public static boolean mIsEncrypted;
 
     @Override
@@ -53,7 +54,7 @@ public class MainActivity extends Activity {
     }
 
     private void initDmbConstants() {
-        mId = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 1);
+        id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 1);
         mIsEncrypted = DmbUtil.getBoolean(this, DmbUtil.ENCRYPTION, true);
     }
 
@@ -187,7 +188,7 @@ public class MainActivity extends Activity {
 
     /**
      * 此方法是用于发起用户USB读取权限授予请求的方法
-     * 在用户同意权限授予之后,会发送{@value ACTION_USB_PERMISSION}广播
+     * 在用户同意权限授予之后,会发送{@link DmbPlayerConstant#ACTION_USB_PERMISSION}广播
      * 次广播用于唤醒读取USB数据的线程
      */
     private void openDeviceAndRequestDevice() {

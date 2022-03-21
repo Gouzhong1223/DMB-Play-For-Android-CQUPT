@@ -20,7 +20,9 @@ public enum DmbPlayerConstant {
     DEFAULT_DMB_DATA_SIZE("DEFAULT_DMB_DATA_SIZE", 64, "一个 DMB 数据包的长度"),
     FREQKHZ("FREQKHZ", 220352, "重邮 DMB 频点"),
     DMB_READ_TIME("DMB_READ_TIME", 15, "一次 IO 从 USB 中读取数据的次数,"),
-
+    DMB_V_ID("DMB_V_ID", 1155, "DMB接收机的厂商ID"),
+    DMB_P_ID("DMB_P_ID", 22336, "DMB接收机的设备ID"),
+    ACTION_USB_PERMISSION("ACTION_USB_PERMISSION",null,"cn.edu.cqupt.dmb.player.USB_PERMISSION")
     ;
     private final String dmbConstantName;
     private final Integer dmbConstantValue;
