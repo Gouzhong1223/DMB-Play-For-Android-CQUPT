@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.processor;
 
+import android.util.Log;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -11,9 +13,12 @@ package cn.edu.cqupt.dmb.player.processor;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class FrequencySetSuccessProcessor implements DataProcessing{
+public class FrequencySetSuccessProcessor implements DataProcessing {
+
+    private static final String TAG = "FrequencySetSuccessProcessor";
+
     @Override
     public void processData(byte[] usbData) {
-        System.out.println(System.currentTimeMillis() + "现在接收到的是0x09,类型为频点设置成功返回信息");
+        Log.i(TAG, "现在接收到的是0x09,类型为频点设置成功返回信息");
     }
 }
