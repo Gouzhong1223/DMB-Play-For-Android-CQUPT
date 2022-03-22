@@ -20,7 +20,7 @@ import android.widget.Button;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.processor.FicDataProcessor;
+import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
@@ -34,7 +34,8 @@ public class MainActivity extends Activity {
 
     private UsbManager usbManager;
     public static int id;
-    public static boolean mIsEncrypted;
+    public static boolean isEncrypted;
+    public static int building;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +57,8 @@ public class MainActivity extends Activity {
 
     private void initDmbConstants() {
         id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 802);
-        mIsEncrypted = DmbUtil.getBoolean(this, DmbUtil.ENCRYPTION, true);
+        isEncrypted = DmbUtil.getBoolean(this, DmbUtil.ENCRYPTION, true);
+        building = DmbUtil.getInt(this,DmbUtil.BUILDING,64);
     }
 
     /**

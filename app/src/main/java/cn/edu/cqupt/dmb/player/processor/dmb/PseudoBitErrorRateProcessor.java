@@ -1,4 +1,4 @@
-package cn.edu.cqupt.dmb.player.processor;
+package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import android.util.Log;
 

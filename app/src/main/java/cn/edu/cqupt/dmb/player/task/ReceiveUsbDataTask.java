@@ -7,8 +7,8 @@ import android.util.Log;
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.processor.DataProcessing;
-import cn.edu.cqupt.dmb.player.processor.DataProcessingFactory;
+import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessing;
+import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 
 
 /**

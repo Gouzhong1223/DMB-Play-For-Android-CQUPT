@@ -17,13 +17,14 @@ import java.util.concurrent.TimeUnit;
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
-import cn.edu.cqupt.dmb.player.processor.DataProcessingFactory;
-import cn.edu.cqupt.dmb.player.processor.PseudoBitErrorRateProcessor;
+import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
+import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
 
 public class CarouselActivity extends FragmentActivity {
 
     private static final String TAG = "CarouselActivity";
-    private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+    // 线程池中有两个线程,一个是定时更新信号的线程,一个是定时更新轮播图的线程
+    private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(2);
 
     private Banner banner;
     private ImageView signalImageView;
@@ -54,12 +55,24 @@ public class CarouselActivity extends FragmentActivity {
                 .setIndicator(new CircleIndicator(this)).start();
     }
 
+    /**
+     * 更新轮播图图片,现在的设置是启动之后延迟 5 秒,然后每 30 秒更新一次轮播图
+     */
+    private void updateCarouselImage() {
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
+
+        }, 5L, 30L, TimeUnit.SECONDS);
+    }
+
+    /**
+     * 定时更新信号的线程,现在的设置是启动之后延迟 5 秒然后每 5 秒更新一次信号
+     */
     private void updateSignalImage() {
-        // 先延迟5秒，然后每5秒获取一次信号值,然后更新
+        // 先延迟5秒，然后每5秒获取一次信号值,然后每5秒更新一次信号
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             PseudoBitErrorRateProcessor pseudoBitErrorRateProcessor = (PseudoBitErrorRateProcessor) DataProcessingFactory.getDataProcessor(0x00);
             // 这里为什么能直接获取ber,因为是从静态工厂里面去出来的,静态工厂里面的都是单例创建的对象,在系统初始化的时候就已经load了,然后就是ber是一个volatile变量
-            // 不懂volatile是什么的可以搜一下Java多线程中的工作内存和主内存的区别,x看他们是如何消除内存屏障的
+            // 不懂volatile是什么的可以搜一下Java多线程中的工作内存和主内存的区别,看他们是如何消除内存屏障的
             int ber = pseudoBitErrorRateProcessor.getBer();
             Log.i(TAG, "ber = " + ber);
             if (ber > 200) {

@@ -9,12 +9,14 @@ import java.io.PipedInputStream;
 import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
+import cn.edu.cqupt.dmb.player.listener.DmbListener;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : TPEG 解码器
  * @Date : create by QingSong in 2022-03-18 15:44
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
@@ -33,48 +35,16 @@ public class TpegDecoder extends Thread {
     private static final int LAST_FRAME = 3;
     private static final String TAG = "TpegDecoder";
 
-    private final PipedInputStream pipedInputStream;
     private final BufferedInputStream inputStream;
-    private final Listener listener;
+    private final DmbListener listener;
     private boolean isStop;
 
 
-    public TpegDecoder(Listener listener) {
-        pipedInputStream = new PipedInputStream(1024 * 2);
+    public TpegDecoder(DmbListener listener) {
+        PipedInputStream pipedInputStream = DataReadWriteUtil.getPipedInputStream();
         inputStream = new BufferedInputStream(pipedInputStream);
         this.listener = listener;
     }
-
-    private boolean readTpegFrame(InputStream inputStream, byte[] bytes) {
-        int nRead = 0;
-        try {
-            while ((nRead = inputStream.read(bytes, 3, 1)) > 0) {
-                if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
-                    break;
-                }
-                for (int i = 0; i < 3; i++) {
-                    bytes[i] = bytes[i + 1];
-                }
-            }
-            if (nRead <= 0) {
-                return false;
-            }
-            /* read n bytes method, according to unix network programming page 72 */
-            int nLeft = 108; /* read left data of the frame */
-            int pos = 4;
-            while (nLeft > 0) {
-                if ((nRead = inputStream.read(bytes, pos, nLeft)) <= 0) {
-                    return false;
-                }
-                nLeft -= nRead;
-                pos += nRead;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return true;
-    }
-
 
     public void stopDecode() {
         isStop = true;
@@ -83,20 +53,18 @@ public class TpegDecoder extends Thread {
     @Override
     public void run() {
         isStop = false;
-        int length = 0;
         int total = 0;
         byte[] tpegBuffer = new byte[TPEG_SIZE];
         byte[] tpegData = new byte[DATA_SIZE];
         int[] tpegInfo = new int[TPEG_INFO_SIZE];
         byte[] fileBuffer = new byte[FILE_BUFFER_SIZE];
-        byte[] temp = new byte[FILE_BUFFER_SIZE];
         boolean isReceiveFirstFrame = false;
         String fileName = null;
         Log.e(TAG, "tpeg decoder start");
         NativeMethod.tpegInit();
         while (!isStop) {
             tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
-            if (!readTpegFrame(inputStream, tpegBuffer)) {
+            if (!DataReadWriteUtil.readTpegFrame(inputStream, tpegBuffer)) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -138,11 +106,6 @@ public class TpegDecoder extends Thread {
                     if (isReceiveFirstFrame && total + tpegInfo[1] < FILE_BUFFER_SIZE) {
                         System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
                         total += tpegInfo[1];
-//                        Log.e(TAG,"total = "+total);
-//                        if(fileName != null && !mReceivedFile.contains(Utils.CACHE_DIRECTORY + fileName)){
-//                            Utils.writeFile(fileBuffer,0,total,Utils.CACHE_DIRECTORY + fileName);
-//                            mReceivedFile.add(Utils.CACHE_DIRECTORY + fileName);
-//                        }
                         if (listener != null) {
                             listener.onSuccess(fileName, fileBuffer, total);
                         }
@@ -155,14 +118,5 @@ public class TpegDecoder extends Thread {
             }
         }
         Log.e(TAG, "tpeg decoder end");
-    }
-
-
-    public PipedInputStream getPipedInputStream() {
-        return pipedInputStream;
-    }
-
-    public interface Listener {
-        void onSuccess(String fileName, byte[] bytes, int length);
     }
 }

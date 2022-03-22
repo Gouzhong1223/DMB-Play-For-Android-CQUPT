@@ -1,4 +1,4 @@
-package cn.edu.cqupt.dmb.player.processor;
+package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import android.util.Log;
 
@@ -27,7 +27,7 @@ public class FicDataProcessor implements DataProcessing {
     /**
      * 初始化Fic解码器
      */
-    private final FicDecoder ficDecoder = new FicDecoder(MainActivity.id, MainActivity.mIsEncrypted);
+    private final FicDecoder ficDecoder = new FicDecoder(MainActivity.id, MainActivity.isEncrypted);
 
     /**
      * 接收单个Fic
@@ -41,8 +41,6 @@ public class FicDataProcessor implements DataProcessing {
     @Override
     public void processData(byte[] usbData) {
         Log.i(TAG, "现在接收到的数据是 FIC 类型!");
-        Log.i(TAG, "管他的,先把isSelectId设置成 false 再说,免得后面报错!");
-        isSelectId = false;
         // 从接收到的数据中的第八位开始拷贝fic数据,长度为32
         System.arraycopy(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), ficBuf, 0, DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue());
         // 调用ficDecoder解码器解码fic数据

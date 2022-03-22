@@ -134,5 +134,21 @@ public class DmbUtil {
         }
         sharedPreferences.edit().putBoolean(key, value).apply();
     }
+
+    public static String hashCode(String name) {
+        byte[] bytes = new byte[0];
+        try {
+            bytes = name.getBytes("gb2312");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        int seed = 131;
+        int hash = 0;
+        for (byte aByte : bytes) {
+            hash = hash * seed + aByte;
+        }
+        hash = hash & 0x7FFFFFFF;
+        return String.format("%x", hash) + name.substring(name.length() - 4);
+    }
 }
 

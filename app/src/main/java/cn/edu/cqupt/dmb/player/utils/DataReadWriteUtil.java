@@ -1,7 +1,9 @@
 package cn.edu.cqupt.dmb.player.utils;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 /**
@@ -17,10 +19,19 @@ import java.io.PipedOutputStream;
  */
 public class DataReadWriteUtil {
 
-    private static final PipedOutputStream outputStream;
+    private static final PipedOutputStream pipedOutputStream;
+    private static final PipedInputStream pipedInputStream;
+    private static final BufferedInputStream bufferedInputStream;
 
     static {
-        outputStream = new PipedOutputStream();
+        pipedOutputStream = new PipedOutputStream();
+        pipedInputStream = new PipedInputStream(1024 * 2);
+        bufferedInputStream = new BufferedInputStream(pipedInputStream);
+        try {
+            pipedOutputStream.connect(pipedInputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -30,7 +41,7 @@ public class DataReadWriteUtil {
      * @param bytes       接收数组
      * @return 成功返回true, 失败返回false
      */
-    private boolean readTpegFrame(InputStream inputStream, byte[] bytes) {
+    public static boolean readTpegFrame(InputStream inputStream, byte[] bytes) {
         int nRead;
         try {
             // 找到包头
@@ -59,7 +70,20 @@ public class DataReadWriteUtil {
         return true;
     }
 
-    public static PipedOutputStream getOutputStream() {
-        return outputStream;
+    public static boolean readTpegFrame(byte[] bytes) {
+        return readTpegFrame(bufferedInputStream, bytes);
+    }
+
+    public static PipedOutputStream getPipedOutputStream() {
+        return pipedOutputStream;
+    }
+
+
+    public static PipedInputStream getPipedInputStream() {
+        return pipedInputStream;
+    }
+
+    public static BufferedInputStream getBufferedInputStream() {
+        return bufferedInputStream;
     }
 }

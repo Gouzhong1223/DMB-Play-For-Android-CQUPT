@@ -1,9 +1,9 @@
-package cn.edu.cqupt.dmb.player.processor;
+package cn.edu.cqupt.dmb.player.processor.dmb;
 
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description : 获取 DMB 数据处理器的静态工厂类
+ * @Description : 获取 DMB 数据处理器的静态工厂类,返回的数据处理器均采用单例模式
  * @Date : create by QingSong in 2022-03-20 23:53
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
@@ -19,6 +19,12 @@ public class DataProcessingFactory {
     private final static DataProcessing pseudoBitErrorRateProcessor = new PseudoBitErrorRateProcessor();
     private final static DataProcessing defaultDataProcessor = new DefaultDataProcessor();
 
+    /**
+     * 根据接收到的 USB 数据类型获取对应的数据处理器
+     *
+     * @param dataType USB 数据类型
+     * @return 对应的数据处理器
+     */
     public static DataProcessing getDataProcessor(int dataType) {
         switch (dataType) {
             case 0x00:

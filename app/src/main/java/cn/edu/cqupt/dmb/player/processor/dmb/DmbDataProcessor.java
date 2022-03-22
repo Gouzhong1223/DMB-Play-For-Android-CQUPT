@@ -1,4 +1,4 @@
-package cn.edu.cqupt.dmb.player.processor;
+package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import android.util.Log;
 
@@ -28,7 +28,7 @@ public class DmbDataProcessor implements DataProcessing {
         Log.i(TAG, "现在接收到的数据是 DMB 类型的");
         dataLength = (((int) usbData[7]) & 0x0FF);
         try {
-            DataReadWriteUtil.getOutputStream().write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
+            DataReadWriteUtil.getPipedOutputStream().write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
         } catch (IOException e) {
             Log.e(TAG, "处理 DMB 数据出错啦!---" + e);
             e.printStackTrace();
