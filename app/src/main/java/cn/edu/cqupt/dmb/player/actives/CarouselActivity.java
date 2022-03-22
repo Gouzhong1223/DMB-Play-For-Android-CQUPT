@@ -41,7 +41,7 @@ public class CarouselActivity extends FragmentActivity {
         banner = findViewById(R.id.banner);
         useBanner();
         // 初始化轮播图中的信号显示组件
-        findViewById(R.id.carousel_signal);
+        signalImageView = findViewById(R.id.carousel_signal);
     }
 
     /**
@@ -59,10 +59,10 @@ public class CarouselActivity extends FragmentActivity {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             PseudoBitErrorRateProcessor pseudoBitErrorRateProcessor = (PseudoBitErrorRateProcessor) DataProcessingFactory.getDataProcessor(0x00);
             // 这里为什么能直接获取ber,因为是从静态工厂里面去出来的,静态工厂里面的都是单例创建的对象,在系统初始化的时候就已经load了,然后就是ber是一个volatile变量
-            // 不懂volatile是什么的可以搜一下Java多线程中的工作内存和主内存的区别,看他们是如何消除内存屏障的
+            // 不懂volatile是什么的可以搜一下Java多线程中的工作内存和主内存的区别,x看他们是如何消除内存屏障的
             int ber = pseudoBitErrorRateProcessor.getBer();
+            Log.i(TAG, "ber = " + ber);
             if (ber > 200) {
-                Log.i(TAG, "ber = " + ber);
                 signalImageView.setImageResource(R.drawable.singlemark1);
             } else if (ber > 100) {
                 signalImageView.setImageResource(R.drawable.singlemark2);
@@ -73,7 +73,7 @@ public class CarouselActivity extends FragmentActivity {
             } else if (ber >= 0) {
                 signalImageView.setImageResource(R.drawable.singlemark5);
             }
-        }, 5000L, 5000L, TimeUnit.SECONDS);
+        }, 5L, 5L, TimeUnit.SECONDS);
     }
 
     @Override

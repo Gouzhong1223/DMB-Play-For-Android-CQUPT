@@ -65,6 +65,7 @@ public class FicDecoder {
             Log.e(TAG, "FIC 数据 CRC 校验失败!");
             return;
         }
+        Log.i(TAG, "CRC 校验成功!");
         // 判断fic数据是否加密,如果是加密的数据,那就先在密码表上解密
         if (isEncrypted) {
             for (int i = 0; i < 30; i++) {
@@ -139,12 +140,14 @@ public class FicDecoder {
         for (int i = 0; i < CHANNEL_SIZE; i++) {
             if (channelInfos[i].isSelect()) {
                 if (channelInfos[i].subChOrganization[6] > 0) {
+                    Log.i(TAG, "获取到一个channelInfo");
                     return channelInfos[i];
                 } else {
                     return null;
                 }
             }
         }
+        Log.e(TAG, "解析ChannelInfo出错啦!");
         return null;
     }
 

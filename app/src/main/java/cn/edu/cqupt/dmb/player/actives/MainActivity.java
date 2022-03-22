@@ -20,6 +20,7 @@ import android.widget.Button;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.processor.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
@@ -54,7 +55,7 @@ public class MainActivity extends Activity {
     }
 
     private void initDmbConstants() {
-        id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 1);
+        id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 802);
         mIsEncrypted = DmbUtil.getBoolean(this, DmbUtil.ENCRYPTION, true);
     }
 
@@ -155,6 +156,7 @@ public class MainActivity extends Activity {
                     // 所以在这里要多做一步判断,就是如果用户已经授予权限,那就直接打开USB设备
                     if (usbManager.hasPermission(usbDevice)) {
                         USB_READY = false;
+                        FicDataProcessor.isSelectId = false;
                         // 打开USB设备并开始读取数据
                         closeDevice();
                     } else {

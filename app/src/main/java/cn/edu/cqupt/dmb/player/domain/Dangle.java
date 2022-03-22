@@ -314,6 +314,8 @@ public class Dangle {
         } catch (ExecutionException | InterruptedException e) {
             return false;
         }
+        Log.i(TAG, "终于把channelInfo设置成功了!草(一种植物)");
+        Log.i(TAG, "isSelectId要被设置成 true 了");
         return true;
     }
 

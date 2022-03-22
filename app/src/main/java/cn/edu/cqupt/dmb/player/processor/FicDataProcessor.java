@@ -35,12 +35,14 @@ public class FicDataProcessor implements DataProcessing {
     private final byte[] ficBuf = new byte[DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue()];
 
     ChannelInfo channelInfo;
-    boolean isSelectId;
+    public static volatile boolean isSelectId;
     Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
 
     @Override
     public void processData(byte[] usbData) {
         Log.i(TAG, "现在接收到的数据是 FIC 类型!");
+        Log.i(TAG, "管他的,先把isSelectId设置成 false 再说,免得后面报错!");
+        isSelectId = false;
         // 从接收到的数据中的第八位开始拷贝fic数据,长度为32
         System.arraycopy(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), ficBuf, 0, DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue());
         // 调用ficDecoder解码器解码fic数据
@@ -53,11 +55,15 @@ public class FicDataProcessor implements DataProcessing {
             // 提取出来之后再写回到USB中,也就是设置ChannelInfo
             isSelectId = dangle.SetChannel(channelInfo);
             if (!isSelectId) {
-                Log.e(TAG, "设置channelInfo失败!" + channelInfo);
+                Log.e(TAG, "设置channelInfo失败!这是往 USB 中设置的时候出错啦!" + channelInfo);
             }
-            Log.i(TAG, "设置channelInfo成功!" + channelInfo);
+            Log.i(TAG, "设置channelInfo成功!,这是isSelectId为 false 的情况" + channelInfo);
         } else {
-            Log.e(TAG, "设置channelInfo失败!" + channelInfo);
+            if (isSelectId) {
+                Log.e(TAG, "设置channelInfo失败!这是isSelectId为 true 的情况" + channelInfo);
+            } else {
+                Log.e(TAG, "设置channelInfo失败!这是channelInfo为 null 的情况" + channelInfo);
+            }
         }
     }
 }
