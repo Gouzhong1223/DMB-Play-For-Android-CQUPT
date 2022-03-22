@@ -36,14 +36,6 @@ public class ChannelInfo {
                 subChOrganization[6];
     }
 
-    public int[] getSubChOrganization() {
-        return subChOrganization;
-    }
-
-    public void setSubChOrganization(int[] subChOrganization) {
-        this.subChOrganization = subChOrganization;
-    }
-
     public int getServiceId() {
         return serviceId;
     }

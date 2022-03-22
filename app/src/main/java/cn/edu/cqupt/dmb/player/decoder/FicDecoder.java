@@ -1,6 +1,8 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
 
+import android.util.Log;
+
 import java.io.UnsupportedEncodingException;
 
 import cn.edu.cqupt.dmb.player.domain.ChannelInfo;
@@ -52,41 +54,6 @@ public class FicDecoder {
     }
 
     /**
-     * init crc 16 table
-     */
-    private void initCrc16Tab() {
-        /* polynomial x^16 + x^12 + x^5 + 1 Recommendation ITU-T X.25*/
-        short CRC_POLY_16 = (short) 0x1021;
-        short i, j, crc;
-        for (i = 0; i < 256; i++) {
-            crc = (short) (i << 8);
-            for (j = 0; j < 8; j++) {
-                if ((crc & 0x8000) != 0) {
-                    crc = (short) ((crc << 1) ^ CRC_POLY_16);
-                } else {
-                    crc = (short) (crc << 1);
-                }
-            }
-            CRC16TAB[i] = crc;
-        }
-    }
-
-    /**
-     * calculate crc 16 value
-     */
-    private short crc16(byte[] bytes, int length) {
-        short data;
-        short crc = (short) 0xFFFF;
-        for (int i = 0; i < length; i++) {
-            data = bytes[i];
-            crc = (short) ((short) (crc << 8) ^ CRC16TAB[((crc >>> 8) ^ data) & 0x00FF]);
-        }
-        crc = (short) (crc & 0xFFFF);
-        crc = (short) (crc ^ 0xFFFF);
-        return crc;
-    }
-
-    /**
      * decode a complete frame, 32byte fic data
      */
     public void decode(byte[] bytes) {
@@ -95,6 +62,7 @@ public class FicDecoder {
         short dataCrc = crc16(fib, 30);
         short preferenceCrc = (short) ((fib[30] << 8) | fib[31] & 0x00ff);
         if (dataCrc != preferenceCrc) { /* crc check fail frequently */
+            Log.e(TAG, "FIC 数据 CRC 校验失败!");
             return;
         }
         // 判断fic数据是否加密,如果是加密的数据,那就先在密码表上解密
@@ -153,7 +121,7 @@ public class FicDecoder {
         }
         if (groupId == groupIndex && (fib[index + 2 + byteIndex] & bitMask) != 0) {
             if (groupFlag == 0x01 && channelInfos[subChId].getLabel() != null
-                    && channelInfos[subChId].getSubChOrganization()[6] != 0) { /* msc id */
+                    && channelInfos[subChId].subChOrganization[6] != 0) { /* msc id */
                 channelInfos[subChId].setSelect(true);
             }
             if (groupFlag == 0x02 && ficCh > subChId) { /* sub id */
@@ -170,7 +138,7 @@ public class FicDecoder {
     public ChannelInfo getSelectChannelInfo() {
         for (int i = 0; i < CHANNEL_SIZE; i++) {
             if (channelInfos[i].isSelect()) {
-                if (channelInfos[i].getSubChOrganization()[6] > 0) {
+                if (channelInfos[i].subChOrganization[6] > 0) {
                     return channelInfos[i];
                 } else {
                     return null;
@@ -314,7 +282,7 @@ public class FicDecoder {
         int temp;
         for (int i = 0; i < figLength - 1; i += form) { /* length has a header */
             form = (fib[index + 2 + i] & 0x80) == 0 ? 3 : 4;
-            subChId = (int) ((fib[index + i] >>> 2) & 0x003f);
+            subChId = (fib[index + i] >>> 2) & 0x003f;
             channelInfos[subChId].subChOrganization[0] = ((fib[index + i] & 0x0ff) << 8);
             channelInfos[subChId].subChOrganization[0] += fib[index + i + 1] & 0x0ff;
             channelInfos[subChId].subChOrganization[0] &= 0x03FF;/* start address */
@@ -327,7 +295,7 @@ public class FicDecoder {
                 channelInfos[subChId].subChOrganization[4] = 0;
                 channelInfos[subChId].subChOrganization[5] = 0;
                 /* Sub-channel size */
-                channelInfos[subChId].subChOrganization[1] = (int) ((fib[index + 2 + i] & 0x03) << 8 | fib[index + 3 + i] & 0x0FF);
+                channelInfos[subChId].subChOrganization[1] = (fib[index + 2 + i] & 0x03) << 8 | fib[index + 3 + i] & 0x0FF;
                 int options = fib[index + 2 + i] & 0x7c;
                 switch (options) {
                     case 0x0: /*  protection level 1-A */
@@ -489,6 +457,42 @@ public class FicDecoder {
 
 
     /**
+     * init crc 16 table
+     */
+    private void initCrc16Tab() {
+        /* polynomial x^16 + x^12 + x^5 + 1 Recommendation ITU-T X.25*/
+        short CRC_POLY_16 = (short) 0x1021;
+        short i, j, crc;
+        for (i = 0; i < 256; i++) {
+            crc = (short) (i << 8);
+            for (j = 0; j < 8; j++) {
+                if ((crc & 0x8000) != 0) {
+                    crc = (short) ((crc << 1) ^ CRC_POLY_16);
+                } else {
+                    crc = (short) (crc << 1);
+                }
+            }
+            CRC16TAB[i] = crc;
+        }
+    }
+
+    /**
+     * calculate crc 16 value
+     */
+    private short crc16(byte[] bytes, int length) {
+        short data;
+        short crc = (short) 0xFFFF;
+        for (int i = 0; i < length; i++) {
+            data = bytes[i];
+            crc = (short) ((short) (crc << 8) ^ CRC16TAB[((crc >>> 8) ^ data) & 0x00FF]);
+        }
+        crc = (short) (crc & 0xFFFF);
+        crc = (short) (crc ^ 0xFFFF);
+        return crc;
+    }
+
+
+    /**
      * Fic数据解密的密码表
      */
     private final byte[] DAB_ENCRYPT_CODE = {
@@ -496,9 +500,6 @@ public class FicDecoder {
             56, 57, 97, 98, 99, 100, 101, 102,
             48, 49, 50, 51, 52, 53, 54, 55,
             56, 57, 97, 98, 99, 100, 101, 102
-    };
-    private final byte[] DAB_ENCRYPT_CODE_2 = {
-            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 'a', 'b', 'c', 'd', 'e', 'f'
     };
 
     private final short[][] UEP_TABLE = {

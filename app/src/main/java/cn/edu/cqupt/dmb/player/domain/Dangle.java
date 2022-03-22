@@ -155,10 +155,10 @@ public class Dangle {
         }
 
         if (ret1 && ret2 && ret3 && ret4) {
-            Log.e(TAG, "Clear register success!");
+            Log.i(TAG, "清除 DMB 设置成功!");
             return;
         }
-        Log.i(TAG, "Clear register fail");
+        Log.e(TAG, "清除 DMB 设置失败!");
     }
 
     /**
@@ -178,6 +178,7 @@ public class Dangle {
             Log.e(TAG, "设置频点出错!");
             e.printStackTrace();
         }
+        Log.i(TAG, "设置频点为:" + DmbPlayerConstant.FREQKHZ.getDmbConstantValue());
     }
 
     /**
@@ -325,6 +326,7 @@ public class Dangle {
         new SendDataToUsbTask(reqMsg, usbEndpointOut, usbDeviceConnection).call();
         new ReceiveUsbDataTask(rxMsg, usbEndpointIn, usbDeviceConnection).run();
         new SendDataToUsbTask(reqMsg2, usbEndpointOut, usbDeviceConnection).call();
+        Log.i(TAG, "DMB 完成首次收发");
     }
 
 

@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.processor;
 
+import android.util.Log;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -12,8 +14,12 @@ package cn.edu.cqupt.dmb.player.processor;
  * @Version : 1.0.0
  */
 public class DefaultDataProcessor implements DataProcessing {
+
+    private static final String TAG = "DefaultDataProcessor";
+
+
     @Override
     public void processData(byte[] usbData) {
-        System.out.println("未知的 DMB 数据");
+        Log.i(TAG, "现在接收到的数据是未知的类型!");
     }
 }
