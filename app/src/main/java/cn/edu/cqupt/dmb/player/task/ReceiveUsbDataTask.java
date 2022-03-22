@@ -16,7 +16,7 @@ import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
  * @Blog : www.gouzhong1223.com
  * @Description : 这是一个从USB中读取数据的线程,启动依赖{@link java.util.concurrent.ScheduledExecutorService}的调度
  * @Date : create by QingSong in 2022-03-11 16:21
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.task
  * @ProjectName : DMB Player For Android

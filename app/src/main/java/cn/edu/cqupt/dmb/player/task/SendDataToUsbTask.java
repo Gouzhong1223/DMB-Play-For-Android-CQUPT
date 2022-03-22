@@ -15,7 +15,7 @@ import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
  * @Blog : www.gouzhong1223.com
  * @Description : 这是往USB中写数据的任务
  * @Date : create by QingSong in 2022-03-15 15:49
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.task
  * @ProjectName : DMB Player For Android

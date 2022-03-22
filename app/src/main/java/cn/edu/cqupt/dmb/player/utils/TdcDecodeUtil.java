@@ -5,7 +5,7 @@ package cn.edu.cqupt.dmb.player.utils;
  * @Blog : www.gouzhong1223.com
  * @Description : 这是解码TDC数据的工具类
  * @Date : create by QingSong in 2022-03-14 14:25
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.utils
  * @ProjectName : DMB Player For Android

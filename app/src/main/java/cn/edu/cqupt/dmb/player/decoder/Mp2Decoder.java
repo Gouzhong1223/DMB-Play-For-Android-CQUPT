@@ -16,7 +16,7 @@ import cn.edu.cqupt.dmb.player.jni.NativeMethod;
  * @Blog : www.gouzhong1223.com
  * @Description :
  * @Date : create by QingSong in 2022-03-18 13:53
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.decoder
  * @ProjectName : DMB Player For Android 

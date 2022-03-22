@@ -12,7 +12,7 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @Blog : www.gouzhong1223.com
  * @Description : DMB 类型的数据处理器
  * @Date : create by QingSong in 2022-03-20 23:41
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : cn.edu.cqupt.dmb.player.task
  * @ProjectName : DMB Player For Android

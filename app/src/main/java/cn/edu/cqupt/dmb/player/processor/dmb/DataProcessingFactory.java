@@ -5,7 +5,7 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
  * @Blog : www.gouzhong1223.com
  * @Description : 获取 DMB 数据处理器的静态工厂类,返回的数据处理器均采用单例模式
  * @Date : create by QingSong in 2022-03-20 23:53
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : cn.edu.cqupt.dmb.player.task
  * @ProjectName : DMB Player For Android

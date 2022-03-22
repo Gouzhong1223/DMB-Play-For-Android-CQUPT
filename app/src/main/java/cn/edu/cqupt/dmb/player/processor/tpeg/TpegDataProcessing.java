@@ -5,7 +5,7 @@ package cn.edu.cqupt.dmb.player.processor.tpeg;
  * @Blog : www.gouzhong1223.com
  * @Description : TPEG 数据处理接口
  * @Date : create by QingSong in 2022-03-22 21:56
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : cn.edu.cqupt.dmb.player.processor.tpeg
  * @ProjectName : DMB Player For Android

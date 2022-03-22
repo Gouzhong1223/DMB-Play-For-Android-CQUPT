@@ -5,7 +5,7 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
  * @Blog : www.gouzhong1223.com
  * @Description : 这是处理DMB数据的接口
  * @Date : create by QingSong in 2022-03-20 23:33
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : cn.edu.cqupt.dmb.player.task
  * @ProjectName : DMB Player For Android

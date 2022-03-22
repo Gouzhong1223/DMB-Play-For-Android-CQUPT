@@ -22,7 +22,7 @@ import java.io.ObjectOutputStream;
  * @Blog : www.gouzhong1223.com
  * @Description : DMB 通用工具类
  * @Date : create by QingSong in 2022-03-17 22:45
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.utils
  * @ProjectName : DMB Player For Android

@@ -6,7 +6,7 @@ package cn.edu.cqupt.dmb.player.processor.tpeg;
  * @Blog : www.gouzhong1223.com
  * @Description : TPEG 数据处理器静态工厂,返回的数据处理器均采用单例模式
  * @Date : create by QingSong in 2022-03-22 21:55
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : cn.edu.cqupt.dmb.player.processor.tpeg
  * @ProjectName : DMB Player For Android

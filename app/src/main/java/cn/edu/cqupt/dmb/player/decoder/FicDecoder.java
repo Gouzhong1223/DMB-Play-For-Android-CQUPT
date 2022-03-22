@@ -12,7 +12,7 @@ import cn.edu.cqupt.dmb.player.domain.ChannelInfo;
  * @Blog : www.gouzhong1223.com
  * @Description :
  * @Date : create by QingSong in 2022-03-17 20:31
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.utils
  * @ProjectName : DMB Player For Android

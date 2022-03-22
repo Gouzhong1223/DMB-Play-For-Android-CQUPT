@@ -14,7 +14,7 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @Blog : www.gouzhong1223.com
  * @Description : 这是解码 TPEG 的任务
  * @Date : create by QingSong in 2022-03-22 21:33
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : cn.edu.cqupt.dmb.player.task
  * @ProjectName : DMB Player For Android

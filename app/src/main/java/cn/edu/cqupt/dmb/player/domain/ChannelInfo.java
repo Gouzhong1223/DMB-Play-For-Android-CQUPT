@@ -5,7 +5,7 @@ package cn.edu.cqupt.dmb.player.domain;
  * @Blog : www.gouzhong1223.com
  * @Description : ChannelInfo 实体类
  * @Date : create by QingSong in 2022-03-15 13:31
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.domain
  * @ProjectName : DMB Player For Android

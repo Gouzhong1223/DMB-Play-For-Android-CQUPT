@@ -5,7 +5,7 @@ package cn.edu.cqupt.dmb.player.common;
  * @Blog : www.gouzhong1223.com
  * @Description : 这是 DMB 播放器的一些常量枚举类
  * @Date : create by QingSong in 2022-03-21 13:28
- * @Email : gouzhong1223@gmail.com
+ * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : cn.edu.cqupt.dmb.player.common
  * @ProjectName : DMB Player For Android
