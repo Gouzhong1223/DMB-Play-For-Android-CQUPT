@@ -58,6 +58,8 @@ public class CarouselActivity extends FragmentActivity {
         // 先延迟5秒，然后每5秒获取一次信号值,然后更新
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             PseudoBitErrorRateProcessor pseudoBitErrorRateProcessor = (PseudoBitErrorRateProcessor) DataProcessingFactory.getDataProcessor(0x00);
+            // 这里为什么能直接获取ber,因为是从静态工厂里面去出来的,静态工厂里面的都是单例创建的对象,在系统初始化的时候就已经load了,然后就是ber是一个volatile变量
+            // 不懂volatile是什么的可以搜一下Java多线程中的工作内存和主内存的区别,看他们是如何消除内存屏障的
             int ber = pseudoBitErrorRateProcessor.getBer();
             if (ber > 200) {
                 Log.i(TAG, "ber = " + ber);

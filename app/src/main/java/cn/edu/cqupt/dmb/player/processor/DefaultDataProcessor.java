@@ -17,9 +17,8 @@ public class DefaultDataProcessor implements DataProcessing {
 
     private static final String TAG = "DefaultDataProcessor";
 
-
     @Override
     public void processData(byte[] usbData) {
-        Log.i(TAG, "现在接收到的数据是未知的类型!");
+        Log.e(TAG, "接收到类型未知的数据,无法处理!");
     }
 }
