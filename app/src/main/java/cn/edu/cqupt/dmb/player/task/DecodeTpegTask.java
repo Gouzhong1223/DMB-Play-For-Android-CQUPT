@@ -2,9 +2,12 @@ package cn.edu.cqupt.dmb.player.task;
 
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.PipedInputStream;
 import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
+import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.processor.tpeg.TpegDataProcessing;
 import cn.edu.cqupt.dmb.player.processor.tpeg.TpegDataProcessingFactory;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
@@ -28,6 +31,21 @@ public class DecodeTpegTask implements Runnable {
     private static final int DATA_SIZE = 80;
     private static final int TPEG_INFO_SIZE = 3;
 
+    private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 2;
+
+    private static DmbListener dmbListener;
+
+
+    public DecodeTpegTask(DmbListener dmbListener) {
+        DecodeTpegTask.dmbListener = dmbListener;
+    }
+
+    private static volatile int length = 0;
+    private static volatile int total = 0;
+    private static volatile byte[] fileBuffer = new byte[FILE_BUFFER_SIZE];
+    private static volatile boolean isReceiveFirstFrame = false;
+    private static volatile String fileName = null;
+
 
     @Override
     public void run() {
@@ -47,5 +65,49 @@ public class DecodeTpegTask implements Runnable {
         NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
         TpegDataProcessing tpegDataProcessing = TpegDataProcessingFactory.getDataProcessor(tpegInfo[0]);
         tpegDataProcessing.processData(tpegBuffer, tpegData, tpegInfo);
+    }
+
+    public static int getLength() {
+        return length;
+    }
+
+    public static int getTotal() {
+        return total;
+    }
+
+    public static void setLength(int length) {
+        DecodeTpegTask.length = length;
+    }
+
+    public static void setTotal(int total) {
+        DecodeTpegTask.total = total;
+    }
+
+    public static byte[] getFileBuffer() {
+        return fileBuffer;
+    }
+
+    public static void setFileBuffer(byte[] fileBuffer) {
+        DecodeTpegTask.fileBuffer = fileBuffer;
+    }
+
+    public static boolean isIsReceiveFirstFrame() {
+        return isReceiveFirstFrame;
+    }
+
+    public static void setIsReceiveFirstFrame(boolean isReceiveFirstFrame) {
+        DecodeTpegTask.isReceiveFirstFrame = isReceiveFirstFrame;
+    }
+
+    public static String getFileName() {
+        return fileName;
+    }
+
+    public static void setFileName(String fileName) {
+        DecodeTpegTask.fileName = fileName;
+    }
+
+    public static DmbListener getDmbListener() {
+        return dmbListener;
     }
 }

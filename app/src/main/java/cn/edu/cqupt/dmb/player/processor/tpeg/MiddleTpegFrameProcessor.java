@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.processor.tpeg;
 
+import cn.edu.cqupt.dmb.player.task.DecodeTpegTask;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -15,17 +17,14 @@ public class MiddleTpegFrameProcessor implements TpegDataProcessing {
 
     private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 2;
 
-    int total = 0;
-    byte[] fileBuffer = new byte[FILE_BUFFER_SIZE];
-
-
     @Override
     public void processData(byte[] tpegBuffer, byte[] tpegData, int[] tpegInfo) {
-        if (total + tpegInfo[1] >= FILE_BUFFER_SIZE) {
-            total = 0;
+
+        if (DecodeTpegTask.getTotal() + tpegInfo[1] >= FILE_BUFFER_SIZE) {
+            DecodeTpegTask.setTotal(0);
         } else {
-            System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
-            total += tpegInfo[1];
+            System.arraycopy(tpegData, 0, DecodeTpegTask.getFileBuffer(), DecodeTpegTask.getTotal(), tpegInfo[1]);
+            DecodeTpegTask.setTotal(DecodeTpegTask.getTotal() + tpegInfo[1]);
         }
     }
 }
