@@ -56,12 +56,6 @@ public class FicDataProcessor implements DataProcessing {
                 Log.e(TAG, "设置channelInfo失败!这是往 USB 中设置的时候出错啦!" + channelInfo);
             }
             Log.i(TAG, "设置channelInfo成功!,这是isSelectId为 false 的情况" + channelInfo);
-        } else {
-            if (isSelectId) {
-                Log.e(TAG, "设置channelInfo失败!这是isSelectId为 true 的情况" + channelInfo);
-            } else {
-                Log.e(TAG, "设置channelInfo失败!这是channelInfo为 null 的情况" + channelInfo);
-            }
         }
     }
 }

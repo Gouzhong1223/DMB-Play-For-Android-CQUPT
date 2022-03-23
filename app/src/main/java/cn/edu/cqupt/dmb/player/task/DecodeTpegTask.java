@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.util.Arrays;
 
+import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.processor.tpeg.TpegDataProcessing;
@@ -49,24 +50,27 @@ public class DecodeTpegTask implements Runnable {
 
     @Override
     public void run() {
-        tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
-        if (!DataReadWriteUtil.initFlag) {
-            // 如果当前的initFlag还没有被设置成 true,说明还没有被写入过 TPEG 数据,那就直接返回等下一次执行
-            return;
+        if (MainActivity.USB_READY) {
+            Log.i(TAG, "开始处理 TPEG 数据");
+            tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
+            if (!DataReadWriteUtil.initFlag) {
+                // 如果当前的initFlag还没有被设置成 true,说明还没有被写入过 TPEG 数据,那就直接返回等下一次执行
+                return;
+            }
+            if (!DataReadWriteUtil.readTpegFrame(tpegBuffer)) {
+                Log.e(TAG, "读取 TPEG 数据失败啦!");
+                // 如果读取数据失败了,就直接返回,等待下一次读取
+                return;
+            }
+            Log.i(TAG, "读取 TPEG 数据成功了");
+            Arrays.fill(tpegData, (byte) 0);
+            Arrays.fill(tpegInfo, 0);
+            Log.i(TAG, "开始执行 TPEG 译码工作");
+            NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
+            Log.i(TAG, "TPEG 译码完成啦!");
+            TpegDataProcessing tpegDataProcessing = TpegDataProcessingFactory.getDataProcessor(tpegInfo[0]);
+            tpegDataProcessing.processData(tpegBuffer, tpegData, tpegInfo);
         }
-        if (!DataReadWriteUtil.readTpegFrame(tpegBuffer)) {
-            Log.e(TAG, "读取 TPEG 数据失败啦!");
-            // 如果读取数据失败了,就直接返回,等待下一次读取
-            return;
-        }
-        Log.i(TAG, "读取 TPEG 数据成功了");
-        Arrays.fill(tpegData, (byte) 0);
-        Arrays.fill(tpegInfo, 0);
-        Log.i(TAG, "开始执行 TPEG 译码工作");
-        NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
-        Log.i(TAG, "TPEG 译码完成啦!");
-        TpegDataProcessing tpegDataProcessing = TpegDataProcessingFactory.getDataProcessor(tpegInfo[0]);
-        tpegDataProcessing.processData(tpegBuffer, tpegData, tpegInfo);
     }
 
     public static int getLength() {

@@ -110,8 +110,6 @@ public class UsbUtil {
             // 获取读写USB权限
             usbDeviceConnection.claimInterface(usbInterface, true);
             Dangle dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
-            // 先完成dangle连接认证
-            dangle.dangleConnectCertification();
             // 先清除Dangle的设置
             dangle.clearRegister();
             // 设置RF频段

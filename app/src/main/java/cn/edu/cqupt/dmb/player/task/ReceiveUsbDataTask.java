@@ -73,7 +73,7 @@ public class ReceiveUsbDataTask implements Runnable {
                 // 从数据处理器的静态工程获取数据处理器
                 DataProcessing dataProcessor = DataProcessingFactory.getDataProcessor(packetBuf[3]);
                 // 处理数据
-//                Log.i(TAG, "正在处理 USB 数据的第:" + (i + 1) + "个包");
+                Log.i(TAG, "正在处理 USB 数据的第:" + (i + 1) + "个包");
                 dataProcessor.processData(packetBuf);
             }
         }

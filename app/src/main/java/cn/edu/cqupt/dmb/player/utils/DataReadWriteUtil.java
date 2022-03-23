@@ -19,9 +19,9 @@ import java.io.PipedOutputStream;
  */
 public class DataReadWriteUtil {
 
-    private static final PipedOutputStream pipedOutputStream;
-    private static final PipedInputStream pipedInputStream;
-    private static final BufferedInputStream bufferedInputStream;
+    private static volatile PipedOutputStream pipedOutputStream;
+    private static volatile PipedInputStream pipedInputStream;
+    private static volatile BufferedInputStream bufferedInputStream;
 
     public static volatile boolean initFlag = false;
 

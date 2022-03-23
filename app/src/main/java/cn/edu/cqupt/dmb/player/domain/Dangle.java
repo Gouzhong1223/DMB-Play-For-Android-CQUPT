@@ -351,10 +351,10 @@ public class Dangle {
         frequency[byte_cnt++] = 0;
         frequency[byte_cnt++] = 0;
         frequency[byte_cnt++] = 4;
-        frequency[byte_cnt++] = (byte) (FREQKHZ >> 24);
-        frequency[byte_cnt++] = (byte) (FREQKHZ >> 16);
-        frequency[byte_cnt++] = (byte) (FREQKHZ >> 8);
-        frequency[byte_cnt] = (byte) (FREQKHZ);
+        frequency[byte_cnt++] = (byte) ((FREQKHZ >> 24) & 0xff);
+        frequency[byte_cnt++] = (byte) ((FREQKHZ >> 16) & 0xff);
+        frequency[byte_cnt++] = (byte) ((FREQKHZ >> 8) & 0xff);
+        frequency[byte_cnt] = (byte) (FREQKHZ & 0xff);
     }
 
     /**
