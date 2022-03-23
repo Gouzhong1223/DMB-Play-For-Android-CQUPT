@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         package="cn.edu.cqupt.dmb.player">
 
     <uses-feature android:name="android.hardware.usb.host" />
@@ -36,5 +37,14 @@
                     android:resource="@xml/device_filter" />
         </activity>
     </application>
+
+    <uses-permission
+            android:name="android.permission.READ_EXTERNAL_STORAGE"
+            tools:ignore="ManifestOrder" />
+    <uses-permission
+            android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+            tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
 
 </manifest>

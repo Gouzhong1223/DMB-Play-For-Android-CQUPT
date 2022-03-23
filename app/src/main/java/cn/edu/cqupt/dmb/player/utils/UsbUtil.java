@@ -45,7 +45,7 @@ public class UsbUtil {
     static {
         // JVM启动的时候初始化线程池,由于只有一个任务,所以核心线程就只设置一个
         // 这个线程池是专门用来定时执行接收USB数据任务的
-        scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+        scheduledExecutorService = new ScheduledThreadPoolExecutor(2);
         // 这个线程池是用于执行普通的读写线程的线程池
         executorService = new ThreadPoolExecutor(5, 10,
                 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
@@ -58,7 +58,7 @@ public class UsbUtil {
     /**
      * 默认的任务间隔时间
      */
-    private static final long TASK_DEFAULT_INTERVAL = 3L;
+    private static final long TASK_DEFAULT_INTERVAL = 2L;
     /**
      * 用于缓存USB设备的Map
      */
@@ -126,7 +126,7 @@ public class UsbUtil {
             scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn, usbDeviceConnection),
                     TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.SECONDS);
             // 开始执行 TPEG 解码的任务
-            scheduledExecutorService.scheduleAtFixedRate(new DecodeTpegTask(new DmbTpegListener()), 0, 0, TimeUnit.MICROSECONDS);
+            scheduledExecutorService.scheduleAtFixedRate(new DecodeTpegTask(new DmbTpegListener()), 0, 1, TimeUnit.SECONDS);
         }
     }
 

@@ -15,12 +15,11 @@ import cn.edu.cqupt.dmb.player.R;
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.banner
- * @ProjectName : DMB Player For Android 
+ * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
 public class BannerDataBean {
     public Integer imageRes;
-    public String imageUrl;
     public String title;
     public int viewType;
 
@@ -30,70 +29,11 @@ public class BannerDataBean {
         this.viewType = viewType;
     }
 
-    public BannerDataBean(String imageUrl, String title, int viewType) {
-        this.imageUrl = imageUrl;
-        this.title = title;
-        this.viewType = viewType;
-    }
-
-    public static List<BannerDataBean> getTestData() {
+    public static List<BannerDataBean> getHelloViewData() {
         List<BannerDataBean> list = new ArrayList<>();
-        list.add(new BannerDataBean(R.drawable.image1, "相信自己,你努力的样子真的很美", 1));
-        list.add(new BannerDataBean(R.drawable.image2, "极致简约,梦幻小屋", 3));
-        list.add(new BannerDataBean(R.drawable.image3, "超级卖梦人", 3));
-        list.add(new BannerDataBean(R.drawable.image4, "夏季新搭配", 1));
-        list.add(new BannerDataBean(R.drawable.image5, "绝美风格搭配", 1));
-        list.add(new BannerDataBean(R.drawable.image6, "微微一笑 很倾城", 3));
+        list.add(new BannerDataBean(R.drawable.bacg2k, "这个是一个欢迎页.轮播图刚刚启动的时候会播放这个", 1));
         return list;
     }
-
-    public static List<BannerDataBean> getTestData2() {
-        List<BannerDataBean> list = new ArrayList<>();
-        list.add(new BannerDataBean(R.drawable.image7, "听风.赏雨", 3));
-        list.add(new BannerDataBean(R.drawable.image8, "迪丽热巴.迪力木拉提", 1));
-        list.add(new BannerDataBean(R.drawable.image9, "爱美.人间有之", 3));
-        list.add(new BannerDataBean(R.drawable.image10, "洋洋洋.气质篇", 1));
-        list.add(new BannerDataBean(R.drawable.image11, "生活的态度", 3));
-        return list;
-    }
-
-    /**
-     * 仿淘宝商品详情第一个是视频
-     *
-     * @return
-     */
-    public static List<BannerDataBean> getTestDataVideo() {
-        List<BannerDataBean> list = new ArrayList<>();
-        list.add(new BannerDataBean("http://vfx.mtime.cn/Video/2019/03/09/mp4/190309153658147087.mp4", "第一个放视频", 2));
-        list.add(new BannerDataBean(R.drawable.image7, "听风.赏雨", 1));
-        list.add(new BannerDataBean(R.drawable.image8, "迪丽热巴.迪力木拉提", 1));
-        list.add(new BannerDataBean(R.drawable.image9, "爱美.人间有之", 1));
-        list.add(new BannerDataBean(R.drawable.image10, "洋洋洋.气质篇", 1));
-        list.add(new BannerDataBean(R.drawable.image11, "生活的态度", 1));
-        return list;
-    }
-
-    public static List<BannerDataBean> getTestData3() {
-        List<BannerDataBean> list = new ArrayList<>();
-        list.add(new BannerDataBean("https://img.zcool.cn/community/013de756fb63036ac7257948747896.jpg", null, 1));
-        list.add(new BannerDataBean("https://img.zcool.cn/community/01639a56fb62ff6ac725794891960d.jpg", null, 1));
-        list.add(new BannerDataBean("https://img.zcool.cn/community/01270156fb62fd6ac72579485aa893.jpg", null, 1));
-        list.add(new BannerDataBean("https://img.zcool.cn/community/01233056fb62fe32f875a9447400e1.jpg", null, 1));
-        list.add(new BannerDataBean("https://img.zcool.cn/community/016a2256fb63006ac7257948f83349.jpg", null, 1));
-        return list;
-    }
-
-    public static List<BannerDataBean> getVideos() {
-        List<BannerDataBean> list = new ArrayList<>();
-        list.add(new BannerDataBean("http://vfx.mtime.cn/Video/2019/03/21/mp4/190321153853126488.mp4", null, 0));
-        list.add(new BannerDataBean("http://vfx.mtime.cn/Video/2019/03/18/mp4/190318231014076505.mp4", null, 0));
-        list.add(new BannerDataBean("http://vfx.mtime.cn/Video/2019/03/18/mp4/190318214226685784.mp4", null, 0));
-        list.add(new BannerDataBean("http://vfx.mtime.cn/Video/2019/03/19/mp4/190319125415785691.mp4", null, 0));
-        list.add(new BannerDataBean("http://vfx.mtime.cn/Video/2019/03/14/mp4/190314223540373995.mp4", null, 0));
-        list.add(new BannerDataBean("http://vfx.mtime.cn/Video/2019/03/14/mp4/190314102306987969.mp4", null, 0));
-        return list;
-    }
-
 
     public static List<String> getColors(int size) {
         List<String> list = new ArrayList<>();

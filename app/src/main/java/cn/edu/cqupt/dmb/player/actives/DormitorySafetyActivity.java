@@ -33,7 +33,7 @@ public class DormitorySafetyActivity extends FragmentActivity {
     public void useBanner() {
         //添加生命周期观察者
         banner.addBannerLifecycleObserver(this)
-                .setAdapter(new ImageAdapter(BannerDataBean.getTestData()))
+                .setAdapter(new ImageAdapter(BannerDataBean.getHelloViewData()))
                 .setIndicator(new CircleIndicator(this));
     }
 }

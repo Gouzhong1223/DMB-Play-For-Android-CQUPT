@@ -22,7 +22,8 @@ public enum DmbPlayerConstant {
     DMB_READ_TIME("DMB_READ_TIME", 32, "一次 IO 从 USB 中读取数据的次数,"),
     DMB_V_ID("DMB_V_ID", 1155, "DMB接收机的厂商ID"),
     DMB_P_ID("DMB_P_ID", 22336, "DMB接收机的设备ID"),
-    ACTION_USB_PERMISSION("ACTION_USB_PERMISSION",null,"cn.edu.cqupt.dmb.player.USB_PERMISSION")
+    ACTION_USB_PERMISSION("ACTION_USB_PERMISSION", null, "cn.edu.cqupt.dmb.player.USB_PERMISSION"),
+    DEFAULT_BANNER_BITMAP_CACHE_SIZE("DEFAULT_BANNER_BITMAP_CACHE_SIZE", 10, "默认的轮播图缓存数量"),
     ;
     private final String dmbConstantName;
     private final Integer dmbConstantValue;

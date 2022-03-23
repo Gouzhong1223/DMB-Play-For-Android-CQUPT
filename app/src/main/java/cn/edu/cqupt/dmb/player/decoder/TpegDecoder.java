@@ -61,7 +61,7 @@ public class TpegDecoder extends Thread {
         boolean isReceiveFirstFrame = false;
         String fileName = null;
         Log.e(TAG, "tpeg decoder start");
-        NativeMethod.tpegInit();
+//        NativeMethod.tpegInit();
         while (!isStop) {
             tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
             if (!DataReadWriteUtil.readTpegFrame(inputStream, tpegBuffer)) {

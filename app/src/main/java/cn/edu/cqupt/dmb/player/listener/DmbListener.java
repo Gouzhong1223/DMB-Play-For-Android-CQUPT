@@ -12,6 +12,13 @@ package cn.edu.cqupt.dmb.player.listener;
  * @Version : 1.0.0
  */
 public interface DmbListener {
+    /**
+     * 这个是 DMB 数据编码成功之后的回调方法
+     *
+     * @param fileName 文件名称
+     * @param bytes    文件数组
+     * @param length   文件长度
+     */
     void onSuccess(String fileName, byte[] bytes, int length);
 
     void onReceiveMessage(String msg);

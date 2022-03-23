@@ -19,9 +19,11 @@ import java.io.PipedOutputStream;
  */
 public class DataReadWriteUtil {
 
-    private static final PipedOutputStream pipedOutputStream;
-    private static final PipedInputStream pipedInputStream;
-    private static final BufferedInputStream bufferedInputStream;
+    private volatile static PipedOutputStream pipedOutputStream;
+    private volatile static PipedInputStream pipedInputStream;
+    private volatile static BufferedInputStream bufferedInputStream;
+
+    public static volatile boolean initFlag = false;
 
     static {
         pipedOutputStream = new PipedOutputStream();
@@ -45,6 +47,9 @@ public class DataReadWriteUtil {
         int nRead;
         try {
             // 找到包头
+            if (!initFlag) {
+                return initFlag;
+            }
             while ((nRead = inputStream.read(bytes, 3, 1)) > 0) {
                 if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
                     break;

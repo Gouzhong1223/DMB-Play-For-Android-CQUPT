@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.listener;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import java.io.File;
@@ -8,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
+import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
+import cn.edu.cqupt.dmb.player.banner.bean.BannerImageBitmapCache;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
 /**
@@ -33,10 +37,18 @@ public class DmbTpegListener implements DmbListener {
 
     @Override
     public void onSuccess(String fileName, byte[] bytes, int length) {
+        // 生成文件名称
         fileName = DmbUtil.CACHE_DIRECTORY + fileName;
         if (fileName.equals(DmbUtil.CACHE_DIRECTORY + "building" + building + ".jpg")) {
             System.arraycopy(bytes, 0, fileBuffer, 0, length);
             fileLength = length;
+        }
+        Bitmap bitmap = BitmapFactory.decodeByteArray(fileBuffer, 0, fileLength);
+        BannerBitmapDataBean bannerBitmapDataBean = new BannerBitmapDataBean(bitmap, fileName, 1);
+        if (bitmap != null) {
+            BannerImageBitmapCache.putBitMap(bannerBitmapDataBean);
+        } else {
+            Log.e(TAG, "生成 bitmap 错误啦!");
         }
     }
 

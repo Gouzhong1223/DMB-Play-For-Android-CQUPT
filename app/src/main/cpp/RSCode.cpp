@@ -1,28 +1,49 @@
-#include <stdio.h>
-#define M 8
-#define N 255
+#include "RSCode.h"
 
-#define CODE_LEN 112
-#define MSG_LEN 96
-#define T1 8
-#define T2 16
+RSCode::RSCode(int _N,int _K,int _S):N(_N),S(_S),K(_K){
+    alphaTo = new int[N+1];
+    indexOf = new int[N+1];
+    M = (int)log2(N+1);
+    T2 = N - K;
+    T1 = T2 / 2;
+    px = new int[T1 + 1];
+    gx = new int[T2 + 1];
+    syndrome = new int[T2 + 1];
+    generatePx();
+    generateGF();
+    generateGx();
 
-static int alphaTo[N + 1];
-static int indexOf[N + 1]; 
+};
 
-
-static int px[T1 + 1];
-static int gx[T2 + 1];
-
-void generatePx(){
-    int i;
+void RSCode::generatePx(){
     for(int i=0;i<=M;i++){
         px[i] = 0;
     }
     px[0] = px[2] = px[3] = px[4] = px[8] = 1; 
 }
 
-void generateGF(){
+void RSCode::generateGx(){
+    int i,j;
+    gx[0] = alphaTo[0];
+    gx[1] = 1;
+    for(i=2; i<=T2; i++){
+        gx[i] = 1; /* 最高项 */
+        for(j=i-1; j>0; j--){ /* 中间项 */
+            if(gx[i] != 0){
+                gx[j] = gx[j-1] ^ alphaTo[ (indexOf[gx[j]] + i -1) % N];
+            }else{
+                gx[j] = gx[j-1];
+            }
+        }
+        gx[0] = alphaTo[(indexOf[gx[0]] + i -1) % N]; /* 常数项 */
+    }
+    /* 转化为log形式 */
+    for(i=0; i<=T2; i++){
+        gx[i] = indexOf[gx[i]];
+    }
+}
+
+void RSCode::generateGF(){
     int i,mask = 1;
     alphaTo[M] = 0;
     for(i=0;i<M;i++){
@@ -46,48 +67,14 @@ void generateGF(){
     indexOf[0] = -1;
 }
 
-/* $g(x) = (x - \alpha^0)(x - \alpha^1)...(x - \alpha^{2t-1})$展开后x的系数 */
-void generateGx(){
-    int i,j;
-    /* 初始状态 g(0) = x - \alpha^0 */
-    gx[0] = alphaTo[0];
-    gx[1] = 1;
-
-    /* 每次迭代乘以一个$(x-\alpha^{i-1})$，这里只要注意每次迭代的时候分为最高项，中间项和常数项进行操作 */
-    for(i=2; i<=T2; i++){
-        gx[i] = 1; /* 最高项 */
-        for(j=i-1; j>0; j--){ /* 中间项 */
-            if(gx[i] != 0){
-                gx[j] = gx[j-1] ^ alphaTo[ (indexOf[gx[j]] + i -1) % N];
-            }else{
-                gx[j] = gx[j-1];
-            }
-        }
-        gx[0] = alphaTo[(indexOf[gx[0]] + i -1) % N]; /* 常数项 */
-    }
-
-    /* 转化为log形式 */
-    for(i=0; i<=T2; i++){
-        gx[i] = indexOf[gx[i]];
-    }
-}
-
-void rsInit(){
-    generatePx();
-    generateGF();
-    generateGx();
-}
-
-
-/* 这里是使用软件模仿硬件电路的实现 */
-void rsEncode(unsigned char *msg, unsigned char *code){
+void RSCode::encode(uint8_t *msg,uint8_t *code){
     int i,j;
     int feedback;
     int b[T2];
     for(i=0;i<T2;i++){
         b[i] = 0;
     }
-    for(i=0;i<MSG_LEN;i++){
+    for(i=0;i<S - T2;i++){
         code[i] = msg[i];
         feedback = indexOf[msg[i] ^ b[T2 - 1]];
         if(feedback != -1){
@@ -107,19 +94,18 @@ void rsEncode(unsigned char *msg, unsigned char *code){
         }
     }
     for(i=0;i<T2;i++){
-        code[CODE_LEN - i -1] = b[i];
+        code[S - i -1] = b[i];
     }
 }
 
-/* $s_{i}=r(\alpha^{i}\right)=r_{0}+r_{1} \alpha^{i}+r_{2} \alpha^{2 i} \ldots+r_{n-1} \alpha^{(n-1) i}$ */
-int findSyndrome(unsigned char *recd, int *syndrome){
+int RSCode::findSyndrome(uint8_t *recd, int *syndrome){
     int i,j,error = 0;
     for(i=1; i<= T2;i++){
         syndrome[i] = 0;
         int product = 0;
-        for(j=0;j<CODE_LEN;j++){
-            if(recd[CODE_LEN - 1 -j] != 0){
-                syndrome[i] ^= alphaTo[(indexOf[recd[CODE_LEN - 1 -j]] + product) % N];
+        for(j=0;j<S;j++){
+            if(recd[S - 1 -j] != 0){
+                syndrome[i] ^= alphaTo[(indexOf[recd[S - 1 -j]] + product) % N];
             }
             product += i-1;
         }
@@ -132,7 +118,7 @@ int findSyndrome(unsigned char *recd, int *syndrome){
     return error;
 }
 
-int findErrLocPoly(int *syndrome, int *errLocPoly){
+int RSCode::findErrLocPoly(int *syndrome, int *errLocPoly){
     int i,j,q,u;
     int d[T2+2],l[T2+2],uLu[T2+2],elp[T2+2][T2];
 
@@ -214,7 +200,7 @@ int findErrLocPoly(int *syndrome, int *errLocPoly){
     return -1;
 }
 
-int findErrPos(int *errLocPoly, int errNum, int *errPos){
+int RSCode::findErrPos(int *errLocPoly, int errNum, int *errPos){
     int i,j,q,count = 0;
     for(i=1;i<=N;i++){
         q = 1;
@@ -226,7 +212,7 @@ int findErrPos(int *errLocPoly, int errNum, int *errPos){
         }
         if(q == 0){
             errPos[count] = N-i;
-            if(N-i >= CODE_LEN){
+            if(N-i >= S){
                 count = T2;
                 break;
             }
@@ -236,7 +222,7 @@ int findErrPos(int *errLocPoly, int errNum, int *errPos){
     return count;
 }
 
-void findErrValue(int *errLocPoly, int errNum, int *errPos, int *syndrome, unsigned char *recd){
+void RSCode::findErrValue(int *errLocPoly, int errNum, int *errPos, int *syndrome, uint8_t *recd){
     int i,j,degphi,q;
     int omega[T2+1],phi[T2+1],phiprime[T2+1],err[N],root[T2+1];
 
@@ -288,7 +274,7 @@ void findErrValue(int *errLocPoly, int errNum, int *errPos, int *syndrome, unsig
     }
 
     for(i=0;i<errNum;i++){
-        printf("%d\n",errPos[i]);
+        // printf("%d\n",errPos[i]);
         err[ errPos[i] ] = 0;
         for(j = 0;j<=T2;j++){
             if(omega[j] != -1 && root[i] != -1){
@@ -311,15 +297,15 @@ void findErrValue(int *errLocPoly, int errNum, int *errPos, int *syndrome, unsig
             }
             err[errPos[i]] = alphaTo[(err[errPos[i]] - indexOf[q] + N) % N];
             //printf("%d %d\n",CODE_LEN - 1 - errPos[i],err[errPos[i]]);
-            recd[CODE_LEN - 1 - errPos[i]] ^= err[errPos[i]];
+            recd[S - 1 - errPos[i]] ^= err[errPos[i]];
         } 
 
        
     }
 }
 
-
-int rsDecode(unsigned char *recd, unsigned char *msg){
+int RSCode::decode(uint8_t *recd, uint8_t *msg){
+    
     int syndrome[T2 + 1];
     int ret = findSyndrome(recd,syndrome);
     int i;
@@ -329,15 +315,24 @@ int rsDecode(unsigned char *recd, unsigned char *msg){
         int polyNum = findErrLocPoly(syndrome,errLocPoly);
         int errNum = findErrPos(errLocPoly,polyNum,errPos);
         if(errNum > T1){
-            for(i=0;i<MSG_LEN;i++){
+            for(i=0;i<S-T2;i++){
                 msg[i] = recd[i];
             }
             return -1;
         }
         findErrValue(errLocPoly,errNum,errPos,syndrome,recd);
     }
-    for(i=0;i<MSG_LEN;i++){
+    for(i=0;i<S-T2;i++){
         msg[i] = recd[i];
     }
     return 0;
+
 }
+
+ RSCode::~RSCode(){
+    delete[] alphaTo;
+    delete[] indexOf;
+    delete[] px;
+    delete[] gx;
+    delete[] syndrome;
+ }

@@ -23,13 +23,12 @@ add_library(
         SHARED
 
         # Provides a relative path to your source file(s).
-        native-lib.cpp
+#        DmbCoder.cpp
+        Interleaver.cpp
         mp2decoder.cpp
-        tpeg.c
-        rs.c
-        crc.c
-        interleaver.c
-        tpegdec-lib.cpp)
+        native-lib.cpp
+        RSCode.cpp
+        TpegCode.cpp)
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

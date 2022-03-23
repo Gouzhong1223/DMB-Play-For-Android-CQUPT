@@ -15,7 +15,9 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
+import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
@@ -36,6 +38,8 @@ public class CarouselActivity extends FragmentActivity {
         initView();
         // 执行定时更新信号图片的任务
         updateSignalImage();
+        // 执行更新轮播图的任务
+        updateCarouselImage();
     }
 
     private void initView() {
@@ -51,7 +55,7 @@ public class CarouselActivity extends FragmentActivity {
     public void useBanner() {
         //添加生命周期观察者
         banner.addBannerLifecycleObserver(this)
-                .setAdapter(new ImageAdapter(BannerDataBean.getTestData()))
+                .setAdapter(new ImageAdapter(BannerDataBean.getHelloViewData()))
                 .setIndicator(new CircleIndicator(this)).start();
     }
 
@@ -60,8 +64,11 @@ public class CarouselActivity extends FragmentActivity {
      */
     private void updateCarouselImage() {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
-
-        }, 5L, 30L, TimeUnit.SECONDS);
+            banner.stop();
+            banner.addBannerLifecycleObserver(this)
+                    .setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()))
+                    .setIndicator(new CircleIndicator(this)).start();
+        }, 20L, 30L, TimeUnit.SECONDS);
     }
 
     /**
@@ -93,6 +100,7 @@ public class CarouselActivity extends FragmentActivity {
     protected void onDestroy() {
         // 如果activity被关闭了就应该立马销毁线程池并且终止正在运行的线程
         scheduledExecutorService.shutdownNow();
+        banner.stop();
         super.onDestroy();
     }
 }

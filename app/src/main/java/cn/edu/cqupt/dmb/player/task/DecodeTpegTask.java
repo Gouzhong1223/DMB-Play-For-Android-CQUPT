@@ -50,13 +50,15 @@ public class DecodeTpegTask implements Runnable {
     @Override
     public void run() {
         Log.e(TAG, "tpeg decoder start");
-        NativeMethod.tpegInit();
+//        NativeMethod.tpegInit();
+        Log.i(TAG, "C++方法初始化完毕");
         tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
         if (!DataReadWriteUtil.readTpegFrame(tpegBuffer)) {
             Log.e(TAG, "读取 TPEG 数据失败啦!");
             // 如果读取数据失败了,就直接返回,等待下一次读取
             return;
         }
+        Log.i(TAG, "读取 TPEG 数据成功了");
         Arrays.fill(tpegData, (byte) 0);
         Arrays.fill(tpegInfo, 0);
         NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);

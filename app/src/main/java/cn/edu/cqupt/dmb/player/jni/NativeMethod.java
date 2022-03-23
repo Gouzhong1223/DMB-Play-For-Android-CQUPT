@@ -8,7 +8,7 @@ package cn.edu.cqupt.dmb.player.jni;
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : com.gouzhong1223.androidtvtset_1.jni
- * @ProjectName : DMB Player For Android 
+ * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
 public class NativeMethod {
@@ -19,9 +19,25 @@ public class NativeMethod {
 
     public static native void mp2DecoderInit();
 
+    /**
+     * 对一个 MP2 帧进行解码
+     *
+     * @param in   需要译码的数组
+     * @param len  译码长度
+     * @param out  译码完成的数组
+     * @param info 消息类型
+     * @return 译码长度
+     */
     public static native int decodeMp2Frame(byte[] in, int len, byte[] out, int[] info);
 
-    public static native void tpegInit();
-
+    /**
+     * 对一个tdc进行译码，译码的结果存储在out中
+     * info[0] 类型 1 中间帧 2 头帧 3 尾帧
+     * info[1] 消息长度
+     *
+     * @param in   需要译码的数组
+     * @param out  译码完成额数组
+     * @param info 用于存储消息类型
+     */
     public static native void decodeTpegFrame(byte[] in, byte[] out, int[] info);
 }
