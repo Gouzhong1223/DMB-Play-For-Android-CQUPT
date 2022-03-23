@@ -49,9 +49,6 @@ public class DecodeTpegTask implements Runnable {
 
     @Override
     public void run() {
-        Log.e(TAG, "tpeg decoder start");
-//        NativeMethod.tpegInit();
-        Log.i(TAG, "C++方法初始化完毕");
         tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
         if (!DataReadWriteUtil.readTpegFrame(tpegBuffer)) {
             Log.e(TAG, "读取 TPEG 数据失败啦!");
@@ -61,7 +58,9 @@ public class DecodeTpegTask implements Runnable {
         Log.i(TAG, "读取 TPEG 数据成功了");
         Arrays.fill(tpegData, (byte) 0);
         Arrays.fill(tpegInfo, 0);
+        Log.i(TAG, "开始执行 TPEG 译码工作");
         NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
+        Log.i(TAG, "TPEG 译码完成啦!");
         TpegDataProcessing tpegDataProcessing = TpegDataProcessingFactory.getDataProcessor(tpegInfo[0]);
         tpegDataProcessing.processData(tpegBuffer, tpegData, tpegInfo);
     }
