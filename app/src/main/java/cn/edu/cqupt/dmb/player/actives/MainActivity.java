@@ -21,6 +21,7 @@ import android.widget.Button;
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
@@ -159,7 +160,8 @@ public class MainActivity extends Activity {
                     if (usbManager.hasPermission(usbDevice)) {
                         USB_READY = false;
                         FicDataProcessor.isSelectId = false;
-                        // 打开USB设备并开始读取数据
+                        DataReadWriteUtil.initFlag = false;
+                        // 关闭USB设备
                         closeDevice();
                     } else {
                         // 如果暂时还没有授予权限,那就发起授权申请
@@ -174,6 +176,8 @@ public class MainActivity extends Activity {
                 assert device != null;
                 if (VID == device.getVendorId() && PID == device.getProductId()) {
                     USB_READY = false;
+                    FicDataProcessor.isSelectId = false;
+                    DataReadWriteUtil.initFlag = false;
                     // 由于是直接拔出,所以直接执行关闭USB的后置方法
                     Log.e(TAG, System.currentTimeMillis() + "---USB 设备已被拔出!");
                     closeDevice();

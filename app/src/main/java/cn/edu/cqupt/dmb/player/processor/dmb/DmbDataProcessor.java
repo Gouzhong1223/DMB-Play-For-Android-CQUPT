@@ -28,11 +28,12 @@ public class DmbDataProcessor implements DataProcessing {
 
     @Override
     public void processData(byte[] usbData) {
-//        Log.i(TAG, "现在接收到的数据是 DMB 类型的");
         int dataLength = (((int) usbData[7]) & 0x0FF);
         try {
             DataReadWriteUtil.getPipedOutputStream().write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
-            DataReadWriteUtil.initFlag = true;
+            if (!DataReadWriteUtil.initFlag) {
+                DataReadWriteUtil.initFlag = true;
+            }
         } catch (IOException e) {
             Log.e(TAG, "处理 DMB 数据出错啦!---" + e);
             e.printStackTrace();
