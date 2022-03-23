@@ -50,6 +50,10 @@ public class DecodeTpegTask implements Runnable {
     @Override
     public void run() {
         tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
+        if (!DataReadWriteUtil.initFlag) {
+            // 如果当前的initFlag还没有被设置成 true,说明还没有被写入过 TPEG 数据,那就直接返回等下一次执行
+            return;
+        }
         if (!DataReadWriteUtil.readTpegFrame(tpegBuffer)) {
             Log.e(TAG, "读取 TPEG 数据失败啦!");
             // 如果读取数据失败了,就直接返回,等待下一次读取

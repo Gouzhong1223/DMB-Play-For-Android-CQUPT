@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-class Interleaver{
+class Interleaver {
 private:
     int encPos;
     int decPos;
@@ -13,11 +13,16 @@ private:
 public:
     int with;
     int depth;
+
     Interleaver(int _depth, int _with);
+
     void resetDecoder();
+
     void resetEncoder();
-    void encode(uint8_t *msg,uint8_t *code);
-    void decode(uint8_t *recd,uint8_t *msg);
+
+    void encode(uint8_t *msg, uint8_t *code);
+
+    void decode(uint8_t *recd, uint8_t *msg);
 };
 
 #endif //INTERLEAVER_H

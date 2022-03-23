@@ -19,6 +19,7 @@ import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
+import cn.edu.cqupt.dmb.player.banner.bean.BannerImageBitmapCache;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
 
@@ -64,10 +65,14 @@ public class CarouselActivity extends FragmentActivity {
      */
     private void updateCarouselImage() {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
-            banner.stop();
-            banner.addBannerLifecycleObserver(this)
-                    .setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()))
-                    .setIndicator(new CircleIndicator(this)).start();
+            // 如果当前的 bitmap 缓存中有数据,就先暂停当前的轮播图,然后重新设置轮播图资源再开始
+            if (BannerImageBitmapCache.getBannerCache().size() != 0) {
+                Log.i(TAG, "现在已经有 bitmap 数据了,重新设置一下轮播图");
+                banner.stop();
+                banner.addBannerLifecycleObserver(this)
+                        .setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()))
+                        .setIndicator(new CircleIndicator(this)).start();
+            }
         }, 20L, 30L, TimeUnit.SECONDS);
     }
 

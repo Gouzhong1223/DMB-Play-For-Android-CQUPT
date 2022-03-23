@@ -58,7 +58,7 @@ public class UsbUtil {
     /**
      * 默认的任务间隔时间
      */
-    private static final long TASK_DEFAULT_INTERVAL = 2L;
+    private static final long TASK_DEFAULT_INTERVAL = 3L;
     /**
      * 用于缓存USB设备的Map
      */
@@ -120,7 +120,7 @@ public class UsbUtil {
             // 交给定时任务线程池去做,延迟一秒之后,每三秒从USB读取一次数据
             if (UsbUtil.getScheduledExecutorService().isShutdown()) {
                 // 关闭线程池之后重启创建一个线程池再提交一次任务
-                UsbUtil.setScheduledExecutorService(new ScheduledThreadPoolExecutor(1));
+                UsbUtil.setScheduledExecutorService(new ScheduledThreadPoolExecutor(2));
             }
             // 如果没有Shutdown就直接提交任务
             scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn, usbDeviceConnection),

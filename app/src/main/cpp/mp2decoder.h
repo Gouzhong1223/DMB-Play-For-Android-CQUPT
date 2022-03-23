@@ -8,7 +8,7 @@ extern "C" {
 /* initial decoder */
 void mp2DecoderInit();
 /* in:mp2 frame, len: mp2 frame length, out: pcm buffer, info: pcm information */
-int decodeMp2Frame(unsigned char *in, int len, unsigned  char *out, unsigned int *info);
+int decodeMp2Frame(unsigned char *in, int len, unsigned char *out, unsigned int *info);
 
 #ifdef __cplusplus
 }

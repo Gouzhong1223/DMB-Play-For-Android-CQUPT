@@ -3,13 +3,9 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
-import cn.edu.cqupt.dmb.player.task.DecodeTpegTask;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
-import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
  * @Author : Gouzhong
@@ -28,6 +24,7 @@ public class DmbDataProcessor implements DataProcessing {
 
     @Override
     public void processData(byte[] usbData) {
+        Log.i(TAG, "现在接收到的数据是 DMB 数据");
         int dataLength = (((int) usbData[7]) & 0x0FF);
         try {
             DataReadWriteUtil.getPipedOutputStream().write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
