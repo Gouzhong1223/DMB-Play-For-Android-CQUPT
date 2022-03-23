@@ -40,7 +40,7 @@ public class UsbUtil {
      * 定时任务线程池
      */
     private static ScheduledExecutorService scheduledExecutorService;
-    private static ExecutorService executorService;
+    private static final ExecutorService executorService;
 
     static {
         // JVM启动的时候初始化线程池,由于只有一个任务,所以核心线程就只设置一个
@@ -140,9 +140,5 @@ public class UsbUtil {
 
     public static ExecutorService getExecutorService() {
         return executorService;
-    }
-
-    public static void setExecutorService(ExecutorService executorService) {
-        UsbUtil.executorService = executorService;
     }
 }
