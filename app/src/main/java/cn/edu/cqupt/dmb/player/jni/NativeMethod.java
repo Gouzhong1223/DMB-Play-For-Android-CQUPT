@@ -3,7 +3,7 @@ package cn.edu.cqupt.dmb.player.jni;
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : 这个是定义 Native 方法的类
  * @Date : create by QingSong in 2022-03-18 13:55
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
