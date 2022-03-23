@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
+import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
+import cn.edu.cqupt.dmb.player.task.DecodeTpegTask;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 
 /**
@@ -123,6 +125,8 @@ public class UsbUtil {
             // 如果没有Shutdown就直接提交任务
             scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn, usbDeviceConnection),
                     TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.SECONDS);
+            // 开始执行 TPEG 解码的任务
+            scheduledExecutorService.scheduleAtFixedRate(new DecodeTpegTask(new DmbTpegListener()), 0, 0, TimeUnit.MICROSECONDS);
         }
     }
 

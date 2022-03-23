@@ -32,7 +32,7 @@ public class LastTpegFrameProcessor implements TpegDataProcessing {
                 dmbListener.onSuccess(DecodeTpegTask.getFileName(), DecodeTpegTask.getFileBuffer(), DecodeTpegTask.getTotal());
             }
             DecodeTpegTask.setIsReceiveFirstFrame(false);
-            DecodeTpegTask.setFileBuffer(null);
+            DecodeTpegTask.setFileName(null);
         }
     }
 }

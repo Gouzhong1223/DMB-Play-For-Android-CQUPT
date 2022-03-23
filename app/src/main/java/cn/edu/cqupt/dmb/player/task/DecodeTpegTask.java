@@ -2,8 +2,6 @@ package cn.edu.cqupt.dmb.player.task;
 
 import android.util.Log;
 
-import java.io.BufferedInputStream;
-import java.io.PipedInputStream;
 import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
@@ -45,13 +43,12 @@ public class DecodeTpegTask implements Runnable {
     private static volatile byte[] fileBuffer = new byte[FILE_BUFFER_SIZE];
     private static volatile boolean isReceiveFirstFrame = false;
     private static volatile String fileName = null;
-
+    private final byte[] tpegBuffer = new byte[TPEG_SIZE];
+    private final byte[] tpegData = new byte[DATA_SIZE];
+    private final int[] tpegInfo = new int[TPEG_INFO_SIZE];
 
     @Override
     public void run() {
-        byte[] tpegBuffer = new byte[TPEG_SIZE];
-        byte[] tpegData = new byte[DATA_SIZE];
-        int[] tpegInfo = new int[TPEG_INFO_SIZE];
         Log.e(TAG, "tpeg decoder start");
         NativeMethod.tpegInit();
         tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;

@@ -21,21 +21,16 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 public class DmbDataProcessor implements DataProcessing {
 
     private static final String TAG = "DmbDataProcessor";
-    private int dataLength;
 
     @Override
     public void processData(byte[] usbData) {
         Log.i(TAG, "现在接收到的数据是 DMB 类型的");
-        dataLength = (((int) usbData[7]) & 0x0FF);
+        int dataLength = (((int) usbData[7]) & 0x0FF);
         try {
             DataReadWriteUtil.getPipedOutputStream().write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
         } catch (IOException e) {
             Log.e(TAG, "处理 DMB 数据出错啦!---" + e);
             e.printStackTrace();
         }
-    }
-
-    public int getDataLength() {
-        return dataLength;
     }
 }
