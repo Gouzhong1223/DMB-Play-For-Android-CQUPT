@@ -66,7 +66,7 @@ public class DecodeTpegTask implements Runnable {
             Arrays.fill(tpegData, (byte) 0);
             Arrays.fill(tpegInfo, 0);
             Log.i(TAG, "开始执行 TPEG 译码工作");
-            NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
+            NativeMethod.tpegrsdec(tpegBuffer, tpegData, tpegInfo);
             Log.i(TAG, "TPEG 译码完成啦!");
             TpegDataProcessing tpegDataProcessing = TpegDataProcessingFactory.getDataProcessor(tpegInfo[0]);
             tpegDataProcessing.processData(tpegBuffer, tpegData, tpegInfo);
