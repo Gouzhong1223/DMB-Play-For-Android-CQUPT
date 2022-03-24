@@ -57,9 +57,10 @@ public class MainActivity extends Activity {
     }
 
     private void initDmbConstants() {
-        id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 802);
+        // id 801 是重邮教学楼课表,820 是重邮室外屏
+        id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 820);
         isEncrypted = DmbUtil.getBoolean(this, DmbUtil.ENCRYPTION, true);
-        building = DmbUtil.getInt(this,DmbUtil.BUILDING,64);
+        building = DmbUtil.getInt(this, DmbUtil.BUILDING, 64);
     }
 
     /**
