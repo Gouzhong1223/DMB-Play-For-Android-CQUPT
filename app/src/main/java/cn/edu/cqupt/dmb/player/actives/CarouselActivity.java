@@ -73,7 +73,7 @@ public class CarouselActivity extends FragmentActivity {
                         .setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()))
                         .setIndicator(new CircleIndicator(this)).start();
             }
-        }, 20L, 30L, TimeUnit.SECONDS);
+        }, 0L, 15L, TimeUnit.SECONDS);
     }
 
     /**

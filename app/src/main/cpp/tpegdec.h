@@ -13,6 +13,8 @@ void tpeg_forney_2(void);
 int decode_rs(unsigned char* ts_buf_112, unsigned char* ts_buf_96);
 void  rs_deinterleaver(unsigned char * pRsBuf,unsigned char * pRsBuf1);
 void decode_rs_tpeg(unsigned char * rs_Buf,unsigned char * ts_Buf);
+void tpeg_packet_dec(unsigned char *pbuf, unsigned char *jpegBuf, int info[]);
+int tpeg_crc(unsigned char *pData, int nlen);
 
 #ifdef __cplusplus
 }

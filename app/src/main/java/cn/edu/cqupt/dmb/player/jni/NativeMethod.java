@@ -15,7 +15,7 @@ public class NativeMethod {
 
     static {
         System.loadLibrary("native-lib");
-        System.loadLibrary("tpegdec-lib");
+//        System.loadLibrary("tpegdec-lib");
     }
 
     public static native void mp2DecoderInit();
@@ -31,6 +31,10 @@ public class NativeMethod {
      */
     public static native int decodeMp2Frame(byte[] in, int len, byte[] out, int[] info);
 
+
+    public static native void tpegInit();
+
+
     /**
      * 对一个tdc进行译码，译码的结果存储在out中
      * info[0] 类型 1 中间帧 2 头帧 3 尾帧
@@ -41,16 +45,4 @@ public class NativeMethod {
      * @param info 用于存储消息类型
      */
     public static native void decodeTpegFrame(byte[] in, byte[] out, int[] info);
-
-
-    /**
-     * 对一个tdc进行译码，译码的结果存储在out中
-     * info[0] 类型 1 中间帧 2 头帧 3 尾帧
-     * info[1] 消息长度
-     *
-     * @param inArray   需要译码的数组
-     * @param outArray  译码完成额数组
-     * @param infoArray 用于存储消息类型
-     */
-    public static native void tpegrsdec(byte[] inArray, byte[] outArray, int[] infoArray);
 }

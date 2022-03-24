@@ -9,6 +9,7 @@ import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.processor.tpeg.TpegDataProcessing;
 import cn.edu.cqupt.dmb.player.processor.tpeg.TpegDataProcessingFactory;
+import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
@@ -52,6 +53,7 @@ public class DecodeTpegTask implements Runnable {
     public void run() {
         if (MainActivity.USB_READY) {
             Log.i(TAG, "开始处理 TPEG 数据");
+            NativeMethod.tpegInit();
             tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
             if (!DataReadWriteUtil.initFlag) {
                 // 如果当前的initFlag还没有被设置成 true,说明还没有被写入过 TPEG 数据,那就直接返回等下一次执行
@@ -64,7 +66,7 @@ public class DecodeTpegTask implements Runnable {
             }
             Arrays.fill(tpegData, (byte) 0);
             Arrays.fill(tpegInfo, 0);
-            NativeMethod.tpegrsdec(tpegBuffer, tpegData, tpegInfo);
+            NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
             TpegDataProcessing tpegDataProcessing = TpegDataProcessingFactory.getDataProcessor(tpegInfo[0]);
             tpegDataProcessing.processData(tpegBuffer, tpegData, tpegInfo);
         }
