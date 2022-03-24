@@ -326,7 +326,7 @@ public class Dangle {
         generateReqMsg(2, reqMsg2);
         // 在真正读取数据之前,应该先完成一次收,两次发的动作,先后顺序是发收发
         new SendDataToUsbTask(reqMsg, usbEndpointOut, usbDeviceConnection).call();
-        new ReceiveUsbDataTask(rxMsg, usbEndpointIn, usbDeviceConnection).run();
+        new ReceiveUsbDataTask(rxMsg, usbEndpointIn, usbDeviceConnection, 1).run();
         new SendDataToUsbTask(reqMsg2, usbEndpointOut, usbDeviceConnection).call();
         Log.i(TAG, "DMB 完成首次收发");
     }

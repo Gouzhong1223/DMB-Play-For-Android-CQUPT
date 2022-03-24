@@ -39,17 +39,21 @@ public class ReceiveUsbDataTask implements Runnable {
      */
     private final UsbDeviceConnection usbDeviceConnection;
 
+    private final Integer READ_TIME;
+
     /**
      * 定时任务构造器
      *
      * @param bytes               用于存储从USB中读取到的数据
      * @param usbEndpointIn       读取USB数据的端口
      * @param usbDeviceConnection 已经打开的USB链接
+     * @param READ_TIME           从 USB 中的读取次数
      */
-    public ReceiveUsbDataTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection) {
+    public ReceiveUsbDataTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection, Integer READ_TIME) {
         this.bytes = bytes;
         this.usbEndpointIn = usbEndpointIn;
         this.usbDeviceConnection = usbDeviceConnection;
+        this.READ_TIME = READ_TIME;
     }
 
     @Override
@@ -66,7 +70,8 @@ public class ReceiveUsbDataTask implements Runnable {
                 return;
             }
             // 由于 bytes 中包含 DmbPlayerConstant.DMB_READ_TIME 个 DMB 数据包,所以这里采用一个循环的方式分包,分成 DmbPlayerConstant.DMB_READ_TIME 个
-            for (int i = 0; i < DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(); i++) {
+            // 20220324更新,这里从 USB 中读取的次数现在依赖于成员变量 READ_TIME
+            for (int i = 0; i < READ_TIME; i++) {
                 // 分包
                 System.arraycopy(bytes, i * DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
                         , packetBuf, 0, DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue());

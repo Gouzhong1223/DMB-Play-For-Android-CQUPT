@@ -121,7 +121,8 @@ public class UsbUtil {
                 UsbUtil.setScheduledExecutorService(new ScheduledThreadPoolExecutor(2));
             }
             // 如果没有Shutdown就直接提交任务
-            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn, usbDeviceConnection),
+            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn,
+                            usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()),
                     TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.SECONDS);
             // 开始执行 TPEG 解码的任务
             scheduledExecutorService.scheduleAtFixedRate(new DecodeTpegTask(new DmbTpegListener()), 0, 1, TimeUnit.SECONDS);
