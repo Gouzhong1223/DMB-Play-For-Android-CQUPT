@@ -18,7 +18,7 @@ import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
  * @Date : create by QingSong in 2022-03-11 16:21
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
- * @PackageName : com.gouzhong1223.androidtvtset_1.task
+ * @PackageName : cn.edu.cqupt.dmb.player.task
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */

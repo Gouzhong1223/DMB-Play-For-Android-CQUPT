@@ -21,7 +21,7 @@ import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
  * @Date : create by QingSong in 2022-03-02 21:06
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
- * @PackageName : com.gouzhong1223.androidtvtset_1.banner.adapter
+ * @PackageName : cn.edu.cqupt.dmb.player.banner.adapter
  * @ProjectName : DMB Player For Android 
  * @Version : 1.0.0
  */

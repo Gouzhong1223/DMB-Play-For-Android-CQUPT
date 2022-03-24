@@ -24,7 +24,7 @@ import java.io.ObjectOutputStream;
  * @Date : create by QingSong in 2022-03-17 22:45
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
- * @PackageName : com.gouzhong1223.androidtvtset_1.utils
+ * @PackageName : cn.edu.cqupt.dmb.player.utils
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */

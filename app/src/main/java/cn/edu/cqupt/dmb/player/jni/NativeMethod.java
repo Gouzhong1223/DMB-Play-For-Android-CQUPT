@@ -7,7 +7,7 @@ package cn.edu.cqupt.dmb.player.jni;
  * @Date : create by QingSong in 2022-03-18 13:55
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
- * @PackageName : com.gouzhong1223.androidtvtset_1.jni
+ * @PackageName : cn.edu.cqupt.dmb.player.jni
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */

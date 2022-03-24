@@ -20,7 +20,7 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
  * @Date : create by QingSong in 2022-03-15 14:08
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
- * @PackageName : com.gouzhong1223.androidtvtset_1.domain
+ * @PackageName : cn.edu.cqupt.dmb.player.domain
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */

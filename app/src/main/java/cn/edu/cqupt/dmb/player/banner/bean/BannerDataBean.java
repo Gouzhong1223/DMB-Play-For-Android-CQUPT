@@ -14,7 +14,7 @@ import cn.edu.cqupt.dmb.player.R;
  * @Date : create by QingSong in 2022-03-02 15:16
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
- * @PackageName : com.gouzhong1223.androidtvtset_1.banner
+ * @PackageName : cn.edu.cqupt.dmb.player.banner
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
