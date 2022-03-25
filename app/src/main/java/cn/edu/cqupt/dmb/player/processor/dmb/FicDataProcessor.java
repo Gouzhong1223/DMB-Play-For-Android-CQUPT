@@ -40,7 +40,7 @@ public class FicDataProcessor implements DataProcessing {
 
     @Override
     public void processData(byte[] usbData) {
-//        Log.i(TAG, "现在接收到的数据是 FIC 类型!");
+        Log.i(TAG, "现在接收到的数据是 FIC 类型!");
         // 从接收到的数据中的第八位开始拷贝fic数据,长度为32
         System.arraycopy(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), ficBuf, 0, DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue());
         // 调用ficDecoder解码器解码fic数据

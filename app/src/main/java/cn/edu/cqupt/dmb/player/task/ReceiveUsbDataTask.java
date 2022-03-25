@@ -59,14 +59,14 @@ public class ReceiveUsbDataTask implements Runnable {
     public void run() {
         byte[] packetBuf = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()];
         // 必须是USB设备已经就绪的情况下才执行,如果USB设备是未就绪或是终端没有插入USB的情况下就直接退出
-        while (DataReadWriteUtil.USB_READY) {
+        if (DataReadWriteUtil.USB_READY) {
             // 初始化一个packetBuf用于装载单个 DMB 数据
             // 从 USB 中读取数据装载在bytes中
             int readLength = usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, DmbPlayerConstant.DEFAULT_READ_TIME_OUT.getDmbConstantValue());
             if (readLength != bytes.length) {
                 // 这里是从 USB 中读取数据的时候失败了,所以直接返回,等待下一个任务来读取
                 Log.e(TAG, "从 USB 中读取数据失败!");
-                continue;
+                return;
             }
             // 由于 bytes 中包含 DmbPlayerConstant.DMB_READ_TIME 个 DMB 数据包,所以这里采用一个循环的方式分包,分成 DmbPlayerConstant.DMB_READ_TIME 个
             // 20220324更新,这里从 USB 中读取的次数现在依赖于成员变量 READ_TIME
@@ -77,7 +77,7 @@ public class ReceiveUsbDataTask implements Runnable {
                 // 从数据处理器的静态工程获取数据处理器
                 DataProcessing dataProcessor = DataProcessingFactory.getDataProcessor(packetBuf[3]);
                 // 处理数据
-//                Log.i(TAG, "正在处理 USB 数据的第:" + (i + 1) + "个包");
+                Log.i(TAG, "正在处理 USB 数据的第:" + (i + 1) + "个包");
                 dataProcessor.processData(packetBuf);
             }
         }

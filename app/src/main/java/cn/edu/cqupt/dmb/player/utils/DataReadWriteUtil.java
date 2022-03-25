@@ -33,12 +33,12 @@ public class DataReadWriteUtil {
         pipedOutputStream = new PipedOutputStream();
         pipedInputStream = new PipedInputStream(1024 * 2);
         bufferedInputStream = new BufferedInputStream(pipedInputStream);
-//        try {
-//            // 把管道的输入输出流连接起来
-//            pipedOutputStream.connect(pipedInputStream);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            // 把管道的输入输出流连接起来
+            pipedOutputStream.connect(pipedInputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
