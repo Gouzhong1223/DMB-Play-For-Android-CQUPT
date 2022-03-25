@@ -19,9 +19,9 @@ import java.io.PipedOutputStream;
  */
 public class DataReadWriteUtil {
 
-    private static final PipedOutputStream pipedOutputStream;
-    private static final PipedInputStream pipedInputStream;
-    private static final BufferedInputStream bufferedInputStream;
+    private static volatile PipedOutputStream pipedOutputStream;
+    private static volatile PipedInputStream pipedInputStream;
+    private static volatile BufferedInputStream bufferedInputStream;
 
     public static volatile boolean isFirstInitMainActivity = true;
 
@@ -33,12 +33,12 @@ public class DataReadWriteUtil {
         pipedOutputStream = new PipedOutputStream();
         pipedInputStream = new PipedInputStream(1024 * 2);
         bufferedInputStream = new BufferedInputStream(pipedInputStream);
-        try {
-            // 把管道的输入输出流连接起来
-            pipedOutputStream.connect(pipedInputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            // 把管道的输入输出流连接起来
+//            pipedOutputStream.connect(pipedInputStream);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     /**

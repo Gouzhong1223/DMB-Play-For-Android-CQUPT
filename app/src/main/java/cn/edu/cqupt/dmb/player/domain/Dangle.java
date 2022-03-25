@@ -5,9 +5,6 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.task.SendDataToUsbTask;
-
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -30,12 +27,18 @@ public class Dangle {
     private final UsbEndpoint usbEndpointOut;
 
     /**
+     * 写入USB数据的Endpoint
+     */
+    private final UsbEndpoint usbEndpointIn;
+
+    /**
      * 已经打开的USB连接
      */
     private final UsbDeviceConnection usbDeviceConnection;
 
-    public Dangle(UsbEndpoint usbEndpointOut, UsbDeviceConnection usbDeviceConnection) {
+    public Dangle(UsbEndpoint usbEndpointIn, UsbEndpoint usbEndpointOut, UsbDeviceConnection usbDeviceConnection) {
         this.usbEndpointOut = usbEndpointOut;
+        this.usbEndpointIn = usbEndpointIn;
         this.usbDeviceConnection = usbDeviceConnection;
     }
 
@@ -43,10 +46,6 @@ public class Dangle {
      * 清空Dangle寄存器，初始化Dangle，在设置频点和节目之前，需要先执行初始化操作
      */
     public void clearRegister() {
-        boolean ret1;
-        boolean ret2;
-        boolean ret3;
-        boolean ret4;
         byte[] clearBBChReg = {
                 (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 32,
                 (byte) 0x00, (byte) 0x20, (byte) 0x00, (byte) 0x00,
@@ -58,9 +57,12 @@ public class Dangle {
                 (byte) 0x00, (byte) 0x26, (byte) 0x00, (byte) 0x02,
                 (byte) 0x00, (byte) 0x2c, (byte) 0x00, (byte) 0x10
         };
-        Integer call3 = new SendDataToUsbTask(clearBBChReg, usbEndpointOut, usbDeviceConnection).call();
-        ret1 = call3 == clearBBChReg.length;
-
+        boolean ret1 = (write(clearBBChReg) == clearBBChReg.length);
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         byte[] clearBBFicData1 = {
                 (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 32,
                 (byte) 0x40, (byte) 0x00, (byte) 0xFF, (byte) 0xFF,
@@ -72,9 +74,12 @@ public class Dangle {
                 (byte) 0x40, (byte) 0x60, (byte) 0xFF, (byte) 0xFF,
                 (byte) 0x40, (byte) 0x70, (byte) 0xFF, (byte) 0xFF
         };
-        Integer call2 = new SendDataToUsbTask(clearBBFicData1, usbEndpointOut, usbDeviceConnection).call();
-        ret2 = call2 == clearBBFicData1.length;
-
+        boolean ret2 = (write(clearBBFicData1) == clearBBFicData1.length);
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         byte[] clearBBFicData2 = {
                 (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 32,
                 (byte) 0x40, (byte) 0x80, (byte) 0xFF, (byte) 0xFF,
@@ -86,9 +91,12 @@ public class Dangle {
                 (byte) 0x71, (byte) 0x90, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x07, (byte) 0x00, (byte) 0x00
         };
-        Integer call1 = new SendDataToUsbTask(clearBBFicData2, usbEndpointOut, usbDeviceConnection).call();
-        ret3 = call1 == clearBBFicData2.length;
-
+        boolean ret3 = (write(clearBBFicData2) == clearBBFicData2.length);
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         byte[] clearMcuReg = {
                 (byte) 0xFF, (byte) 0xFF, (byte) 0x08, (byte) 0x06,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -98,15 +106,17 @@ public class Dangle {
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
-        Integer call = new SendDataToUsbTask(clearMcuReg, usbEndpointOut, usbDeviceConnection).call();
-
-        ret4 = call == clearMcuReg.length;
-
+        boolean ret4 = (write(clearMcuReg) == clearMcuReg.length);
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if (ret1 && ret2 && ret3 && ret4) {
-            Log.i(TAG, "清除 DMB 设置成功!");
+            Log.i(TAG, "Clear register success");
             return;
         }
-        Log.e(TAG, "清除 DMB 设置失败!");
+        Log.i(TAG, "Clear register fail");
     }
 
     /**
@@ -224,13 +234,20 @@ public class Dangle {
         mcu_cmd[31] = 0x00;
         bb_cmd[31] = 0x02;
 
-        boolean ret1;
-        Integer call1 = new SendDataToUsbTask(bb_cmd, usbEndpointOut, usbDeviceConnection).call();
-        ret1 = call1 == bb_cmd.length;
-
-        boolean ret2;
-        Integer call = new SendDataToUsbTask(mcu_cmd, usbEndpointOut, usbDeviceConnection).call();
-        ret2 = call == bb_cmd.length;
+        boolean ret1 = (write(bb_cmd) == bb_cmd.length);
+        try {
+            Thread.currentThread();
+            Thread.sleep(200); /* wait for dangle handle this command */
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        boolean ret2 = (write(mcu_cmd) == mcu_cmd.length);
+        try {
+            Thread.currentThread();
+            Thread.sleep(200); /* wait for dangle handle this command */
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if (ret1 && ret2) {
             return true;
         }
@@ -238,6 +255,9 @@ public class Dangle {
         return false;
     }
 
+    /**
+     * set frequency, that is write a command to dangle
+     */
     public void setFrequency(int frequency) {
         byte[] cmd = new byte[48];
         cmd[0] = (byte) 0xff;
@@ -256,12 +276,25 @@ public class Dangle {
         cmd[13] = (byte) ((frequency >> 16) & 0xff);
         cmd[14] = (byte) ((frequency >> 8) & 0xff);
         cmd[15] = (byte) ((frequency) & 0xff);
-        int ret;
-        ret = new SendDataToUsbTask(cmd, usbEndpointOut, usbDeviceConnection).call();
-        if (ret == cmd.length) {
-            Log.i(TAG, "设置频点成功:" + frequency);
+        int ret = write(cmd);
+        if (ret != cmd.length) {
+            Log.e(TAG, "set frequency fail");
             return;
         }
-        Log.e(TAG, "set frequency fail");
+        Log.i(TAG, "set frequency success!");
+    }
+
+    public synchronized int write(byte[] bytes) {
+        if (usbDeviceConnection == null || usbEndpointOut == null) {
+            return -1;
+        }
+        return usbDeviceConnection.bulkTransfer(usbEndpointOut, bytes, bytes.length, 500);
+    }
+
+    public synchronized int read(byte[] bytes) {
+        if (usbDeviceConnection == null || usbEndpointIn == null) {
+            return -1;
+        }
+        return usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, 500);
     }
 }

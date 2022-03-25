@@ -12,7 +12,6 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;

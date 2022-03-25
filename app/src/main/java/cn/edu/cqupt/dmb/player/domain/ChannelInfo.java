@@ -35,6 +35,4 @@ public class ChannelInfo {
         return "channel = " + subCh + "  type = " + DATA_TYPE[type] + "  label = " + label + "  " + "Bitrate = " +
                 subChOrganization[6];
     }
-    public ChannelInfo() {
-    }
 }

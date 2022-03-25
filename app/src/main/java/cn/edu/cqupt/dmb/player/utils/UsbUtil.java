@@ -16,11 +16,12 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoderImprovement;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
-import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
+import cn.edu.cqupt.dmb.player.old.DangleReader;
 
 /**
  * @Author : Gouzhong
@@ -58,7 +59,7 @@ public class UsbUtil {
     /**
      * 默认的任务间隔时间
      */
-    private static final long TASK_DEFAULT_INTERVAL = 3L;
+    private static final long TASK_DEFAULT_INTERVAL = 500L;
     /**
      * 用于缓存USB设备的Map
      */
@@ -109,7 +110,7 @@ public class UsbUtil {
             usbDeviceConnection = manager.openDevice(usbDevice);
             // 获取读写USB权限
             usbDeviceConnection.claimInterface(usbInterface, true);
-            Dangle dangle = new Dangle(usbEndpointOut, usbDeviceConnection);
+            Dangle dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
             // 先清除Dangle的设置
             dangle.clearRegister();
             // 设置RF频段
@@ -125,11 +126,15 @@ public class UsbUtil {
                         60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
             }
             // 如果没有Shutdown就直接提交任务
-            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn,
-                            usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()),
-                    TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.SECONDS);
+//            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn,
+//                            usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()),
+//                    TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.MILLISECONDS);
+//            new Thread(new ReceiveUsbDataTask(bytes, usbEndpointIn,
+//                    usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue())).start();
+            // 我先试一下老的接收器
+            new DangleReader(dangle, DataReadWriteUtil.getPipedInputStream(), MainActivity.id, MainActivity.isEncrypted).start();
             // 开始执行 TPEG 解码的任务
-            new Thread(new TpegDecoderImprovement(new DmbTpegListener())).start();
+            new TpegDecoderImprovement(new DmbTpegListener()).start();
         }
     }
 

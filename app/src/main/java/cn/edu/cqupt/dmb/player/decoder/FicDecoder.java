@@ -3,12 +3,13 @@ package cn.edu.cqupt.dmb.player.decoder;
 
 import java.io.UnsupportedEncodingException;
 
+import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
 import cn.edu.cqupt.dmb.player.domain.ChannelInfo;
 
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : Fic 解码器
  * @Date : create by QingSong in 2022-03-17 20:31
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
@@ -96,32 +97,53 @@ public class FicDecoder {
     };
 
     /* decoder config */
-    private final int id;
-    private final boolean isEncrypted;
+    private int mId;
+    private boolean mIsEncrypted;
 
     /* fib information */
-    private final byte[] fib;
-    private int figHeader;
-    private int figLength;
+    private byte[] mFib;
+    private int mFigHeader;
+    private int mFigType;
+    private int mFigLength;
 
     /* decode data buffer */
-    private final byte[] ficData = new byte[200];
-    private int ficCh = 0xFF;
-    private int ficDataLen;
-    private final ChannelInfo[] channelInfos;
-    public int year, month, day, hour, minute, second;
+    private byte[] mFicData = new byte[200];
+    private int mFicCh = 0xFF;
+    private int mFicDataLen;
+    private ChannelInfo[] mChannelInfos;
+    public int mYear, mMonth, mDay, mHour, mMinute, mSecond;
 
 
-    public FicDecoder(int id, boolean isEncrypted) {
-        this.id = id;
-        this.isEncrypted = isEncrypted;
-        fib = new byte[32];
-        channelInfos = new ChannelInfo[CHANNEL_SIZE];
+    private static volatile FicDecoder ficDecoder;
+
+    private FicDecoder(int id, boolean isEncrypted) {
+        mId = id;
+        mIsEncrypted = isEncrypted;
+        mFib = new byte[32];
+        mChannelInfos = new ChannelInfo[CHANNEL_SIZE];
         for (int i = 0; i < CHANNEL_SIZE; i++) {
-            channelInfos[i] = new ChannelInfo();
-            channelInfos[i].subCh = i + 1;
+            mChannelInfos[i] = new ChannelInfo();
+            mChannelInfos[i].subCh = i + 1;
         }
         initCcr16Tab();
+    }
+
+    /**
+     * 获取 FicDecoder 单例对象
+     *
+     * @param id          接收器 ID
+     * @param isEncrypted 是否加密
+     * @return FicDecoder 单例对象
+     */
+    public static FicDecoder getInstance(int id, boolean isEncrypted) {
+        if (ficDecoder == null) {
+            synchronized (FicDecoder.class) {
+                if (ficDecoder == null) {
+                    ficDecoder = new FicDecoder(id, isEncrypted);
+                }
+            }
+        }
+        return ficDecoder;
     }
 
     /**
@@ -147,10 +169,10 @@ public class FicDecoder {
     /**
      * calculate crc 16 value
      */
-    private short crc16(byte[] bytes, int length) {
+    private short crc16(byte[] bytes, int offset, int length) {
         short data;
         short crc = (short) 0xFFFF;
-        for (int i = 0; i < length; i++) {
+        for (int i = offset; i < offset + length; i++) {
             data = (short) bytes[i];
             crc = (short) ((short) (crc << 8) ^ (short) (CRC16TAB[((crc >>> 8) ^ data) & 0x00FF]));
         }
@@ -163,25 +185,25 @@ public class FicDecoder {
      * decode a complete frame, 32byte fic data
      */
     public void decode(byte[] bytes) {
-        System.arraycopy(bytes, 0, fib, 0, 32);
+        System.arraycopy(bytes, 0, mFib, 0, 32);
         /* crc check */
-        short dataCrc = crc16(fib, 30);
-        short preferenceCrc = (short) ((fib[30] << 8) | fib[31] & 0x00ff);
+        short dataCrc = crc16(mFib, 0, 30);
+        short preferenceCrc = (short) ((mFib[30] << 8) | mFib[31] & 0x00ff);
         if (dataCrc != preferenceCrc) { /* crc check fail frequently */
             return;
         }
         /* if the data is encrypted, get the original data */
-        if (isEncrypted) {
+        if (mIsEncrypted) {
             for (int i = 0; i < 30; i++) {
-                fib[i] = (byte) (fib[i] ^ DAB_ENCRYPT_CODE[i]);
+                mFib[i] = (byte) (mFib[i] ^ DAB_ENCRYPT_CODE[i]);
             }
         }
         /* find a FIG(fast information group), and decode it according to it's type */
-        figHeader = 0;
-        while (figHeader < 30 && fib[figHeader] != (byte) 0xFF) { /* check end mark */
-            int figType = (fib[figHeader] >>> 5) & 0x07;
-            figLength = fib[figHeader] & 0x1f;
-            switch (figType) {
+        mFigHeader = 0;
+        while (mFigHeader < 30 && mFib[mFigHeader] != (byte) 0xFF) { /* check end mark */
+            mFigType = (mFib[mFigHeader] >>> 5) & 0x07;
+            mFigLength = mFib[mFigHeader] & 0x1f;
+            switch (mFigType) {
                 case 0: /* standard fib type 0 */
                     fibType0();
                     break;
@@ -192,43 +214,43 @@ public class FicDecoder {
                     selectSubCh();
                     break;
                 case 5:
-                    decodeFicData();
+                    decodeFidcData();
                     break;
                 default:
                     break;
             }
-            figHeader += figLength + 1; /* point to next fig header */
+            mFigHeader += mFigLength + 1; /* point to next fig header */
         }
     }
 
     private void selectSubCh() {
-        int index = figHeader + 1;
-        int groupId = (fib[index] & 0xE0) >>> 5;
-        int groupFlag = fib[index + 1] & 0x03;
-        int subChId = fib[index + 1] >>> 2;
-        int groupIndex = (id - 1) / 200;
-        int byteIndex = ((id - 1) % 200) / 8;
-        int bitIndex = ((id - 1) % 200) & 0x07;
+        int index = mFigHeader + 1;
+        int groupId = (mFib[index] & 0xE0) >>> 5;
+        int groupFlag = mFib[index + 1] & 0x03;
+        int subChId = mFib[index + 1] >>> 2;
+        int groupIndex = (mId - 1) / 200;
+        int byteIndex = ((mId - 1) % 200) / 8;
+        int bitIndex = ((mId - 1) % 200) & 0x07;
         byte bitMask = (byte) (((byte) 0x80) >>> bitIndex);
         if (index + 2 + byteIndex > 31) {
             return;
         }
-        if (groupId == groupIndex && (fib[index + 2 + byteIndex] & bitMask) != 0) {
-            if (groupFlag == 0x01 && channelInfos[subChId].label != null
-                    && channelInfos[subChId].subChOrganization[6] != 0) { /* msc id */
-                channelInfos[subChId].isSelect = true;
+        if (groupId == groupIndex && (mFib[index + 2 + byteIndex] & bitMask) != 0) {
+            if (groupFlag == 0x01 && mChannelInfos[subChId].label != null
+                    && mChannelInfos[subChId].subChOrganization[6] != 0) { /* msc id */
+                mChannelInfos[subChId].isSelect = true;
             }
-            if (groupFlag == 0x02 && ficCh > subChId) { /* sub id */
-                ficCh = subChId;
+            if (groupFlag == 0x02 && mFicCh > subChId) { /* sub id */
+                mFicCh = subChId;
             }
         }
     }
 
     public ChannelInfo getSelectChannelInfo() {
         for (int i = 0; i < CHANNEL_SIZE; i++) {
-            if (channelInfos[i].isSelect) {
-                if (channelInfos[i].subChOrganization[6] > 0) {
-                    return channelInfos[i];
+            if (mChannelInfos[i].isSelect) {
+                if (mChannelInfos[i].subChOrganization[6] > 0) {
+                    return mChannelInfos[i];
                 } else {
                     return null;
                 }
@@ -237,46 +259,48 @@ public class FicDecoder {
         return null;
     }
 
-    private void decodeFicData() {
-        int index = figHeader + 1;
-        int ficId = (fib[index] >>> 5) & 0x07;
-        int exNum = fib[index] & 0x1F;
-        if (ficId != ficCh || exNum != 2) {
+    private void decodeFidcData() {
+        int index = mFigHeader + 1;
+        int ficId = (mFib[index] >>> 5) & 0x07;
+        int exNum = mFib[index] & 0x1F;
+        if (ficId != mFicCh || exNum != 2) {
             return;
         }
         /* decode if receiver id equals fic id */
-        int segNo = (fib[index + 2] >>> 5) & 0x07;
-        int len = fib[index + 2] & 0x1F;
-        int total = fib[index + 3] & 0xFF;
+        int segNum = (mFib[index + 1] >>> 4) & 0x0F;
+        int ficSetting = (mFib[index + 1]) & 0x0F;
+        int segNo = (mFib[index + 2] >>> 5) & 0x07;
+        int len = mFib[index + 2] & 0x1F;
+        int total = mFib[index + 3] & 0xFF;
         if (len <= 2) {
             return;
         }
         for (int i = 0; i < len; i++) {
-            ficData[segNo * 25 + i] = fib[index + 4 + i];
+            mFicData[segNo * 25 + i] = mFib[index + 4 + i];
         }
-        ficDataLen = total;
+        mFicDataLen = total;
     }
 
     private void decodeLabel() {
-        int index = figHeader + 1;
-        int oe = fib[index] & 0x08; /* char set is same */
-        int extensionType = fib[index] & 0x07;
+        int index = mFigHeader + 1;
+        int oe = mFib[index] & 0x08; /* char set is same */
+        int extensionType = mFib[index] & 0x07;
         int serviceId;
         if (oe == 0) { /* just decode current ensemble */
             if (extensionType == 1) { /* short format */
-                serviceId = (((int) fib[index + 1]) << 8) + fib[index + 2];
+                serviceId = (((int) mFib[index + 1]) << 8) + mFib[index + 2];
                 index += 3;
             } else { /* long format */
                 if (index + 4 >= 32)
                     return;
-                serviceId = (((int) fib[index + 1]) << 24) + (((int) fib[index + 2]) << 16) +
-                        (((int) fib[index + 3]) << 8) + (((int) fib[index + 4]));
+                serviceId = (((int) mFib[index + 1]) << 24) + (((int) mFib[index + 2]) << 16) +
+                        (((int) mFib[index + 3]) << 8) + (((int) mFib[index + 4]) << 0);
                 index += 5;
             }
             for (int i = 0; i < CHANNEL_SIZE; i++) {
-                if (channelInfos[i].serviceId == serviceId) {
+                if (mChannelInfos[i].serviceId == serviceId) {
                     try {
-                        String s = new String(fib, index, 16, "gb2312");
+                        String s = new String(mFib, index, 16, "gb2312");
                         /* delete padding zero in the last of the string */
                         int j;
                         for (j = s.length() - 1; j >= 0; j--) {
@@ -286,7 +310,7 @@ public class FicDecoder {
                         }
                         s = s.substring(0, j + 1);
 //                        Log.e(TAG, "serviceId = " + serviceId + "  label = " + s);
-                        channelInfos[i].label = s;
+                        mChannelInfos[i].label = s;
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -296,8 +320,8 @@ public class FicDecoder {
     }
 
     private void fibType0() {
-        int header = ((fib[figHeader + 1] >>> 5) & 0x0007); /* C/N, OE, P/D, standard page 25 */
-        int extension = (fib[figHeader + 1] & 0x001F);
+        int header = ((mFib[mFigHeader + 1] >>> 5) & 0x0007); /* C/N, OE, P/D, standard page 25 */
+        int extension = (mFib[mFigHeader + 1] & 0x001F);
         switch (header) {
             case 0:
             case 1:
@@ -326,23 +350,23 @@ public class FicDecoder {
 
     /* decode service id according to standard page 45 */
     private void decodeServiceId() {
-        int header = ((fib[figHeader + 1] >>> 5) & 0x0001);
-        int index = figHeader + 2;
+        int header = ((mFib[mFigHeader + 1] >>> 5) & 0x0001);
+        int index = mFigHeader + 2;
         int number, serviceId;
-        while (index < figHeader + figLength + 1) {
-            number = fib[index + 2 + header * 2] & 0x0F;
+        while (index < mFigHeader + mFigLength + 1) {
+            number = mFib[index + 2 + header * 2] & 0x0F;
             if (header == 0) { /* 16bit */
-                serviceId = ((int) fib[index] << 8) + fib[index + 1];
+                serviceId = ((int) mFib[index] << 8) + mFib[index + 1];
             } else { /* 32bit */
-                serviceId = ((int) fib[index] << 24) + ((int) fib[index + 1] << 16)
-                        + ((int) fib[index + 2] << 8) + ((int) fib[index + 3]);
+                serviceId = ((int) mFib[index] << 24) + ((int) mFib[index + 1] << 16)
+                        + ((int) mFib[index + 2] << 8) + ((int) mFib[index + 3] << 0);
             }
             index += header * 2 + 3;
             for (int i = 0; i < number; i += 2) {
-                int type = ((fib[index + i] & 0xc0) >>> 6);
-                int subChId = ((fib[index + i + 1] >>> 2) & 0x3F);
-                channelInfos[subChId].serviceId = serviceId;
-                channelInfos[subChId].type = type;
+                int type = ((mFib[index + i] & 0xc0) >>> 6);
+                int subChId = ((mFib[index + i + 1] >>> 2) & 0x3F);
+                mChannelInfos[subChId].serviceId = serviceId;
+                mChannelInfos[subChId].type = type;
 //                Log.e(TAG,type+" subChId "+ subChId + " service Id "+ serviceId);
             }
             index += number * 2;
@@ -351,81 +375,81 @@ public class FicDecoder {
 
     /* standard page 41 */
     private void decodeSubChannel() {
-        int index = figHeader + 2;
+        int index = mFigHeader + 2;
         int form;
         int subChId;
         int temp;
-        for (int i = 0; i < figLength - 1; i += form) { /* length has a header */
-            form = (fib[index + 2 + i] & 0x80) == 0 ? 3 : 4;
-            subChId = (int) ((fib[index + i] >>> 2) & 0x003f);
-            channelInfos[subChId].subChOrganization[0] = ((fib[index + i] & 0x0ff) << 8);
-            channelInfos[subChId].subChOrganization[0] += fib[index + i + 1] & 0x0ff;
-            channelInfos[subChId].subChOrganization[0] &= 0x03FF;/* start address */
+        for (int i = 0; i < mFigLength - 1; i += form) { /* length has a header */
+            form = (mFib[index + 2 + i] & 0x80) == 0 ? 3 : 4;
+            subChId = (int) ((mFib[index + i] >>> 2) & 0x003f);
+            mChannelInfos[subChId].subChOrganization[0] = ((mFib[index + i] & 0x0ff) << 8);
+            mChannelInfos[subChId].subChOrganization[0] += mFib[index + i + 1] & 0x0ff;
+            mChannelInfos[subChId].subChOrganization[0] &= 0x03FF;/* start address */
             if (form == 3) { /* short form */
-                int tableIndex = fib[index + i + 2] & 0x3f;
+                int tableIndex = mFib[index + i + 2] & 0x3f;
                 for (int j = 0; j < 6; j++) {
-                    channelInfos[subChId].subChOrganization[j + 1] = UEP_TABLE[tableIndex][j];
+                    mChannelInfos[subChId].subChOrganization[j + 1] = UEP_TABLE[tableIndex][j];
                 }
             } else { /* long form */
-                channelInfos[subChId].subChOrganization[4] = 0;
-                channelInfos[subChId].subChOrganization[5] = 0;
+                mChannelInfos[subChId].subChOrganization[4] = 0;
+                mChannelInfos[subChId].subChOrganization[5] = 0;
                 /* Sub-channel size */
-                channelInfos[subChId].subChOrganization[1] = (int) ((fib[index + 2 + i] & 0x03) << 8 | fib[index + 3 + i] & 0x0FF);
-                int options = fib[index + 2 + i] & 0x7c;
+                mChannelInfos[subChId].subChOrganization[1] = (int) ((mFib[index + 2 + i] & 0x03) << 8 | mFib[index + 3 + i] & 0x0FF);
+                int options = mFib[index + 2 + i] & 0x7c;
                 switch (options) {
                     case 0x0: /*  protection level 1-A */
-                        temp = (channelInfos[subChId].subChOrganization[1]) / 12;
-                        channelInfos[subChId].subChOrganization[2] = 192 * temp - 72;
-                        channelInfos[subChId].subChOrganization[3] = 119;
-                        channelInfos[subChId].subChOrganization[6] = 8 * temp;
+                        temp = (mChannelInfos[subChId].subChOrganization[1]) / 12;
+                        mChannelInfos[subChId].subChOrganization[2] = 192 * temp - 72;
+                        mChannelInfos[subChId].subChOrganization[3] = 119;
+                        mChannelInfos[subChId].subChOrganization[6] = 8 * temp;
                         break;
                     case 0x04: /*  protection level 2-A */
-                        temp = (channelInfos[subChId].subChOrganization[1]) / 8;
+                        temp = (mChannelInfos[subChId].subChOrganization[1]) / 8;
                         if (temp == 1) {
-                            channelInfos[subChId].subChOrganization[2] = 173;
-                            channelInfos[subChId].subChOrganization[3] = 44;
-                            channelInfos[subChId].subChOrganization[6] = 8;
+                            mChannelInfos[subChId].subChOrganization[2] = 173;
+                            mChannelInfos[subChId].subChOrganization[3] = 44;
+                            mChannelInfos[subChId].subChOrganization[6] = 8;
                         } else {
-                            channelInfos[subChId].subChOrganization[2] = 64 * temp - 82;
-                            channelInfos[subChId].subChOrganization[3] = 128 * temp + 109;
-                            channelInfos[subChId].subChOrganization[6] = 8 * temp;
+                            mChannelInfos[subChId].subChOrganization[2] = 64 * temp - 82;
+                            mChannelInfos[subChId].subChOrganization[3] = 128 * temp + 109;
+                            mChannelInfos[subChId].subChOrganization[6] = 8 * temp;
                         }
                         break;
                     case 0x08: /*  protection level 3-A */
-                        temp = (channelInfos[subChId].subChOrganization[1]) / 6;
-                        channelInfos[subChId].subChOrganization[2] = 192 * temp - 88;
-                        channelInfos[subChId].subChOrganization[3] = 103;
-                        channelInfos[subChId].subChOrganization[6] = 8 * temp;
+                        temp = (mChannelInfos[subChId].subChOrganization[1]) / 6;
+                        mChannelInfos[subChId].subChOrganization[2] = 192 * temp - 88;
+                        mChannelInfos[subChId].subChOrganization[3] = 103;
+                        mChannelInfos[subChId].subChOrganization[6] = 8 * temp;
                         break;
                     case 0x0C: /*  protection level 4-A */
-                        temp = (channelInfos[subChId].subChOrganization[1]) / 4;
-                        channelInfos[subChId].subChOrganization[2] = 128 * temp - 93;
-                        channelInfos[subChId].subChOrganization[3] = 64 * temp + 98;
-                        channelInfos[subChId].subChOrganization[6] = 8 * temp;
+                        temp = (mChannelInfos[subChId].subChOrganization[1]) / 4;
+                        mChannelInfos[subChId].subChOrganization[2] = 128 * temp - 93;
+                        mChannelInfos[subChId].subChOrganization[3] = 64 * temp + 98;
+                        mChannelInfos[subChId].subChOrganization[6] = 8 * temp;
                         break;
                     case 0x10: /*  protection level 1-B */
-                        temp = (channelInfos[subChId].subChOrganization[1]) / 27;
-                        channelInfos[subChId].subChOrganization[2] = 768 * temp - 86;
-                        channelInfos[subChId].subChOrganization[3] = 105;
-                        channelInfos[subChId].subChOrganization[6] = 32 * temp;
+                        temp = (mChannelInfos[subChId].subChOrganization[1]) / 27;
+                        mChannelInfos[subChId].subChOrganization[2] = 768 * temp - 86;
+                        mChannelInfos[subChId].subChOrganization[3] = 105;
+                        mChannelInfos[subChId].subChOrganization[6] = 32 * temp;
                         break;
                     case 0x14: /*  protection level 2-B */
-                        temp = (channelInfos[subChId].subChOrganization[1]) / 21;
-                        channelInfos[subChId].subChOrganization[2] = 768 * temp - 90;
-                        channelInfos[subChId].subChOrganization[3] = 101;
-                        channelInfos[subChId].subChOrganization[6] = 32 * temp;
+                        temp = (mChannelInfos[subChId].subChOrganization[1]) / 21;
+                        mChannelInfos[subChId].subChOrganization[2] = 768 * temp - 90;
+                        mChannelInfos[subChId].subChOrganization[3] = 101;
+                        mChannelInfos[subChId].subChOrganization[6] = 32 * temp;
                         break;
                     case 0x18: /*  protection level 3-B */
-                        temp = (channelInfos[subChId].subChOrganization[1]) / 18;
-                        channelInfos[subChId].subChOrganization[2] = 768 * temp - 92;
-                        channelInfos[subChId].subChOrganization[3] = 99;
-                        channelInfos[subChId].subChOrganization[6] = 32 * temp;
+                        temp = (mChannelInfos[subChId].subChOrganization[1]) / 18;
+                        mChannelInfos[subChId].subChOrganization[2] = 768 * temp - 92;
+                        mChannelInfos[subChId].subChOrganization[3] = 99;
+                        mChannelInfos[subChId].subChOrganization[6] = 32 * temp;
                         break;
                     case 0x1C: /*  protection level 4-B */
-                        temp = (channelInfos[subChId].subChOrganization[1]) / 15;
-                        channelInfos[subChId].subChOrganization[2] = 768 * temp - 94;
-                        channelInfos[subChId].subChOrganization[3] = 97;
-                        channelInfos[subChId].subChOrganization[6] = 32 * temp;
+                        temp = (mChannelInfos[subChId].subChOrganization[1]) / 15;
+                        mChannelInfos[subChId].subChOrganization[2] = 768 * temp - 94;
+                        mChannelInfos[subChId].subChOrganization[3] = 97;
+                        mChannelInfos[subChId].subChOrganization[6] = 32 * temp;
                         break;
                     default:
                         break;
@@ -437,33 +461,33 @@ public class FicDecoder {
 
     /* decode local time offset, according to standard page 69 */
     private void decodeLto() {
-        int lto = fib[figHeader + 2] & 0x3F;
-        if (lto == 0 || hour + minute + second == 0) {
+        int lto = mFib[mFigHeader + 2] & 0x3F;
+        if (lto == 0 || mHour + mMinute + mSecond == 0) {
             return;
         }
         int negative = (lto >>> 5) & 0x1;
         int hour = (lto >>> 1) & 0x0F;
         int minute = (lto & 0x01) * 30;
         if (negative == 1) {
-            this.hour -= hour;
-            this.minute -= minute;
+            mHour -= hour;
+            mMinute -= minute;
         } else {
-            this.hour += hour;
-            this.minute += minute;
+            mHour += hour;
+            mMinute += minute;
         }
-        if (this.minute < 0) {
-            this.minute = 60 - this.minute;
-            this.hour--;
+        if (mMinute < 0) {
+            mMinute = 60 - mMinute;
+            mHour--;
         }
-        if (this.minute > 60) {
-            this.minute -= 60;
-            this.hour++;
+        if (mMinute > 60) {
+            mMinute -= 60;
+            mHour++;
         }
-        if (this.hour > 24) {
-            this.hour -= 24;
+        if (mHour > 24) {
+            mHour -= 24;
         }
-        if (this.hour < 0) {
-            this.hour = 23;
+        if (mHour < 0) {
+            mHour = 23;
         }
     }
 
@@ -471,13 +495,13 @@ public class FicDecoder {
      * decode date and time, according to standard page 68
      */
     private void decodeTime() {
-        int index = figHeader + 2; /* change index to real data */
+        int index = mFigHeader + 2; /* change index to real data */
 
         /* get mjd and decode it */
         long mjd = 0; /* mjd, 1-16byte */
-        mjd = (mjd + ((int) fib[index] & 0x7f)) << 8; /* 1-7bit */
-        mjd = (mjd + ((int) fib[index + 1] & 0x0FF)) << 2; /* 8-15bit */
-        mjd = mjd + ((((int) fib[index + 2] & 0x0FF) >>> 6) & 0x03); /* 16-17bit */
+        mjd = (mjd + ((int) mFib[index] & 0x7f)) << 8; /* 1-7bit */
+        mjd = (mjd + ((int) mFib[index + 1] & 0x0FF)) << 2; /* 8-15bit */
+        mjd = mjd + ((((int) mFib[index + 2] & 0x0FF) >>> 6) & 0x03); /* 16-17bit */
 
         /* mjd format change to normal format */
         long year, month, day, i, j, k;
@@ -489,25 +513,25 @@ public class FicDecoder {
         k = (month == 14 || month == 15) ? 1 : 0;
         year = year + k;
         month = month - 1 - k * 12;
-        this.year = (int) year + 1900;
-        this.month = (int) month;
-        this.day = (int) day;
+        mYear = (int) year + 1900;
+        mMonth = (int) month;
+        mDay = (int) day;
 
         /* get utc and decode it, it is simple,21bit flag,
         then fallow 5bit hour,6bit minute, 6bit second,10bit millisecond */
         long utc;
-        if ((fib[index + 2] & 0x08) == 0) {
-            utc = ((int) (fib[index + 2] & 0x0f)) << 8; /* 20 - 23bit */
-            utc = (utc + ((int) fib[index + 3] & 0x0FF)) << 20; /* 24 - 31bit */
+        if ((mFib[index + 2] & 0x08) == 0) {
+            utc = ((int) (mFib[index + 2] & 0x0f)) << 8; /* 20 - 23bit */
+            utc = (utc + ((int) mFib[index + 3] & 0x0FF)) << 20; /* 24 - 31bit */
         } else {
-            utc = ((int) ((fib[index + 2] & 0x0f))) << 8;
-            utc = (utc + ((int) fib[index + 3] & 0x0FF)) << 8;
-            utc = (utc + ((int) fib[index + 4] & 0x0FF)) << 12;
+            utc = ((int) ((mFib[index + 2] & 0x0f))) << 8;
+            utc = (utc + ((int) mFib[index + 3] & 0x0FF)) << 8;
+            utc = (utc + ((int) mFib[index + 4] & 0x0FF)) << 12;
         }
-        hour = (int) ((utc & 0x7C000000) >>> 26);
-        minute = (int) ((utc & 0x03F00000) >>> 20);
+        mHour = (int) ((utc & 0x7C000000) >>> 26);
+        mMinute = (int) ((utc & 0x03F00000) >>> 20);
         if ((utc & 0x80000000) != 0) {
-            second = (int) ((utc & 0x000FC000) >>> 14);
+            mSecond = (int) ((utc & 0x000FC000) >>> 14);
         }
     }
 
@@ -515,14 +539,14 @@ public class FicDecoder {
      * get fic message
      */
     public String getFicMessage() {
-        if (ficDataLen <= 0 || ficDataLen > 200) {
+        if (mFicDataLen <= 0 || mFicDataLen > 200) {
             return null;
         }
-        short crc = (short) ((ficData[ficDataLen - 2] << 8) | ficData[ficDataLen - 1] & 0x00ff);
+        short crc = (short) ((mFicData[mFicDataLen - 2] << 8) | mFicData[mFicDataLen - 1] & 0x00ff);
         String ficMessage = null;
-        if (crc16(ficData, ficDataLen - 2) == crc) {
+        if (crc16(mFicData, 0, mFicDataLen - 2) == crc) {
             try {
-                ficMessage = new String(ficData, 0, ficDataLen - 2, "gb2312");
+                ficMessage = new String(mFicData, 0, mFicDataLen - 2, "gb2312");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }

@@ -45,15 +45,13 @@ Java_cn_edu_cqupt_dmb_player_jni_NativeMethod_decodeTpegFrame(JNIEnv *env, jclas
 //    crc16((unsigned char *)in,0,1);
 //    deinterleaverInit()
 
-    deinterleaver((unsigned char *) in, tpeg_buf);
-    rsDecode(tpeg_buf, data_buf);
+    deinterleaver((unsigned char *)in,tpeg_buf);
+    rsDecode(tpeg_buf,data_buf);
 //    decode
 //    decode_rs(tpeg_buf,data_buf);
-
-    tpegPacketDecode(data_buf, (unsigned char *) out, (uint32_t *) info);
+    tpegPacketDecode(data_buf,(unsigned char *)out,(uint32_t*)info);
     env->ReleaseByteArrayElements(in_, in, 0);
     env->ReleaseByteArrayElements(out_, out, 0);
-    env->ReleaseIntArrayElements(info_, info, 0);
 }
 
 extern "C"

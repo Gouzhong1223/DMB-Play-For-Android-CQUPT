@@ -10,6 +10,7 @@ import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
+import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
@@ -24,7 +25,7 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class TpegDecoderImprovement implements Runnable {
+public class TpegDecoderImprovement implements Thread {
 
 
     /* file size should not be greater than 2M */
@@ -74,6 +75,7 @@ public class TpegDecoderImprovement implements Runnable {
             NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
             switch (tpegInfo[0]) {
                 case FIRST_FRAME:
+                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
                     Log.e(TAG, "first frame");
                     isReceiveFirstFrame = true;
                     System.arraycopy(tpegData, 0, fileBuffer, 0, tpegInfo[1]);
@@ -91,6 +93,7 @@ public class TpegDecoderImprovement implements Runnable {
                     }
                     break;
                 case MIDDLE_FRAME:
+                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
                     if (total + tpegInfo[1] >= FILE_BUFFER_SIZE) {
                         total = 0;
                     } else {
@@ -99,6 +102,7 @@ public class TpegDecoderImprovement implements Runnable {
                     }
                     break;
                 case LAST_FRAME:
+                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
                     Log.e(TAG, "last frame");
                     if (isReceiveFirstFrame && total + tpegInfo[1] < FILE_BUFFER_SIZE) {
                         System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
@@ -111,6 +115,7 @@ public class TpegDecoderImprovement implements Runnable {
                     }
                     break;
                 default:
+//                    Log.e(TAG, "未知的 TPEG 类型");
                     break;
             }
         }

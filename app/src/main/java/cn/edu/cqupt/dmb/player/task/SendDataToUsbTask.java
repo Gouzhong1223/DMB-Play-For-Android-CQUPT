@@ -6,7 +6,6 @@ import android.util.Log;
 
 import java.util.concurrent.Callable;
 
-import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 

@@ -27,7 +27,7 @@ public class FicDataProcessor implements DataProcessing {
     /**
      * 初始化Fic解码器
      */
-    private final FicDecoder ficDecoder = new FicDecoder(MainActivity.id, MainActivity.isEncrypted);
+    private final FicDecoder ficDecoder = FicDecoder.getInstance(MainActivity.id, MainActivity.isEncrypted);
 
     /**
      * 接收单个Fic
@@ -35,8 +35,8 @@ public class FicDataProcessor implements DataProcessing {
     private final byte[] ficBuf = new byte[DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue()];
 
     ChannelInfo channelInfo;
-    public static volatile boolean isSelectId;
-    Dangle dangle = new Dangle(UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
+    public static boolean isSelectId;
+    Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
 
     @Override
     public void processData(byte[] usbData) {
@@ -51,7 +51,7 @@ public class FicDataProcessor implements DataProcessing {
             // 这里需要获取重新设置pseudoBitErrorRateProcessor中的BitRate方便展示信号
             pseudoBitErrorRateProcessor.setBitRate(channelInfo.subChOrganization[6]);
             // 提取出来之后再写回到USB中,也就是设置ChannelInfo
-            isSelectId = dangle.SetChannel(channelInfo);
+            new Thread(() -> isSelectId = dangle.SetChannel(channelInfo)).start();
             if (!isSelectId) {
                 Log.e(TAG, "设置channelInfo失败!这是往 USB 中设置的时候出错啦!" + channelInfo);
             }
