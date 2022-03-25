@@ -45,7 +45,7 @@ public class UsbUtil {
     static {
         // JVM启动的时候初始化线程池,由于只有一个任务,所以核心线程就只设置一个
         // 这个线程池是专门用来定时执行接收USB数据任务的
-        scheduledExecutorService = new ScheduledThreadPoolExecutor(2);
+        scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
         // 这个线程池是用于执行普通的读写线程的线程池
         executorService = new ThreadPoolExecutor(5, 10,
                 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
@@ -118,18 +118,18 @@ public class UsbUtil {
             // 交给定时任务线程池去做,延迟一秒之后,每三秒从USB读取一次数据
             if (UsbUtil.getScheduledExecutorService().isShutdown()) {
                 // 关闭线程池之后重启创建一个线程池再提交一次任务
-                UsbUtil.setScheduledExecutorService(new ScheduledThreadPoolExecutor(2));
+                UsbUtil.setScheduledExecutorService(new ScheduledThreadPoolExecutor(1));
             }
             if (UsbUtil.getExecutorService().isShutdown()) {
-                executorService = new ThreadPoolExecutor(10, 20,
-                        60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(10));
+                executorService = new ThreadPoolExecutor(5, 10,
+                        60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
             }
             // 如果没有Shutdown就直接提交任务
             scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn,
                             usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()),
                     TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.SECONDS);
-            new Thread(new TpegDecoderImprovement(new DmbTpegListener())).start();
             // 开始执行 TPEG 解码的任务
+            new Thread(new TpegDecoderImprovement(new DmbTpegListener())).start();
         }
     }
 

@@ -4,8 +4,6 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.util.Log;
 
-
-import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessing;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
@@ -83,11 +81,6 @@ public class ReceiveUsbDataTask implements Runnable {
                 dataProcessor.processData(packetBuf);
             }
         }
-    }
-
-
-    public byte[] getBytes() {
-        return bytes;
     }
 }
 
