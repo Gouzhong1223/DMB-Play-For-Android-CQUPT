@@ -58,6 +58,9 @@ public class TpegDecoderImprovement implements Runnable {
         Log.e(TAG, "tpeg decoder start");
         NativeMethod.tpegInit();
         while (DataReadWriteUtil.USB_READY) {
+            if (!DataReadWriteUtil.initFlag) {
+                continue;
+            }
             tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
             if (!readTpegFrame(inputStream, tpegBuffer)) {
                 try {
