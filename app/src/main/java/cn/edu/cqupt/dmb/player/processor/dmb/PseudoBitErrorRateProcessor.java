@@ -22,7 +22,7 @@ public class PseudoBitErrorRateProcessor implements DataProcessing {
 
     @Override
     public void processData(byte[] usbData) {
-        Log.i(TAG, "现在收到的的数据是伪误码率");
+//        Log.i(TAG, "现在收到的的数据是伪误码率");
         if (usbData[6] == 0) {
             bbReg0 = ((((int) usbData[8]) & 0x00ff) << 8) + ((int) usbData[9] & 0x00ff);
             bbReg3 = (((int) usbData[14] & 0x00FF) << 8) | (((int) usbData[15]) & 0x00FF);

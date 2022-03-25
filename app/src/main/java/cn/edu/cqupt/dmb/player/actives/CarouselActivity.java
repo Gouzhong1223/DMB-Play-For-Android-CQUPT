@@ -56,7 +56,7 @@ public class CarouselActivity extends FragmentActivity {
     public void useBanner() {
         //添加生命周期观察者
         banner.addBannerLifecycleObserver(this)
-                .setAdapter(new ImageAdapter(BannerDataBean.getHelloViewData()))
+                .setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()))
                 .setIndicator(new CircleIndicator(this)).start();
     }
 
@@ -67,11 +67,9 @@ public class CarouselActivity extends FragmentActivity {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             // 如果当前的 bitmap 缓存中有数据,就先暂停当前的轮播图,然后重新设置轮播图资源再开始
             if (BannerImageBitmapCache.getBannerCache().size() != 0) {
-                Log.i(TAG, "现在已经有 bitmap 数据了,重新设置一下轮播图");
                 banner.stop();
-                banner.addBannerLifecycleObserver(this)
-                        .setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()))
-                        .setIndicator(new CircleIndicator(this)).start();
+                banner.setDatas(BannerBitmapDataBean.getListBitMapData());
+                banner.start();
             }
         }, 0L, 15L, TimeUnit.SECONDS);
     }
@@ -98,7 +96,7 @@ public class CarouselActivity extends FragmentActivity {
             } else if (ber >= 0) {
                 signalImageView.setImageResource(R.drawable.singlemark5);
             }
-        }, 5L, 5L, TimeUnit.SECONDS);
+        }, 0L, 5L, TimeUnit.SECONDS);
     }
 
     @Override

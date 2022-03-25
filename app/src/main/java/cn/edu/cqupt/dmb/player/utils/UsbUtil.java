@@ -127,15 +127,15 @@ public class UsbUtil {
                         60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
             }
             // 如果没有Shutdown就直接提交任务
-            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn,
-                            usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()),
-                    TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.MILLISECONDS);
-//            new Thread(new ReceiveUsbDataTask(bytes, usbEndpointIn,
-//                    usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue())).start();
+//            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn,
+//                            usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()),
+//                    TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.MILLISECONDS);
+            new TpegDecoderImprovement(new DmbTpegListener()).start();
+            new Thread(new ReceiveUsbDataTask(bytes, usbEndpointIn,
+                    usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue())).start();
             // 我先试一下老的接收器
 //            new DangleReader(dangle, DataReadWriteUtil.getPipedInputStream(), MainActivity.id, MainActivity.isEncrypted).start();
 //            // 开始执行 TPEG 解码的任务
-            new TpegDecoderImprovement(new DmbTpegListener()).start();
         }
     }
 

@@ -7,6 +7,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
@@ -34,12 +35,20 @@ public class DmbTpegListener implements DmbListener {
 
     private final ArrayList<String> mReceivedFile = new ArrayList<>();
     private final int id = MainActivity.id;
+    HashMap<Integer, String> LOAD_IMAGE_CACHE = new HashMap<>();
 
     @Override
+
     public void onSuccess(String fileName, byte[] bytes, int length) {
         // 生成文件名称
         fileName = DmbUtil.CACHE_DIRECTORY + fileName;
+        // 如果是已经缓存过的图片就不再缓存了
+        if (LOAD_IMAGE_CACHE.containsKey(building)) {
+            return;
+        }
+        //  检查文件名称是否是自己需要的,如果不是自己需要的,就直接返回算了
         if (fileName.equals(DmbUtil.CACHE_DIRECTORY + "building" + building + ".jpg")) {
+            LOAD_IMAGE_CACHE.put(building, fileName);
             System.arraycopy(bytes, 0, fileBuffer, 0, length);
             fileLength = length;
         }

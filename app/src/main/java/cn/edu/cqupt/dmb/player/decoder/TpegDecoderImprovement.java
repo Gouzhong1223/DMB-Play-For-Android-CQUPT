@@ -40,9 +40,14 @@ public class TpegDecoderImprovement extends Thread {
 
     private final BufferedInputStream inputStream;
     private final DmbListener listener;
+    static PipedInputStream pipedInputStream;
+
+    public static PipedInputStream getPipedInputStream() {
+        return pipedInputStream;
+    }
 
     public TpegDecoderImprovement(DmbListener listener) {
-        PipedInputStream pipedInputStream = DataReadWriteUtil.getPipedInputStream();
+        pipedInputStream = DataReadWriteUtil.getPipedInputStream();
         inputStream = new BufferedInputStream(pipedInputStream);
         this.listener = listener;
     }
@@ -75,7 +80,7 @@ public class TpegDecoderImprovement extends Thread {
             NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
             switch (tpegInfo[0]) {
                 case FIRST_FRAME:
-                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
+//                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
                     Log.e(TAG, "first frame");
                     isReceiveFirstFrame = true;
                     System.arraycopy(tpegData, 0, fileBuffer, 0, tpegInfo[1]);
@@ -93,7 +98,8 @@ public class TpegDecoderImprovement extends Thread {
                     }
                     break;
                 case MIDDLE_FRAME:
-                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
+//                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
+//                    Log.i(TAG, "MIDDLE_FRAME");
                     if (total + tpegInfo[1] >= FILE_BUFFER_SIZE) {
                         total = 0;
                     } else {
@@ -102,7 +108,7 @@ public class TpegDecoderImprovement extends Thread {
                     }
                     break;
                 case LAST_FRAME:
-                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
+//                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
                     Log.e(TAG, "last frame");
                     if (isReceiveFirstFrame && total + tpegInfo[1] < FILE_BUFFER_SIZE) {
                         System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
@@ -115,7 +121,7 @@ public class TpegDecoderImprovement extends Thread {
                     }
                     break;
                 default:
-//                    Log.e(TAG, "未知的 TPEG 类型");
+                    Log.e(TAG, "未知的 TPEG 类型");
                     break;
             }
         }
