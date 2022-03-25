@@ -17,9 +17,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.decoder.TpegDecoderImprovement;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
-import cn.edu.cqupt.dmb.player.task.DecodeTpegTask;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 
 /**
@@ -40,7 +40,7 @@ public class UsbUtil {
      * 定时任务线程池
      */
     private static ScheduledExecutorService scheduledExecutorService;
-    private static final ExecutorService executorService;
+    private static ExecutorService executorService;
 
     static {
         // JVM启动的时候初始化线程池,由于只有一个任务,所以核心线程就只设置一个
@@ -109,24 +109,27 @@ public class UsbUtil {
             usbDeviceConnection = manager.openDevice(usbDevice);
             // 获取读写USB权限
             usbDeviceConnection.claimInterface(usbInterface, true);
-            Dangle dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
-            dangle.dangleConnectCertification();
+            Dangle dangle = new Dangle(usbEndpointOut, usbDeviceConnection);
             // 先清除Dangle的设置
             dangle.clearRegister();
             // 设置RF频段
-            dangle.setFrequency();
+            dangle.setFrequency(DmbPlayerConstant.FREQKHZ.getDmbConstantValue());
             // 完成上述任务之后才可以开始定时从USB中读取数据
             // 交给定时任务线程池去做,延迟一秒之后,每三秒从USB读取一次数据
             if (UsbUtil.getScheduledExecutorService().isShutdown()) {
                 // 关闭线程池之后重启创建一个线程池再提交一次任务
                 UsbUtil.setScheduledExecutorService(new ScheduledThreadPoolExecutor(2));
             }
+            if (UsbUtil.getExecutorService().isShutdown()) {
+                executorService = new ThreadPoolExecutor(10, 20,
+                        60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(10));
+            }
             // 如果没有Shutdown就直接提交任务
             scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn,
                             usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()),
                     TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.SECONDS);
+            new Thread(new TpegDecoderImprovement(new DmbTpegListener())).start();
             // 开始执行 TPEG 解码的任务
-            scheduledExecutorService.scheduleAtFixedRate(new DecodeTpegTask(new DmbTpegListener()), 0, 1, TimeUnit.SECONDS);
         }
     }
 

@@ -23,8 +23,9 @@ void tpegPacketDecode(unsigned char *tpegPacket, unsigned char *data, uint32_t *
     info[0] = info[1] = info[2] = 0;
 
     /* crc校验，失败字节返回 */
-    uint16_t crcResult, crcPacket;
+    uint16_t crcResult, crcPacket; 
     crcResult = crc16(tpegPacket,0,TPEG_LEN - 2);
+
     crcPacket = ((*(tpegPacket + TPEG_LEN - 2)) << 8) + (*(tpegPacket + TPEG_LEN - 1));
     if(crcPacket != crcResult){
         return;
@@ -66,8 +67,8 @@ void tpegPacketDecode(unsigned char *tpegPacket, unsigned char *data, uint32_t *
         segmentIndex = 0;
         return;
     }
-
-    if (segmentNumber == 0) {
+    
+    if (segmentNumber == 0) { 
         index += 37;
         auxInfoLen = (((uint32_t)tpegPacket[index]&0x0FF)<<8)
                                 + ((uint32_t)tpegPacket[index+1]&0x0FF);
@@ -77,7 +78,7 @@ void tpegPacketDecode(unsigned char *tpegPacket, unsigned char *data, uint32_t *
     if(segmentSize > TPEG_LEN - index){
         return;
     }
-
+   
     if (auxInfoLen != 0) { /* 如果有辅助数据没有取完 */
         if (segmentSize >= auxInfoLen) { /* 可以一次取完 */
             segmentSize -= auxInfoLen;
@@ -87,14 +88,14 @@ void tpegPacketDecode(unsigned char *tpegPacket, unsigned char *data, uint32_t *
             auxInfoLen -= segmentSize;
             index += segmentSize;
             segmentSize = 0;
-
+            
             /* 取出文件名，这里我感觉写的相当拙劣，总是在后面35个字节 */
             memcpy(data, (tpegPacket +12+45), 35);
             info[0] = 2;
             info[1] = 35;
             info[2] = 0;
             return;
-        }
+        }   
     }
 
     if (auxInfoLen == 0){

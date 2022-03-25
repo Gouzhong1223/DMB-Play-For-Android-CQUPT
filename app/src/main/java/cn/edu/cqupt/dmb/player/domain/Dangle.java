@@ -5,13 +5,8 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.util.Log;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.task.SendDataToUsbTask;
-import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
-import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
  * @Author : Gouzhong
@@ -26,16 +21,8 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
  */
 public class Dangle {
 
-    private final byte[] reqMsg = new byte[DmbPlayerConstant.DEFAULT_REQ_MSG_SIZE.getDmbConstantValue()];
-    private final byte[] reqMsg2 = new byte[DmbPlayerConstant.DEFAULT_REQ_MSG_SIZE.getDmbConstantValue()];
-    private final byte[] rxMsg = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()];
-
 
     private static final String TAG = "Dangle";
-    /**
-     * 读取USB数据的UsbEndpoint
-     */
-    private final UsbEndpoint usbEndpointIn;
 
     /**
      * 写入USB数据的Endpoint
@@ -47,23 +34,7 @@ public class Dangle {
      */
     private final UsbDeviceConnection usbDeviceConnection;
 
-    /**
-     * 装载RF信息
-     */
-    private final static byte[] frequency = new byte[DmbPlayerConstant.DEFAULT_REQ_MSG_SIZE.getDmbConstantValue()];
-
-    /**
-     * MX_RF_I2C_ADDRESS
-     */
-    private static final byte MX_RF_I2C_ADDRESS = (byte) 0xc0;
-
-    /**
-     * 重邮DMB频点
-     */
-    public static final int FREQKHZ = DmbPlayerConstant.FREQKHZ.getDmbConstantValue();
-
-    public Dangle(UsbEndpoint usbEndpointIn, UsbEndpoint usbEndpointOut, UsbDeviceConnection usbDeviceConnection) {
-        this.usbEndpointIn = usbEndpointIn;
+    public Dangle(UsbEndpoint usbEndpointOut, UsbDeviceConnection usbDeviceConnection) {
         this.usbEndpointOut = usbEndpointOut;
         this.usbDeviceConnection = usbDeviceConnection;
     }
@@ -72,10 +43,10 @@ public class Dangle {
      * 清空Dangle寄存器，初始化Dangle，在设置频点和节目之前，需要先执行初始化操作
      */
     public void clearRegister() {
-        boolean ret1 = false;
-        boolean ret2 = false;
-        boolean ret3 = false;
-        boolean ret4 = false;
+        boolean ret1;
+        boolean ret2;
+        boolean ret3;
+        boolean ret4;
         byte[] clearBBChReg = {
                 (byte) 0xff, (byte) 0xff, (byte) 0x00, (byte) 32,
                 (byte) 0x00, (byte) 0x20, (byte) 0x00, (byte) 0x00,
@@ -87,13 +58,8 @@ public class Dangle {
                 (byte) 0x00, (byte) 0x26, (byte) 0x00, (byte) 0x02,
                 (byte) 0x00, (byte) 0x2c, (byte) 0x00, (byte) 0x10
         };
-        Future<Integer> futureForClearBBChReg = UsbUtil.getExecutorService()
-                .submit(new SendDataToUsbTask(clearBBChReg, usbEndpointOut, usbDeviceConnection));
-        try {
-            ret1 = futureForClearBBChReg.get() == clearBBChReg.length;
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        Integer call3 = new SendDataToUsbTask(clearBBChReg, usbEndpointOut, usbDeviceConnection).call();
+        ret1 = call3 == clearBBChReg.length;
 
         byte[] clearBBFicData1 = {
                 (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 32,
@@ -106,15 +72,8 @@ public class Dangle {
                 (byte) 0x40, (byte) 0x60, (byte) 0xFF, (byte) 0xFF,
                 (byte) 0x40, (byte) 0x70, (byte) 0xFF, (byte) 0xFF
         };
-        Future<Integer> futureForClearBBFicData1 = UsbUtil.getExecutorService()
-                .submit(new SendDataToUsbTask(clearBBFicData1, usbEndpointOut, usbDeviceConnection));
-
-        try {
-            ret2 = futureForClearBBFicData1.get() == clearBBFicData1.length;
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        Integer call2 = new SendDataToUsbTask(clearBBFicData1, usbEndpointOut, usbDeviceConnection).call();
+        ret2 = call2 == clearBBFicData1.length;
 
         byte[] clearBBFicData2 = {
                 (byte) 0xFF, (byte) 0xFF, (byte) 0x00, (byte) 32,
@@ -127,14 +86,8 @@ public class Dangle {
                 (byte) 0x71, (byte) 0x90, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x07, (byte) 0x00, (byte) 0x00
         };
-        Future<Integer> futureForClearBBFicData2 = UsbUtil.getExecutorService()
-                .submit(new SendDataToUsbTask(clearBBFicData2, usbEndpointOut, usbDeviceConnection));
-
-        try {
-            ret3 = futureForClearBBFicData2.get() == clearBBFicData2.length;
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        Integer call1 = new SendDataToUsbTask(clearBBFicData2, usbEndpointOut, usbDeviceConnection).call();
+        ret3 = call1 == clearBBFicData2.length;
 
         byte[] clearMcuReg = {
                 (byte) 0xFF, (byte) 0xFF, (byte) 0x08, (byte) 0x06,
@@ -145,39 +98,15 @@ public class Dangle {
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
                 (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00};
-        Future<Integer> futureForClearMcuReg = UsbUtil.getExecutorService()
-                .submit(new SendDataToUsbTask(clearMcuReg, usbEndpointOut, usbDeviceConnection));
-        try {
-            ret4 = futureForClearMcuReg.get() == clearMcuReg.length;
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        Integer call = new SendDataToUsbTask(clearMcuReg, usbEndpointOut, usbDeviceConnection).call();
+
+        ret4 = call == clearMcuReg.length;
 
         if (ret1 && ret2 && ret3 && ret4) {
             Log.i(TAG, "清除 DMB 设置成功!");
             return;
         }
         Log.e(TAG, "清除 DMB 设置失败!");
-    }
-
-    /**
-     * 设置频点，频点的单位为KHz
-     */
-    public void setFrequency() {
-        // 初始化frequency信息
-        initFrequency(frequency);
-        Future<Integer> future = UsbUtil.getExecutorService()
-                .submit(new SendDataToUsbTask(frequency, usbEndpointOut, usbDeviceConnection));
-        try {
-            // 如果返回的长度和发送的长度不一致,说明发送到USB的过程中出现错误!
-            if (future.get() != frequency.length) {
-                Log.e(TAG, "设置频点出错!");
-            }
-        } catch (ExecutionException | InterruptedException e) {
-            Log.e(TAG, "设置频点出错!");
-            e.printStackTrace();
-        }
-        Log.i(TAG, "设置频点为:" + DmbPlayerConstant.FREQKHZ.getDmbConstantValue());
     }
 
     /**
@@ -189,11 +118,16 @@ public class Dangle {
     public boolean SetChannel(ChannelInfo channelInfo) {
         byte[] mcu_cmd = new byte[48];
         byte[] bb_cmd = new byte[48];
-        byte temp;
+        byte temp = 0;
         int div, rem1, rem2;
         int nStartCu;
         int br = channelInfo.subChOrganization[6];
-        switch (channelInfo.getTransmissionMode()) {
+        switch (channelInfo.transmissionMode) {
+            case 0:
+                div = 48;
+                rem1 = 4;
+                rem2 = 5;
+                break;
             case 1:
                 div = 12;
                 rem1 = 4;
@@ -241,10 +175,10 @@ public class Dangle {
         mcu_cmd[10] = 0x00;
         bb_cmd[10] = (byte) ((nStartCu) / div + rem1);
         temp = (byte) ((nStartCu + channelInfo.subChOrganization[1] - 1) / div + rem2);
-        if (((temp == (byte) 22) && (channelInfo.getTransmissionMode() == 0)) ||
-                ((temp == (byte) 76) && (channelInfo.getTransmissionMode() == 1)) ||
-                ((temp == (byte) 153) && (channelInfo.getTransmissionMode() == 2)) ||
-                ((temp == (byte) 40) && (channelInfo.getTransmissionMode() == 3))) {
+        if (((temp == (byte) 22) && (channelInfo.transmissionMode == 0)) ||
+                ((temp == (byte) 76) && (channelInfo.transmissionMode == 1)) ||
+                ((temp == (byte) 153) && (channelInfo.transmissionMode == 2)) ||
+                ((temp == (byte) 40) && (channelInfo.transmissionMode == 3))) {
             mcu_cmd[9] = 0x01;
         }
         mcu_cmd[11] = 0x00;
@@ -290,100 +224,44 @@ public class Dangle {
         mcu_cmd[31] = 0x00;
         bb_cmd[31] = 0x02;
 
-        Future<Integer> futureForPutBbCmdData = UsbUtil.getExecutorService()
-                .submit(new SendDataToUsbTask(bb_cmd, usbEndpointOut, usbDeviceConnection));
+        boolean ret1;
+        Integer call1 = new SendDataToUsbTask(bb_cmd, usbEndpointOut, usbDeviceConnection).call();
+        ret1 = call1 == bb_cmd.length;
 
-        try {
-            if (futureForPutBbCmdData.get() != bb_cmd.length) {
-                Thread.currentThread();
-                Thread.sleep(200); /* wait for dangle handle this command */
-            }
-        } catch (ExecutionException | InterruptedException e) {
-            return false;
+        boolean ret2;
+        Integer call = new SendDataToUsbTask(mcu_cmd, usbEndpointOut, usbDeviceConnection).call();
+        ret2 = call == bb_cmd.length;
+        if (ret1 && ret2) {
+            return true;
         }
-
-        Future<Integer> futureForPutMcuCmdData = UsbUtil.getExecutorService()
-                .submit(new SendDataToUsbTask(mcu_cmd, usbEndpointOut, usbDeviceConnection));
-
-        try {
-            if (futureForPutMcuCmdData.get() != mcu_cmd.length) {
-                Thread.currentThread();
-                Thread.sleep(200); /* wait for dangle handle this command */
-            }
-        } catch (ExecutionException | InterruptedException e) {
-            return false;
-        }
-        Log.i(TAG, "终于把channelInfo设置成功了!草(一种植物)");
-        Log.i(TAG, "isSelectId要被设置成 true 了");
-        return true;
+        Log.e(TAG, "set channel fail");
+        return false;
     }
 
-    public void dangleConnectCertification() {
-        // 生成第一次写入USB的数据
-        generateReqMsg(1, reqMsg);
-        // 生成第二次写入USB的数据
-        generateReqMsg(2, reqMsg2);
-        // 在真正读取数据之前,应该先完成一次收,两次发的动作,先后顺序是发收发
-        new SendDataToUsbTask(reqMsg, usbEndpointOut, usbDeviceConnection).call();
-        new ReceiveUsbDataTask(rxMsg, usbEndpointIn, usbDeviceConnection, 1).run();
-        new SendDataToUsbTask(reqMsg2, usbEndpointOut, usbDeviceConnection).call();
-        Log.i(TAG, "DMB 完成首次收发");
-    }
-
-
-    /**
-     * 设置DMB接收机的频点并且发送
-     */
-    public void initFrequency(byte[] frequency) {
-
-        int byte_cnt = 0;
-
-        frequency[byte_cnt++] = (byte) 0xff;
-        frequency[byte_cnt++] = (byte) 0xff;
-        frequency[byte_cnt++] = 0x01;
-        frequency[byte_cnt++] = 0x2c;
-        frequency[byte_cnt++] = MX_RF_I2C_ADDRESS;
-        frequency[byte_cnt++] = 1;
-        frequency[byte_cnt++] = 1;
-        frequency[byte_cnt++] = 0;
-        frequency[byte_cnt++] = 0;
-        frequency[byte_cnt++] = 0;
-        frequency[byte_cnt++] = 0;
-        frequency[byte_cnt++] = 4;
-        frequency[byte_cnt++] = (byte) ((FREQKHZ >> 24) & 0xff);
-        frequency[byte_cnt++] = (byte) ((FREQKHZ >> 16) & 0xff);
-        frequency[byte_cnt++] = (byte) ((FREQKHZ >> 8) & 0xff);
-        frequency[byte_cnt] = (byte) (FREQKHZ & 0xff);
-    }
-
-    /**
-     * 根据类型生成发送的数据格式
-     *
-     * @param type   类型
-     * @param reqMsg 数据
-     */
-    private void generateReqMsg(int type, byte[] reqMsg) {
-        if (reqMsg == null || reqMsg.length == 0) {
+    public void setFrequency(int frequency) {
+        byte[] cmd = new byte[48];
+        cmd[0] = (byte) 0xff;
+        cmd[1] = (byte) 0xff;
+        cmd[2] = (byte) 0x01;
+        cmd[3] = (byte) 0x2c;
+        cmd[4] = (byte) 0xc0;
+        cmd[5] = 1;
+        cmd[6] = 1;
+        cmd[7] = 0;
+        cmd[8] = 0;
+        cmd[9] = 0;
+        cmd[10] = 0;
+        cmd[11] = 4;
+        cmd[12] = (byte) ((frequency >> 24) & 0xff);
+        cmd[13] = (byte) ((frequency >> 16) & 0xff);
+        cmd[14] = (byte) ((frequency >> 8) & 0xff);
+        cmd[15] = (byte) ((frequency) & 0xff);
+        int ret;
+        ret = new SendDataToUsbTask(cmd, usbEndpointOut, usbDeviceConnection).call();
+        if (ret == cmd.length) {
+            Log.i(TAG, "设置频点成功:" + frequency);
             return;
         }
-        reqMsg[0] = (byte) 0xff;
-        reqMsg[1] = (byte) 0xff;
-        if (type == 1) {
-            reqMsg[2] = (byte) 0x10;
-        } else if (type == 2) {
-            reqMsg[2] = (byte) 0x11;
-        }
-        reqMsg[3] = (byte) '9';
-        reqMsg[4] = (byte) 'C';
-        reqMsg[5] = (byte) 'Q';
-        reqMsg[6] = (byte) 'U';
-        reqMsg[7] = (byte) 'P';
-        reqMsg[8] = (byte) 'T';
-        reqMsg[9] = (byte) 'D';
-        reqMsg[10] = (byte) 'M';
-        reqMsg[11] = (byte) 'B';
-        reqMsg[12] = (byte) 0x00;
+        Log.e(TAG, "set frequency fail");
     }
-
-
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.Callable;
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 
 /**
@@ -54,7 +55,7 @@ public class SendDataToUsbTask implements Callable<Integer> {
     public Integer call() {
         int bulkTransfer = 0;
         // 必须是USB设备已经就绪的情况下才执行,如果USB设备是未就绪或是终端没有插入USB的情况下就直接退出
-        if (MainActivity.USB_READY) {
+        if (DataReadWriteUtil.USB_READY) {
             bulkTransfer = usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, TIMEOUT);
             if (bulkTransfer != bytes.length) {
                 Log.e(TAG, "发送数据到USB失败!");

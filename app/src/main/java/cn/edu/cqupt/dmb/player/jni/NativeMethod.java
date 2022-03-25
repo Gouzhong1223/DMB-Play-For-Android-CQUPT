@@ -15,7 +15,6 @@ public class NativeMethod {
 
     static {
         System.loadLibrary("native-lib");
-//        System.loadLibrary("tpegdec-lib");
     }
 
     public static native void mp2DecoderInit();

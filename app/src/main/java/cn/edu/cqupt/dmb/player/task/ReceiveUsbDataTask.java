@@ -9,6 +9,7 @@ import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessing;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 
 /**
@@ -58,10 +59,10 @@ public class ReceiveUsbDataTask implements Runnable {
 
     @Override
     public void run() {
+        byte[] packetBuf = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()];
         // 必须是USB设备已经就绪的情况下才执行,如果USB设备是未就绪或是终端没有插入USB的情况下就直接退出
-        if (MainActivity.USB_READY) {
+        if (DataReadWriteUtil.USB_READY) {
             // 初始化一个packetBuf用于装载单个 DMB 数据
-            byte[] packetBuf = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()];
             // 从 USB 中读取数据装载在bytes中
             int readLength = usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, DmbPlayerConstant.DEFAULT_READ_TIME_OUT.getDmbConstantValue());
             if (readLength != bytes.length) {
@@ -83,6 +84,7 @@ public class ReceiveUsbDataTask implements Runnable {
             }
         }
     }
+
 
     public byte[] getBytes() {
         return bytes;
