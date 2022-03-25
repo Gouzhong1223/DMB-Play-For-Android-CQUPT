@@ -25,7 +25,7 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class TpegDecoderImprovement implements Thread {
+public class TpegDecoderImprovement extends Thread {
 
 
     /* file size should not be greater than 2M */
