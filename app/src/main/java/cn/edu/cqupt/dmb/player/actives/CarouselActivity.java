@@ -16,9 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
-import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
-import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerImageBitmapCache;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
