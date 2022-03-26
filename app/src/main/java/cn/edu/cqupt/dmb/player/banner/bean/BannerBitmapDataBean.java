@@ -20,9 +20,9 @@ import java.util.Objects;
  */
 public class BannerBitmapDataBean {
 
-    public Bitmap imageRes;
-    public String title;
-    public int viewType;
+    private Bitmap imageRes;
+    private String title;
+    private int viewType;
 
     public static ArrayList<BannerBitmapDataBean> getListBitMapData() {
         return new ArrayList<>(BannerImageBitmapCache.getBannerCache());
