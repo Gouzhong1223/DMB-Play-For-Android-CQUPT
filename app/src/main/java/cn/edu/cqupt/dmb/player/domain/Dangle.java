@@ -128,16 +128,11 @@ public class Dangle {
     public boolean SetChannel(ChannelInfo channelInfo) {
         byte[] mcu_cmd = new byte[48];
         byte[] bb_cmd = new byte[48];
-        byte temp = 0;
+        byte temp;
         int div, rem1, rem2;
         int nStartCu;
         int br = channelInfo.subChOrganization[6];
         switch (channelInfo.transmissionMode) {
-            case 0:
-                div = 48;
-                rem1 = 4;
-                rem2 = 5;
-                break;
             case 1:
                 div = 12;
                 rem1 = 4;
