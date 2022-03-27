@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.io.PipedInputStream;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
  * @Author : Gouzhong
@@ -19,7 +20,7 @@ import cn.edu.cqupt.dmb.player.jni.NativeMethod;
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : cn.edu.cqupt.dmb.player.decoder
- * @ProjectName : DMB Player For Android 
+ * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
 public class Mp2Decoder extends Thread {
@@ -74,7 +75,7 @@ public class Mp2Decoder extends Thread {
         init();
         int[] info = new int[3];
         NativeMethod.mp2DecoderInit();
-        while (true) {
+        while (DataReadWriteUtil.USB_READY) {
             try {
                 if (readMp2Frame() != 384) {
                     Log.e(TAG, "time out");

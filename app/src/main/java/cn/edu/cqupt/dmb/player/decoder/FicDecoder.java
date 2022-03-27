@@ -199,9 +199,9 @@ public class FicDecoder {
         /* find a FIG(fast information group), and decode it according to it's type */
         figHeader = 0;
         while (figHeader < 30 && fib[figHeader] != (byte) 0xFF) { /* check end mark */
-            int mFigType = (fib[figHeader] >>> 5) & 0x07;
+            int figType = (fib[figHeader] >>> 5) & 0x07;
             figLength = fib[figHeader] & 0x1f;
-            switch (mFigType) {
+            switch (figType) {
                 case 0: /* standard fib type 0 */
                     fibType0();
                     break;
