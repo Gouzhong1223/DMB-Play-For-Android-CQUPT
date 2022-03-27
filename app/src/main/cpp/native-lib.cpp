@@ -3,6 +3,7 @@
 #include "mp2decoder.h"
 #include "tpegdec.h"
 #include "tpeg.h"
+#include "mpeg_dec.h"
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -59,4 +60,29 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_cn_edu_cqupt_dmb_player_jni_NativeMethod_tpegInit(JNIEnv *env, jclass type) {
     tpegInit();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_edu_cqupt_dmb_player_jni_NativeMethod_decodeMpegInit(JNIEnv *env, jclass clazz) {
+    mpeg_dec_init();
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_cn_edu_cqupt_dmb_player_jni_NativeMethod_decodeMpegFrame(JNIEnv *env, jclass clazz,
+                                                              jbyteArray in_, jint len,
+                                                              jbyteArray out_, jintArray info_) {
+    jbyte *in = env->GetByteArrayElements(in_, NULL);
+    jbyte *out = env->GetByteArrayElements(out_, NULL);
+    jint *info = env->GetIntArrayElements(info_, NULL);
+
+    int ret = decodeMp2Frame((unsigned char *) in, len, (unsigned char *) out,
+                             (unsigned int *) info);
+
+    env->ReleaseByteArrayElements(in_, in, 0);
+    env->ReleaseByteArrayElements(out_, out, 0);
+    env->ReleaseIntArrayElements(info_, info, 0);
+
+    return ret;
 }

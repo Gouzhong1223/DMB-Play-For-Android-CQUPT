@@ -98,4 +98,4 @@ void DAB_ReadXpad(XPADPS_SETTING psXpad, int32_t nFrameLen, int32_t nTableId);
 
 uint8_t DAB_GetXpadSubFieldLength(uint8_t ContentIndicator);
 
-#endif//_MPEG_DEC_H_
+#endif//_MP2G_DEC_H_
