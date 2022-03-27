@@ -17,6 +17,9 @@ public class NativeMethod {
         System.loadLibrary("native-lib");
     }
 
+    /**
+     * 初始化 Mp2 解码器
+     */
     public static native void mp2DecoderInit();
 
     /**
@@ -31,6 +34,9 @@ public class NativeMethod {
     public static native int decodeMp2Frame(byte[] in, int len, byte[] out, int[] info);
 
 
+    /**
+     * TPEG 解码器初始化
+     */
     public static native void tpegInit();
 
 
@@ -44,4 +50,21 @@ public class NativeMethod {
      * @param info 用于存储消息类型
      */
     public static native void decodeTpegFrame(byte[] in, byte[] out, int[] info);
+
+    /**
+     * 初始化 MPEG 解码器
+     */
+    public static native void decodeMpegInit();
+
+    /**
+     * 对一个 MPEG 帧进行解码
+     * 现在 JNI 的 C++代码还没有改,目前是直接调用的{@link NativeMethod#decodeMp2Frame(byte[], int, byte[], int[])}
+     *
+     * @param in   需要译码的数组
+     * @param len  译码长度
+     * @param out  译码完成的数组
+     * @param info 消息类型
+     * @return 译码长度
+     */
+    public static native int decodeMpegFrame(byte[] in, int len, byte[] out, int[] info);
 }
