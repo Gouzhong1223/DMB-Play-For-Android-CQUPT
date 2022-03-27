@@ -30,7 +30,8 @@ add_library(
         native-lib.cpp
         rs.c
         tpeg.c
-        tpegdec-lib.cpp)
+        tpegdec-lib.cpp
+        mpeg_dec.cpp)
 #
 #add_library(
 #        # Sets the name of the library.
@@ -62,7 +63,7 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         native-lib
-#        tpegdec-lib
+        #        tpegdec-lib
 
         # Links the target library to the log library
         # included in the NDK.
