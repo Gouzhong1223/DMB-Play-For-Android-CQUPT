@@ -16,12 +16,10 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoderImprovement;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
-import cn.edu.cqupt.dmb.player.old.DangleReader;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 
 /**
@@ -127,15 +125,11 @@ public class UsbUtil {
                         60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
             }
             // 如果没有Shutdown就直接提交任务
-//            scheduledExecutorService.scheduleAtFixedRate(new ReceiveUsbDataTask(bytes, usbEndpointIn,
-//                            usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()),
-//                    TASK_DEFAULT_DELAY_TIME, TASK_DEFAULT_INTERVAL, TimeUnit.MILLISECONDS);
+            // 开始执行 TPEG 解码的任务
             new TpegDecoderImprovement(new DmbTpegListener()).start();
+            // 新开一个线程去接收 Dangle 接收器发过来的数据
             new Thread(new ReceiveUsbDataTask(bytes, usbEndpointIn,
                     usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue())).start();
-            // 我先试一下老的接收器
-//            new DangleReader(dangle, DataReadWriteUtil.getPipedInputStream(), MainActivity.id, MainActivity.isEncrypted).start();
-//            // 开始执行 TPEG 解码的任务
         }
     }
 

@@ -65,11 +65,9 @@ public class CarouselActivity extends FragmentActivity {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             // 如果当前的 bitmap 缓存中有数据,就先暂停当前的轮播图,然后重新设置轮播图资源再开始
             if (BannerImageBitmapCache.getBannerCache().size() != 0) {
-                banner.stop();
                 banner.setDatas(BannerBitmapDataBean.getListBitMapData());
-                banner.start();
             }
-        }, 0L, 15L, TimeUnit.SECONDS);
+        }, 0L, 3L, TimeUnit.SECONDS);
     }
 
     /**
