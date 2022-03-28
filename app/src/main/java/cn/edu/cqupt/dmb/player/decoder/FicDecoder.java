@@ -123,7 +123,7 @@ public class FicDecoder {
             channelInfos[i] = new ChannelInfo();
             channelInfos[i].subCh = i + 1;
         }
-        initCcr16Tab();
+        initCrc16Tab();
     }
 
     /**
@@ -147,7 +147,7 @@ public class FicDecoder {
     /**
      * init crc 16 table
      */
-    private void initCcr16Tab() {
+    private void initCrc16Tab() {
         /* polynomial x^16 + x^12 + x^5 + 1 Recommendation ITU-T X.25*/
         short CRC_POLY_16 = (short) 0x1021;
         short i, j, crc;
