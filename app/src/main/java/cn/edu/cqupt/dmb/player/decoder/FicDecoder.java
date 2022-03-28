@@ -18,7 +18,6 @@ import cn.edu.cqupt.dmb.player.domain.ChannelInfo;
  */
 public class FicDecoder {
 
-    private static final String TAG = "FicDecoder";
     private static final int CHANNEL_SIZE = 64;
     private static final short[] CRC16TAB = new short[256];
     private final byte[] DAB_ENCRYPT_CODE = {
@@ -167,12 +166,12 @@ public class FicDecoder {
     /**
      * calculate crc 16 value
      */
-    private short crc16(byte[] bytes, int offset, int length) {
+    private short crc16(byte[] bytes, int length) {
         short data;
         short crc = (short) 0xFFFF;
-        for (int i = offset; i < offset + length; i++) {
-            data = (short) bytes[i];
-            crc = (short) ((short) (crc << 8) ^ (short) (CRC16TAB[((crc >>> 8) ^ data) & 0x00FF]));
+        for (int i = 0; i < length; i++) {
+            data = bytes[i];
+            crc = (short) ((short) (crc << 8) ^ CRC16TAB[((crc >>> 8) ^ data) & 0x00FF]);
         }
         crc = (short) (crc & 0xFFFF);
         crc = (short) (crc ^ 0xFFFF);
@@ -185,7 +184,7 @@ public class FicDecoder {
     public void decode(byte[] bytes) {
         System.arraycopy(bytes, 0, fib, 0, 32);
         /* crc check */
-        short dataCrc = crc16(fib, 0, 30);
+        short dataCrc = crc16(fib, 30);
         short preferenceCrc = (short) ((fib[30] << 8) | fib[31] & 0x00ff);
         if (dataCrc != preferenceCrc) { /* crc check fail frequently */
             return;
@@ -379,7 +378,7 @@ public class FicDecoder {
         int temp;
         for (int i = 0; i < figLength - 1; i += form) { /* length has a header */
             form = (fib[index + 2 + i] & 0x80) == 0 ? 3 : 4;
-            subChId = (int) ((fib[index + i] >>> 2) & 0x003f);
+            subChId = (fib[index + i] >>> 2) & 0x003f;
             channelInfos[subChId].subChOrganization[0] = ((fib[index + i] & 0x0ff) << 8);
             channelInfos[subChId].subChOrganization[0] += fib[index + i + 1] & 0x0ff;
             channelInfos[subChId].subChOrganization[0] &= 0x03FF;/* start address */
@@ -392,7 +391,7 @@ public class FicDecoder {
                 channelInfos[subChId].subChOrganization[4] = 0;
                 channelInfos[subChId].subChOrganization[5] = 0;
                 /* Sub-channel size */
-                channelInfos[subChId].subChOrganization[1] = (int) ((fib[index + 2 + i] & 0x03) << 8 | fib[index + 3 + i] & 0x0FF);
+                channelInfos[subChId].subChOrganization[1] = (fib[index + 2 + i] & 0x03) << 8 | fib[index + 3 + i] & 0x0FF;
                 int options = fib[index + 2 + i] & 0x7c;
                 switch (options) {
                     case 0x0: /*  protection level 1-A */
@@ -519,10 +518,10 @@ public class FicDecoder {
         then fallow 5bit hour,6bit minute, 6bit second,10bit millisecond */
         long utc;
         if ((fib[index + 2] & 0x08) == 0) {
-            utc = ((int) (fib[index + 2] & 0x0f)) << 8; /* 20 - 23bit */
+            utc = (fib[index + 2] & 0x0f) << 8; /* 20 - 23bit */
             utc = (utc + ((int) fib[index + 3] & 0x0FF)) << 20; /* 24 - 31bit */
         } else {
-            utc = ((int) ((fib[index + 2] & 0x0f))) << 8;
+            utc = (fib[index + 2] & 0x0f) << 8;
             utc = (utc + ((int) fib[index + 3] & 0x0FF)) << 8;
             utc = (utc + ((int) fib[index + 4] & 0x0FF)) << 12;
         }
@@ -542,7 +541,7 @@ public class FicDecoder {
         }
         short crc = (short) ((ficData[ficDataLen - 2] << 8) | ficData[ficDataLen - 1] & 0x00ff);
         String ficMessage = null;
-        if (crc16(ficData, 0, ficDataLen - 2) == crc) {
+        if (crc16(ficData, ficDataLen - 2) == crc) {
             try {
                 ficMessage = new String(ficData, 0, ficDataLen - 2, "gb2312");
             } catch (UnsupportedEncodingException e) {
