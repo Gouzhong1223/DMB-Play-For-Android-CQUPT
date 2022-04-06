@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 
 /**
  * @Author : Gouzhong
@@ -19,18 +18,25 @@ import java.io.PipedOutputStream;
  */
 public class DataReadWriteUtil {
 
-//    private static volatile PipedOutputStream pipedOutputStream;
-    private static volatile PipedInputStream pipedInputStream;
-    private static volatile BufferedInputStream bufferedInputStream;
+    //    private static volatile PipedOutputStream pipedOutputStream;
+    private static final PipedInputStream pipedInputStream;
+    private static final BufferedInputStream bufferedInputStream;
+
+    private static volatile boolean INITIALIZE_TEMPORARY_FILES = false;
+
+    private static volatile String TEMPORARY_MPEG_TS_VIDEO_FILENAME = "";
 
     public static volatile boolean isFirstInitMainActivity = true;
+
+    private volatile boolean isChangeFrequency = false;
+
+    private volatile boolean isChangeDeviceId = false;
 
     public volatile static boolean USB_READY = false;
 
     public static volatile boolean initFlag = false;
 
     static {
-//        pipedOutputStream = new PipedOutputStream();
         pipedInputStream = new PipedInputStream(1024 * 2);
         bufferedInputStream = new BufferedInputStream(pipedInputStream);
     }
@@ -75,13 +81,40 @@ public class DataReadWriteUtil {
         return readTpegFrame(bufferedInputStream, bytes);
     }
 
-//    public static PipedOutputStream getPipedOutputStream() {
-//        return pipedOutputStream;
-//    }
-
-
     public static PipedInputStream getPipedInputStream() {
         return pipedInputStream;
     }
 
+    public boolean isIschangeFrequency() {
+        return isChangeFrequency;
+    }
+
+    public void setIschangeFrequency(boolean isChangeFrequency) {
+        this.isChangeFrequency = isChangeFrequency;
+    }
+
+    public boolean isChangeDeviceId() {
+        return isChangeDeviceId;
+    }
+
+    public void setChangeDeviceId(boolean changeDeviceId) {
+        isChangeDeviceId = changeDeviceId;
+    }
+
+    public static String getTemporaryMpegTsVideoFilename() {
+        return TEMPORARY_MPEG_TS_VIDEO_FILENAME;
+    }
+
+    public static void setTemporaryMpegTsVideoFilename(String temporaryMpegTsVideoFilename) {
+        INITIALIZE_TEMPORARY_FILES = true;
+        TEMPORARY_MPEG_TS_VIDEO_FILENAME = temporaryMpegTsVideoFilename;
+    }
+
+    public static boolean isInitializeTemporaryFiles() {
+        return INITIALIZE_TEMPORARY_FILES;
+    }
+
+    public static void setInitializeTemporaryFiles(boolean initializeTemporaryFiles) {
+        INITIALIZE_TEMPORARY_FILES = initializeTemporaryFiles;
+    }
 }

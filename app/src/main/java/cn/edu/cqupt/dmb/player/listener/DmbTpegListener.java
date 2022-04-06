@@ -43,15 +43,15 @@ public class DmbTpegListener implements DmbListener {
         // 生成文件名称
         fileName = DmbUtil.CACHE_DIRECTORY + fileName;
         // 如果是已经缓存过的图片就不再缓存了
-        if (LOAD_IMAGE_CACHE.containsKey(building)) {
-            return;
-        }
+//        if (LOAD_IMAGE_CACHE.containsKey(building)) {
+//            return;
+//        }
         //  检查文件名称是否是自己需要的,如果不是自己需要的,就直接返回算了
-        if (fileName.equals(DmbUtil.CACHE_DIRECTORY + "building" + building + ".jpg")) {
-            LOAD_IMAGE_CACHE.put(building, fileName);
-            System.arraycopy(bytes, 0, fileBuffer, 0, length);
-            fileLength = length;
-        }
+//        if (fileName.equals(DmbUtil.CACHE_DIRECTORY + "building" + building + ".jpg")) {
+//        LOAD_IMAGE_CACHE.put(building, fileName);
+        System.arraycopy(bytes, 0, fileBuffer, 0, length);
+        fileLength = length;
+//        }
         Bitmap bitmap = BitmapFactory.decodeByteArray(fileBuffer, 0, fileLength);
         BannerBitmapDataBean bannerBitmapDataBean = new BannerBitmapDataBean(bitmap, fileName, 1);
         if (bitmap != null) {

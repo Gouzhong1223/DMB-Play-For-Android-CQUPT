@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.domain;
 
+import androidx.annotation.NonNull;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -30,6 +32,7 @@ public class ChannelInfo {
     public int type;
     public int subCh;
 
+    @NonNull
     @Override
     public String toString() {
         return "channel = " + subCh + "  type = " + DATA_TYPE[type] + "  label = " + label + "  " + "Bitrate = " +

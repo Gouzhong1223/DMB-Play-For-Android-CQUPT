@@ -1,15 +1,23 @@
 package cn.edu.cqupt.dmb.player.actives;
 
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
@@ -20,6 +28,8 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 public class MainActivity extends Activity {
 
     private static final String ACTION_USB_PERMISSION = DmbPlayerConstant.ACTION_USB_PERMISSION.getDmbConstantDescribe();
+    private static final String TAG = "MainActivity";
+    private static final int WRITE_STORAGE_REQUEST_CODE = 100;
 
     public static int id;
     public static boolean isEncrypted;
@@ -31,8 +41,11 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        // 请求回去存储设备的读写趣新年
+        requestPermissions(this);
         // 初始化组件
         initView();
+        // 初始化 DMB 的常量,设备号还有频点
         initDmbConstants();
         firstInitMainActivity();
     }
@@ -55,7 +68,8 @@ public class MainActivity extends Activity {
 
     private void initDmbConstants() {
         // id 801 是重邮教学楼课表,820 是重邮室外屏
-        id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 801);
+        // 这里设置的是默认的设备 ID ,后面再选择不同 Activity 的时候，会自动切换对应的终端 ID
+        id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 1);
         isEncrypted = DmbUtil.getBoolean(this, DmbUtil.ENCRYPTION, true);
         building = DmbUtil.getInt(this, DmbUtil.BUILDING, 64);
     }
@@ -130,6 +144,38 @@ public class MainActivity extends Activity {
                 intent.setClass(MainActivity.this, CarouselActivity.class);
                 startActivity(intent);
                 break;
+        }
+    }
+
+    /**
+     * 请求获取存储设备的读写权限
+     * 如果有权限就直接跳过
+     * 如果没有权限就请求用户授予
+     *
+     * @param context Context
+     */
+    private void requestPermissions(@NonNull Context context) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            Log.i(TAG, "没有授权，申请权限");
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE}, WRITE_STORAGE_REQUEST_CODE);
+        } else {
+            Log.i(TAG, "有权限，打开文件");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == WRITE_STORAGE_REQUEST_CODE) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Log.i(TAG, "申请权限成功，打开");
+            } else {
+                Log.i(TAG, "申请权限失败");
+            }
         }
     }
 }

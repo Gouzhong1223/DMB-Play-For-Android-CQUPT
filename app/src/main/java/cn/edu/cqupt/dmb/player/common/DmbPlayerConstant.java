@@ -18,6 +18,7 @@ public enum DmbPlayerConstant {
     DEFAULT_READ_TIME_OUT("DEFAULT_READ_TIME_OUT", 1000, "读取 USB 数据的时候默认的等待时间"),
     DEFAULT_DMB_DATA_SIZE("DEFAULT_DMB_DATA_SIZE", 64, "一个 DMB 数据包的长度"),
     FREQKHZ("FREQKHZ", 220352, "重邮 DMB 频点"),
+    FREQKHZ_NEW("FREQKHZ_NEW", 210572, "重邮 DMB 频点_新发射机"),
     FREQKHZ2("FREQKHZ2", 210432, "重邮第二个 DMB 频点"),
     DMB_READ_TIME("DMB_READ_TIME", 15, "一次 IO 从 USB 中读取数据的次数,"),
     DMB_V_ID("DMB_V_ID", 1155, "DMB接收机的厂商ID"),

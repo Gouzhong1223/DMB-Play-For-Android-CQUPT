@@ -172,7 +172,7 @@ public class FicDecoder {
      * | Type   | Length | Group Id | Extension | SbChId | Group Flag | Id       |
      */
     private void selectSubCh() {
-        Log.i(TAG, "现在正在选择子频道，Fib 是: " + BaseConversionUtil.bytes2hex(fib));
+//        Log.i(TAG, "现在正在选择子频道，Fib 是: " + BaseConversionUtil.bytes2hex(fib));
         int index = figHeader + 1;
         int groupId = (fib[index] & 0xE0) >>> 5;
         int groupFlag = fib[index + 1] & 0x03;
