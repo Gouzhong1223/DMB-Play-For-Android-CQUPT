@@ -125,8 +125,6 @@ public class UsbUtil {
                         60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
             }
             // 如果没有Shutdown就直接提交任务
-            // 开始执行 TPEG 解码的任务
-            new TpegDecoderImprovement(new DmbTpegListener()).start();
             // 新开一个线程去接收 Dangle 接收器发过来的数据
             new Thread(new ReceiveUsbDataTask(bytes, usbEndpointIn,
                     usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue())).start();

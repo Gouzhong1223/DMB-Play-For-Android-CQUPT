@@ -18,6 +18,8 @@ import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerImageBitmapCache;
+import cn.edu.cqupt.dmb.player.decoder.TpegDecoderImprovement;
+import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
@@ -28,18 +30,36 @@ public class CarouselActivity extends FragmentActivity {
     // 线程池中有两个线程,一个是定时更新信号的线程,一个是定时更新轮播图的线程
     private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(2);
 
+    /**
+     * 轮播图组件
+     */
     private Banner banner;
+    /**
+     * 信号组件
+     */
     private ImageView signalImageView;
+    /**
+     * 轮播图解码器
+     */
+    private TpegDecoderImprovement tpegDecoderImprovement;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_carousel);
         initView();
+        // 开始执行轮播图解码
+        startDecodeTpeg();
         // 执行定时更新信号图片的任务
         updateSignalImage();
         // 执行更新轮播图的任务
         updateCarouselImage();
+    }
+
+    private void startDecodeTpeg() {
+        // 开始执行 TPEG 解码的任务
+        tpegDecoderImprovement = new TpegDecoderImprovement(new DmbTpegListener());
+        tpegDecoderImprovement.start();
     }
 
     private void initView() {
@@ -101,6 +121,7 @@ public class CarouselActivity extends FragmentActivity {
         // 如果activity被关闭了就应该立马销毁线程池并且终止正在运行的线程
         scheduledExecutorService.shutdownNow();
         banner.stop();
+        tpegDecoderImprovement.interrupt();
         DataReadWriteUtil.setActiveFrequencyModule(null);
         super.onDestroy();
     }

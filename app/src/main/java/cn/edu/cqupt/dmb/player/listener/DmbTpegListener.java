@@ -7,7 +7,6 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
@@ -29,32 +28,23 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 public class DmbTpegListener implements DmbListener {
 
     private static final String TAG = "DmbTpegListener";
-    private final int building = MainActivity.building;
     private final byte[] fileBuffer = new byte[1024 * 1024 * 2];
-    private int fileLength = 0;
 
     private final ArrayList<String> mReceivedFile = new ArrayList<>();
     private final int id = MainActivity.id;
-    HashMap<Integer, String> LOAD_IMAGE_CACHE = new HashMap<>();
 
     @Override
 
     public void onSuccess(String fileName, byte[] bytes, int length) {
-        // 生成文件名称
+        // 生成轮播图的文件名
         fileName = DmbUtil.CACHE_DIRECTORY + fileName;
-        // 如果是已经缓存过的图片就不再缓存了
-//        if (LOAD_IMAGE_CACHE.containsKey(building)) {
-//            return;
-//        }
-        //  检查文件名称是否是自己需要的,如果不是自己需要的,就直接返回算了
-//        if (fileName.equals(DmbUtil.CACHE_DIRECTORY + "building" + building + ".jpg")) {
-//        LOAD_IMAGE_CACHE.put(building, fileName);
         System.arraycopy(bytes, 0, fileBuffer, 0, length);
-        fileLength = length;
-//        }
-        Bitmap bitmap = BitmapFactory.decodeByteArray(fileBuffer, 0, fileLength);
+        // 根据数据源生生成 bitmap
+        Bitmap bitmap = BitmapFactory.decodeByteArray(fileBuffer, 0, length);
+        // 构造 bannerBitmapDataBean
         BannerBitmapDataBean bannerBitmapDataBean = new BannerBitmapDataBean(bitmap, fileName, 1);
         if (bitmap != null) {
+            // 添加到有界队列中
             BannerImageBitmapCache.putBitMap(bannerBitmapDataBean);
         } else {
             Log.e(TAG, "生成 bitmap 错误啦!");

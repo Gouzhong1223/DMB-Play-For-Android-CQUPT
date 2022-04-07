@@ -50,7 +50,7 @@ public class TpegDecoderImprovement extends Thread {
     /**
      * DMB 数据输入流
      */
-    private static PipedInputStream pipedInputStream;
+    private static volatile PipedInputStream pipedInputStream;
 
     public static PipedInputStream getPipedInputStream() {
         return pipedInputStream;
