@@ -20,6 +20,7 @@ import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerImageBitmapCache;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 public class CarouselActivity extends FragmentActivity {
 
@@ -100,6 +101,7 @@ public class CarouselActivity extends FragmentActivity {
         // 如果activity被关闭了就应该立马销毁线程池并且终止正在运行的线程
         scheduledExecutorService.shutdownNow();
         banner.stop();
+        DataReadWriteUtil.setActiveFrequencyModule(null);
         super.onDestroy();
     }
 }

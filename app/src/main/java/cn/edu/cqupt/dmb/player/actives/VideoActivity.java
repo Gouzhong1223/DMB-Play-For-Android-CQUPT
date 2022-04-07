@@ -114,6 +114,7 @@ public class VideoActivity extends Activity {
         // 结束
         // 直接中断 TS 解码器
         mpegTsDecoder.interrupt();
+        DataReadWriteUtil.setActiveFrequencyModule(null);
         super.onDestroy();
     }
 }

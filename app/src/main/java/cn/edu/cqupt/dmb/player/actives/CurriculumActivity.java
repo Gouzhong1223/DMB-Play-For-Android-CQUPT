@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoderImprovement;
 import cn.edu.cqupt.dmb.player.listener.DmbCurriculumListener;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
  * 这个是显示课表的 Activity
@@ -41,6 +42,7 @@ public class CurriculumActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         tpegDecoderImprovement.interrupt();
+        DataReadWriteUtil.setActiveFrequencyModule(null);
         super.onDestroy();
     }
 }
