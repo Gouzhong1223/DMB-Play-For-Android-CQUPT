@@ -7,18 +7,34 @@
     <uses-feature
             android:name="android.software.leanback"
             android:required="false" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+
+    <uses-permission
+            android:name="android.permission.WRITE_EXTERNAL_STORAGE"
             tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission
+            android:name="android.permission.READ_EXTERNAL_STORAGE"
+            tools:ignore="ManifestOrder" />
+    <uses-permission
+            android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+            tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.REORDER_TASKS" />
 
     <application
-            android:requestLegacyExternalStorage="true"
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
+            android:requestLegacyExternalStorage="true"
             android:supportsRtl="true"
             android:theme="@style/DMB_Player_Android">
+        <activity
+                android:name=".SettingMainActivity"
+                android:exported="false" />
+        <activity
+                android:name=".CurriculumActivity"
+                android:exported="false" />
         <activity
                 android:name=".actives.VideoActivity"
                 android:exported="false" />
@@ -37,19 +53,11 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <meta-data
                     android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                     android:resource="@xml/device_filter" />
         </activity>
     </application>
-
-    <uses-permission
-            android:name="android.permission.READ_EXTERNAL_STORAGE"
-            tools:ignore="ManifestOrder" />
-    <uses-permission
-            android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-            tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.REORDER_TASKS" />
 
 </manifest>
