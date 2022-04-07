@@ -20,7 +20,7 @@ android {
                 cppFlags ""
             }
             ndk {
-                abiFilters "armeabi-v7a"
+//                abiFilters "armeabi-v7a"
             }
         }
 
@@ -42,7 +42,7 @@ android {
     sourceSets {
         main {
             // 在CMakeList.txt中有 add library时在这里就不用再添加了，没有就需要添加(如使用链接命令的方式)
-            jniLibs.srcDirs = ['src/main/ffmpeg/libs']
+//            jniLibs.srcDirs = ['src/main/ffmpeg/libs']
         }
     }
     ndkVersion '25.0.8151533 rc1'
