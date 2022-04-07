@@ -39,7 +39,7 @@ public class DmbCurriculumListener implements DmbListener {
 
     @Override
     public void onSuccess(String fileName, byte[] bytes, int length) {
-        FrequencyModule frequencyModule = DataReadWriteUtil.getFrequencyModule();
+        FrequencyModule frequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
         if (frequencyModule == null) {
             Log.e(TAG, "出错啦!现在没有设置活跃的组件,所以这里的回调方法就直接抛弃!");
             return;

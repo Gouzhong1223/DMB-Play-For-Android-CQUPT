@@ -67,7 +67,7 @@ public class DataReadWriteUtil {
     /**
      * 当前活跃(选中的模块)
      */
-    private static volatile FrequencyModule frequencyModule;
+    private static volatile FrequencyModule activeFrequencyModule;
 
     static {
         tpegPipedInputStream = new PipedInputStream(1024 * 2);
@@ -121,11 +121,11 @@ public class DataReadWriteUtil {
         INITIALIZE_TEMPORARY_FILES = initializeTemporaryFiles;
     }
 
-    public static FrequencyModule getFrequencyModule() {
-        return frequencyModule;
+    public static FrequencyModule getActiveFrequencyModule() {
+        return activeFrequencyModule;
     }
 
-    public static void setFrequencyModule(FrequencyModule frequencyModule) {
-        DataReadWriteUtil.frequencyModule = frequencyModule;
+    public static void setActiveFrequencyModule(FrequencyModule activeFrequencyModule) {
+        DataReadWriteUtil.activeFrequencyModule = activeFrequencyModule;
     }
 }

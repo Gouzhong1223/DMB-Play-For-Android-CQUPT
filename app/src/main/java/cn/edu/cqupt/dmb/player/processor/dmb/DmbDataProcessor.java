@@ -69,7 +69,7 @@ public class DmbDataProcessor implements DataProcessing {
      * @return PipedOutputStream
      */
     private PipedOutputStream getActiveModulePip() {
-        FrequencyModule frequencyModule = DataReadWriteUtil.getFrequencyModule();
+        FrequencyModule frequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
         if (frequencyModule == null) {
             // 如果当前还没有设置活跃模块,就直接返回一个空对象
             return null;
