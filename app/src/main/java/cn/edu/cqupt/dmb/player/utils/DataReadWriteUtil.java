@@ -1,6 +1,5 @@
 package cn.edu.cqupt.dmb.player.utils;
 
-import java.io.BufferedInputStream;
 import java.io.PipedInputStream;
 
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
@@ -30,7 +29,6 @@ public class DataReadWriteUtil {
      * 这是宿舍安全信息的数据输入流
      */
     private static final PipedInputStream dormitoryPipedInputStream;
-    private static final BufferedInputStream bufferedInputStream;
 
     private static volatile boolean INITIALIZE_TEMPORARY_FILES = false;
 
@@ -73,7 +71,6 @@ public class DataReadWriteUtil {
         tpegPipedInputStream = new PipedInputStream(1024 * 2);
         curriculumPipedInputStream = new PipedInputStream(1024 * 2);
         dormitoryPipedInputStream = new PipedInputStream(1024 * 2);
-        bufferedInputStream = new BufferedInputStream(tpegPipedInputStream);
     }
 
     public static PipedInputStream getTpegPipedInputStream() {
