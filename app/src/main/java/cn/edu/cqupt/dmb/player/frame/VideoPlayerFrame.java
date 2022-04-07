@@ -12,7 +12,6 @@ import android.widget.FrameLayout;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Map;
 
 import cn.edu.cqupt.dmb.player.listener.VideoPlayerListener;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
@@ -101,21 +100,11 @@ public class VideoPlayerFrame extends FrameLayout {
     }
 
     /**
-     * 设置播放地址
-     *
-     * @param path 视频源路径
-     */
-    public void setPath(String path) {
-        setPath(path, null);
-    }
-
-    /**
      * 设置视频源路径
      *
      * @param path   视频源路径
-     * @param header header
      */
-    public void setPath(String path, Map<String, String> header) {
+    public void setPath(String path) {
         try {
             FileInputStream fileInputStream = new FileInputStream(path);
             fileDescriptor = fileInputStream.getFD();
