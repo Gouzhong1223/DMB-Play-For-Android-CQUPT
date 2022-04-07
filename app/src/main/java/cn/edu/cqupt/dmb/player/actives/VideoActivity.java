@@ -13,6 +13,8 @@ import java.util.concurrent.TimeUnit;
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
 import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
+import cn.edu.cqupt.dmb.player.listener.DmbListener;
+import cn.edu.cqupt.dmb.player.listener.DmbMpegListener;
 import cn.edu.cqupt.dmb.player.listener.VideoPlayerListenerImpl;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
@@ -55,6 +57,7 @@ public class VideoActivity extends Activity {
      * 播放视频
      */
     private void playVideo() {
+
         synchronized (LOCK_OBJECT) {
             while (DataReadWriteUtil.isInitializeTemporaryFiles()) {
                 try {
@@ -101,7 +104,8 @@ public class VideoActivity extends Activity {
      * 这里开一个线程去执行 MPEG-TS 的解码任务
      */
     private void startMpegTsCodec() {
-        mpegTsDecoder = new MpegTsDecoder(LOCK_OBJECT);
+        DmbListener videoPlayerListener = new DmbMpegListener();
+        mpegTsDecoder = new MpegTsDecoder(LOCK_OBJECT,videoPlayerListener);
         mpegTsDecoder.start();
     }
 

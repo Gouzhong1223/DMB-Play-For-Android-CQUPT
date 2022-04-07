@@ -1,9 +1,9 @@
 package cn.edu.cqupt.dmb.player.utils;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.PipedInputStream;
+
+import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 
 /**
  * @Author : Gouzhong
@@ -18,71 +18,74 @@ import java.io.PipedInputStream;
  */
 public class DataReadWriteUtil {
 
-    //    private static volatile PipedOutputStream pipedOutputStream;
-    private static final PipedInputStream pipedInputStream;
+    /**
+     * 这个是室外屏数据的输入流
+     */
+    private static final PipedInputStream tpegPipedInputStream;
+    /**
+     * 这个是课表的数据输入流
+     */
+    private static final PipedInputStream curriculumPipedInputStream;
+    /**
+     * 这是宿舍安全信息的数据输入流
+     */
+    private static final PipedInputStream dormitoryPipedInputStream;
     private static final BufferedInputStream bufferedInputStream;
 
     private static volatile boolean INITIALIZE_TEMPORARY_FILES = false;
 
+    /**
+     * 临时视频文件名
+     */
     private static volatile String TEMPORARY_MPEG_TS_VIDEO_FILENAME = "";
 
+    /**
+     * 是否已经进行了 USB 的第一次初始化
+     */
     public static volatile boolean isFirstInitMainActivity = true;
 
+    /**
+     * 是否已经改变了设备的工作频点
+     */
     private volatile boolean isChangeFrequency = false;
 
+    /**
+     * 是否已经改变了设备的 ID
+     */
     private volatile boolean isChangeDeviceId = false;
 
+    /**
+     * USB 设备是否就绪
+     */
     public volatile static boolean USB_READY = false;
 
+    /**
+     * 现在是否已经接收到了 DMB 类型的数据
+     */
     public static volatile boolean initFlag = false;
 
-    static {
-        pipedInputStream = new PipedInputStream(1024 * 2);
-        bufferedInputStream = new BufferedInputStream(pipedInputStream);
-    }
-
     /**
-     * 从输入流中读取固定长度的数据
-     *
-     * @param inputStream 输入流
-     * @param bytes       接收数组
-     * @return 成功返回true, 失败返回false
+     * 当前活跃(选中的模块)
      */
-    public static boolean readTpegFrame(InputStream inputStream, byte[] bytes) {
-        int nRead;
-        try {
-            while ((nRead = inputStream.read(bytes, 3, 1)) > 0) {
-                if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
-                    break;
-                }
-                System.arraycopy(bytes, 1, bytes, 0, 3);
-            }
-            if (nRead <= 0) {
-                return false;
-            }
-            /* 读取固定长度的字节 */
-            int nLeft = 108;
-            int pos = 4;
-            while (nLeft > 0) {
-                if ((nRead = inputStream.read(bytes, pos, nLeft)) <= 0) {
-                    return false;
-                }
-                nLeft -= nRead;
-                pos += nRead;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-        return true;
+    private static volatile FrequencyModule frequencyModule;
+
+    static {
+        tpegPipedInputStream = new PipedInputStream(1024 * 2);
+        curriculumPipedInputStream = new PipedInputStream(1024 * 2);
+        dormitoryPipedInputStream = new PipedInputStream(1024 * 2);
+        bufferedInputStream = new BufferedInputStream(tpegPipedInputStream);
     }
 
-    public static boolean readTpegFrame(byte[] bytes) {
-        return readTpegFrame(bufferedInputStream, bytes);
+    public static PipedInputStream getTpegPipedInputStream() {
+        return tpegPipedInputStream;
     }
 
-    public static PipedInputStream getPipedInputStream() {
-        return pipedInputStream;
+    public static PipedInputStream getCurriculumPipedInputStream() {
+        return curriculumPipedInputStream;
+    }
+
+    public static PipedInputStream getDormitoryPipedInputStream() {
+        return dormitoryPipedInputStream;
     }
 
     public boolean isIschangeFrequency() {
@@ -116,5 +119,13 @@ public class DataReadWriteUtil {
 
     public static void setInitializeTemporaryFiles(boolean initializeTemporaryFiles) {
         INITIALIZE_TEMPORARY_FILES = initializeTemporaryFiles;
+    }
+
+    public static FrequencyModule getFrequencyModule() {
+        return frequencyModule;
+    }
+
+    public static void setFrequencyModule(FrequencyModule frequencyModule) {
+        DataReadWriteUtil.frequencyModule = frequencyModule;
     }
 }

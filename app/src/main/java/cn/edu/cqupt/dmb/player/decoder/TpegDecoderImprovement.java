@@ -9,8 +9,9 @@ import java.io.PipedInputStream;
 import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
+import cn.edu.cqupt.dmb.player.listener.DmbCurriculumListener;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
-import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
+import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
@@ -38,17 +39,36 @@ public class TpegDecoderImprovement extends Thread {
     private static final int LAST_FRAME = 3;
     private static final String TAG = "TpegDecoder";
 
-    private final BufferedInputStream inputStream;
+    /**
+     * DMB 数据输入缓冲区
+     */
+    private final BufferedInputStream bufferedInputStream;
+    /**
+     * DMB 数据处理监听器
+     */
     private final DmbListener listener;
-    static PipedInputStream pipedInputStream;
+    /**
+     * DMB 数据输入流
+     */
+    private static PipedInputStream pipedInputStream;
 
     public static PipedInputStream getPipedInputStream() {
         return pipedInputStream;
     }
 
     public TpegDecoderImprovement(DmbListener listener) {
-        pipedInputStream = DataReadWriteUtil.getPipedInputStream();
-        inputStream = new BufferedInputStream(pipedInputStream);
+        if (listener instanceof DmbTpegListener) {
+            // 如果监听器是室外屏的监听器,那输入流就应该设置为室外屏对应的监听器
+            pipedInputStream = DataReadWriteUtil.getTpegPipedInputStream();
+        } else if (listener instanceof DmbCurriculumListener) {
+            // 课表监听器
+            pipedInputStream = DataReadWriteUtil.getCurriculumPipedInputStream();
+        } else {
+            // 宿舍监听器对应的输入流
+            pipedInputStream = DataReadWriteUtil.getDormitoryPipedInputStream();
+        }
+
+        bufferedInputStream = new BufferedInputStream(pipedInputStream);
         this.listener = listener;
     }
 
@@ -63,12 +83,17 @@ public class TpegDecoderImprovement extends Thread {
         String fileName = null;
         Log.e(TAG, "tpeg decoder start");
         NativeMethod.tpegInit();
-        while (DataReadWriteUtil.USB_READY) {
+        while (!this.isInterrupted()) {
+            if (!DataReadWriteUtil.USB_READY) {
+                // 如果当前 USB 没有就绪,就直接结束当前线程
+                return;
+            }
             if (!DataReadWriteUtil.initFlag) {
+                // 如果目前还没有接收到 DMB 类型的数据,就直接返回
                 continue;
             }
             tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
-            if (!readTpegFrame(inputStream, tpegBuffer)) {
+            if (!readTpegFrame(bufferedInputStream, tpegBuffer)) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -80,7 +105,6 @@ public class TpegDecoderImprovement extends Thread {
             NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
             switch (tpegInfo[0]) {
                 case FIRST_FRAME:
-//                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
                     Log.e(TAG, "first frame");
                     isReceiveFirstFrame = true;
                     System.arraycopy(tpegData, 0, fileBuffer, 0, tpegInfo[1]);
@@ -98,8 +122,6 @@ public class TpegDecoderImprovement extends Thread {
                     }
                     break;
                 case MIDDLE_FRAME:
-//                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
-//                    Log.i(TAG, "MIDDLE_FRAME");
                     if (total + tpegInfo[1] >= FILE_BUFFER_SIZE) {
                         total = 0;
                     } else {
@@ -108,7 +130,6 @@ public class TpegDecoderImprovement extends Thread {
                     }
                     break;
                 case LAST_FRAME:
-//                    Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
                     Log.e(TAG, "last frame");
                     if (isReceiveFirstFrame && total + tpegInfo[1] < FILE_BUFFER_SIZE) {
                         System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
@@ -125,7 +146,7 @@ public class TpegDecoderImprovement extends Thread {
                     break;
             }
         }
-        Log.i(TAG, "tpeg decoder end");
+        Log.i(TAG, "解码 TPEG 完成!");
     }
 
     private boolean readTpegFrame(InputStream inputStream, byte[] bytes) {
@@ -155,5 +176,11 @@ public class TpegDecoderImprovement extends Thread {
             e.printStackTrace();
         }
         return true;
+    }
+
+    @Override
+    public void interrupt() {
+        Log.e(TAG, "TPEG 解码器被中断了");
+        super.interrupt();
     }
 }
