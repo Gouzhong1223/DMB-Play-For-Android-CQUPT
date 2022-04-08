@@ -35,9 +35,17 @@ public class MainActivity extends Activity {
     /**
      * 设备的 ID 号
      */
-    public static int id;
+    public static volatile int id;
 
+    /**
+     * USB广播接收器
+     */
     private DmbBroadcastReceiver dmbBroadcastReceiver;
+
+    /**
+     * 默认的工作场景
+     */
+    private FrequencyModule defaultFrequencyModule;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +58,23 @@ public class MainActivity extends Activity {
         // 初始化 DMB 的常量,设备号还有频点
         initDmbConstants();
         firstInitMainActivity();
+        // 跳转到对应的工作场景
+        jumpDefaultActivity();
+    }
+
+    /**
+     * 跳转到默认的使用场景
+     */
+    private void jumpDefaultActivity() {
+        if (defaultFrequencyModule == null) {
+            // 没有的话,就直接返回了
+            return;
+        }
+        Intent intent = new Intent();
+        // 获取对应的工作模块
+        intent.setClass(this, getActivityByDefaultFrequencyModule(defaultFrequencyModule));
+        // 跳转
+        startActivity(intent);
     }
 
     private void firstInitMainActivity() {
@@ -68,6 +93,9 @@ public class MainActivity extends Activity {
         DataReadWriteUtil.isFirstInitMainActivity = false;
     }
 
+    /**
+     * 初始化 DMB 的一些常量
+     */
     private void initDmbConstants() {
         // 从sharedPreferences中获取默认模块的序号,序号的范围是 1-9
         int serialNumber = DmbUtil.getInt(this, "defaultFrequencyModule", 20);
@@ -79,7 +107,7 @@ public class MainActivity extends Activity {
             startActivity(intent);
         }
         // 根据序号获取模块信息
-        FrequencyModule defaultFrequencyModule = FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
+        defaultFrequencyModule = FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
         assert defaultFrequencyModule != null;
         // 设置 ID
         id = defaultFrequencyModule.getDeviceID();
@@ -193,9 +221,9 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * 请求获取存储设备的读写权限
-     * 如果有权限就直接跳过
-     * 如果没有权限就请求用户授予
+     * 请求获取存储设备的读写权限<br/>
+     * 如果有权限就直接跳过<br/>
+     * 如果没有权限就请求用户授予<br/>
      *
      * @param context Context
      */
@@ -222,5 +250,27 @@ public class MainActivity extends Activity {
                 Log.i(TAG, "申请权限失败");
             }
         }
+    }
+
+    /**
+     * 根据默认的工作场景获取对应的 Activity
+     *
+     * @param defaultFrequencyModule 工作场景(默认的)
+     * @return 对应的 Activity
+     */
+    private Class<?> getActivityByDefaultFrequencyModule(FrequencyModule defaultFrequencyModule) {
+        if (defaultFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
+            return CurriculumActivity.class;
+        }
+        if (defaultFrequencyModule.getModuleName().equals("OUTDOOR_SCREEN_TPEG")) {
+            return CarouselActivity.class;
+        }
+        if (defaultFrequencyModule.getModuleName().equals("OUTDOOR_SCREEN_VIDEO")) {
+            return VideoActivity.class;
+        }
+        if (defaultFrequencyModule.getModuleName().equals("DORMITORY_SAFETY")) {
+            return DormitorySafetyActivity.class;
+        }
+        return null;
     }
 }
