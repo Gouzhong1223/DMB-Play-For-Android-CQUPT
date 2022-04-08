@@ -205,6 +205,7 @@ public class MainActivity extends Activity {
         switch (view.getId()) {
             case R.id.curriculum:
                 FrequencyModule activeFrequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
+                // 判断当前默认的设置是不是课表
                 if (!activeFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
                     new AlertDialog.Builder(
                             this)

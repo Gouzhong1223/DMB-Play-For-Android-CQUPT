@@ -50,7 +50,8 @@ public class CurriculumActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         tpegDecoderImprovement.interrupt();
-        DataReadWriteUtil.setActiveFrequencyModule(null);
+        // 结束之后设置活跃场景为默认场景
+        DataReadWriteUtil.setActiveFrequencyModule(DataReadWriteUtil.getDefaultFrequencyModule(this));
         super.onDestroy();
     }
 }
