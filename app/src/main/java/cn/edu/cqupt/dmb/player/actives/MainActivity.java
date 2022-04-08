@@ -13,13 +13,11 @@ import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import com.alibaba.fastjson.JSON;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
@@ -44,7 +42,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // 请求回去存储设备的读写趣新年
+        // 请求存储设备的读写权限
         requestPermissions(this);
         // 初始化组件
         initView();
@@ -75,8 +73,13 @@ public class MainActivity extends Activity {
         id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 1);
         isEncrypted = DmbUtil.getBoolean(this, DmbUtil.ENCRYPTION, true);
         building = DmbUtil.getInt(this, DmbUtil.BUILDING, 64);
-        String defaultFrequencyModuleStr = DmbUtil.getString(this, "defaultFrequencyModule", null);
-        FrequencyModule defaultFrequencyModule = (FrequencyModule) JSON.parse(defaultFrequencyModuleStr);
+        int serialNumber = DmbUtil.getInt(this, "defaultFrequencyModule", 20);
+        if (serialNumber == 20) {
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, SettingMainActivity.class);
+            startActivity(intent);
+        }
+        FrequencyModule defaultFrequencyModule = FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
         DataReadWriteUtil.setActiveFrequencyModule(defaultFrequencyModule);
     }
 
@@ -109,10 +112,18 @@ public class MainActivity extends Activity {
                 view.setScaleY(1.0f);
             }
         };
-        Button button1 = findViewById(R.id.button1);
-        button1.setOnFocusChangeListener(onFocusChangeListener);
-        Button button2 = findViewById(R.id.button2);
-        button2.setOnFocusChangeListener(onFocusChangeListener);
+        FrameLayout curriculumFrameLayout = findViewById(R.id.curriculum);
+        FrameLayout dormitoryFrameLayout = findViewById(R.id.dormitory);
+        FrameLayout carouselFrameLayout = findViewById(R.id.carousel);
+        FrameLayout videoFrameLayout = findViewById(R.id.video);
+        FrameLayout audioFrameLayout = findViewById(R.id.audio);
+        FrameLayout settingFrameLayout = findViewById(R.id.setting);
+        curriculumFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
+        dormitoryFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
+        carouselFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
+        videoFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
+        audioFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
+        settingFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
     }
 
     @Override
@@ -143,16 +154,24 @@ public class MainActivity extends Activity {
         }
         Intent intent = new Intent();
         switch (view.getId()) {
-            case R.id.button1:
-                intent.setClass(MainActivity.this, DormitorySafetyActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.button2:
-                intent.setClass(MainActivity.this, CarouselActivity.class);
+            case R.id.curriculum:
+                intent.setClass(this, CurriculumActivity.class);
                 startActivity(intent);
                 break;
             case R.id.setting:
-                intent.setClass(MainActivity.this, SettingMainActivity.class);
+                intent.setClass(this, SettingMainActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.dormitory:
+                intent.setClass(this, DormitorySafetyActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.carousel:
+                intent.setClass(this, CarouselActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.video:
+                intent.setClass(this, VideoActivity.class);
                 startActivity(intent);
                 break;
         }

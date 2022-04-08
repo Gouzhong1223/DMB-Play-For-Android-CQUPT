@@ -6,4 +6,11 @@
     <string name="scenes">请选择此播放器的使用场景</string>
     <string name="editBuildingStr">请选择教学楼</string>
     <string name="sure">确定</string>
+    <string name="curriculum">课表</string>
+    <string name="setting">设置</string>
+    <string name="dormitoryImageDesc">宿舍 image 描述</string>
+    <string name="dormitory">宿舍</string>
+    <string name="carousel">轮播图</string>
+    <string name="video">视频</string>
+    <string name="audio">音频</string>
 </resources>

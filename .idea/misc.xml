@@ -20,8 +20,8 @@
         <entry key="app/src/main/res/drawable/white.xml" value="0.1525" />
         <entry key="app/src/main/res/layout/activity_carousel.xml" value="0.20364583333333333" />
         <entry key="app/src/main/res/layout/activity_curriculum.xml" value="0.33177083333333335" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.14270833333333333" />
-        <entry key="app/src/main/res/layout/activity_setting_main.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/activity_setting_main.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_video.xml" value="0.14270833333333333" />
       </map>
     </option>

@@ -13,8 +13,6 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSON;
-
 import java.util.Objects;
 
 import cn.edu.cqupt.dmb.player.R;
@@ -49,6 +47,10 @@ public class SettingMainActivity extends Activity {
      */
     private LinearLayout editBuildingLinearLayout;
     /**
+     * 显示默认设置的TextView
+     */
+    private TextView defaultTextView;
+    /**
      * 教学楼数据源
      */
     String[] building = new String[]{"二教", "三教", "四教", "五教", "八教"};
@@ -74,14 +76,22 @@ public class SettingMainActivity extends Activity {
         loadConfigFromSharedPreferences();
     }
 
+    /**
+     * 初始化 View
+     */
     private void initView() {
         editBuildingLinearLayout = findViewById(R.id.edit_building);
         scenesSpinner = findViewById(R.id.scenes_spinner);
         buildingSpinner = findViewById(R.id.building_spinner);
         sureButton = findViewById(R.id.sure);
         hintTextView = findViewById(R.id.hint_text_view);
+        defaultTextView = findViewById(R.id.default_text_view);
     }
 
+    /**
+     * 配置View
+     */
+    @SuppressLint("SetTextI18n")
     private void configView() {
         // 为使用场景下拉框设置数据源
         scenesSpinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, scenes));
@@ -93,20 +103,16 @@ public class SettingMainActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectScenes = (String) adapterView.getItemAtPosition(i);
-                if (Objects.equals(selectScenes, "教学楼课表")) {
+                if (Objects.equals(selectScenes, scenes[2])) {
                     // 如果选中的使用场景是教学楼课表,就把选择教学楼的 View 打开
                     editBuildingLinearLayout.setVisibility(View.VISIBLE);
-                    // 把frequencyModule设置为 null,防止的是,用户先选择了非教学楼,然后选择了frequencyModule
-                    // 这时候再回来选择场景为课表,这时候frequencyModule不为 null 直接提交就会出错!
-                    frequencyModule = null;
-                    hintTextView.setText("当前未选择任何配置");
                 } else {
                     // 反之就直接关闭这个 View,不让用户选择
                     editBuildingLinearLayout.setVisibility(View.INVISIBLE);
                     // 根据选择的应用场景选择 FrequencyModule
                     frequencyModule = selectFrequencyModuleByScenes(selectScenes);
-                    hintTextView.setText("当前选择的配置是:" + frequencyModule);
                 }
+                hintTextView.setText("当前选择的配置是:" + frequencyModule);
                 Log.i(TAG, "现在选的应用场景是:" + selectScenes);
             }
 
@@ -117,12 +123,16 @@ public class SettingMainActivity extends Activity {
         });
         // 设置教学楼下拉框监听器
         buildingSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                // 获取选中的教学楼
-                String selectBuilding = (String) adapterView.getItemAtPosition(i);
-                // 根据教学楼选择FrequencyModule
-                frequencyModule = selectFrequencyModuleByBuilding(selectBuilding);
+                if (editBuildingLinearLayout.getVisibility() == View.VISIBLE) {
+                    // 获取选中的教学楼
+                    String selectBuilding = (String) adapterView.getItemAtPosition(i);
+                    // 根据教学楼选择FrequencyModule
+                    frequencyModule = selectFrequencyModuleByBuilding(selectBuilding);
+                    hintTextView.setText("当前选择的配置是:" + frequencyModule);
+                }
             }
 
             @Override
@@ -140,14 +150,14 @@ public class SettingMainActivity extends Activity {
                         .setPositiveButton("确定", null)
                         .show();
             } else {
-                String frequencyModuleStr = JSON.toJSONString(frequencyModule);
-                DmbUtil.putString(this, "defaultFrequencyModule", frequencyModuleStr);
+                DmbUtil.putInt(this, "defaultFrequencyModule", frequencyModule.getSerialNumber());
                 new AlertDialog.Builder(
                         this)
                         .setTitle("成功")
                         .setMessage("保存成功,下次进入 APP 将会自动进入您选择的模块!")
                         .setPositiveButton("确定", null)
                         .show();
+                defaultTextView.setText("当前选择的配置是:" + frequencyModule);
             }
         });
     }
@@ -200,13 +210,14 @@ public class SettingMainActivity extends Activity {
      */
     @SuppressLint("SetTextI18n")
     private void loadConfigFromSharedPreferences() {
-        String defaultFrequencyModule = DmbUtil.getString(this, "defaultFrequencyModule", null);
+        int serialNumber = DmbUtil.getInt(this, "defaultFrequencyModule", 20);
+        FrequencyModule defaultFrequencyModule = FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
         if (defaultFrequencyModule == null) {
             frequencyModule = null;
-            hintTextView.setText("当前未选择任何配置");
+            defaultTextView.setText("没有默认配置");
         }
-        frequencyModule = (FrequencyModule) JSON.parse(defaultFrequencyModule);
-        hintTextView.setText("当前选择的配置是:" + frequencyModule);
+        frequencyModule = defaultFrequencyModule;
+        defaultTextView.setText("现在的默认配置是:" + frequencyModule);
     }
 
 }

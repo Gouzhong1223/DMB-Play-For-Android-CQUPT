@@ -17,6 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 
@@ -106,7 +107,12 @@ public class UsbUtil {
             // 先清除Dangle的设置
             dangle.clearRegister();
             // 设置RF频段
-            dangle.setFrequency(DmbPlayerConstant.FREQKHZ.getDmbConstantValue());
+            FrequencyModule activeFrequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
+            if (activeFrequencyModule != null) {
+                dangle.setFrequency(activeFrequencyModule.getFrequency());
+            } else {
+                dangle.setFrequency(DmbPlayerConstant.FREQKHZ.getDmbConstantValue());
+            }
             // 完成上述任务之后才可以开始定时从USB中读取数据
             // 交给定时任务线程池去做,延迟一秒之后,每三秒从USB读取一次数据
             if (UsbUtil.getScheduledExecutorService().isShutdown()) {

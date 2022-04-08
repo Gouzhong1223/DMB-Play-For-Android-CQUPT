@@ -2,6 +2,8 @@ package cn.edu.cqupt.dmb.player.common;
 
 import androidx.annotation.NonNull;
 
+import java.util.Objects;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -15,15 +17,15 @@ import androidx.annotation.NonNull;
  */
 public enum FrequencyModule {
 
-    CURRICULUM_64("CURRICULUM-64", 220352, 801),
-    CURRICULUM_32("CURRICULUM-32", 220352, 801),
-    CURRICULUM_16("CURRICULUM-16", 220352, 801),
-    CURRICULUM_8("CURRICULUM-8", 220352, 801),
-    CURRICULUM_4("CURRICULUM-4", 220352, 801),
-    OUTDOOR_SCREEN_TPEG("OUTDOOR_SCREEN_TPEG", 220352, 802),
-    OUTDOOR_SCREEN_VIDEO("OUTDOOR_SCREEN_VIDEO", 220352, 802),
-    AUDIO("AUDIO", 220352, 901),
-    DORMITORY_SAFETY("DORMITORY_SAFETY", 220352, 1),
+    CURRICULUM_64(1, "CURRICULUM-64", 220352, 801),
+    CURRICULUM_32(2, "CURRICULUM-32", 220352, 801),
+    CURRICULUM_16(3, "CURRICULUM-16", 220352, 801),
+    CURRICULUM_8(4, "CURRICULUM-8", 220352, 801),
+    CURRICULUM_4(5, "CURRICULUM-4", 220352, 801),
+    OUTDOOR_SCREEN_TPEG(6, "OUTDOOR_SCREEN_TPEG", 220352, 802),
+    OUTDOOR_SCREEN_VIDEO(7, "OUTDOOR_SCREEN_VIDEO", 220352, 802),
+    AUDIO(8, "AUDIO", 220352, 901),
+    DORMITORY_SAFETY(9, "DORMITORY_SAFETY", 220352, 1),
     ;
 
     /**
@@ -41,7 +43,13 @@ public enum FrequencyModule {
      */
     private final Integer deviceID;
 
-    FrequencyModule(String moduleName, Integer frequency, Integer deviceID) {
+    /**
+     * 序号
+     */
+    private final Integer serialNumber;
+
+    FrequencyModule(Integer serialNumber, String moduleName, Integer frequency, Integer deviceID) {
+        this.serialNumber = serialNumber;
         this.moduleName = moduleName;
         this.frequency = frequency;
         this.deviceID = deviceID;
@@ -59,13 +67,24 @@ public enum FrequencyModule {
         return deviceID;
     }
 
+    public Integer getSerialNumber() {
+        return serialNumber;
+    }
+
     @NonNull
     @Override
     public String toString() {
-        return "FrequencyModule{" +
-                "moduleName='" + moduleName + '\'' +
-                ", frequency=" + frequency +
-                ", deviceID=" + deviceID +
-                '}';
+        return "工作模块=" + moduleName +
+                ", 工作频点=" + frequency +
+                ", 设备 ID=" + deviceID;
+    }
+
+    public static FrequencyModule getFrequencyModuleBySerialNumber(Integer serialNumber) {
+        for (FrequencyModule value : values()) {
+            if (Objects.equals(value.getSerialNumber(), serialNumber)) {
+                return value;
+            }
+        }
+        return null;
     }
 }

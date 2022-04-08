@@ -105,7 +105,7 @@ public class VideoActivity extends Activity {
      */
     private void startMpegTsCodec() {
         DmbListener videoPlayerListener = new DmbMpegListener();
-        mpegTsDecoder = new MpegTsDecoder(LOCK_OBJECT,videoPlayerListener);
+        mpegTsDecoder = new MpegTsDecoder(LOCK_OBJECT, videoPlayerListener);
         mpegTsDecoder.start();
     }
 
