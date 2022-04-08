@@ -193,11 +193,32 @@ public class MainActivity extends Activity {
                             "设置完成之后您可以进入任意一个场景,默认的工作场景设置完成之后," +
                             "并不会影响您进入其他场景,之后每次启动 APP 都会进入默认的工作场景.")
                     .setPositiveButton("确定", null)
+                    // 这个按钮是让用户跳转到设置的
+                    .setPositiveButton("设置", (dialogInterface, i) -> {
+                        Intent intent = new Intent();
+                        intent.setClass(MainActivity.this, SettingMainActivity.class);
+                        startActivity(intent);
+                    })
                     .show();
         }
         Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.curriculum:
+                FrequencyModule activeFrequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
+                if (!activeFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
+                    new AlertDialog.Builder(
+                            this)
+                            .setTitle("设置冲突!")
+                            .setMessage("当前设置的使用场景不是课表,我不知道您想显示哪一个教学楼的课表,如果您想显示课表,请在设置中设置课表并选择教学楼")
+                            .setPositiveButton("确定", null)
+                            // 这个按钮是让用户跳转到设置的
+                            .setPositiveButton("设置", (dialogInterface, i) -> {
+                                intent.setClass(MainActivity.this, SettingMainActivity.class);
+                                startActivity(intent);
+                            })
+                            .show();
+                    return;
+                }
                 intent.setClass(this, CurriculumActivity.class);
                 startActivity(intent);
                 break;
