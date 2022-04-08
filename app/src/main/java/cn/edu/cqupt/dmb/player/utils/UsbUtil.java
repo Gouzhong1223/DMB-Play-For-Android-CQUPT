@@ -34,6 +34,9 @@ import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 public class UsbUtil {
 
 
+    private static Dangle dangle;
+
+
     /**
      * 定时任务线程池
      */
@@ -99,7 +102,7 @@ public class UsbUtil {
             usbDeviceConnection = manager.openDevice(usbDevice);
             // 获取读写USB权限
             usbDeviceConnection.claimInterface(usbInterface, true);
-            Dangle dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
+            dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
             // 先清除Dangle的设置
             dangle.clearRegister();
             // 设置RF频段
@@ -131,5 +134,9 @@ public class UsbUtil {
 
     public static ExecutorService getExecutorService() {
         return executorService;
+    }
+
+    public static Dangle getDangle() {
+        return dangle;
     }
 }
