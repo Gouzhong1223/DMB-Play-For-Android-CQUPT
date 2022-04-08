@@ -1,7 +1,12 @@
 package cn.edu.cqupt.dmb.player.utils;
 
+import android.content.Context;
+import android.content.Intent;
+
 import java.io.PipedInputStream;
 
+import cn.edu.cqupt.dmb.player.actives.MainActivity;
+import cn.edu.cqupt.dmb.player.actives.SettingMainActivity;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 
 /**
@@ -124,5 +129,18 @@ public class DataReadWriteUtil {
 
     public static void setActiveFrequencyModule(FrequencyModule activeFrequencyModule) {
         DataReadWriteUtil.activeFrequencyModule = activeFrequencyModule;
+    }
+
+    /**
+     * 获取当前系统的默认工作场景
+     *
+     * @param context 当前 context
+     * @return 频点模块
+     */
+    public static FrequencyModule getDefaultFrequencyModule(Context context) {
+        // 从sharedPreferences中获取默认模块的序号,序号的范围是 1-9
+        int serialNumber = DmbUtil.getInt(context, "defaultFrequencyModule", 20);
+        // 根据序号获取模块信息
+        return FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
     }
 }

@@ -106,12 +106,11 @@ public class UsbUtil {
             dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
             // 先清除Dangle的设置
             dangle.clearRegister();
-            // 设置RF频段
+            // 获取当前系统的活跃模块
             FrequencyModule activeFrequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
             if (activeFrequencyModule != null) {
+                // 活跃模块不为空的时候,设置 Dangle 的频点
                 dangle.setFrequency(activeFrequencyModule.getFrequency());
-            } else {
-                dangle.setFrequency(DmbPlayerConstant.FREQKHZ.getDmbConstantValue());
             }
             // 完成上述任务之后才可以开始定时从USB中读取数据
             // 交给定时任务线程池去做,延迟一秒之后,每三秒从USB读取一次数据

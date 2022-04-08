@@ -18,6 +18,7 @@ import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerImageBitmapCache;
+import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoderImprovement;
 import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
@@ -47,6 +48,8 @@ public class CarouselActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_carousel);
+        // 进入到轮播图组件之后,首先将活跃的工作模块设置成轮播图
+        DataReadWriteUtil.setActiveFrequencyModule(FrequencyModule.OUTDOOR_SCREEN_TPEG);
         initView();
         // 开始执行轮播图解码
         startDecodeTpeg();
@@ -122,7 +125,10 @@ public class CarouselActivity extends FragmentActivity {
         scheduledExecutorService.shutdownNow();
         banner.stop();
         tpegDecoderImprovement.interrupt();
-        DataReadWriteUtil.setActiveFrequencyModule(null);
+        // 获取系统默认的工作模块
+        FrequencyModule defaultFrequencyModule = DataReadWriteUtil.getDefaultFrequencyModule(this);
+        // 退出组件应该将活跃模块设置为系统默认工作模块
+        DataReadWriteUtil.setActiveFrequencyModule(defaultFrequencyModule);
         super.onDestroy();
     }
 }

@@ -6,7 +6,6 @@ import android.util.Log;
 import java.io.UnsupportedEncodingException;
 
 import cn.edu.cqupt.dmb.player.domain.ChannelInfo;
-import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
 
 /**
  * @Author : Gouzhong
@@ -26,19 +25,36 @@ public class FicDecoder {
     private static final int CHANNEL_SIZE = 64;
     private static final short[] CRC16TAB = new short[256];
 
-    /* decoder config */
-    private final int id;
+
+    /**
+     * 设备的 ID 号
+     */
+    private int id;
+    /**
+     * 是否加密
+     */
     private final boolean isEncrypted;
 
-    /* fib information */
+    /**
+     * 一个 Fib
+     */
     private final byte[] fib;
+    /**
+     * Fig 头
+     */
     private int figHeader;
+    /**
+     * Fig 长
+     */
     private int figLength;
 
     /* decode data buffer */
     private final byte[] ficData = new byte[200];
     private int ficCh = 0xFF;
     private int ficDataLen;
+    /**
+     * 从 Fic 中解码出来的所有频道
+     */
     private final ChannelInfo[] channelInfos;
     public int year, month, day, hour, minute, second;
 
@@ -78,6 +94,8 @@ public class FicDecoder {
                 }
             }
         }
+        Log.i(TAG, "FicDecoder 的 ID 被重新设置成了:" + id);
+        ficDecoder.id = id;
         return ficDecoder;
     }
 

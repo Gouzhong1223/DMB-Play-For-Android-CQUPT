@@ -32,9 +32,10 @@ public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private static final int WRITE_STORAGE_REQUEST_CODE = 100;
 
+    /**
+     * 设备的 ID 号
+     */
     public static int id;
-    public static boolean isEncrypted;
-    public static int building;
 
     private DmbBroadcastReceiver dmbBroadcastReceiver;
 
@@ -68,18 +69,21 @@ public class MainActivity extends Activity {
     }
 
     private void initDmbConstants() {
-        // id 801 是重邮教学楼课表,820 是重邮室外屏
-        // 这里设置的是默认的设备 ID ,后面再选择不同 Activity 的时候，会自动切换对应的终端 ID
-        id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 1);
-        isEncrypted = DmbUtil.getBoolean(this, DmbUtil.ENCRYPTION, true);
-        building = DmbUtil.getInt(this, DmbUtil.BUILDING, 64);
+        // 从sharedPreferences中获取默认模块的序号,序号的范围是 1-9
         int serialNumber = DmbUtil.getInt(this, "defaultFrequencyModule", 20);
         if (serialNumber == 20) {
+            // 如果获取到的序号是 20,说明没有设置默认模块
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, SettingMainActivity.class);
+            // 转到设置页面
             startActivity(intent);
         }
+        // 根据序号获取模块信息
         FrequencyModule defaultFrequencyModule = FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
+        assert defaultFrequencyModule != null;
+        // 设置 ID
+        id = defaultFrequencyModule.getDeviceID();
+        // 设置活跃的模块
         DataReadWriteUtil.setActiveFrequencyModule(defaultFrequencyModule);
     }
 
@@ -151,6 +155,17 @@ public class MainActivity extends Activity {
                     .setPositiveButton("确定", null)
                     .show();
             return;
+        }
+        if (DataReadWriteUtil.getDefaultFrequencyModule(this) == null && view.getId() != R.id.setting) {
+            // 如果当前还没有设置默认的工作模块,就提醒用户进行设置
+            new AlertDialog.Builder(
+                    this)
+                    .setTitle("缺少默认工作场景设置!")
+                    .setMessage("您还没有设置默认的工作场景,点击右下角设置按钮进行使用场景的设置," +
+                            "设置完成之后您可以进入任意一个场景,默认的工作场景设置完成之后," +
+                            "并不会影响您进入其他场景,之后每次启动 APP 都会进入默认的工作场景.")
+                    .setPositiveButton("确定", null)
+                    .show();
         }
         Intent intent = new Intent();
         switch (view.getId()) {
