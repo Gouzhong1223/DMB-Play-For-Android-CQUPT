@@ -4,6 +4,11 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../../../layout/custom_preview.xml" value="0.34148550724637683" />
+        <entry key="../../../../Library/Android/sdk/platforms/android-32/data/res/layout/activity_list_item.xml" value="0.2927689594356261" />
+        <entry key="../../../../Library/Android/sdk/platforms/android-32/data/res/layout/simple_list_item_activated_1.xml" value="0.2808641975308642" />
+        <entry key="../../../../Library/Android/sdk/platforms/android-32/data/res/layout/simple_list_item_activated_2.xml" value="0.2808641975308642" />
+        <entry key="../../../../Library/Android/sdk/platforms/android-32/data/res/layout/simple_list_item_checked.xml" value="0.2808641975308642" />
+        <entry key="../../../../Library/Android/sdk/platforms/android-32/data/res/layout/simple_spinner_item.xml" value="0.2927689594356261" />
         <entry key="..\:/Projects/Android/2022-03/DMB Player For Android/app/src/main/res/layout/activity_carousel.xml" value="0.23859191655801826" />
         <entry key="..\:/Projects/Android/2022-03/DMB Player For Android/app/src/main/res/layout/activity_main.xml" value="0.33818342151675485" />
         <entry key="app/src/main/res/drawable/background.xml" value="0.1525" />
@@ -16,6 +21,7 @@
         <entry key="app/src/main/res/layout/activity_carousel.xml" value="0.20364583333333333" />
         <entry key="app/src/main/res/layout/activity_curriculum.xml" value="0.33177083333333335" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.14270833333333333" />
+        <entry key="app/src/main/res/layout/activity_setting_main.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_video.xml" value="0.14270833333333333" />
       </map>
     </option>

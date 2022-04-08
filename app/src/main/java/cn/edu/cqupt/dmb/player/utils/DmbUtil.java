@@ -114,6 +114,35 @@ public class DmbUtil {
         return sharedPreferences.getInt(key, defValue);
     }
 
+    /**
+     * 获取字符串
+     *
+     * @param context  context
+     * @param key      键
+     * @param defValue 默认值
+     * @return value
+     */
+    public static String getString(Context context, String key, String defValue) {
+        if (sharedPreferences == null) {
+            sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        }
+        return sharedPreferences.getString(key, defValue);
+    }
+
+    /**
+     * 放置字符串
+     *
+     * @param context context
+     * @param key     键
+     * @param value   value
+     */
+    public static void putString(Context context, String key, String value) {
+        if (sharedPreferences == null) {
+            sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        }
+        sharedPreferences.edit().putString(key, value).apply();
+    }
+
     public static void putInt(Context context, String key, int value) {
         if (sharedPreferences == null) {
             sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);

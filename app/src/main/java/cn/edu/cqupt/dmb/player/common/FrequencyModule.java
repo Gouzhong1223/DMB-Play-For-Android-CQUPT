@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.common;
 
+import androidx.annotation.NonNull;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -55,5 +57,15 @@ public enum FrequencyModule {
 
     public Integer getDeviceID() {
         return deviceID;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "FrequencyModule{" +
+                "moduleName='" + moduleName + '\'' +
+                ", frequency=" + frequency +
+                ", deviceID=" + deviceID +
+                '}';
     }
 }

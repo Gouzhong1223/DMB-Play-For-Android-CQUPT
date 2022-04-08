@@ -19,9 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.alibaba.fastjson.JSON;
+
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
@@ -72,6 +75,9 @@ public class MainActivity extends Activity {
         id = DmbUtil.getInt(this, DmbUtil.RECEIVER_ID, 1);
         isEncrypted = DmbUtil.getBoolean(this, DmbUtil.ENCRYPTION, true);
         building = DmbUtil.getInt(this, DmbUtil.BUILDING, 64);
+        String defaultFrequencyModuleStr = DmbUtil.getString(this, "defaultFrequencyModule", null);
+        FrequencyModule defaultFrequencyModule = (FrequencyModule) JSON.parse(defaultFrequencyModuleStr);
+        DataReadWriteUtil.setActiveFrequencyModule(defaultFrequencyModule);
     }
 
     /**
@@ -124,7 +130,8 @@ public class MainActivity extends Activity {
      */
     @SuppressLint("NonConstantResourceId")
     public void onclick(View view) {
-        if (!DataReadWriteUtil.USB_READY) {
+        // 设置按钮不收到 USB 影响
+        if (!DataReadWriteUtil.USB_READY && view.getId() != R.id.setting) {
             // 如果当前USB设备没有准备好是不允许点击按钮的
             new AlertDialog.Builder(
                     this)
@@ -142,6 +149,10 @@ public class MainActivity extends Activity {
                 break;
             case R.id.button2:
                 intent.setClass(MainActivity.this, CarouselActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.setting:
+                intent.setClass(MainActivity.this, SettingMainActivity.class);
                 startActivity(intent);
                 break;
         }

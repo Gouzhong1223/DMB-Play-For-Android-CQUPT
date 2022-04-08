@@ -17,9 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.decoder.TpegDecoderImprovement;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
-import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 
 /**
@@ -51,14 +49,6 @@ public class UsbUtil {
                 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
     }
 
-    /**
-     * 默认的任务延迟时间
-     */
-    private static final long TASK_DEFAULT_DELAY_TIME = 0L;
-    /**
-     * 默认的任务间隔时间
-     */
-    private static final long TASK_DEFAULT_INTERVAL = 500L;
     /**
      * 用于缓存USB设备的Map
      */
