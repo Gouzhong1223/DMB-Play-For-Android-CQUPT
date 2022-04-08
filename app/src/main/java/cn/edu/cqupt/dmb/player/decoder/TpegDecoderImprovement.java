@@ -52,8 +52,17 @@ public class TpegDecoderImprovement extends Thread {
      */
     private static volatile PipedInputStream pipedInputStream;
 
+    /**
+     * 默认的 pip 输入流
+     */
+    private static final PipedInputStream defaultPipedInputStream = new PipedInputStream(1024 * 2);
+
     public static PipedInputStream getPipedInputStream() {
         return pipedInputStream;
+    }
+    static {
+        // 初始化的时候先将输入流设置成默认的
+        pipedInputStream = defaultPipedInputStream;
     }
 
     public TpegDecoderImprovement(DmbListener listener) {
