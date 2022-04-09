@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.listener.DmbCurriculumListener;
@@ -61,12 +62,13 @@ public class CurriculumActivity extends Activity {
     protected void onDestroy() {
         // 中断解码线程
         tpegDecoder.interrupt();
+        FrequencyModule defaultFrequencyModule = DataReadWriteUtil.getDefaultFrequencyModule(this);
         // 结束之后设置活跃场景为默认场景
-        DataReadWriteUtil.setActiveFrequencyModule(DataReadWriteUtil.getDefaultFrequencyModule(this));
+        DataReadWriteUtil.setActiveFrequencyModule(defaultFrequencyModule);
         // 结束之后将 ID 设置成默认的场景 ID
-        MainActivity.id = DataReadWriteUtil.getDefaultFrequencyModule(this).getDeviceID();
+        MainActivity.id = defaultFrequencyModule.getDeviceID();
         // 再重置一下 Dangle
-        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
+        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), defaultFrequencyModule);
         super.onDestroy();
     }
 }
