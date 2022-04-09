@@ -140,7 +140,7 @@ public class CarouselActivity extends FragmentActivity {
         // 结束之后将 ID 设置成默认的场景 ID
         MainActivity.id = defaultFrequencyModule.getDeviceID();
         // 重置一下 Dangle
-        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
+        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), defaultFrequencyModule);
         super.onDestroy();
     }
 }
