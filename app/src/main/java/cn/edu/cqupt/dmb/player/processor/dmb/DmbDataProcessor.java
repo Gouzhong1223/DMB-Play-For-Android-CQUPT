@@ -8,7 +8,7 @@ import java.io.PipedOutputStream;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
-import cn.edu.cqupt.dmb.player.decoder.TpegDecoderImprovement;
+import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
@@ -30,15 +30,15 @@ public class DmbDataProcessor implements DataProcessing {
     /**
      * 图片的输出流
      */
-    static PipedOutputStream tpegPipedOutputStream = new PipedOutputStream();
+    private static final PipedOutputStream tpegPipedOutputStream = new PipedOutputStream();
     /**
      * 视频的输出流
      */
-    static PipedOutputStream mpegTsPipedOutputStream = new PipedOutputStream();
+    private static final PipedOutputStream mpegTsPipedOutputStream = new PipedOutputStream();
 
     static {
         try {
-            tpegPipedOutputStream.connect(TpegDecoderImprovement.getPipedInputStream());
+            tpegPipedOutputStream.connect(TpegDecoder.getPipedInputStream());
             mpegTsPipedOutputStream.connect(MpegTsDecoder.getPipedInputStream());
         } catch (IOException e) {
             e.printStackTrace();
@@ -47,6 +47,7 @@ public class DmbDataProcessor implements DataProcessing {
 
     @Override
     public void processData(byte[] usbData) {
+        Log.i(TAG, "现在接收到的数据是 DMB 类型!");
         int dataLength = (((int) usbData[7]) & 0x0FF);
         try {
             PipedOutputStream activeModulePip = getActiveModulePip();
@@ -75,11 +76,14 @@ public class DmbDataProcessor implements DataProcessing {
             return null;
         }
         if (frequencyModule.getModuleName().equals(FrequencyModule.OUTDOOR_SCREEN_VIDEO.getModuleName())) {
-            // 视频的输入流
+            // 如果当前的活跃场景是视频,就返回视频的 pip 输出流
             return mpegTsPipedOutputStream;
-        } else {
-            // 直接返回 图片的输入流
+        }
+        if (frequencyModule.getModuleName().startsWith("CURRICULUM")) {
+            // 如果当前活跃的场景是课表,就返回图片的 pip 输出流
             return tpegPipedOutputStream;
         }
+        // TODO 其余类型的 pip 输出流
+        return null;
     }
 }

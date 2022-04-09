@@ -9,9 +9,7 @@ import java.io.PipedInputStream;
 import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
-import cn.edu.cqupt.dmb.player.listener.DmbCurriculumListener;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
-import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
@@ -26,7 +24,7 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class TpegDecoderImprovement extends Thread {
+public class TpegDecoder extends Thread {
 
 
     /* file size should not be greater than 2M */
@@ -42,7 +40,7 @@ public class TpegDecoderImprovement extends Thread {
     /**
      * DMB 数据输入缓冲区
      */
-    private final BufferedInputStream bufferedInputStream;
+    private static final BufferedInputStream bufferedInputStream;
     /**
      * DMB 数据处理监听器
      */
@@ -50,34 +48,19 @@ public class TpegDecoderImprovement extends Thread {
     /**
      * DMB 数据输入流
      */
-    private static volatile PipedInputStream pipedInputStream;
-
-    /**
-     * 默认的 pip 输入流
-     */
-    private static final PipedInputStream defaultPipedInputStream = new PipedInputStream(1024 * 2);
+    private static final PipedInputStream pipedInputStream = new PipedInputStream(1024 * 2);
 
     public static PipedInputStream getPipedInputStream() {
+        Log.i(TAG, "现在有线程正在获取pipedInputStream");
         return pipedInputStream;
     }
+
     static {
-        // 初始化的时候先将输入流设置成默认的
-        pipedInputStream = defaultPipedInputStream;
+        // 类加载的时候初始化BufferedInputStream
+        bufferedInputStream = new BufferedInputStream(pipedInputStream);
     }
 
-    public TpegDecoderImprovement(DmbListener listener) {
-        if (listener instanceof DmbTpegListener) {
-            // 如果监听器是室外屏的监听器,那输入流就应该设置为室外屏对应的监听器
-            pipedInputStream = DataReadWriteUtil.getTpegPipedInputStream();
-        } else if (listener instanceof DmbCurriculumListener) {
-            // 课表监听器
-            pipedInputStream = DataReadWriteUtil.getCurriculumPipedInputStream();
-        } else {
-            // 宿舍监听器对应的输入流
-            pipedInputStream = DataReadWriteUtil.getDormitoryPipedInputStream();
-        }
-
-        bufferedInputStream = new BufferedInputStream(pipedInputStream);
+    public TpegDecoder(DmbListener listener) {
         this.listener = listener;
     }
 
@@ -90,15 +73,17 @@ public class TpegDecoderImprovement extends Thread {
         byte[] fileBuffer = new byte[FILE_BUFFER_SIZE];
         boolean isReceiveFirstFrame = false;
         String fileName = null;
-        Log.e(TAG, "tpeg decoder start");
+        Log.i(TAG, Thread.currentThread().getName() + "线程开始了 TPEG 的解码");
         NativeMethod.tpegInit();
         while (!this.isInterrupted()) {
             if (!DataReadWriteUtil.USB_READY) {
                 // 如果当前 USB 没有就绪,就直接结束当前线程
+                Log.e(TAG, "现在 USB 还没有就绪!");
                 return;
             }
             if (!DataReadWriteUtil.initFlag) {
                 // 如果目前还没有接收到 DMB 类型的数据,就直接返回
+                Log.e(TAG, "现在还没有接收到 DMB 类型的数据!");
                 continue;
             }
             tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
@@ -108,13 +93,16 @@ public class TpegDecoderImprovement extends Thread {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+            } else {
+                Log.e(TAG, "读取TpegFrame的时候出错啦!");
+                continue;
             }
             Arrays.fill(tpegData, (byte) 0);
             Arrays.fill(tpegInfo, 0);
             NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
             switch (tpegInfo[0]) {
                 case FIRST_FRAME:
-                    Log.e(TAG, "first frame");
+                    Log.i(TAG, "现在接收到了头帧");
                     isReceiveFirstFrame = true;
                     System.arraycopy(tpegData, 0, fileBuffer, 0, tpegInfo[1]);
                     total = tpegInfo[1] - 35;
@@ -122,10 +110,10 @@ public class TpegDecoderImprovement extends Thread {
                         fileName = new String(tpegData, 0, 35, DmbUtil.CHARACTER_SET);
                         fileName = fileName.substring(0, fileName.indexOf(0x00));
                         if (fileName.equals("")) {
-                            fileName = "building" + tpegData[20] + ".jpg";
-                            Log.e(TAG, "fileName is empty,set fileName " + fileName);
+                            fileName = "教学楼-" + tpegData[20] + ".jpg";
+                            Log.i(TAG, "没有从 TPEG 信息中解码出文件名,所以重命名为:" + fileName);
                         }
-                        Log.e(TAG, total + " " + fileName);
+                        Log.i(TAG, total + " " + fileName);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -139,7 +127,7 @@ public class TpegDecoderImprovement extends Thread {
                     }
                     break;
                 case LAST_FRAME:
-                    Log.e(TAG, "last frame");
+                    Log.i(TAG, "现在接收到" + fileName + "的尾帧");
                     if (isReceiveFirstFrame && total + tpegInfo[1] < FILE_BUFFER_SIZE) {
                         System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
                         total += tpegInfo[1];

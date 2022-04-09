@@ -28,35 +28,37 @@ public class MpegTsDecoder extends Thread {
     /**
      * 锁对象
      */
-    private final Object LOCK_OBJECT;
+    private final Object WAIT_TMP_FILE_NAME_LOCK_OBJECT;
 
     /**
      * TS 视频的缓冲流
      */
-    private static BufferedInputStream bufferedInputStream;
+    private static final BufferedInputStream bufferedInputStream;
 
     /**
      * TS 视频流的输入流
      */
-    private static PipedInputStream pipedInputStream;
+    private static final PipedInputStream pipedInputStream = new PipedInputStream(1024 * 10);
+
+    static {
+        bufferedInputStream = new BufferedInputStream(pipedInputStream);
+    }
 
     private DmbListener dmbListener;
 
-    public MpegTsDecoder(Object lock_object, DmbListener dmbListener) {
-        LOCK_OBJECT = lock_object;
+    public MpegTsDecoder(Object lockObject, DmbListener dmbListener) {
+        WAIT_TMP_FILE_NAME_LOCK_OBJECT = lockObject;
         this.dmbListener = dmbListener;
-        pipedInputStream = new PipedInputStream(1024 * 188);
-        bufferedInputStream = new BufferedInputStream(pipedInputStream);
     }
 
     @Override
     public void run() {
         // 尝试获取锁,由于播放器在播放之前都会先设置临时文件的路径,
         // 如果播放器在生成临时文件之前就设置路径就会报错,所以这里做一个同步
-        synchronized (LOCK_OBJECT) {
+        synchronized (WAIT_TMP_FILE_NAME_LOCK_OBJECT) {
             DataReadWriteUtil.setTemporaryMpegTsVideoFilename("");
             // 设置临时文件的名字之后就唤醒播放器那边正在等待锁的线程
-            LOCK_OBJECT.notifyAll();
+            WAIT_TMP_FILE_NAME_LOCK_OBJECT.notifyAll();
         }
         // 在线程被中断之前都一直执行
         while (!this.isInterrupted()) {

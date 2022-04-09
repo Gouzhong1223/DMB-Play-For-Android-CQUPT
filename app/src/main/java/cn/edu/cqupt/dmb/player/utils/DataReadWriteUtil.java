@@ -1,12 +1,9 @@
 package cn.edu.cqupt.dmb.player.utils;
 
 import android.content.Context;
-import android.content.Intent;
 
-import java.io.PipedInputStream;
+import java.util.Objects;
 
-import cn.edu.cqupt.dmb.player.actives.MainActivity;
-import cn.edu.cqupt.dmb.player.actives.SettingMainActivity;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 
 /**
@@ -22,19 +19,6 @@ import cn.edu.cqupt.dmb.player.common.FrequencyModule;
  */
 public class DataReadWriteUtil {
 
-    /**
-     * 这个是室外屏数据的输入流
-     */
-    private static final PipedInputStream tpegPipedInputStream;
-    /**
-     * 这个是课表的数据输入流
-     */
-    private static final PipedInputStream curriculumPipedInputStream;
-    /**
-     * 这是宿舍安全信息的数据输入流
-     */
-    private static final PipedInputStream dormitoryPipedInputStream;
-
     private static volatile boolean INITIALIZE_TEMPORARY_FILES = false;
 
     /**
@@ -46,16 +30,6 @@ public class DataReadWriteUtil {
      * 是否已经进行了 USB 的第一次初始化
      */
     public static volatile boolean isFirstInitMainActivity = true;
-
-    /**
-     * 是否已经改变了设备的工作频点
-     */
-    private volatile boolean isChangeFrequency = false;
-
-    /**
-     * 是否已经改变了设备的 ID
-     */
-    private volatile boolean isChangeDeviceId = false;
 
     /**
      * USB 设备是否就绪
@@ -72,46 +46,13 @@ public class DataReadWriteUtil {
      */
     private static volatile FrequencyModule activeFrequencyModule;
 
-    static {
-        tpegPipedInputStream = new PipedInputStream(1024 * 2);
-        curriculumPipedInputStream = new PipedInputStream(1024 * 2);
-        dormitoryPipedInputStream = new PipedInputStream(1024 * 2);
-    }
-
-    public static PipedInputStream getTpegPipedInputStream() {
-        return tpegPipedInputStream;
-    }
-
-    public static PipedInputStream getCurriculumPipedInputStream() {
-        return curriculumPipedInputStream;
-    }
-
-    public static PipedInputStream getDormitoryPipedInputStream() {
-        return dormitoryPipedInputStream;
-    }
-
-    public boolean isIschangeFrequency() {
-        return isChangeFrequency;
-    }
-
-    public void setIschangeFrequency(boolean isChangeFrequency) {
-        this.isChangeFrequency = isChangeFrequency;
-    }
-
-    public boolean isChangeDeviceId() {
-        return isChangeDeviceId;
-    }
-
-    public void setChangeDeviceId(boolean changeDeviceId) {
-        isChangeDeviceId = changeDeviceId;
-    }
-
     public static String getTemporaryMpegTsVideoFilename() {
         return TEMPORARY_MPEG_TS_VIDEO_FILENAME;
     }
 
     public static void setTemporaryMpegTsVideoFilename(String temporaryMpegTsVideoFilename) {
-        INITIALIZE_TEMPORARY_FILES = true;
+        // 如果传进来的临时文件名是空的,就把INITIALIZE_TEMPORARY_FILES设置为 false,反之就设置为 true
+        setInitializeTemporaryFiles(!Objects.equals(temporaryMpegTsVideoFilename, "") && temporaryMpegTsVideoFilename != null);
         TEMPORARY_MPEG_TS_VIDEO_FILENAME = temporaryMpegTsVideoFilename;
     }
 

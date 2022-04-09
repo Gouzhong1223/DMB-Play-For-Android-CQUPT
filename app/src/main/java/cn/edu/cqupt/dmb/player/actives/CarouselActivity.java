@@ -19,16 +19,20 @@ import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerImageBitmapCache;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
-import cn.edu.cqupt.dmb.player.decoder.TpegDecoderImprovement;
+import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
+import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
+import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 public class CarouselActivity extends FragmentActivity {
 
     private static final String TAG = "CarouselActivity";
-    // 线程池中有两个线程,一个是定时更新信号的线程,一个是定时更新轮播图的线程
+    /**
+     * 线程池中有两个线程,一个是定时更新信号的线程,一个是定时更新轮播图的线程
+     */
     private final ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(2);
 
     /**
@@ -42,7 +46,12 @@ public class CarouselActivity extends FragmentActivity {
     /**
      * 轮播图解码器
      */
-    private TpegDecoderImprovement tpegDecoderImprovement;
+    private TpegDecoder tpegDecoder;
+
+    /**
+     * Dangle 实例
+     */
+    private Dangle dangle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +59,8 @@ public class CarouselActivity extends FragmentActivity {
         setContentView(R.layout.activity_carousel);
         // 进入到轮播图组件之后,首先将活跃的工作模块设置成轮播图
         DataReadWriteUtil.setActiveFrequencyModule(FrequencyModule.OUTDOOR_SCREEN_TPEG);
+        // 获取 dangle 实例
+        dangle = UsbUtil.getDangle();
         initView();
         // 开始执行轮播图解码
         startDecodeTpeg();
@@ -60,9 +71,13 @@ public class CarouselActivity extends FragmentActivity {
     }
 
     private void startDecodeTpeg() {
+        // 先清除一下 dangle 的设置
+        dangle.clearRegister();
+        // 重新设置一下实例
+        dangle.setFrequency(FrequencyModule.OUTDOOR_SCREEN_TPEG.getFrequency());
         // 开始执行 TPEG 解码的任务
-        tpegDecoderImprovement = new TpegDecoderImprovement(new DmbTpegListener());
-        tpegDecoderImprovement.start();
+        tpegDecoder = new TpegDecoder(new DmbTpegListener());
+        tpegDecoder.start();
     }
 
     private void initView() {
@@ -124,7 +139,7 @@ public class CarouselActivity extends FragmentActivity {
         // 如果activity被关闭了就应该立马销毁线程池并且终止正在运行的线程
         scheduledExecutorService.shutdownNow();
         banner.stop();
-        tpegDecoderImprovement.interrupt();
+        tpegDecoder.interrupt();
         // 获取系统默认的工作模块
         FrequencyModule defaultFrequencyModule = DataReadWriteUtil.getDefaultFrequencyModule(this);
         // 退出组件应该将活跃模块设置为系统默认工作模块

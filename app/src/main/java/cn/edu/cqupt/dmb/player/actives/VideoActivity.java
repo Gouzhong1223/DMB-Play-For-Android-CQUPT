@@ -31,7 +31,7 @@ public class VideoActivity extends Activity {
 
     private static final String TAG = "VideoActivity";
     private VideoPlayerFrame videoPlayerFrame = null;
-    private final Object LOCK_OBJECT = new Object();
+    private final Object WAIT_TMP_FILE_NAME_LOCK_OBJECT = new Object();
 
     private MpegTsDecoder mpegTsDecoder;
 
@@ -58,11 +58,11 @@ public class VideoActivity extends Activity {
      */
     private void playVideo() {
 
-        synchronized (LOCK_OBJECT) {
+        synchronized (WAIT_TMP_FILE_NAME_LOCK_OBJECT) {
             while (DataReadWriteUtil.isInitializeTemporaryFiles()) {
                 try {
                     // 如果还没有设置临时的视频文件,就 wait 一下
-                    LOCK_OBJECT.wait();
+                    WAIT_TMP_FILE_NAME_LOCK_OBJECT.wait();
                 } catch (InterruptedException e) {
                     Log.e(TAG, "等待 TS 解码器生成视频临时文件的时候出错啦!");
                     Toast.makeText(this, "等待 TS 解码器生成视频临时文件的时候出错啦!", Toast.LENGTH_SHORT).show();
@@ -105,7 +105,7 @@ public class VideoActivity extends Activity {
      */
     private void startMpegTsCodec() {
         DmbListener videoPlayerListener = new DmbMpegListener();
-        mpegTsDecoder = new MpegTsDecoder(LOCK_OBJECT, videoPlayerListener);
+        mpegTsDecoder = new MpegTsDecoder(WAIT_TMP_FILE_NAME_LOCK_OBJECT, videoPlayerListener);
         mpegTsDecoder.start();
     }
 
@@ -114,6 +114,7 @@ public class VideoActivity extends Activity {
         // 结束
         // 直接中断 TS 解码器
         mpegTsDecoder.interrupt();
+        videoPlayerFrame.release();
         DataReadWriteUtil.setActiveFrequencyModule(null);
         super.onDestroy();
     }

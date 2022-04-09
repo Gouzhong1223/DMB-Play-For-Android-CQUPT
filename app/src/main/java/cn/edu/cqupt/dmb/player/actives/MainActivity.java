@@ -25,6 +25,7 @@ import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
+import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 public class MainActivity extends Activity {
 
@@ -70,11 +71,32 @@ public class MainActivity extends Activity {
             // 没有的话,就直接返回了
             return;
         }
-        Intent intent = new Intent();
-        // 获取对应的工作模块
-        intent.setClass(this, getActivityByDefaultFrequencyModule(defaultFrequencyModule));
-        // 跳转
-        startActivity(intent);
+        new Thread(() -> {
+            synchronized (UsbUtil.WAIT_USB_READY_LOCK_OBJECT) {
+                while (!DataReadWriteUtil.USB_READY) {
+                    try {
+                        Log.i(TAG, Thread.currentThread().getName() + "线程正在等待 USB 初始化,现在的USB_READY是:" + DataReadWriteUtil.USB_READY);
+                        UsbUtil.WAIT_USB_READY_LOCK_OBJECT.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (!DataReadWriteUtil.USB_READY) {
+                    new AlertDialog.Builder(
+                            MainActivity.this)
+                            .setTitle("缺少DMB设备")
+                            .setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!")
+                            .setPositiveButton("确定", null)
+                            .show();
+                    return;
+                }
+                Intent intent = new Intent();
+                // 获取对应的工作模块
+                intent.setClass(MainActivity.this, getActivityByDefaultFrequencyModule(defaultFrequencyModule));
+                // 跳转
+                startActivity(intent);
+            }
+        }).start();
     }
 
     private void firstInitMainActivity() {

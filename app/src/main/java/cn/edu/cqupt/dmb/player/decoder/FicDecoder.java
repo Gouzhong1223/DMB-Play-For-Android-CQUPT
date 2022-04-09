@@ -30,6 +30,11 @@ public class FicDecoder {
      * 设备的 ID 号
      */
     private int id;
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     /**
      * 是否加密
      */
@@ -95,7 +100,6 @@ public class FicDecoder {
             }
         }
         Log.i(TAG, "FicDecoder 的 ID 被重新设置成了:" + id);
-        ficDecoder.id = id;
         return ficDecoder;
     }
 
@@ -150,6 +154,7 @@ public class FicDecoder {
         short preferenceCrc = (short) ((fib[30] << 8) | fib[31] & 0x00ff);
         if (dataCrc != preferenceCrc) {
             // 校验不通过的直接返回，丢弃当前包
+            Log.e(TAG, "FIC CRC 校验不通过");
             return;
         }
         // 如果 Fic 包是加密的,应该先进行解密,解密策略就是在密码表上进行异或

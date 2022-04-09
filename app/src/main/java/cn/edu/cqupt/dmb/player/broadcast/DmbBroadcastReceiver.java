@@ -39,7 +39,13 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
     @SuppressLint("StaticFieldLeak")
     private static volatile DmbBroadcastReceiver dmbBroadcastReceiver;
 
+    /**
+     * 设备的厂商 ID
+     */
     private static final int VID = DmbPlayerConstant.DMB_V_ID.getDmbConstantValue();
+    /**
+     * 设备的产品 ID
+     */
     private static final int PID = DmbPlayerConstant.DMB_P_ID.getDmbConstantValue();
 
     private DmbBroadcastReceiver(Context context) {
@@ -78,13 +84,20 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
             // 如果收到这个广播就证明用户已经授予了USB读取的权限
             synchronized (this) {
                 UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                Log.e(TAG, System.currentTimeMillis() + "---接收到广播,action:" + action);
+                Log.i(TAG, System.currentTimeMillis() + "---接收到广播,action:" + action);
                 // 是否授权成功
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                    if (usbDevice != null) {
-                        DataReadWriteUtil.USB_READY = true;
-                        // 打开USB设备并开始读取数据
-                        openDevice();
+                    synchronized (UsbUtil.WAIT_USB_READY_LOCK_OBJECT) {
+                        if (usbDevice != null) {
+                            Log.i(TAG, Thread.currentThread().getName() + "线程现在DataReadWriteUtil.USB_READY被设置为 true");
+                            DataReadWriteUtil.USB_READY = true;
+                            UsbUtil.WAIT_USB_READY_LOCK_OBJECT.notifyAll();
+                            // 打开USB设备并开始读取数据
+                            openDevice();
+                        } else {
+                            // 没有 USB 设备就释放锁,防止死锁
+                            UsbUtil.WAIT_USB_READY_LOCK_OBJECT.notifyAll();
+                        }
                     }
                 } else {
                     Log.e(TAG, System.currentTimeMillis() + "---USB权限已被拒绝，Permission denied for device" + usbDevice);
