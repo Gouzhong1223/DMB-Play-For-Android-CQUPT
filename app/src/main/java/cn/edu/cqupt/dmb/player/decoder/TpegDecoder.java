@@ -87,7 +87,7 @@ public class TpegDecoder extends Thread {
                 continue;
             }
             tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
-            if (!readTpegFrame(bufferedInputStream, tpegBuffer)) {
+            if (!readTpegFrame(tpegBuffer)) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
@@ -146,10 +146,10 @@ public class TpegDecoder extends Thread {
         Log.i(TAG, "解码 TPEG 完成!");
     }
 
-    private boolean readTpegFrame(InputStream inputStream, byte[] bytes) {
+    private boolean readTpegFrame(byte[] bytes) {
         int nRead;
         try {
-            while ((nRead = inputStream.read(bytes, 3, 1)) > 0) {
+            while ((nRead = ((InputStream) TpegDecoder.bufferedInputStream).read(bytes, 3, 1)) > 0) {
                 if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
                     break;
                 }
@@ -163,7 +163,7 @@ public class TpegDecoder extends Thread {
             int nLeft = 108;
             int pos = 4;
             while (nLeft > 0) {
-                if ((nRead = inputStream.read(bytes, pos, nLeft)) <= 0) {
+                if ((nRead = ((InputStream) TpegDecoder.bufferedInputStream).read(bytes, pos, nLeft)) <= 0) {
                     return false;
                 }
                 nLeft -= nRead;
