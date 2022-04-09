@@ -1,17 +1,19 @@
 package cn.edu.cqupt.dmb.player.actives;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.widget.ImageView;
 
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import androidx.annotation.NonNull;
 
 import cn.edu.cqupt.dmb.player.R;
-import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
-import cn.edu.cqupt.dmb.player.banner.bean.CurriculumImageCache;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.listener.DmbCurriculumListener;
@@ -25,7 +27,8 @@ public class CurriculumActivity extends Activity {
 
     private static final String TAG = "CurriculumActivity";
 
-    private final Object WAIT_IMAGE_LOCK_OBJECT = new Object();
+    public static final int MESSAGE_UPDATE_PICTURE = 0x100;
+
     /**
      * 显示课表的组件
      */
@@ -35,10 +38,8 @@ public class CurriculumActivity extends Activity {
      */
     private TpegDecoder tpegDecoder;
 
-    /**
-     * 执行更新课表图片的线程池
-     */
-    private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+    private DmbCurriculumListener dmbCurriculumListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,37 +49,6 @@ public class CurriculumActivity extends Activity {
         initView();
         // 开始解码 TPEG 生成 TPEG
         startDecodeCurriculum();
-        startUpdateCurriculum();
-    }
-
-    private void startUpdateCurriculum() {
-
-
-        if (scheduledExecutorService.isShutdown()) {
-            // 如果线程池已经Shutdown,就重新初始化一个
-            scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
-        }
-        scheduledExecutorService.scheduleAtFixedRate(() -> {
-            synchronized (WAIT_IMAGE_LOCK_OBJECT) {
-                while (CurriculumImageCache.getBannerCache().peek() == null) {
-                    try {
-                        Log.i(TAG, "现在课表图片缓存是空的,放弃锁");
-                        WAIT_IMAGE_LOCK_OBJECT.wait();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                BannerBitmapDataBean bannerBitmapDataBean = CurriculumImageCache.getBannerCache().poll();
-                // 唤醒监听器重新放置图片
-                Log.i(TAG, "现在从缓存中取了一张图片出来,唤醒监听器放置图片");
-                WAIT_IMAGE_LOCK_OBJECT.notifyAll();
-                if (bannerBitmapDataBean != null) {
-                    Log.i(TAG, "更新了课表");
-                    imageView.setImageBitmap(bannerBitmapDataBean.getImageRes());
-                }
-
-            }
-        }, 15L, 5L, TimeUnit.SECONDS);
     }
 
     /**
@@ -97,7 +67,7 @@ public class CurriculumActivity extends Activity {
         MainActivity.id = DataReadWriteUtil.getActiveFrequencyModule().getDeviceID();
         // 先重置一下 Dangle
         UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
-        DmbCurriculumListener dmbCurriculumListener = new DmbCurriculumListener(WAIT_IMAGE_LOCK_OBJECT);
+        dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()));
         tpegDecoder = new TpegDecoder(dmbCurriculumListener);
         tpegDecoder.start();
     }
@@ -106,10 +76,35 @@ public class CurriculumActivity extends Activity {
     protected void onDestroy() {
         // 中断解码线程
         tpegDecoder.interrupt();
-        // 停止线程池中正在执行的线程
-        scheduledExecutorService.shutdownNow();
         // 销毁一下 dangle 的设置
         UsbUtil.dangleDestroy(this);
         super.onDestroy();
+    }
+
+    /**
+     * 监听课表生成的 Handler<br/>
+     * 关于为什么重载这个构造方法,详情参见<p>https://www.codeleading.com/article/66486105877/<p/>
+     */
+    @SuppressLint("HandlerLeak")
+    private final class CurriculumHandler extends Handler {
+
+        public CurriculumHandler(@NonNull Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            if (msg.what == MESSAGE_UPDATE_PICTURE) {
+                byte[] fileBuffer = dmbCurriculumListener.getFileBuffer();
+                Integer length = dmbCurriculumListener.getLength();
+                Bitmap bitmap = BitmapFactory.decodeByteArray(fileBuffer, 0, length);
+                if (bitmap != null) {
+                    Log.i(TAG, "重新设置了一下图片");
+                    imageView.setImageBitmap(bitmap);
+                } else {
+                    Log.e(TAG, "生成 Bitmap 错误!");
+                }
+            }
+        }
     }
 }
