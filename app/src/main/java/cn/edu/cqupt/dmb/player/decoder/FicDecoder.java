@@ -111,6 +111,7 @@ public class FicDecoder {
             }
         }
         Log.i(TAG, "FicDecoder 的 ID 被重新设置成了:" + id);
+        ficDecoder.setId(id);
         return ficDecoder;
     }
 
