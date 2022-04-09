@@ -88,6 +88,7 @@ public class FicDecoder {
      * 重置ChannelInfos
      */
     public void resetChannelInfos() {
+        Log.i(TAG, Thread.currentThread().getName() + "线程重置了一下ChannelInfos");
         channelInfos = new ChannelInfo[CHANNEL_SIZE];
         for (int i = 0; i < CHANNEL_SIZE; i++) {
             channelInfos[i] = new ChannelInfo();
@@ -112,13 +113,14 @@ public class FicDecoder {
         }
         Log.i(TAG, "FicDecoder 的 ID 被重新设置成了:" + id);
         ficDecoder.setId(id);
+        initCrc16Tab();
         return ficDecoder;
     }
 
     /**
      * 初始化 CRC16 表
      */
-    private void initCrc16Tab() {
+    private static void initCrc16Tab() {
         /* polynomial x^16 + x^12 + x^5 + 1 Recommendation ITU-T X.25*/
         short CRC_POLY_16 = (short) 0x1021;
         short i, j, crc;

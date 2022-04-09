@@ -47,7 +47,7 @@ public class DmbDataProcessor implements DataProcessing {
 
     @Override
     public void processData(byte[] usbData) {
-        Log.i(TAG, "现在接收到的数据是 DMB 类型!");
+//        Log.i(TAG, "现在接收到的数据是 DMB 类型!");
         int dataLength = (((int) usbData[7]) & 0x0FF);
         try {
             PipedOutputStream activeModulePip = getActiveModulePip();
@@ -71,6 +71,10 @@ public class DmbDataProcessor implements DataProcessing {
      */
     private PipedOutputStream getActiveModulePip() {
         FrequencyModule frequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
+        if (DataReadWriteUtil.inMainActivity) {
+            // 如果现在用户正在主页面,就直接返回了
+            return null;
+        }
         if (frequencyModule == null) {
             // 如果当前还没有设置活跃模块,就直接返回一个空对象
             return null;

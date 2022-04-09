@@ -78,12 +78,12 @@ public class TpegDecoder extends Thread {
         while (!this.isInterrupted()) {
             if (!DataReadWriteUtil.USB_READY) {
                 // 如果当前 USB 没有就绪,就直接结束当前线程
-                Log.e(TAG, "现在 USB 还没有就绪!");
+//                Log.e(TAG, "现在 USB 还没有就绪!");
                 return;
             }
             if (!DataReadWriteUtil.initFlag) {
                 // 如果目前还没有接收到 DMB 类型的数据,就直接返回
-                Log.e(TAG, "现在还没有接收到 DMB 类型的数据!");
+//                Log.e(TAG, "现在还没有接收到 DMB 类型的数据!");
                 continue;
             }
             tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
@@ -93,9 +93,6 @@ public class TpegDecoder extends Thread {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            } else {
-                Log.e(TAG, "读取TpegFrame的时候出错啦!");
-                continue;
             }
             Arrays.fill(tpegData, (byte) 0);
             Arrays.fill(tpegInfo, 0);

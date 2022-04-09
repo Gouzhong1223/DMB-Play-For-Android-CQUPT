@@ -19,6 +19,9 @@ import cn.edu.cqupt.dmb.player.common.FrequencyModule;
  */
 public class DataReadWriteUtil {
 
+    /**
+     * 是否初始化临时的视频文件
+     */
     private static volatile boolean INITIALIZE_TEMPORARY_FILES = false;
 
     /**
@@ -40,6 +43,11 @@ public class DataReadWriteUtil {
      * 现在是否已经接收到了 DMB 类型的数据
      */
     public static volatile boolean initFlag = false;
+
+    /**
+     * 是否在主页
+     */
+    public static boolean inMainActivity = true;
 
     /**
      * 当前活跃(选中的模块)

@@ -127,6 +127,7 @@ public class MainActivity extends Activity {
             intent.setClass(MainActivity.this, SettingMainActivity.class);
             // 转到设置页面
             startActivity(intent);
+            return;
         }
         // 根据序号获取模块信息
         defaultFrequencyModule = FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);

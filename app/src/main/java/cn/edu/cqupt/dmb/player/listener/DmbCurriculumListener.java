@@ -3,8 +3,9 @@ package cn.edu.cqupt.dmb.player.listener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-import android.widget.ImageView;
 
+import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
+import cn.edu.cqupt.dmb.player.banner.bean.CurriculumImageCache;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
@@ -23,18 +24,15 @@ public class DmbCurriculumListener implements DmbListener {
 
     private static final String TAG = "DmbCurriculumListener";
 
-    /**
-     * 显示课表的 ImageView
-     */
-    private final ImageView imageView;
+    private final Object WAIT_IMAGE_LOCK_OBJECT;
 
     /**
      * 文件缓冲区
      */
     private final byte[] fileBuffer = new byte[1024 * 1024 * 2];
 
-    public DmbCurriculumListener(ImageView imageView) {
-        this.imageView = imageView;
+    public DmbCurriculumListener(Object lockObject) {
+        this.WAIT_IMAGE_LOCK_OBJECT = lockObject;
     }
 
     @Override
@@ -57,8 +55,21 @@ public class DmbCurriculumListener implements DmbListener {
         System.arraycopy(bytes, 0, fileBuffer, 0, length);
         Bitmap bitmap = BitmapFactory.decodeByteArray(fileBuffer, 0, length);
         if (bitmap != null) {
-            Log.i(TAG, "重新设置了一下课表图片");
-            imageView.setImageBitmap(bitmap);
+            synchronized (WAIT_IMAGE_LOCK_OBJECT) {
+                while (CurriculumImageCache.getBannerCache().peek() != null) {
+                    try {
+                        Log.i(TAG, "现在课表缓存里面还有图片,监听器放弃了锁");
+                        WAIT_IMAGE_LOCK_OBJECT.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                BannerBitmapDataBean bannerBitmapDataBean = new BannerBitmapDataBean(bitmap, fileName, 1);
+                Log.i(TAG, "重新往缓存里面添加了一下课表图片");
+                CurriculumImageCache.getBannerCache().offer(bannerBitmapDataBean);
+                Log.i(TAG, Thread.currentThread().getName() + "线程正在唤醒课表更新线程");
+                WAIT_IMAGE_LOCK_OBJECT.notifyAll();
+            }
         } else {
             Log.e(TAG, "生成 bitmap 错误啦!");
         }

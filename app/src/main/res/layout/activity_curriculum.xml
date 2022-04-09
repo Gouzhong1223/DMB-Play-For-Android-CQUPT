@@ -8,6 +8,7 @@
 
     <ImageView
             android:id="@+id/curriculum_image_view"
+            android:background="@drawable/bacg2k"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
