@@ -19,8 +19,8 @@ import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerImageBitmapCache;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
+import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
-import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.listener.DmbTpegListener;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
@@ -48,19 +48,12 @@ public class CarouselActivity extends FragmentActivity {
      */
     private TpegDecoder tpegDecoder;
 
-    /**
-     * Dangle 实例
-     */
-    private Dangle dangle;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_carousel);
         // 进入到轮播图组件之后,首先将活跃的工作模块设置成轮播图
         DataReadWriteUtil.setActiveFrequencyModule(FrequencyModule.OUTDOOR_SCREEN_TPEG);
-        // 获取 dangle 实例
-        dangle = UsbUtil.getDangle();
         initView();
         // 开始执行轮播图解码
         startDecodeTpeg();
@@ -71,10 +64,10 @@ public class CarouselActivity extends FragmentActivity {
     }
 
     private void startDecodeTpeg() {
-        // 先清除一下 dangle 的设置
-        dangle.clearRegister();
-        // 重新设置一下实例
-        dangle.setFrequency(FrequencyModule.OUTDOOR_SCREEN_TPEG.getFrequency());
+        // 重新设置一下MainActivity.id的 ID,方便 FicDecoder 解码
+        MainActivity.id = DataReadWriteUtil.getActiveFrequencyModule().getDeviceID();
+        // 先重置一下 Dangle
+        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
         // 开始执行 TPEG 解码的任务
         tpegDecoder = new TpegDecoder(new DmbTpegListener());
         tpegDecoder.start();
@@ -144,6 +137,10 @@ public class CarouselActivity extends FragmentActivity {
         FrequencyModule defaultFrequencyModule = DataReadWriteUtil.getDefaultFrequencyModule(this);
         // 退出组件应该将活跃模块设置为系统默认工作模块
         DataReadWriteUtil.setActiveFrequencyModule(defaultFrequencyModule);
+        // 结束之后将 ID 设置成默认的场景 ID
+        MainActivity.id = defaultFrequencyModule.getDeviceID();
+        // 重置一下 Dangle
+        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
         super.onDestroy();
     }
 }

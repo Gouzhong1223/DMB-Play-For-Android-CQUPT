@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
+import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 
@@ -129,6 +130,15 @@ public class UsbUtil {
             new Thread(new ReceiveUsbDataTask(bytes, usbEndpointIn,
                     usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue())).start();
         }
+    }
+
+    public static void restDangle(FicDecoder ficDecoder,FrequencyModule frequencyModule) {
+        // 先清除 dangle 的设置
+        dangle.clearRegister();
+        // 重新设置 dangle 的工作频点
+        dangle.setFrequency(frequencyModule.getFrequency());
+        // 清空 ficDecoder 的ChannelInfo
+        ficDecoder.resetChannelInfos();
     }
 
     public static ScheduledExecutorService getScheduledExecutorService() {

@@ -6,8 +6,8 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
-import cn.edu.cqupt.dmb.player.domain.Dangle;
 import cn.edu.cqupt.dmb.player.listener.DmbCurriculumListener;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
@@ -26,18 +26,12 @@ public class CurriculumActivity extends Activity {
      * 解码课表 TPEG 的线程
      */
     private TpegDecoder tpegDecoder;
-    /**
-     * Dangle 实例
-     */
-    private Dangle dangle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_curriculum);
         initView();
-        // 获取 dangle 实例
-        dangle = UsbUtil.getDangle();
         // 开始解码 TPEG 生成 TPEG
         startPlayCurriculum();
     }
@@ -54,12 +48,10 @@ public class CurriculumActivity extends Activity {
      * 开始执行解码线程
      */
     private void startPlayCurriculum() {
-        // 在进入课表播放界面之后,先清除一下 dangle 的设置
-        dangle.clearRegister();
-        // 然后把频点设置为活跃模块的频点
-        dangle.setFrequency(DataReadWriteUtil.getActiveFrequencyModule().getFrequency());
         // 重新设置一下MainActivity.id的 ID,方便 FicDecoder 解码
         MainActivity.id = DataReadWriteUtil.getActiveFrequencyModule().getDeviceID();
+        // 先重置一下 Dangle
+        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
         DmbCurriculumListener dmbCurriculumListener = new DmbCurriculumListener(imageView);
         tpegDecoder = new TpegDecoder(dmbCurriculumListener);
         tpegDecoder.start();
@@ -73,6 +65,8 @@ public class CurriculumActivity extends Activity {
         DataReadWriteUtil.setActiveFrequencyModule(DataReadWriteUtil.getDefaultFrequencyModule(this));
         // 结束之后将 ID 设置成默认的场景 ID
         MainActivity.id = DataReadWriteUtil.getDefaultFrequencyModule(this).getDeviceID();
+        // 再重置一下 Dangle
+        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
         super.onDestroy();
     }
 }

@@ -60,7 +60,7 @@ public class FicDecoder {
     /**
      * 从 Fic 中解码出来的所有频道
      */
-    private final ChannelInfo[] channelInfos;
+    private ChannelInfo[] channelInfos;
     public int year, month, day, hour, minute, second;
 
 
@@ -82,6 +82,17 @@ public class FicDecoder {
             channelInfos[i].subCh = i + 1;
         }
         initCrc16Tab();
+    }
+
+    /**
+     * 重置ChannelInfos
+     */
+    public void resetChannelInfos() {
+        channelInfos = new ChannelInfo[CHANNEL_SIZE];
+        for (int i = 0; i < CHANNEL_SIZE; i++) {
+            channelInfos[i] = new ChannelInfo();
+            channelInfos[i].subCh = i + 1;
+        }
     }
 
     /**
