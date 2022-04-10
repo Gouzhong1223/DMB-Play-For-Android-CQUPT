@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.listener.DmbCurriculumListener;
@@ -27,7 +28,7 @@ public class CurriculumActivity extends Activity {
 
     private static final String TAG = "CurriculumActivity";
 
-    public static final int MESSAGE_UPDATE_PICTURE = 0x100;
+    public static final int MESSAGE_UPDATE_CURRICULUM = DmbPlayerConstant.MESSAGE_UPDATE_CURRICULUM.getDmbConstantValue();
 
     /**
      * 显示课表的组件
@@ -94,15 +95,15 @@ public class CurriculumActivity extends Activity {
 
         @Override
         public void handleMessage(@NonNull Message msg) {
-            if (msg.what == MESSAGE_UPDATE_PICTURE) {
+            if (msg.what == MESSAGE_UPDATE_CURRICULUM) {
                 byte[] fileBuffer = dmbCurriculumListener.getFileBuffer();
                 Integer length = dmbCurriculumListener.getLength();
                 Bitmap bitmap = BitmapFactory.decodeByteArray(fileBuffer, 0, length);
                 if (bitmap != null) {
-                    Log.i(TAG, "重新设置了一下图片");
+                    Log.i(TAG, "重新设置了一下课表");
                     imageView.setImageBitmap(bitmap);
                 } else {
-                    Log.e(TAG, "生成 Bitmap 错误!");
+                    Log.e(TAG, "生成课表 Bitmap 错误!");
                 }
             }
         }

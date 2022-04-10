@@ -1,7 +1,5 @@
 package cn.edu.cqupt.dmb.player.banner.bean;
 
-import android.graphics.Bitmap;
-
 import com.google.common.collect.EvictingQueue;
 
 import java.util.Queue;
@@ -19,9 +17,9 @@ import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class BannerImageBitmapCache {
+public class CarouselBannerImageBitmapCache {
 
-    private static volatile Queue<BannerBitmapDataBean> bannerCache = EvictingQueue.create(DmbPlayerConstant.DEFAULT_BANNER_BITMAP_CACHE_SIZE.getDmbConstantValue());
+    private static final Queue<BannerBitmapDataBean> bannerCache = EvictingQueue.create(DmbPlayerConstant.DEFAULT_BANNER_BITMAP_CACHE_SIZE.getDmbConstantValue());
 
     public static Queue<BannerBitmapDataBean> getBannerCache() {
         return bannerCache;

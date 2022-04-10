@@ -25,7 +25,11 @@ public enum DmbPlayerConstant {
     DMB_P_ID("DMB_P_ID", 22336, "DMB接收机的设备ID"),
     ACTION_USB_PERMISSION("ACTION_USB_PERMISSION", null, "cn.edu.cqupt.dmb.player.USB_PERMISSION"),
     DEFAULT_BANNER_BITMAP_CACHE_SIZE("DEFAULT_BANNER_BITMAP_CACHE_SIZE", 10, "默认的轮播图缓存数量"),
+    MESSAGE_UPDATE_CURRICULUM("MESSAGE_UPDATE_CURRICULUM", 0x100, "监听课表更新的 message 类型"),
+    MESSAGE_UPDATE_CAROUSEL("MESSAGE_UPDATE_CAROUSEL", 0x101, "监听轮播图更新的 message 类型"),
+    MESSAGE_UPDATE_SIGNAL("MESSAGE_UPDATE_SIGNAL", 0x102, "监听信号更新的 message 类型"),
     ;
+
     private final String dmbConstantName;
     private final Integer dmbConstantValue;
     private final String dmbConstantDescribe;

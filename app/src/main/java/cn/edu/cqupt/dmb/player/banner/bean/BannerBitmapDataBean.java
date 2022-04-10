@@ -25,7 +25,7 @@ public class BannerBitmapDataBean {
     private int viewType;
 
     public static ArrayList<BannerBitmapDataBean> getListBitMapData() {
-        return new ArrayList<>(BannerImageBitmapCache.getBannerCache());
+        return new ArrayList<>(CarouselBannerImageBitmapCache.getBannerCache());
     }
 
     public BannerBitmapDataBean(Bitmap imageRes, String title, int viewType) {
