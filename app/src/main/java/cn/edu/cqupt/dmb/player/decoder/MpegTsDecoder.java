@@ -3,10 +3,13 @@ package cn.edu.cqupt.dmb.player.decoder;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 
+import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
@@ -35,6 +38,7 @@ public class MpegTsDecoder extends Thread {
      */
     private static final BufferedInputStream bufferedInputStream;
 
+
     /**
      * TS 视频流的输入流
      */
@@ -60,6 +64,14 @@ public class MpegTsDecoder extends Thread {
             // 设置临时文件的名字之后就唤醒播放器那边正在等待锁的线程
             WAIT_TMP_FILE_NAME_LOCK_OBJECT.notifyAll();
         }
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = new FileOutputStream("");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        // 初始化MPEG-TS解码器
+        NativeMethod.mpegTsDecodeInit();
         // 在线程被中断之前都一直执行
         while (!this.isInterrupted()) {
             if (!DataReadWriteUtil.USB_READY) {
@@ -68,7 +80,17 @@ public class MpegTsDecoder extends Thread {
             }
             byte[] bytes = new byte[204];
             if (readMpegTsPacket(bufferedInputStream, bytes)) {
-
+                byte[] tsData = new byte[188];
+                if (NativeMethod.decodeMpegTsFrame(bytes, tsData) == -1) {
+                    // 如果解码得到的结果是-1代表解码失败
+                    return;
+                }
+                try {
+                    assert fileOutputStream != null;
+                    fileOutputStream.write(tsData);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
