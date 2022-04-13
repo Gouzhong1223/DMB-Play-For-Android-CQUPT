@@ -1,14 +1,13 @@
-//
-// Created by 卿松 on 2022/4/13.
-//
+#ifndef FILE_H_
+#define FILE_H_
 
-#ifndef DMB_PLAYER_FOR_ANDROID_TS_INTERLEAVER_H
-#define DMB_PLAYER_FOR_ANDROID_TS_INTERLEAVER_H
+#include "defines.h"
 
-
-class ts_interleaver {
-
+struct InterLeaver {
+    INT8U buffer[204];
+    struct InterLeaver *next;
 };
 
-
-#endif //DMB_PLAYER_FOR_ANDROID_TS_INTERLEAVER_H
+void interleave_init(void);
+bool do_interleaver(INT8U *ts_buf_204);
+#endif
