@@ -28,6 +28,7 @@ public enum DmbPlayerConstant {
     MESSAGE_UPDATE_CURRICULUM("MESSAGE_UPDATE_CURRICULUM", 0x100, "监听课表更新的 message 类型"),
     MESSAGE_UPDATE_CAROUSEL("MESSAGE_UPDATE_CAROUSEL", 0x101, "监听轮播图更新的 message 类型"),
     MESSAGE_UPDATE_SIGNAL("MESSAGE_UPDATE_SIGNAL", 0x102, "监听信号更新的 message 类型"),
+    MESSAGE_START_PLAY_VIDEO("MESSAGE_START_PLAY_VIDEO", 0x103, "监听开始播放视频的 message 类型"),
     ;
 
     private final String dmbConstantName;

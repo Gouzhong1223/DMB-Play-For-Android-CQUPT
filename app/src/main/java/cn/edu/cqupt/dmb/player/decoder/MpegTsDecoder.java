@@ -3,8 +3,6 @@ package cn.edu.cqupt.dmb.player.decoder;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -29,11 +27,6 @@ public class MpegTsDecoder extends Thread {
     private static final String TAG = "MpegTsDecoder";
 
     /**
-     * 锁对象
-     */
-    private final Object WAIT_TMP_FILE_NAME_LOCK_OBJECT;
-
-    /**
      * TS 视频的缓冲流
      */
     private static final BufferedInputStream bufferedInputStream;
@@ -48,28 +41,14 @@ public class MpegTsDecoder extends Thread {
         bufferedInputStream = new BufferedInputStream(pipedInputStream);
     }
 
-    private DmbListener dmbListener;
+    private final DmbListener dmbListener;
 
-    public MpegTsDecoder(Object lockObject, DmbListener dmbListener) {
-        WAIT_TMP_FILE_NAME_LOCK_OBJECT = lockObject;
+    public MpegTsDecoder(DmbListener dmbListener) {
         this.dmbListener = dmbListener;
     }
 
     @Override
     public void run() {
-        // 尝试获取锁,由于播放器在播放之前都会先设置临时文件的路径,
-        // 如果播放器在生成临时文件之前就设置路径就会报错,所以这里做一个同步
-        synchronized (WAIT_TMP_FILE_NAME_LOCK_OBJECT) {
-            DataReadWriteUtil.setTemporaryMpegTsVideoFilename("");
-            // 设置临时文件的名字之后就唤醒播放器那边正在等待锁的线程
-            WAIT_TMP_FILE_NAME_LOCK_OBJECT.notifyAll();
-        }
-        FileOutputStream fileOutputStream = null;
-        try {
-            fileOutputStream = new FileOutputStream("");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
         // 初始化MPEG-TS解码器
         NativeMethod.mpegTsDecodeInit();
         // 在线程被中断之前都一直执行
@@ -85,19 +64,12 @@ public class MpegTsDecoder extends Thread {
                     // 如果解码得到的结果是-1代表解码失败
                     return;
                 }
-                try {
-                    assert fileOutputStream != null;
-                    fileOutputStream.write(tsData);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                // 如果解码成功就回调监听器
+                dmbListener.onSuccess(null, tsData, tsData.length);
             }
         }
     }
 
-    public static PipedInputStream getPipedInputStream() {
-        return pipedInputStream;
-    }
 
     @Override
     public void interrupt() {
@@ -117,7 +89,14 @@ public class MpegTsDecoder extends Thread {
         try {
             bytes[0] = bytes[1] = bytes[2] = (byte) 0xff;
             while ((nRead = inputStream.read(bytes, 3, 1)) > 0) {
-                if (bytes[0] == (byte) 0x47 && (bytes[1] == (byte) 0x40 || bytes[1] == (byte) 0x41 || bytes[1] == (byte) 0x50 || bytes[1] == (byte) 0x01) && (bytes[2] == (byte) 0x00 || bytes[2] == (byte) 0x11 || bytes[2] == 0x01)) {
+                if (bytes[0] == (byte) 0x47
+                        && (bytes[1] == (byte) 0x40
+                        || bytes[1] == (byte) 0x41
+                        || bytes[1] == (byte) 0x50
+                        || bytes[1] == (byte) 0x01)
+                        && (bytes[2] == (byte) 0x00
+                        || bytes[2] == (byte) 0x11
+                        || bytes[2] == 0x01)) {
                     break;
                 }
                 System.arraycopy(bytes, 1, bytes, 0, 3);
@@ -140,5 +119,9 @@ public class MpegTsDecoder extends Thread {
             return false;
         }
         return true;
+    }
+
+    public static PipedInputStream getPipedInputStream() {
+        return pipedInputStream;
     }
 }
