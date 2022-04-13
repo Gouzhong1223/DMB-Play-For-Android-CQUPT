@@ -52,6 +52,11 @@ public class NativeMethod {
     public static native void decodeTpegFrame(byte[] in, byte[] out, int[] info);
 
     /**
+     * 初始化解码MPEG-TS的方法
+     */
+    public static native void mpegTsDecodeInit();
+
+    /**
      * 解码一个加密的MPEG-TS包
      *
      * @param tsBuf_204 原始流

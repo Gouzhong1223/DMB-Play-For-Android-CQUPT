@@ -63,12 +63,25 @@ Java_cn_edu_cqupt_dmb_player_jni_NativeMethod_decodeMpegTsFrame(JNIEnv *env, jcl
                                                                 jbyteArray ts_buf_188) {
     jbyte *in = env->GetByteArrayElements(ts_buf_204, nullptr);
     jbyte *out = env->GetByteArrayElements(ts_buf_188, nullptr);
-    // 初始化ts解交织器
-    interleave_init();
+
     if (do_interleaver((unsigned char *) in)) {
         // 如果解交织没有通过就直接返回了
         return -1;
     }
     // 解RS码
-    return rsDecode(reinterpret_cast<unsigned char *>(in), reinterpret_cast<unsigned char *>(out));
+    int ret = rsDecode(reinterpret_cast<unsigned char *>(in),
+                       reinterpret_cast<unsigned char *>(out));
+    // 释放系统资源
+    env->ReleaseByteArrayElements(ts_buf_204, in, 0);
+    env->ReleaseByteArrayElements(ts_buf_188, out, 0);
+    return ret;
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_edu_cqupt_dmb_player_jni_NativeMethod_mpegTsDecodeInit(JNIEnv *env, jclass clazz) {
+    // 初始化ts解交织器
+    interleave_init();
+    // 由于借用了TPEG的方法,所以这里把TPEG解码器也初始化一下
+    tpegInit();
 }
