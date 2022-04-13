@@ -8,7 +8,7 @@
 #define T2 16
 
 static int alphaTo[N + 1];
-static int indexOf[N + 1]; 
+static int indexOf[N + 1];
 
 
 static int px[T1 + 1];
@@ -19,7 +19,7 @@ void generatePx(){
     for(int i=0;i<=M;i++){
         px[i] = 0;
     }
-    px[0] = px[2] = px[3] = px[4] = px[8] = 1; 
+    px[0] = px[2] = px[3] = px[4] = px[8] = 1;
 }
 
 void generateGF(){
@@ -127,7 +127,7 @@ int findSyndrome(unsigned char *recd, int *syndrome){
             error = 1;
         }
         syndrome[i] = indexOf[syndrome[i]];
-      
+
     }
     return error;
 }
@@ -150,8 +150,8 @@ int findErrLocPoly(int *syndrome, int *errLocPoly){
             l[u+1] = l[u];
             for(i=0;i<=l[u];i++){
                 elp[u+1][i] = elp[u][i];
-                elp[u][i] = indexOf[elp[u][i]]; 
-            } 
+                elp[u][i] = indexOf[elp[u][i]];
+            }
         }else{ /* $d_i != 0$ */
             /* 找到前面迭代的值 */
             q = u-1;
@@ -295,7 +295,7 @@ void findErrValue(int *errLocPoly, int errNum, int *errPos, int *syndrome, unsig
                 err[errPos[i]] ^= alphaTo[(omega[j] + j * root[i]) % N];
             }
         }
-    
+
 
         if(err[errPos[i]] != 0 && errPos[i] != -1){
             err[errPos[i]] = alphaTo[(indexOf[err[errPos[i]]] + errPos[i] * (2 + N)) % N];
@@ -312,9 +312,9 @@ void findErrValue(int *errLocPoly, int errNum, int *errPos, int *syndrome, unsig
             err[errPos[i]] = alphaTo[(err[errPos[i]] - indexOf[q] + N) % N];
             //printf("%d %d\n",CODE_LEN - 1 - errPos[i],err[errPos[i]]);
             recd[CODE_LEN - 1 - errPos[i]] ^= err[errPos[i]];
-        } 
+        }
 
-       
+
     }
 }
 
@@ -323,20 +323,22 @@ int rsDecode(unsigned char *recd, unsigned char *msg){
     int syndrome[T2 + 1];
     int ret = findSyndrome(recd,syndrome);
     int i;
+    // 获取输出数组的长度，方便下面复制
+    int size = sizeof(msg);
     if(ret != 0){
         int errLocPoly[T2+1];
         int errPos[T2+1];
         int polyNum = findErrLocPoly(syndrome,errLocPoly);
         int errNum = findErrPos(errLocPoly,polyNum,errPos);
         if(errNum > T1){
-            for(i=0;i<MSG_LEN;i++){
+            for(i=0;i<size;i++){
                 msg[i] = recd[i];
             }
             return -1;
         }
         findErrValue(errLocPoly,errNum,errPos,syndrome,recd);
     }
-    for(i=0;i<MSG_LEN;i++){
+    for(i=0;i<size;i++){
         msg[i] = recd[i];
     }
     return 0;
