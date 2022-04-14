@@ -52,6 +52,7 @@ public class DmbMpegListener implements DmbListener {
             // 将已经解码的TS流写到输出流里面去
             pipedOutputStream.write(bytes, 0, length);
         } catch (IOException e) {
+            Log.e(TAG, "写入TS流的时候失败啦!");
             e.printStackTrace();
         }
         if (!sendMsg) {
