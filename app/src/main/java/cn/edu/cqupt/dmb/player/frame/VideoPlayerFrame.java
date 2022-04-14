@@ -9,8 +9,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.FrameLayout;
 
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 import cn.edu.cqupt.dmb.player.listener.VideoPlayerListener;
@@ -37,11 +35,6 @@ public class VideoPlayerFrame extends FrameLayout {
      * 播放器
      */
     private IMediaPlayer iMediaPlayer = null;
-
-    /**
-     * 文件描述符
-     */
-    private FileDescriptor fileDescriptor;
 
     /**
      * 播放器视图
@@ -118,20 +111,6 @@ public class VideoPlayerFrame extends FrameLayout {
      */
     public void setVideoListener(VideoPlayerListener listener) {
         videoPlayerListener = listener;
-    }
-
-    /**
-     * 设置视频源路径
-     *
-     * @param path 视频源路径
-     */
-    public void setPath(String path) {
-        try {
-            FileInputStream fileInputStream = new FileInputStream(path);
-            fileDescriptor = fileInputStream.getFD();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     /**
