@@ -17,9 +17,9 @@ JNIEXPORT jint JNICALL
 Java_cn_edu_cqupt_dmb_player_jni_NativeMethod_decodeMp2Frame(JNIEnv *env,
                                                              jclass type, jbyteArray in_, jint len,
                                                              jbyteArray out_, jintArray info_) {
-    jbyte *in = env->GetByteArrayElements(in_, NULL);
-    jbyte *out = env->GetByteArrayElements(out_, NULL);
-    jint *info = env->GetIntArrayElements(info_, NULL);
+    jbyte *in = env->GetByteArrayElements(in_, nullptr);
+    jbyte *out = env->GetByteArrayElements(out_, nullptr);
+    jint *info = env->GetIntArrayElements(info_, nullptr);
 
     int ret = decodeMp2Frame((unsigned char *) in, len, (unsigned char *) out,
                              (unsigned int *) info);

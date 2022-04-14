@@ -2,8 +2,6 @@ package cn.edu.cqupt.dmb.player.utils;
 
 import android.content.Context;
 
-import java.util.Objects;
-
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 
 /**
@@ -18,16 +16,6 @@ import cn.edu.cqupt.dmb.player.common.FrequencyModule;
  * @Version : 1.0.0
  */
 public class DataReadWriteUtil {
-
-    /**
-     * 是否初始化临时的视频文件
-     */
-    private static volatile boolean INITIALIZE_TEMPORARY_FILES = false;
-
-    /**
-     * 临时视频文件名
-     */
-    private static volatile String TEMPORARY_MPEG_TS_VIDEO_FILENAME = "";
 
     /**
      * 是否已经进行了 USB 的第一次初始化
@@ -53,24 +41,6 @@ public class DataReadWriteUtil {
      * 当前活跃(选中的模块)
      */
     private static volatile FrequencyModule activeFrequencyModule;
-
-    public static String getTemporaryMpegTsVideoFilename() {
-        return TEMPORARY_MPEG_TS_VIDEO_FILENAME;
-    }
-
-    public static void setTemporaryMpegTsVideoFilename(String temporaryMpegTsVideoFilename) {
-        // 如果传进来的临时文件名是空的,就把INITIALIZE_TEMPORARY_FILES设置为 false,反之就设置为 true
-        setInitializeTemporaryFiles(!Objects.equals(temporaryMpegTsVideoFilename, "") && temporaryMpegTsVideoFilename != null);
-        TEMPORARY_MPEG_TS_VIDEO_FILENAME = temporaryMpegTsVideoFilename;
-    }
-
-    public static boolean isInitializeTemporaryFiles() {
-        return INITIALIZE_TEMPORARY_FILES;
-    }
-
-    public static void setInitializeTemporaryFiles(boolean initializeTemporaryFiles) {
-        INITIALIZE_TEMPORARY_FILES = initializeTemporaryFiles;
-    }
 
     public static FrequencyModule getActiveFrequencyModule() {
         return activeFrequencyModule;

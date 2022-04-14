@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.frame;
 
+import android.util.Log;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
@@ -18,6 +20,7 @@ import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
  */
 public class DmbMediaDataSource implements IMediaDataSource {
 
+    private static final String TAG = "DmbMediaDataSource";
     /**
      * MPEG-TS视频数据源输入缓冲流
      */
@@ -29,6 +32,11 @@ public class DmbMediaDataSource implements IMediaDataSource {
 
     @Override
     public int readAt(long position, byte[] buffer, int offset, int size) throws IOException {
+        if (size == 0) {
+            // size=0 means there is a seek request.
+            // You can handle it now, or ignore it, and handle new position at next readAt() call.
+            return 0;
+        }
         return bufferedInputStream.read(buffer, offset, size);
     }
 
@@ -39,6 +47,7 @@ public class DmbMediaDataSource implements IMediaDataSource {
 
     @Override
     public void close() throws IOException {
+        Log.i(TAG, "输入流被关闭啦!");
         bufferedInputStream.close();
     }
 }

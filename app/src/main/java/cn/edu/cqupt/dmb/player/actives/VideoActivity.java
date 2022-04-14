@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,7 +20,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
@@ -30,14 +31,16 @@ import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.listener.DmbMpegListener;
 import cn.edu.cqupt.dmb.player.listener.VideoPlayerListenerImpl;
-import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 
 /**
- * 这个是播放视频的 Activity
- * 原则上逻辑应该是这样的,当用户点击到这个组件之后,用于解码 MPEG-TS 的解码器线程才开始工作,会有一个同步
- * 也就是解码器已经生成了一点临时文件,也生成了临时的文件名,才开始执行播放的任务
+ * 这个是播放视频的 Activity<br/>
+ * 原则上逻辑应该是这样的,当用户点击到这个组件之后,用于解码 MPEG-TS 的解码器线程才开始工作,会有一个同步<br/>
+ * 这里经过我的反复测试,发现一个无解的Bug,就是这个VideoActivity在播放视频的时候,会被创建两次,就很离谱!<br/>
+ * 表现出来的异常就是,会唤起两次播放视频的Bug<br/>
+ * 然后后播放的视频在视觉上会覆盖第一个播放的视频,但是声音不会,有重音,就像混响一样<br/>
+ * 没办法最后我只能在下面加一个初始化判断<br/>
  */
 @RequiresApi(api = Build.VERSION_CODES.R)
 public class VideoActivity extends Activity {
@@ -73,10 +76,24 @@ public class VideoActivity extends Activity {
      */
     public static final int MESSAGE_START_PLAY_VIDEO = DmbPlayerConstant.MESSAGE_START_PLAY_VIDEO.getDmbConstantValue();
 
+    /**
+     * 解码后一个MPEG-TS包的大小
+     */
+    private static final Integer DEFAULT_MPEG_TS_PACKET_SIZE_DECODE = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_DECODE.getDmbConstantValue();
+
+    /**
+     * 输出流计量倍数
+     */
+    private static final Integer DEFAULT_MPEG_TS_STREAM_SIZE_TIMES = DmbPlayerConstant.DEFAULT_MPEG_TS_STREAM_SIZE_TIMES.getDmbConstantValue();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 强制全屏,全的不能再全的那种了
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_video);
         // 初始化View
         initView();
@@ -104,7 +121,7 @@ public class VideoActivity extends Activity {
      */
     private void startMpegTsCodec() {
         // 构造已解码的TS输入流
-        pipedInputStream = new PipedInputStream(1024 * 10);
+        pipedInputStream = new PipedInputStream(DEFAULT_MPEG_TS_PACKET_SIZE_DECODE * DEFAULT_MPEG_TS_STREAM_SIZE_TIMES);
         // 构造已解码的TS缓冲流
         bufferedInputStream = new BufferedInputStream(pipedInputStream);
         // 构造已解码的TS输出流
@@ -127,24 +144,12 @@ public class VideoActivity extends Activity {
      * 播放视频
      */
     private void playVideo() {
-        // 现在已经设置了临时文件的名字了,但是要 sleep 一会儿,不然播放器直接播放会黑屏
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            Log.e(TAG, "在等待 TS 流写入缓冲区的时候出错啦!");
-            Toast.makeText(this, "在等待 TS 流写入缓冲区的时候出错啦!", Toast.LENGTH_SHORT).show();
-            onDestroy();
-            e.printStackTrace();
-        }
-        // 获取临时文件名
-        String temporaryMpegTsVideoFilename = DataReadWriteUtil.getTemporaryMpegTsVideoFilename();
-        if (temporaryMpegTsVideoFilename.equals("")) {
-            Log.e(TAG, "视频临时文件名还没有准备好,播放出错啦!");
-            return;
-        }
+        // 构造自定义的数据源
         DmbMediaDataSource dmbMediaDataSource = new DmbMediaDataSource(bufferedInputStream);
+        // 设置MPEG-TS播放器的数据源为自定义数据源
         videoPlayerFrame.setDataSource(dmbMediaDataSource);
         try {
+            // 加载数据源
             videoPlayerFrame.load();
         } catch (IOException e) {
             e.printStackTrace();
@@ -188,6 +193,7 @@ public class VideoActivity extends Activity {
      * 自定义的视频播放回调类
      */
     private class VideoHandler extends Handler {
+        // 这个构造方法不重写有意想不到的Bug在等你🤬
         public VideoHandler(@NonNull Looper looper) {
             super(looper);
         }
@@ -195,7 +201,7 @@ public class VideoActivity extends Activity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MESSAGE_START_PLAY_VIDEO) {
-                // 临时文件已经生成,开始播放视频
+                // 缓冲流里面已经有东西啦!开始播放视频!
                 playVideo();
             }
         }

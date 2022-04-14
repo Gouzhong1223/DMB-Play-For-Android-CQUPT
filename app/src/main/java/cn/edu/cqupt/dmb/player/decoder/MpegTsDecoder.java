@@ -6,8 +6,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 
+import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
@@ -37,6 +37,15 @@ public class MpegTsDecoder extends Thread {
      */
     private static final PipedInputStream pipedInputStream = new PipedInputStream(1024 * 10);
 
+    /**
+     * 解码器前一个MPEG-TS包的大小
+     */
+    private static final Integer DEFAULT_MPEG_TS_PACKET_SIZE_ENCODE = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_ENCODE.getDmbConstantValue();
+    /**
+     * 解码后一个MPEG-TS包的大小
+     */
+    private static final Integer DEFAULT_MPEG_TS_PACKET_SIZE_DECODE = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_DECODE.getDmbConstantValue();
+
     static {
         bufferedInputStream = new BufferedInputStream(pipedInputStream);
     }
@@ -62,10 +71,10 @@ public class MpegTsDecoder extends Thread {
                 Log.e(TAG, "USB 设备没有就绪,不能进行视频解码嗷!~");
                 return;
             }
-            byte[] bytes = new byte[204];
+            byte[] bytes = new byte[DEFAULT_MPEG_TS_PACKET_SIZE_ENCODE];
             // 读取一个MPEG-TS包长度为204
             if (readMpegTsPacket(bufferedInputStream, bytes)) {
-                byte[] tsData = new byte[188];
+                byte[] tsData = new byte[DEFAULT_MPEG_TS_PACKET_SIZE_DECODE];
                 // 解码MPEG-TS包
                 if (NativeMethod.decodeMpegTsFrame(bytes, tsData) == -1) {
                     // 如果解码得到的结果是-1代表解码失败

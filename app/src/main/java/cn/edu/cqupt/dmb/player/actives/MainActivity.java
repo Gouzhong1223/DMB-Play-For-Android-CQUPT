@@ -10,12 +10,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -48,6 +50,7 @@ public class MainActivity extends Activity {
      */
     private FrequencyModule defaultFrequencyModule;
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +69,7 @@ public class MainActivity extends Activity {
     /**
      * 跳转到默认的使用场景
      */
+    @RequiresApi(api = Build.VERSION_CODES.R)
     private void jumpDefaultActivity() {
         if (defaultFrequencyModule == null) {
             // 没有的话,就直接返回了
@@ -194,6 +198,7 @@ public class MainActivity extends Activity {
      *
      * @param view 切换模式的按钮
      */
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @SuppressLint("NonConstantResourceId")
     public void onclick(View view) {
         // 设置按钮不收到 USB 影响
@@ -303,6 +308,7 @@ public class MainActivity extends Activity {
      * @param defaultFrequencyModule 工作场景(默认的)
      * @return 对应的 Activity
      */
+    @RequiresApi(api = Build.VERSION_CODES.R)
     private Class<?> getActivityByDefaultFrequencyModule(FrequencyModule defaultFrequencyModule) {
         if (defaultFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
             return CurriculumActivity.class;

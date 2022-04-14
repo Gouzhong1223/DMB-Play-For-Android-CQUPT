@@ -185,7 +185,4 @@ public class UsbUtil {
         return executorService;
     }
 
-    public static Dangle getDangle() {
-        return dangle;
-    }
 }
