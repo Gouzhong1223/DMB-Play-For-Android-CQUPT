@@ -14,17 +14,24 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.common.FrequencyModule;
+import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
+import cn.edu.cqupt.dmb.player.frame.DmbMediaDataSource;
 import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.listener.DmbMpegListener;
 import cn.edu.cqupt.dmb.player.listener.VideoPlayerListenerImpl;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
+import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 
 /**
@@ -47,6 +54,21 @@ public class VideoActivity extends Activity {
     private MpegTsDecoder mpegTsDecoder;
 
     /**
+     * 已经解码的MPEG-TS视频缓冲流
+     */
+    private BufferedInputStream bufferedInputStream;
+
+    /**
+     * 已经解码的MPEG-TS视频输入流
+     */
+    private PipedInputStream pipedInputStream;
+
+    /**
+     * 已经解码的MPEG-TS视频输出流
+     */
+    private PipedOutputStream pipedOutputStream;
+
+    /**
      * 视频播放回调消息
      */
     public static final int MESSAGE_START_PLAY_VIDEO = DmbPlayerConstant.MESSAGE_START_PLAY_VIDEO.getDmbConstantValue();
@@ -56,9 +78,10 @@ public class VideoActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video);
+        // 初始化View
         initView();
+        // 开始MPEG-TS解码
         startMpegTsCodec();
-        playVideo();
     }
 
     /**
@@ -67,6 +90,37 @@ public class VideoActivity extends Activity {
     private void initView() {
         videoPlayerFrame = findViewById(R.id.video_surface);
         videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
+        // 重新设置设备的ID
+        MainActivity.id = FrequencyModule.OUTDOOR_SCREEN_VIDEO.getDeviceID();
+        // 过去Fic解码器
+        FicDecoder ficDecoder = FicDecoder.getInstance(MainActivity.id, true);
+        // 重置一下Dangle
+        UsbUtil.restDangle(ficDecoder, FrequencyModule.OUTDOOR_SCREEN_VIDEO);
+    }
+
+    /**
+     * 这里开一个线程去执行 MPEG-TS 的解码任务<br/>
+     * 已经解码的MPEG-TS流会被放进缓冲流
+     */
+    private void startMpegTsCodec() {
+        // 构造已解码的TS输入流
+        pipedInputStream = new PipedInputStream(1024 * 10);
+        // 构造已解码的TS缓冲流
+        bufferedInputStream = new BufferedInputStream(pipedInputStream);
+        // 构造已解码的TS输出流
+        pipedOutputStream = new PipedOutputStream();
+        try {
+            // 连接输入输出流
+            pipedOutputStream.connect(pipedInputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 构造视频监听器,传入视频输出流以及回调类
+        DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), pipedOutputStream);
+        // 构造解码器
+        mpegTsDecoder = new MpegTsDecoder(videoPlayerListener);
+        // 开始解码
+        mpegTsDecoder.start();
     }
 
     /**
@@ -88,8 +142,8 @@ public class VideoActivity extends Activity {
             Log.e(TAG, "视频临时文件名还没有准备好,播放出错啦!");
             return;
         }
-        // 先设置一下播放视频的路径,这个路径是一个临时的路径,应该去缓存里面取
-        videoPlayerFrame.setPath(temporaryMpegTsVideoFilename);
+        DmbMediaDataSource dmbMediaDataSource = new DmbMediaDataSource(bufferedInputStream);
+        videoPlayerFrame.setDataSource(dmbMediaDataSource);
         try {
             videoPlayerFrame.load();
         } catch (IOException e) {
@@ -108,23 +162,26 @@ public class VideoActivity extends Activity {
         super.onResume();
     }
 
-    /**
-     * 这里开一个线程去执行 MPEG-TS 的解码任务
-     */
-    private void startMpegTsCodec() {
-        DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()));
-        mpegTsDecoder = new MpegTsDecoder(videoPlayerListener);
-        mpegTsDecoder.start();
-    }
-
     @Override
     protected void onDestroy() {
         // 结束
         // 直接中断 TS 解码器
         mpegTsDecoder.interrupt();
         videoPlayerFrame.release();
-        DataReadWriteUtil.setActiveFrequencyModule(null);
+        closeStream();
+        // 重置Dangle
+        UsbUtil.dangleDestroy(this);
         super.onDestroy();
+    }
+
+    private void closeStream() {
+        try {
+            pipedOutputStream.close();
+            pipedInputStream.close();
+            bufferedInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

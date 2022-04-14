@@ -6,6 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
@@ -31,7 +32,6 @@ public class MpegTsDecoder extends Thread {
      */
     private static final BufferedInputStream bufferedInputStream;
 
-
     /**
      * TS 视频流的输入流
      */
@@ -43,6 +43,11 @@ public class MpegTsDecoder extends Thread {
 
     private final DmbListener dmbListener;
 
+    /**
+     * MPEG解码器构造
+     *
+     * @param dmbListener 视频监听器
+     */
     public MpegTsDecoder(DmbListener dmbListener) {
         this.dmbListener = dmbListener;
     }
@@ -58,8 +63,10 @@ public class MpegTsDecoder extends Thread {
                 return;
             }
             byte[] bytes = new byte[204];
+            // 读取一个MPEG-TS包长度为204
             if (readMpegTsPacket(bufferedInputStream, bytes)) {
                 byte[] tsData = new byte[188];
+                // 解码MPEG-TS包
                 if (NativeMethod.decodeMpegTsFrame(bytes, tsData) == -1) {
                     // 如果解码得到的结果是-1代表解码失败
                     return;
@@ -78,7 +85,7 @@ public class MpegTsDecoder extends Thread {
     }
 
     /**
-     * 从输入流中读取固定长度的数据
+     * 从输入流中读取固定长度的数据,一次性读取204字节的数据
      *
      * @param inputStream 输入流
      * @param bytes       接收数组
@@ -88,6 +95,7 @@ public class MpegTsDecoder extends Thread {
         int nRead;
         try {
             bytes[0] = bytes[1] = bytes[2] = (byte) 0xff;
+            // 寻找TS包头
             while ((nRead = inputStream.read(bytes, 3, 1)) > 0) {
                 if (bytes[0] == (byte) 0x47
                         && (bytes[1] == (byte) 0x40

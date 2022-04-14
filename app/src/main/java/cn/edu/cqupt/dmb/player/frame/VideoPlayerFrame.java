@@ -16,6 +16,7 @@ import java.io.IOException;
 import cn.edu.cqupt.dmb.player.listener.VideoPlayerListener;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
+import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
 
 /**
  * @Author : Gouzhong
@@ -32,15 +33,35 @@ public class VideoPlayerFrame extends FrameLayout {
 
     private static final String TAG = "VideoPlayerFrame";
 
+    /**
+     * 播放器
+     */
     private IMediaPlayer iMediaPlayer = null;
 
+    /**
+     * 文件描述符
+     */
     private FileDescriptor fileDescriptor;
 
+    /**
+     * 播放器视图
+     */
     private SurfaceView surfaceView = null;
 
+    /**
+     * 调用播放器的 Context
+     */
     private final Context context;
 
+    /**
+     * 播放监听器
+     */
     private VideoPlayerListener videoPlayerListener;
+
+    /**
+     * 数据源
+     */
+    private IMediaDataSource iMediaDataSource;
 
     /**
      * 初始化 View
@@ -102,7 +123,7 @@ public class VideoPlayerFrame extends FrameLayout {
     /**
      * 设置视频源路径
      *
-     * @param path   视频源路径
+     * @param path 视频源路径
      */
     public void setPath(String path) {
         try {
@@ -111,6 +132,15 @@ public class VideoPlayerFrame extends FrameLayout {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 设置播放器的视频源
+     *
+     * @param iMediaDataSource ijkplayer用于播放输入流的视频源
+     */
+    public void setDataSource(IMediaDataSource iMediaDataSource) {
+        this.iMediaDataSource = iMediaDataSource;
     }
 
     /**
@@ -124,7 +154,8 @@ public class VideoPlayerFrame extends FrameLayout {
         iMediaPlayer = createPlayer();
         setListener(iMediaPlayer);
         iMediaPlayer.setDisplay(surfaceView.getHolder());
-        iMediaPlayer.setDataSource(fileDescriptor);
+        // 数据源设置成输入流类型的数据源
+        iMediaPlayer.setDataSource(iMediaDataSource);
 
         iMediaPlayer.prepareAsync();
     }

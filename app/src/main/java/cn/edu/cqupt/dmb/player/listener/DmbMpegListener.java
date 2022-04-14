@@ -1,22 +1,15 @@
 package cn.edu.cqupt.dmb.player.listener;
 
-import android.annotation.SuppressLint;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Objects;
+import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
  * @Author : Gouzhong
@@ -42,51 +35,31 @@ public class DmbMpegListener implements DmbListener {
     private final Handler handler;
 
     /**
-     * 时间格式化
+     * 是否已经发送了播放视频的消息
      */
-    @SuppressLint("SimpleDateFormat")
-    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private boolean sendMsg = false;
 
-    public DmbMpegListener(Handler handler) {
+    public DmbMpegListener(Handler handler, PipedOutputStream pipedOutputStream) {
         this.handler = handler;
+        this.pipedOutputStream = pipedOutputStream;
     }
 
-    /**
-     * 文件输出流
-     */
-    private FileOutputStream fileOutputStream;
-
-    /**
-     * 临时文件名
-     */
-    private String tmpFileName;
-
-    {
-        try {
-            String dateFormat = simpleDateFormat.format(new Date());
-            // 临时文件名为时间戳-tmp.dmb
-            tmpFileName = Environment.getStorageDirectory().getPath() + "/" + dateFormat + "-tmp.dmb";
-            // 构造一个可以追加写的文件输出流
-            fileOutputStream = new FileOutputStream(tmpFileName, true);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
+    private final PipedOutputStream pipedOutputStream;
 
     @Override
     public void onSuccess(String fileName, byte[] bytes, int length) {
-        if (DataReadWriteUtil.getTemporaryMpegTsVideoFilename() == null
-                || Objects.equals(DataReadWriteUtil.getTemporaryMpegTsVideoFilename(), "")) {
-            // 如果临时文件名是空的,就设置一下临时文件
-            DataReadWriteUtil.setTemporaryMpegTsVideoFilename(tmpFileName);
-        }
         try {
-            Log.i(TAG, "往文件中写入了一段TS流");
-            fileOutputStream.write(bytes, 0, bytes.length);
+            // 将已经解码的TS流写到输出流里面去
+            pipedOutputStream.write(bytes, 0, length);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        handler.sendEmptyMessage(MESSAGE_START_PLAY_VIDEO);
+        if (!sendMsg) {
+            // 如果还没有发送过消息,就发送一下播放视频的消息
+            Log.i(TAG, "发送了一条播放视频的消息");
+            handler.sendEmptyMessage(MESSAGE_START_PLAY_VIDEO);
+            sendMsg = true;
+        }
     }
 
     @Override
