@@ -22,9 +22,9 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 /**
  * 这是设置页面的 Activity
  */
-public class SettingMainActivity extends Activity {
+public class SettingActivity extends Activity {
 
-    private static final String TAG = "SettingMainActivity";
+    private static final String TAG = "SettingActivity";
     /**
      * 使用场景的下拉框
      */

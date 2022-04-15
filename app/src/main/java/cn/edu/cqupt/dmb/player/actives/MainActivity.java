@@ -128,7 +128,7 @@ public class MainActivity extends Activity {
         if (serialNumber == 20) {
             // 如果获取到的序号是 20,说明没有设置默认模块
             Intent intent = new Intent();
-            intent.setClass(MainActivity.this, SettingMainActivity.class);
+            intent.setClass(MainActivity.this, SettingActivity.class);
             // 转到设置页面
             startActivity(intent);
             return;
@@ -224,7 +224,7 @@ public class MainActivity extends Activity {
                     // 这个按钮是让用户跳转到设置的
                     .setPositiveButton("设置", (dialogInterface, i) -> {
                         Intent intent = new Intent();
-                        intent.setClass(MainActivity.this, SettingMainActivity.class);
+                        intent.setClass(MainActivity.this, SettingActivity.class);
                         startActivity(intent);
                     })
                     .show();
@@ -242,7 +242,7 @@ public class MainActivity extends Activity {
                             .setPositiveButton("确定", null)
                             // 这个按钮是让用户跳转到设置的
                             .setPositiveButton("设置", (dialogInterface, i) -> {
-                                intent.setClass(MainActivity.this, SettingMainActivity.class);
+                                intent.setClass(MainActivity.this, SettingActivity.class);
                                 startActivity(intent);
                             })
                             .show();
@@ -252,7 +252,7 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 break;
             case R.id.setting:
-                intent.setClass(this, SettingMainActivity.class);
+                intent.setClass(this, SettingActivity.class);
                 startActivity(intent);
                 break;
             case R.id.dormitory:
