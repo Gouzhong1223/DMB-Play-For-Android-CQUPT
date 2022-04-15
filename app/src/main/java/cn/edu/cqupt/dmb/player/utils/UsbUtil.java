@@ -149,6 +149,8 @@ public class UsbUtil {
         dangle.clearRegister();
         // 重新设置 dangle 的工作频点
         Log.i(TAG, "重置的频点是:" + frequencyModule.getFrequency());
+        // 重置 dangle 的时候将活跃场景设置为参数传入的 FrequencyModule
+        DataReadWriteUtil.setActiveFrequencyModule(frequencyModule);
         dangle.setFrequency(frequencyModule.getFrequency());
         // 清空 ficDecoder 的ChannelInfo
         ficDecoder.resetChannelInfos();
