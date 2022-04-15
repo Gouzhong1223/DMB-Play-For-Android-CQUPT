@@ -31,6 +31,7 @@ import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.listener.DmbMpegListener;
 import cn.edu.cqupt.dmb.player.listener.VideoPlayerListenerImpl;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 
@@ -109,7 +110,9 @@ public class VideoActivity extends Activity {
         videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
         // 重新设置设备的ID
         MainActivity.id = FrequencyModule.OUTDOOR_SCREEN_VIDEO.getDeviceID();
-        // 过去Fic解码器
+        // 标识当前不在主页
+        DataReadWriteUtil.inMainActivity = false;
+        // 获取Fic解码器
         FicDecoder ficDecoder = FicDecoder.getInstance(MainActivity.id, true);
         // 重置一下Dangle
         UsbUtil.restDangle(ficDecoder, FrequencyModule.OUTDOOR_SCREEN_VIDEO);
