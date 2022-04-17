@@ -279,7 +279,7 @@ public class Dangle {
         Log.i(TAG, "set frequency success!");
     }
 
-    public synchronized int write(byte[] bytes) {
+    public int write(byte[] bytes) {
         if (usbDeviceConnection == null || usbEndpointOut == null) {
             return -1;
         }

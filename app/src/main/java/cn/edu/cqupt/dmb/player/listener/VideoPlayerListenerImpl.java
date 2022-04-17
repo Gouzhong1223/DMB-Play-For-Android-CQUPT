@@ -24,7 +24,7 @@ public class VideoPlayerListenerImpl implements VideoPlayerListener {
 
     @Override
     public void onBufferingUpdate(IMediaPlayer iMediaPlayer, int i) {
-        Log.d(TAG, "onBufferingUpdate i = " + i);
+        Log.i(TAG, "onBufferingUpdate i = " + i);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class VideoPlayerListenerImpl implements VideoPlayerListener {
 
     @Override
     public boolean onError(IMediaPlayer iMediaPlayer, int i, int i1) {
-        Log.d(TAG, "onError");
+        Log.e(TAG, "播放的时候出错了");
         videoPlayerFrame.stop();
         videoPlayerFrame.release();
         return false;
@@ -48,6 +48,7 @@ public class VideoPlayerListenerImpl implements VideoPlayerListener {
     @Override
     public void onPrepared(IMediaPlayer iMediaPlayer) {
         Log.d(TAG, "onPrepared");
+        Log.i(TAG, "接收到同步开始的通知,现在调用开始播放的方法");
         videoPlayerFrame.start();
     }
 

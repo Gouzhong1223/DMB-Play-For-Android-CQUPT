@@ -134,8 +134,9 @@ public class VideoPlayerFrame extends FrameLayout {
         setListener(iMediaPlayer);
         iMediaPlayer.setDisplay(surfaceView.getHolder());
         // 数据源设置成输入流类型的数据源
+        Log.i(TAG, "设置视频源");
         iMediaPlayer.setDataSource(iMediaDataSource);
-
+        Log.i(TAG, "同步开始");
         iMediaPlayer.prepareAsync();
     }
 
@@ -144,6 +145,7 @@ public class VideoPlayerFrame extends FrameLayout {
      */
     public void start() {
         if (iMediaPlayer != null) {
+            Log.i(TAG, "开始播放视频");
             iMediaPlayer.start();
         }
     }
@@ -162,6 +164,7 @@ public class VideoPlayerFrame extends FrameLayout {
      */
     public void stop() {
         if (iMediaPlayer != null) {
+            Log.i(TAG, "停止播放视频");
             iMediaPlayer.stop();
         }
     }

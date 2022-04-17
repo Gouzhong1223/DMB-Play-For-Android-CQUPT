@@ -51,7 +51,7 @@ public class TpegDecoder extends Thread {
     private static final PipedInputStream pipedInputStream = new PipedInputStream(1024 * 2);
 
     public static PipedInputStream getPipedInputStream() {
-        Log.i(TAG, "现在有线程正在获取pipedInputStream");
+        Log.i(TAG, "有线程正在获取TPEG的pipedInputStream");
         return pipedInputStream;
     }
 

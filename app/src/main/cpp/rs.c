@@ -3,6 +3,8 @@
 #define M 8
 #define N 255
 
+#define CODE_LEN 112
+#define MSG_LEN 96
 #define T1 8
 #define T2 16
 
@@ -14,6 +16,7 @@ static int px[T1 + 1];
 static int gx[T2 + 1];
 
 void generatePx() {
+    int i;
     for (int i = 0; i <= M; i++) {
         px[i] = 0;
     }
@@ -76,15 +79,48 @@ void rsInit() {
     generateGx();
 }
 
-int findSyndrome(const unsigned char *recd, int *syndrome) {
+
+/* 这里是使用软件模仿硬件电路的实现 */
+void rsEncode(unsigned char *msg, unsigned char *code) {
+    int i, j;
+    int feedback;
+    int b[T2];
+    for (i = 0; i < T2; i++) {
+        b[i] = 0;
+    }
+    for (i = 0; i < MSG_LEN; i++) {
+        code[i] = msg[i];
+        feedback = indexOf[msg[i] ^ b[T2 - 1]];
+        if (feedback != -1) {
+            for (j = T2 - 1; j > 0; j--) {
+                if (gx[j] != -1) {
+                    b[j] = b[j - 1] ^ alphaTo[(gx[j] + feedback) % N];
+                } else {
+                    b[j] = b[j - 1];
+                }
+            }
+            b[0] = alphaTo[(gx[0] + feedback) % N];
+        } else {
+            for (j = T2 - 1; j > 0; j--) {
+                b[j] = b[j - 1];
+            }
+            b[0] = 0;
+        }
+    }
+    for (i = 0; i < T2; i++) {
+        code[CODE_LEN - i - 1] = b[i];
+    }
+}
+
+/* $s_{i}=r(\alpha^{i}\right)=r_{0}+r_{1} \alpha^{i}+r_{2} \alpha^{2 i} \ldots+r_{n-1} \alpha^{(n-1) i}$ */
+int findSyndrome(unsigned char *recd, int *syndrome) {
     int i, j, error = 0;
-    int len = sizeof(recd);
     for (i = 1; i <= T2; i++) {
         syndrome[i] = 0;
         int product = 0;
-        for (j = 0; j < len; j++) {
-            if (recd[len - 1 - j] != 0) {
-                syndrome[i] ^= alphaTo[(indexOf[recd[len - 1 - j]] + product) % N];
+        for (j = 0; j < CODE_LEN; j++) {
+            if (recd[CODE_LEN - 1 - j] != 0) {
+                syndrome[i] ^= alphaTo[(indexOf[recd[CODE_LEN - 1 - j]] + product) % N];
             }
             product += i - 1;
         }
@@ -97,7 +133,7 @@ int findSyndrome(const unsigned char *recd, int *syndrome) {
     return error;
 }
 
-int findErrLocPoly(const int *syndrome, int *errLocPoly) {
+int findErrLocPoly(int *syndrome, int *errLocPoly) {
     int i, j, q, u;
     int d[T2 + 2], l[T2 + 2], uLu[T2 + 2], elp[T2 + 2][T2];
 
@@ -182,7 +218,7 @@ int findErrLocPoly(const int *syndrome, int *errLocPoly) {
     return -1;
 }
 
-int findErrPos(int *errLocPoly, int errNum, int *errPos, int codeLen) {
+int findErrPos(int *errLocPoly, int errNum, int *errPos) {
     int i, j, q, count = 0;
     for (i = 1; i <= N; i++) {
         q = 1;
@@ -194,7 +230,7 @@ int findErrPos(int *errLocPoly, int errNum, int *errPos, int codeLen) {
         }
         if (q == 0) {
             errPos[count] = N - i;
-            if (N - i >= codeLen) {
+            if (N - i >= CODE_LEN) {
                 count = T2;
                 break;
             }
@@ -204,10 +240,8 @@ int findErrPos(int *errLocPoly, int errNum, int *errPos, int codeLen) {
     return count;
 }
 
-void
-findErrValue(const int *errLocPoly, int errNum, int *errPos, int *syndrome, unsigned char *recd,
-             int codeLen) {
-    int i, j, q;
+void findErrValue(int *errLocPoly, int errNum, int *errPos, int *syndrome, unsigned char *recd) {
+    int i, j, degphi, q;
     int omega[T2 + 1], phi[T2 + 1], phiprime[T2 + 1], err[N], root[T2 + 1];
 
     for (i = 0; i <= T2; i++) {
@@ -280,7 +314,8 @@ findErrValue(const int *errLocPoly, int errNum, int *errPos, int *syndrome, unsi
                 }
             }
             err[errPos[i]] = alphaTo[(err[errPos[i]] - indexOf[q] + N) % N];
-            recd[codeLen - 1 - errPos[i]] ^= err[errPos[i]];
+            //printf("%d %d\n",CODE_LEN - 1 - errPos[i],err[errPos[i]]);
+            recd[CODE_LEN - 1 - errPos[i]] ^= err[errPos[i]];
         }
 
 
@@ -292,22 +327,20 @@ int rsDecode(unsigned char *recd, unsigned char *msg) {
     int syndrome[T2 + 1];
     int ret = findSyndrome(recd, syndrome);
     int i;
-    // 获取输出数组的长度，方便下面复制
-    int outSize = sizeof(msg);
     if (ret != 0) {
         int errLocPoly[T2 + 1];
         int errPos[T2 + 1];
         int polyNum = findErrLocPoly(syndrome, errLocPoly);
-        int errNum = findErrPos(errLocPoly, polyNum, errPos, outSize);
+        int errNum = findErrPos(errLocPoly, polyNum, errPos);
         if (errNum > T1) {
-            for (i = 0; i < outSize; i++) {
+            for (i = 0; i < MSG_LEN; i++) {
                 msg[i] = recd[i];
             }
             return -1;
         }
-        findErrValue(errLocPoly, errNum, errPos, syndrome, recd, outSize);
+        findErrValue(errLocPoly, errNum, errPos, syndrome, recd);
     }
-    for (i = 0; i < outSize; i++) {
+    for (i = 0; i < MSG_LEN; i++) {
         msg[i] = recd[i];
     }
     return 0;

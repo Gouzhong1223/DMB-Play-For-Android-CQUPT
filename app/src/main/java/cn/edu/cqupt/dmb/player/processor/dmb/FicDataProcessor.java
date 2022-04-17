@@ -35,7 +35,7 @@ public class FicDataProcessor implements DataProcessing {
     private final byte[] ficBuf = new byte[DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue()];
 
     ChannelInfo channelInfo;
-    public static boolean isSelectId;
+    public static volatile boolean isSelectId;
     Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
 
     @Override
@@ -57,7 +57,6 @@ public class FicDataProcessor implements DataProcessing {
             if (!isSelectId) {
                 Log.e(TAG, "设置channelInfo失败!这是往 USB 中设置的时候出错啦!" + channelInfo);
             }
-            Log.i(TAG, "设置channelInfo成功!,这是isSelectId为 false 的情况" + channelInfo);
         }
     }
 }

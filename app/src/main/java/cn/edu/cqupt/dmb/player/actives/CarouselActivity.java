@@ -58,6 +58,7 @@ public class CarouselActivity extends FragmentActivity {
         setContentView(R.layout.activity_carousel);
         // 进入到轮播图组件之后,首先将活跃的工作模块设置成轮播图
         DataReadWriteUtil.setActiveFrequencyModule(FrequencyModule.OUTDOOR_SCREEN_TPEG);
+        DataReadWriteUtil.inMainActivity = false;
         initView();
         // 开始执行轮播图解码
         startDecodeTpeg();

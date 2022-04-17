@@ -7,7 +7,7 @@ import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
-import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
+import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoderImprove;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
@@ -39,7 +39,7 @@ public class DmbDataProcessor implements DataProcessing {
     static {
         try {
             tpegPipedOutputStream.connect(TpegDecoder.getPipedInputStream());
-            mpegTsPipedOutputStream.connect(MpegTsDecoder.getPipedInputStream());
+            mpegTsPipedOutputStream.connect(MpegTsDecoderImprove.getPipedInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -49,8 +49,8 @@ public class DmbDataProcessor implements DataProcessing {
     public void processData(byte[] usbData) {
 //        Log.i(TAG, "现在接收到的数据是 DMB 类型!");
         int dataLength = (((int) usbData[7]) & 0x0FF);
+        PipedOutputStream activeModulePip = getActiveModulePip();
         try {
-            PipedOutputStream activeModulePip = getActiveModulePip();
             if (activeModulePip == null) {
                 return;
             }
@@ -58,6 +58,7 @@ public class DmbDataProcessor implements DataProcessing {
             if (!DataReadWriteUtil.initFlag) {
                 DataReadWriteUtil.initFlag = true;
             }
+            activeModulePip.flush();
         } catch (IOException e) {
             Log.e(TAG, "处理 DMB 数据出错啦!---" + e);
             e.printStackTrace();
@@ -82,6 +83,9 @@ public class DmbDataProcessor implements DataProcessing {
         if (frequencyModule.getModuleName().equals(FrequencyModule.OUTDOOR_SCREEN_VIDEO.getModuleName())) {
             // 如果当前的活跃场景是视频,就返回视频的 pip 输出流
             return mpegTsPipedOutputStream;
+        }
+        if (frequencyModule.getModuleName().equals(FrequencyModule.OUTDOOR_SCREEN_TPEG.getModuleName())) {
+            return tpegPipedOutputStream;
         }
         if (frequencyModule.getModuleName().startsWith("CURRICULUM")) {
             // 如果当前活跃的场景是课表,就返回图片的 pip 输出流

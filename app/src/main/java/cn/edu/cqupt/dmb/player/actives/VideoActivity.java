@@ -20,12 +20,14 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
-import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
+import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoderImprove;
 import cn.edu.cqupt.dmb.player.frame.DmbMediaDataSource;
 import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
@@ -53,9 +55,9 @@ public class VideoActivity extends Activity {
     private VideoPlayerFrame videoPlayerFrame = null;
 
     /**
-     * MPEG-TS解码器
+     * 单例线程池,运行MPEG解码线程的
      */
-    private MpegTsDecoder mpegTsDecoder;
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /**
      * 已经解码的MPEG-TS视频缓冲流
@@ -106,6 +108,9 @@ public class VideoActivity extends Activity {
      * 初始化组件
      */
     private void initView() {
+        if (executorService.isShutdown()) {
+            executorService = Executors.newSingleThreadExecutor();
+        }
         videoPlayerFrame = findViewById(R.id.video_surface);
         videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
         // 重新设置设备的ID
@@ -125,8 +130,6 @@ public class VideoActivity extends Activity {
     private void startMpegTsCodec() {
         // 构造已解码的TS输入流
         pipedInputStream = new PipedInputStream(DEFAULT_MPEG_TS_PACKET_SIZE_DECODE * DEFAULT_MPEG_TS_STREAM_SIZE_TIMES);
-        // 构造已解码的TS缓冲流
-        bufferedInputStream = new BufferedInputStream(pipedInputStream);
         // 构造已解码的TS输出流
         pipedOutputStream = new PipedOutputStream();
         try {
@@ -135,12 +138,14 @@ public class VideoActivity extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // 构造已解码的TS缓冲流
+        bufferedInputStream = new BufferedInputStream(pipedInputStream);
         // 构造视频监听器,传入视频输出流以及回调类
         DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), pipedOutputStream);
         // 构造解码器
-        mpegTsDecoder = new MpegTsDecoder(videoPlayerListener);
+        MpegTsDecoderImprove mpegTsDecoder = new MpegTsDecoderImprove(videoPlayerListener);
         // 开始解码
-        mpegTsDecoder.start();
+        executorService.submit(mpegTsDecoder);
     }
 
     /**
@@ -174,7 +179,8 @@ public class VideoActivity extends Activity {
     protected void onDestroy() {
         // 结束
         // 直接中断 TS 解码器
-        mpegTsDecoder.interrupt();
+        executorService.shutdownNow();
+        // 关闭线程池中的任务
         videoPlayerFrame.release();
         closeStream();
         // 重置Dangle

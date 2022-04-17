@@ -50,18 +50,4 @@ public class NativeMethod {
      * @param info 用于存储消息类型
      */
     public static native void decodeTpegFrame(byte[] in, byte[] out, int[] info);
-
-    /**
-     * 初始化解码MPEG-TS的方法
-     */
-    public static native void mpegTsDecodeInit();
-
-    /**
-     * 解码一个加密的MPEG-TS包
-     *
-     * @param tsBuf_204 原始流
-     * @param tsBuf_188 解码流
-     * @return 解码状态码
-     */
-    public static native int decodeMpegTsFrame(byte[] tsBuf_204, byte[] tsBuf_188);
 }

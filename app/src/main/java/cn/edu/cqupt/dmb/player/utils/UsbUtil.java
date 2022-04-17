@@ -43,8 +43,6 @@ public class UsbUtil {
     private static final String TAG = "UsbUtil";
     private static Dangle dangle;
 
-    public static final Object WAIT_USB_READY_LOCK_OBJECT = new Object();
-
 
     /**
      * 定时任务线程池

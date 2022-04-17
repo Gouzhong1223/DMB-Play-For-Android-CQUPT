@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.os.Handler;
 import android.util.Log;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
@@ -40,6 +41,16 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
     private static volatile DmbBroadcastReceiver dmbBroadcastReceiver;
 
     /**
+     * 主页面的回调处理器
+     */
+    private final Handler handler;
+
+    /**
+     * 跳转到默认场景的消息
+     */
+    private static final int MESSAGE_JUMP_DEFAULT_ACTIVITY = DmbPlayerConstant.MESSAGE_JUMP_DEFAULT_ACTIVITY.getDmbConstantValue();
+
+    /**
      * 设备的厂商 ID
      */
     private static final int VID = DmbPlayerConstant.DMB_V_ID.getDmbConstantValue();
@@ -48,7 +59,8 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      */
     private static final int PID = DmbPlayerConstant.DMB_P_ID.getDmbConstantValue();
 
-    private DmbBroadcastReceiver(Context context) {
+    private DmbBroadcastReceiver(Context context, Handler handler) {
+        this.handler = handler;
         this.context = context;
     }
 
@@ -59,11 +71,11 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * @param context context
      * @return 单例模式下创建的 DmbBroadcastReceiver
      */
-    public static DmbBroadcastReceiver getInstance(Context context) {
+    public static DmbBroadcastReceiver getInstance(Context context, Handler handler) {
         if (dmbBroadcastReceiver == null) {
             synchronized (DmbBroadcastReceiver.class) {
                 if (dmbBroadcastReceiver == null) {
-                    dmbBroadcastReceiver = new DmbBroadcastReceiver(context);
+                    dmbBroadcastReceiver = new DmbBroadcastReceiver(context, handler);
                 }
             }
         }
@@ -87,17 +99,13 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
                 Log.i(TAG, System.currentTimeMillis() + "---接收到广播,action:" + action);
                 // 是否授权成功
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                    synchronized (UsbUtil.WAIT_USB_READY_LOCK_OBJECT) {
-                        if (usbDevice != null) {
-                            Log.i(TAG, Thread.currentThread().getName() + "线程现在DataReadWriteUtil.USB_READY被设置为 true");
-                            DataReadWriteUtil.USB_READY = true;
-                            UsbUtil.WAIT_USB_READY_LOCK_OBJECT.notifyAll();
-                            // 打开USB设备并开始读取数据
-                            openDevice();
-                        } else {
-                            // 没有 USB 设备就释放锁,防止死锁
-                            UsbUtil.WAIT_USB_READY_LOCK_OBJECT.notifyAll();
-                        }
+                    if (usbDevice != null) {
+                        Log.i(TAG, Thread.currentThread().getName() + "线程现在DataReadWriteUtil.USB_READY被设置为 true");
+                        DataReadWriteUtil.USB_READY = true;
+                        // 发送跳转到默认场景的消息
+                        handler.sendEmptyMessage(MESSAGE_JUMP_DEFAULT_ACTIVITY);
+                        // 打开USB设备并开始读取数据
+                        openDevice();
                     }
                 } else {
                     Log.e(TAG, System.currentTimeMillis() + "---USB权限已被拒绝，Permission denied for device" + usbDevice);
