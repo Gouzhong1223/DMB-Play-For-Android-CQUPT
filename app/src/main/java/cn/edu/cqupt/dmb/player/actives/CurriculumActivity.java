@@ -13,6 +13,9 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
@@ -31,13 +34,14 @@ public class CurriculumActivity extends Activity {
     public static final int MESSAGE_UPDATE_CURRICULUM = DmbPlayerConstant.MESSAGE_UPDATE_CURRICULUM.getDmbConstantValue();
 
     /**
+     * 单例线程池,运行TPEG解码线程的
+     */
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    /**
      * 显示课表的组件
      */
     private ImageView imageView;
-    /**
-     * 解码课表 TPEG 的线程
-     */
-    private TpegDecoder tpegDecoder;
 
     private DmbCurriculumListener dmbCurriculumListener;
 
@@ -58,6 +62,9 @@ public class CurriculumActivity extends Activity {
     private void initView() {
         Log.i(TAG, "正在初始化课表显示组件");
         imageView = findViewById(R.id.curriculum_image_view);
+        if (executorService.isShutdown()) {
+            executorService = Executors.newSingleThreadExecutor();
+        }
     }
 
     /**
@@ -69,14 +76,15 @@ public class CurriculumActivity extends Activity {
         // 先重置一下 Dangle
         UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
         dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()));
-        tpegDecoder = new TpegDecoder(dmbCurriculumListener);
-        tpegDecoder.start();
+        // 构造TPEG解码器
+        TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListener);
+        executorService.submit(tpegDecoder);
     }
 
     @Override
     protected void onDestroy() {
         // 中断解码线程
-        tpegDecoder.interrupt();
+        executorService.shutdown();
         // 销毁一下 dangle 的设置
         UsbUtil.dangleDestroy(this);
         super.onDestroy();

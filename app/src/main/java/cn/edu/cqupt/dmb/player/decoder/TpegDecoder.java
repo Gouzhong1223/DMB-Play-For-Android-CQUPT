@@ -2,7 +2,6 @@ package cn.edu.cqupt.dmb.player.decoder;
 
 import android.util.Log;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -24,7 +23,7 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class TpegDecoder extends Thread {
+public class TpegDecoder extends AbstractDmbDecoder {
 
 
     /* file size should not be greater than 2M */
@@ -37,31 +36,8 @@ public class TpegDecoder extends Thread {
     private static final int LAST_FRAME = 3;
     private static final String TAG = "TpegDecoder";
 
-    /**
-     * DMB 数据输入缓冲区
-     */
-    private static final BufferedInputStream bufferedInputStream;
-    /**
-     * DMB 数据处理监听器
-     */
-    private final DmbListener listener;
-    /**
-     * DMB 数据输入流
-     */
-    private static final PipedInputStream pipedInputStream = new PipedInputStream(1024 * 2);
-
-    public static PipedInputStream getPipedInputStream() {
-        Log.i(TAG, "有线程正在获取TPEG的pipedInputStream");
-        return pipedInputStream;
-    }
-
-    static {
-        // 类加载的时候初始化BufferedInputStream
-        bufferedInputStream = new BufferedInputStream(pipedInputStream);
-    }
-
     public TpegDecoder(DmbListener listener) {
-        this.listener = listener;
+        super(listener);
     }
 
     @Override
@@ -75,15 +51,15 @@ public class TpegDecoder extends Thread {
         String fileName = null;
         Log.i(TAG, Thread.currentThread().getName() + "线程开始了 TPEG 的解码");
         NativeMethod.tpegInit();
-        while (!this.isInterrupted()) {
+        while (true) {
             if (!DataReadWriteUtil.USB_READY) {
                 // 如果当前 USB 没有就绪,就直接结束当前线程
-//                Log.e(TAG, "现在 USB 还没有就绪!");
+                // Log.e(TAG, "现在 USB 还没有就绪!");
                 return;
             }
             if (!DataReadWriteUtil.initFlag) {
                 // 如果目前还没有接收到 DMB 类型的数据,就直接返回
-//                Log.e(TAG, "现在还没有接收到 DMB 类型的数据!");
+                // Log.e(TAG, "现在还没有接收到 DMB 类型的数据!");
                 continue;
             }
             tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
@@ -128,8 +104,8 @@ public class TpegDecoder extends Thread {
                     if (isReceiveFirstFrame && total + tpegInfo[1] < FILE_BUFFER_SIZE) {
                         System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
                         total += tpegInfo[1];
-                        if (listener != null) {
-                            listener.onSuccess(fileName, fileBuffer, total);
+                        if (dmbListener != null) {
+                            dmbListener.onSuccess(fileName, fileBuffer, total);
                         }
                         isReceiveFirstFrame = false;
                         fileName = null;
@@ -140,7 +116,6 @@ public class TpegDecoder extends Thread {
                     break;
             }
         }
-        Log.i(TAG, "解码 TPEG 完成!");
     }
 
     private boolean readTpegFrame(byte[] bytes) {
@@ -172,9 +147,8 @@ public class TpegDecoder extends Thread {
         return true;
     }
 
-    @Override
-    public void interrupt() {
-        Log.e(TAG, "TPEG 解码器被中断了");
-        super.interrupt();
+    public static PipedInputStream getPipedInputStream() {
+        Log.i(TAG, "有线程正在获取TPEG的pipedInputStream");
+        return pipedInputStream;
     }
 }

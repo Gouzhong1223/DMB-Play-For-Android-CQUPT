@@ -7,7 +7,7 @@ import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
-import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoderImprove;
+import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
@@ -39,7 +39,7 @@ public class DmbDataProcessor implements DataProcessing {
     static {
         try {
             tpegPipedOutputStream.connect(TpegDecoder.getPipedInputStream());
-            mpegTsPipedOutputStream.connect(MpegTsDecoderImprove.getPipedInputStream());
+            mpegTsPipedOutputStream.connect(MpegTsDecoder.getPipedInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }

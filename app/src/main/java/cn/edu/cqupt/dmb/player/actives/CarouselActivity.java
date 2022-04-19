@@ -14,6 +14,9 @@ import androidx.fragment.app.FragmentActivity;
 import com.youth.banner.Banner;
 import com.youth.banner.indicator.CircleIndicator;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
@@ -40,6 +43,11 @@ public class CarouselActivity extends FragmentActivity {
     private final int MESSAGE_UPDATE_SIGNAL = DmbPlayerConstant.MESSAGE_UPDATE_SIGNAL.getDmbConstantValue();
 
     /**
+     * 单例线程池,运行MPEG解码线程的
+     */
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    /**
      * 轮播图组件
      */
     private Banner banner;
@@ -47,10 +55,6 @@ public class CarouselActivity extends FragmentActivity {
      * 信号组件
      */
     private ImageView signalImageView;
-    /**
-     * 轮播图解码器
-     */
-    private TpegDecoder tpegDecoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +74,9 @@ public class CarouselActivity extends FragmentActivity {
         // 先重置一下 Dangle
         UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
         // 开始执行 TPEG 解码的任务
-        tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper())));
-        tpegDecoder.start();
+        // 构造TPEG解码器
+        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper())));
+        executorService.submit(tpegDecoder);
     }
 
     private void initView() {
@@ -79,6 +84,9 @@ public class CarouselActivity extends FragmentActivity {
         useBanner();
         // 初始化轮播图中的信号显示组件
         signalImageView = findViewById(R.id.carousel_signal);
+        if (executorService.isShutdown()) {
+            executorService = Executors.newSingleThreadExecutor();
+        }
     }
 
     /**
@@ -94,7 +102,7 @@ public class CarouselActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         banner.stop();
-        tpegDecoder.interrupt();
+        executorService.shutdown();
         UsbUtil.dangleDestroy(this);
         super.onDestroy();
     }

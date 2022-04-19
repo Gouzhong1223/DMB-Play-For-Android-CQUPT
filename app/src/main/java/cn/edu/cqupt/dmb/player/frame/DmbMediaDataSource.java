@@ -5,7 +5,6 @@ import android.util.Log;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
-import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
 import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
 
 /**

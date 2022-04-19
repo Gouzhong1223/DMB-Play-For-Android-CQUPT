@@ -5,7 +5,6 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.util.Arrays;
@@ -13,7 +12,6 @@ import java.util.Arrays;
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.listener.DmbMpegListener;
-import cn.edu.cqupt.dmb.player.utils.BaseConversionUtil;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
@@ -27,18 +25,11 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.4
  */
-public class MpegTsDecoderImprove implements Runnable {
+public class MpegTsDecoder extends AbstractDmbDecoder {
 
     /**
-     * TS 视频流的输入流
+     * 解码器监听器
      */
-    private static final PipedInputStream pipedInputStream = new PipedInputStream(1024 * 1024 * 20);
-
-    /**
-     * TS 视频的缓冲流
-     */
-    private static final BufferedInputStream bufferedInputStream = new BufferedInputStream(pipedInputStream);
-
     private final DmbMpegListener dmbListener;
 
     /**
@@ -54,9 +45,14 @@ public class MpegTsDecoderImprove implements Runnable {
      */
     private static final int TPEG_INFO_SIZE = 3;
 
-    private static final String TAG = "MpegTsDecoderImprove";
+    private static final String TAG = "MpegTsDecoder";
 
-    public MpegTsDecoderImprove(DmbListener dmbListener) {
+    public MpegTsDecoder(DmbListener dmbListener) throws Exception {
+        super(dmbListener);
+        if (!(dmbListener instanceof DmbMpegListener)) {
+            // 如果监听器类型不对就直接抛异常!
+            throw new Exception("错误的监听器类型!MPEG解码器构造只能接收DmbMpegListener类型的监听器!");
+        }
         this.dmbListener = (DmbMpegListener) dmbListener;
     }
 
@@ -87,13 +83,13 @@ public class MpegTsDecoderImprove implements Runnable {
                 // 读取TPEG失败就放弃
                 continue;
             }
-//            Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
+            // Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
             Arrays.fill(tpegData, (byte) 0);
             Arrays.fill(tpegInfo, 0);
             NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
             if (tpegInfo[0] == 1 || tpegInfo[0] == 2 || tpegInfo[0] == 3) {
                 // 说明这是一个有效的TPEG数组
-//                Log.i(TAG, "接收到一个有效的TPEG");
+                //  Log.i(TAG, "接收到一个有效的TPEG");
                 dmbListener.onSuccess(tpegData, tpegInfo[1], tpegInfo);
             }
         }
@@ -108,7 +104,7 @@ public class MpegTsDecoderImprove implements Runnable {
     private boolean readTpegFrame(byte[] bytes) {
         int nRead;
         try {
-            while ((nRead = MpegTsDecoderImprove.bufferedInputStream.read(bytes, 3, 1)) > 0) {
+            while ((nRead = bufferedInputStream.read(bytes, 3, 1)) > 0) {
                 if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
                     break;
                 }
@@ -122,7 +118,7 @@ public class MpegTsDecoderImprove implements Runnable {
             int nLeft = 108;
             int pos = 4;
             while (nLeft > 0) {
-                if ((nRead = MpegTsDecoderImprove.bufferedInputStream.read(bytes, pos, nLeft)) <= 0) {
+                if ((nRead = MpegTsDecoder.bufferedInputStream.read(bytes, pos, nLeft)) <= 0) {
                     return false;
                 }
                 nLeft -= nRead;

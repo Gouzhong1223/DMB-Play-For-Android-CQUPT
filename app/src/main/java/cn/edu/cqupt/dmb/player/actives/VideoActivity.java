@@ -27,7 +27,7 @@ import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
-import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoderImprove;
+import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
 import cn.edu.cqupt.dmb.player.frame.DmbMediaDataSource;
 import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
@@ -101,7 +101,11 @@ public class VideoActivity extends Activity {
         // 初始化View
         initView();
         // 开始MPEG-TS解码
-        startMpegTsCodec();
+        try {
+            startMpegTsCodec();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -127,7 +131,7 @@ public class VideoActivity extends Activity {
      * 这里开一个线程去执行 MPEG-TS 的解码任务<br/>
      * 已经解码的MPEG-TS流会被放进缓冲流
      */
-    private void startMpegTsCodec() {
+    private void startMpegTsCodec() throws Exception {
         // 构造已解码的TS输入流
         pipedInputStream = new PipedInputStream(DEFAULT_MPEG_TS_PACKET_SIZE_DECODE * DEFAULT_MPEG_TS_STREAM_SIZE_TIMES);
         // 构造已解码的TS输出流
@@ -143,7 +147,7 @@ public class VideoActivity extends Activity {
         // 构造视频监听器,传入视频输出流以及回调类
         DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), pipedOutputStream);
         // 构造解码器
-        MpegTsDecoderImprove mpegTsDecoder = new MpegTsDecoderImprove(videoPlayerListener);
+        MpegTsDecoder mpegTsDecoder = new MpegTsDecoder(videoPlayerListener);
         // 开始解码
         executorService.submit(mpegTsDecoder);
     }
