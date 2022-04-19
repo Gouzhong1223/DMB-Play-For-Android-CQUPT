@@ -54,8 +54,7 @@ add_library(
         rs.c
         tpeg.c
         tpegdec-lib.cpp
-        mpeg_dec.cpp
-        ts_interleaver.cpp)
+        mpeg_dec.cpp)
 #
 #add_library(
 #        # Sets the name of the library.

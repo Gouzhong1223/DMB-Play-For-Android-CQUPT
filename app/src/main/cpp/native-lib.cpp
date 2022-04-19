@@ -4,7 +4,6 @@
 #include "tpegdec.h"
 #include "tpeg.h"
 #include "mpeg_dec.h"
-#include "ts_interleaver.h"
 
 extern "C"
 JNIEXPORT void JNICALL
