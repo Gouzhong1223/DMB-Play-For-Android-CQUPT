@@ -3,15 +3,27 @@ package cn.edu.cqupt.dmb.player.utils;
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description : 进制转换工具类
- * @Date : create by QingSong in 2022-03-16 19:32
+ * @Description : 数值转换工具类
+ * @Date : create by QingSong in 2022-04-18 18:50
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : cn.edu.cqupt.dmb.player.utils
  * @ProjectName : DMB Player For Android
- * @Version : 1.0.0
+ * @Version : 1.0.4
  */
-public class BaseConversionUtil {
+public class ConvertUtils {
+    // Time diff between 1.1.1970 00:00:00 and 6.1.1980 00:00:00
+    private static final long DIFF_BETWEEN_UNIX_EPOCH_AND_GPS = 315964800;
+
+    private ConvertUtils() {}
+
+    public static long convertGPSTimeToUnixEpoch(long gpsTime) {
+        return gpsTime + DIFF_BETWEEN_UNIX_EPOCH_AND_GPS;
+    }
+
+    public static long convertUnixEpochToGPSTime(long epochTime) {
+        return epochTime - DIFF_BETWEEN_UNIX_EPOCH_AND_GPS;
+    }
 
     /**
      * byte数组转16进制字符串
