@@ -50,4 +50,12 @@ public class NativeMethod {
      * @param info 用于存储消息类型
      */
     public static native void decodeTpegFrame(byte[] in, byte[] out, int[] info);
+
+    /**
+     * 对 MPEG-TS 包进行 RS 解码
+     *
+     * @param in  输入数组
+     * @param out 输出数组
+     */
+    public static native void mpegRsDecode(byte[] in, byte[] out);
 }

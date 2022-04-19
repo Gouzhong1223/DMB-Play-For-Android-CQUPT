@@ -112,21 +112,3 @@ void tpegPacketDecode(unsigned char *tpegPacket, unsigned char *data, uint32_t *
         }
     }
 }
-
-void tpegDecode(unsigned char *tpeg, unsigned char *data, uint32_t *info) {
-    unsigned char rs[RS_LEN];
-    unsigned char tpegData[TPEG_LEN];
-    deinterleaver(tpeg, rs);
-//    int ret = rsDecode(rs,tpegData);
-//    if(ret != 0){
-//        info[0] = 1;
-//        info[1] = 0;
-//        return;
-//    }
-//    int i;
-//    for(i=0;i<96;i++){
-//        data[i] = tpeg[i];
-//    }
-    decode_rs(tpeg, data);
-//    tpegPacketDecode(tpeg,data,info);
-}

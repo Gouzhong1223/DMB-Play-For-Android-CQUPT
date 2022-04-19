@@ -4,6 +4,7 @@
 #include "tpegdec.h"
 #include "tpeg.h"
 #include "mpeg_dec.h"
+#include "ts_rs.h"
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -53,4 +54,13 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_cn_edu_cqupt_dmb_player_jni_NativeMethod_tpegInit(JNIEnv *env, jclass type) {
     tpegInit();
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_cn_edu_cqupt_dmb_player_jni_NativeMethod_mpegRsDecode(JNIEnv *env, jclass clazz, jbyteArray in,
+                                                           jbyteArray out) {
+    jbyte *enBytes = env->GetByteArrayElements(in, nullptr);
+    jbyte *deBytes = env->GetByteArrayElements(out, nullptr);
+    ts_de_rs(reinterpret_cast<INT8U *>(deBytes), reinterpret_cast<INT8U *>(enBytes));
 }
