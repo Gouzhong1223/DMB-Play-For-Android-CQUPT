@@ -8,4 +8,11 @@
 
     <color name="main_color">#5CB85C</color>
 
+    <color name="ut_scan_title_text">#EEEEEE</color>
+    <color name="ut_scan_description_text">#B3EEEEEE</color>
+    <color name="ut_scan_progress">#EEEEEE</color>
+    <color name="ut_scan_progress_background">#26EEEEEE</color>
+    <color name="ut_scan_button_text">#EEEEEE</color>
+    <color name="common_setup_button_done_selected">#26FFFFFF</color>
+
 </resources>

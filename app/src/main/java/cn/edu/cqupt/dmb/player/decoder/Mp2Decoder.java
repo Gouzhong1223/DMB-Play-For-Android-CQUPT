@@ -28,7 +28,7 @@ public class Mp2Decoder extends Thread {
     private AudioTrack audioTrack;
     private byte[] mp2Buffer;
     private byte[] pcmBuffer;
-    private DmbListener dmbListener;
+    private final DmbListener dmbListener;
     private static final BufferedInputStream bufferedInputStream;
 
     private static final PipedInputStream pipedInputStream = new PipedInputStream(1024 * 2);
@@ -70,10 +70,7 @@ public class Mp2Decoder extends Thread {
     }
 
     private boolean isMp2Head(byte[] bytes) {
-        if ((bytes[0] == 0xFF && bytes[1] == 0xFC) || (bytes[0] == 0xFF && bytes[1] == 0xF4)) {
-            return true;
-        }
-        return false;
+        return (bytes[0] == 0xFF && bytes[1] == 0xFC) || (bytes[0] == 0xFF && bytes[1] == 0xF4);
     }
 
     private int readMp2Frame() throws IOException {

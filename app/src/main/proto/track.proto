@@ -16,9 +16,9 @@
 
 syntax = "proto2";
 
-package cn.edu.cqupt.dmb.player.ts;
+package cn.edu.cqupt.dmb.player.tuner.data;
 
-option java_package = "cn.edu.cqupt.dmb.player.ts";
+option java_package = "cn.edu.cqupt.dmb.player.tuner.data";
 option java_outer_classname = "Track";
 
 // Represents a AC3 audio track.

@@ -15,6 +15,7 @@ public interface DataProcessing {
 
     /**
      * 处理 DMB 数据
+     *
      * @param usbData 从 USB 中读取到的一段 DMB 数据
      */
     void processData(byte[] usbData);

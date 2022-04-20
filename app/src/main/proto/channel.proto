@@ -16,11 +16,11 @@
 
 syntax = 'proto2';
 
-package cn.edu.cqupt.dmb.player.ts;
+package cn.edu.cqupt.dmb.player.tuner.data;
 
 import "track.proto";
 
-option java_package = "cn.edu.cqupt.dmb.player.ts";
+option java_package = "cn.edu.cqupt.dmb.player.tuner.data";
 option java_outer_classname = "Channel";
 
 // Holds information about a channel used in the tuners.

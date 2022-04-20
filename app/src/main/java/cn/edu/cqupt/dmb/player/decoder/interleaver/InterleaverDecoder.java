@@ -26,6 +26,12 @@ public class InterleaverDecoder {
         deinterleaverInit();
     }
 
+    /**
+     * 对 MPEG-TS 包解交织
+     *
+     * @param in  待解码的包
+     * @param out 承载解码结果的数组
+     */
     public void deinterleaver(byte[] in, byte[] out) {
         int i, j;
         j = deinterleaverPos;

@@ -22,7 +22,7 @@ import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
  * @PackageName : cn.edu.cqupt.dmb.player.banner.adapter
- * @ProjectName : DMB Player For Android 
+ * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
 public class ImageAdapter extends BannerAdapter<BannerDataBean, ImageAdapter.BannerViewHolder> {

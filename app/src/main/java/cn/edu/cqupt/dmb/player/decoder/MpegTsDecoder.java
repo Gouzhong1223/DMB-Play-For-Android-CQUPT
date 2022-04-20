@@ -6,9 +6,11 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PipedInputStream;
-import java.util.Arrays;
 
+import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.decoder.interleaver.InterleaverDecoder;
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.listener.DmbMpegListener;
@@ -32,18 +34,9 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
      */
     private final DmbMpegListener dmbListener;
 
-    /**
-     * 一个TPEG的包大小
-     */
-    private static final int TPEG_SIZE = 112;
-    /**
-     * 一个TPEG包的有效长度
-     */
-    private static final int DATA_SIZE = 80;
-    /**
-     * TPEG info 数组长度
-     */
-    private static final int TPEG_INFO_SIZE = 3;
+    private static final Integer tsBuf_204 = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_ENCODE.getDmbConstantValue();
+    private static final Integer tsBuf_188 = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_DECODE.getDmbConstantValue();
+
 
     private static final String TAG = "MpegTsDecoder";
 
@@ -59,17 +52,9 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     public void run() {
-
-        // 装载未解码的TPEG包
-        byte[] tpegBuffer = new byte[TPEG_SIZE];
-        // 装载已解码的TPEG包
-        byte[] tpegData = new byte[DATA_SIZE];
-        // 装载TPEG信息
-        int[] tpegInfo = new int[TPEG_INFO_SIZE];
-        Log.i(TAG, Thread.currentThread().getName() + "线程开始了 MPEG-TS 的解码");
-        NativeMethod.tpegInit();
-        // 死循环,等待线程池的调度
-        for (; ; ) {
+//        new TsParser()
+        InterleaverDecoder interleaverDecoder = new InterleaverDecoder();
+        while (true) {
             if (!DataReadWriteUtil.USB_READY) {
                 // 如果当前 USB 没有就绪,就直接结束当前线程
                 return;
@@ -78,34 +63,42 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
                 // 如果目前还没有接收到 DMB 类型的数据,继续执行下一次任务
                 continue;
             }
-            tpegBuffer[0] = tpegBuffer[1] = tpegBuffer[2] = (byte) 0;
-            if (!readTpegFrame(tpegBuffer)) {
-                // 读取TPEG失败就放弃
-                continue;
-            }
-            // Log.i(TAG, BaseConversionUtil.bytes2hex(tpegBuffer));
-            Arrays.fill(tpegData, (byte) 0);
-            Arrays.fill(tpegInfo, 0);
-            NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
-            if (tpegInfo[0] == 1 || tpegInfo[0] == 2 || tpegInfo[0] == 3) {
-                // 说明这是一个有效的TPEG数组
-                //  Log.i(TAG, "接收到一个有效的TPEG");
-                dmbListener.onSuccess(tpegData, tpegInfo[1], tpegInfo);
+            byte[] enMpegTsPacket = new byte[tsBuf_204];
+            byte[] deMpegTsPacket = new byte[tsBuf_188];
+            if (readMpegTsPacket(bufferedInputStream, enMpegTsPacket)) {
+                // 读取到一个 MPEG-TS 包
+                byte[] deInterleaverBytes = new byte[tsBuf_204];
+                // 解交织
+                interleaverDecoder.deinterleaver(enMpegTsPacket, deInterleaverBytes);
+                // 对已经解交织的包进行 RS 解码
+                NativeMethod.mpegRsDecode(deInterleaverBytes, deMpegTsPacket);
+
             }
         }
+
     }
 
     /**
-     * 读取一个TPEG包
+     * 从输入流中读取固定长度的数据,一次性读取204字节的数据
      *
-     * @param bytes 承载数组
-     * @return 成功返回true
+     * @param inputStream 输入流
+     * @param bytes       接收数组
+     * @return 成功返回true, 失败返回false
      */
-    private boolean readTpegFrame(byte[] bytes) {
+    public static boolean readMpegTsPacket(InputStream inputStream, byte[] bytes) {
         int nRead;
         try {
-            while ((nRead = bufferedInputStream.read(bytes, 3, 1)) > 0) {
-                if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
+            bytes[0] = bytes[1] = bytes[2] = (byte) 0xff;
+            // 寻找TS包头
+            while ((nRead = inputStream.read(bytes, 3, 1)) > 0) {
+                if (bytes[0] == (byte) 0x47
+                        && (bytes[1] == (byte) 0x40
+                        || bytes[1] == (byte) 0x41
+                        || bytes[1] == (byte) 0x50
+                        || bytes[1] == (byte) 0x01)
+                        && (bytes[2] == (byte) 0x00
+                        || bytes[2] == (byte) 0x11
+                        || bytes[2] == 0x01)) {
                     break;
                 }
                 System.arraycopy(bytes, 1, bytes, 0, 3);
@@ -113,12 +106,11 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
             if (nRead <= 0) {
                 return false;
             }
-            /* read n bytes method, according to unix network programming page 72 */
-            /* read left data of the frame */
-            int nLeft = 108;
+            /* 读取固定长度的字节 */
+            int nLeft = 200;
             int pos = 4;
             while (nLeft > 0) {
-                if ((nRead = MpegTsDecoder.bufferedInputStream.read(bytes, pos, nLeft)) <= 0) {
+                if ((nRead = inputStream.read(bytes, pos, nLeft)) <= 0) {
                     return false;
                 }
                 nLeft -= nRead;
@@ -126,6 +118,7 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
         return true;
     }

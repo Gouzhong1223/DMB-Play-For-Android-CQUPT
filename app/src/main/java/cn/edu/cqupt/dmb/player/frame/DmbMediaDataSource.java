@@ -22,7 +22,7 @@ public class DmbMediaDataSource implements IMediaDataSource {
 
     private static final String TAG = "DmbMediaDataSource";
 
-    private Integer cnt = 0;
+    private final Integer cnt = 0;
     /**
      * MPEG-TS视频数据源输入缓冲流
      */
