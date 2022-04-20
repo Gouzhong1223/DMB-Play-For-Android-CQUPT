@@ -18,6 +18,7 @@ package cn.edu.cqupt.dmb.player.tuner.tvinput;
 
 import static cn.edu.cqupt.dmb.player.tuner.features.TunerFeatures.TVPROVIDER_ALLOWS_COLUMN_CREATION;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -39,6 +40,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.tvprovider.media.tv.Program;
+import androidx.tvprovider.media.tv.TvContractCompat;
 
 import com.google.android.exoplayer.C;
 import com.google.auto.factory.AutoFactory;
@@ -598,7 +600,7 @@ public class TunerRecordingSessionWorker
             values.putAll(program.toContentValues());
         }
         return mContext.getContentResolver()
-                .insert(RecordedPrograms.CONTENT_URI, values);
+                .insert(TvContract.RecordedPrograms.CONTENT_URI, values);
     }
 
     private void updateRecordedProgramStateFinished(long endTime, long totalBytes) {
@@ -671,7 +673,7 @@ public class TunerRecordingSessionWorker
         if (!canCreateColumn) {
             return false;
         }
-        Uri uri = RecordedPrograms.CONTENT_URI;
+        Uri uri = TvContract.RecordedPrograms.CONTENT_URI;
         switch (column) {
             case COLUMN_SERIES_ID: {
                 if (!mRecordedProgramHasSeriesIdColumn) {
@@ -699,11 +701,11 @@ public class TunerRecordingSessionWorker
     }
 
     private Set<String> getExistingColumns(Uri uri) {
-        Bundle result =
+        @SuppressLint("RestrictedApi") Bundle result =
                 mContext.getContentResolver()
-                        .call(uri, /*TvContract.METHOD_GET_COLUMNS*/null, uri.toString(), null);
+                        .call(uri, TvContractCompat.METHOD_GET_COLUMNS, uri.toString(), null);
         if (result != null) {
-            String[] columns = result.getStringArray(/*TvContract.EXTRA_EXISTING_COLUMN_NAMES*/null);
+            @SuppressLint("RestrictedApi") String[] columns = result.getStringArray(TvContractCompat.EXTRA_EXISTING_COLUMN_NAMES);
             if (columns != null) {
                 return new HashSet<>(Arrays.asList(columns));
             }
@@ -717,16 +719,17 @@ public class TunerRecordingSessionWorker
      *
      * @return {@code true} if the column is added successfully; {@code false} otherwise.
      */
+    @SuppressLint("RestrictedApi")
     private boolean addColumnToTable(Uri contentUri, String columnName) {
         Bundle extra = new Bundle();
-//        extra.putCharSequence(TvContract.EXTRA_COLUMN_NAME, columnName);
-//        extra.putCharSequence(TvContract.EXTRA_DATA_TYPE, "TEXT");
+        extra.putCharSequence(TvContractCompat.EXTRA_COLUMN_NAME, columnName);
+        extra.putCharSequence(TvContractCompat.EXTRA_DATA_TYPE, "TEXT");
         // If the add operation fails, the following just returns null without crashing.
-        Bundle allColumns =
+        @SuppressLint("RestrictedApi") Bundle allColumns =
                 mContext.getContentResolver()
                         .call(
                                 contentUri,
-                                /*TvContract.METHOD_ADD_COLUMN*/null,
+                                TvContractCompat.METHOD_ADD_COLUMN,
                                 contentUri.toString(),
                                 extra);
         if (allColumns == null) {
