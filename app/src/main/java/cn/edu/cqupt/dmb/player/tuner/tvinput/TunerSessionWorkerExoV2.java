@@ -16,6 +16,7 @@
 
 package cn.edu.cqupt.dmb.player.tuner.tvinput;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -770,6 +771,7 @@ public class TunerSessionWorkerExoV2 implements
         }
     }
 
+    @SuppressLint("WrongThread")
     private boolean handleMessageTune(Uri channelUri) {
         if (DEBUG) {
             Log.d(TAG, "MSG_TUNE");
@@ -936,7 +938,7 @@ public class TunerSessionWorkerExoV2 implements
         if (currentProgram == null) {
             mProgram = null;
         }
-        long currentTimeMs = getCurrentPosition();
+        @SuppressLint("WrongThread") long currentTimeMs = getCurrentPosition();
         if (mPrograms != null) {
             for (EitItem item : mPrograms) {
                 if (currentProgram != null && currentProgram.compareTo(item) == 0) {
@@ -1354,10 +1356,10 @@ public class TunerSessionWorkerExoV2 implements
         }
         mBufferManager = null;
         if (mRecordingId != null) {
-            BufferManager.StorageManager storageManager =
+            DvrStorageManager storageManager =
                     new DvrStorageManager(new File(getRecordingPath()), false);
             mBufferManager = new BufferManager(storageManager);
-            updateCaptionTracks(((DvrStorageManager) storageManager).readCaptionInfoFiles());
+            updateCaptionTracks(storageManager.readCaptionInfoFiles());
         } else if (!mTrickplayDisabledByStorageIssue
                 && mTrickplaySetting != TunerPreferences.TRICKPLAY_SETTING_DISABLED
                 && mMaxTrickplayBufferSizeMb >= MIN_BUFFER_SIZE_DEF) {
@@ -1739,7 +1741,7 @@ public class TunerSessionWorkerExoV2 implements
     }
 
     private void doReschedulePrograms() {
-        long currentPositionMs = getCurrentPosition();
+        @SuppressLint("WrongThread") long currentPositionMs = getCurrentPosition();
         long forwardDifference =
                 Math.abs(currentPositionMs - mLastPositionMs - RESCHEDULE_PROGRAMS_INTERVAL_MS);
         mLastPositionMs = currentPositionMs;
@@ -1871,7 +1873,7 @@ public class TunerSessionWorkerExoV2 implements
             }
             return null;
         }
-        long currentTimeMs = getCurrentPosition();
+        @SuppressLint("WrongThread") long currentTimeMs = getCurrentPosition();
         for (EitItem item : mPrograms) {
             if (item.getStartTimeUtcMillis() <= currentTimeMs
                     && item.getEndTimeUtcMillis() >= currentTimeMs) {
