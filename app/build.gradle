@@ -102,6 +102,33 @@ dependencies {
     implementation 'androidx.tvprovider:tvprovider:1.0.0'
 
     implementation 'com.android.support:support-annotations:28.0.0'
+
+    annotationProcessor 'com.google.auto.factory:auto-factory:1.0.1'
+    //noinspection AnnotationProcessorOnCompilePath
+    implementation 'com.google.auto.factory:auto-factory:1.0.1'
+
+    implementation 'com.google.dagger:dagger:2.35.1'
+    implementation 'com.google.dagger:dagger-android:2.35.1'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.23'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.23'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+    implementation 'androidx.core:core:1.7.0'
+    implementation 'androidx.palette:palette:1.0.0'
+    implementation 'androidx.leanback:leanback:1.2.0-alpha02'
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
+    implementation 'androidx.tvprovider:tvprovider:1.0.0'
+
+//    implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
+    //noinspection GradleDependency
+    implementation 'com.google.android.exoplayer:exoplayer:r1.5.16'
+    //noinspection GradleDependency
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.10.1'
+    //noinspection GradleDependency
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.10.1'
+    //noinspection GradleDependency
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.10.1'
+
 }
 
 protobuf {
