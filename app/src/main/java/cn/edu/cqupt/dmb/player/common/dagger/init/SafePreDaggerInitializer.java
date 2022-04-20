@@ -24,21 +24,18 @@ import android.util.Log;
  * <p>This is needed because ContentProviders can be created before Application.onCreate
  */
 public final class SafePreDaggerInitializer {
-    private interface Initialize {
-        void init(Context context);
-    }
-
     private static final String TAG = "SafePreDaggerInitializer";
-
-    private static boolean initialized = false;
-    private static Context oldContext;
-
     private static final Initialize[] sList =
             new Initialize[]{
                     /* Begin_AOSP_Comment_Out
                     com.google.android.libraries.phenotype.client.PhenotypeContext::setContext
                     End_AOSP_Comment_Out */
             };
+    private static boolean initialized = false;
+    private static Context oldContext;
+
+    private SafePreDaggerInitializer() {
+    }
 
     public static synchronized void init(Context context) {
         if (!initialized) {
@@ -57,6 +54,7 @@ public final class SafePreDaggerInitializer {
         }
     }
 
-    private SafePreDaggerInitializer() {
+    private interface Initialize {
+        void init(Context context);
     }
 }

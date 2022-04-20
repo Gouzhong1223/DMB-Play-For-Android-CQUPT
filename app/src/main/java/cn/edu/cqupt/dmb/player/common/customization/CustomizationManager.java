@@ -24,15 +24,12 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-
-import android.text.TextUtils;
-import android.util.Log;
-
-import cn.edu.cqupt.dmb.player.common.CommonConstants;
 
 import com.google.common.collect.Iterables;
 
@@ -44,38 +41,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.edu.cqupt.dmb.player.common.CommonConstants;
+
 public class CustomizationManager {
-    private static final String TAG = "CustomizationManager";
-    private static final boolean DEBUG = false;
-
-    private static final String[] CUSTOMIZE_PERMISSIONS = {
-            CommonConstants.BASE_PACKAGE + ".permission.CUSTOMIZE_TV_APP"
-    };
-
-    private static final String CATEGORY_TV_CUSTOMIZATION =
-            CommonConstants.BASE_PACKAGE + ".category";
-
     /**
      * Row IDs to share customized actions. Only rows listed below can have customized action.
      */
     public static final String ID_OPTIONS_ROW = "options_row";
-
     public static final String ID_PARTNER_ROW = "partner_row";
-
-    @IntDef({TRICKPLAY_MODE_ENABLED, TRICKPLAY_MODE_DISABLED, TRICKPLAY_MODE_USE_EXTERNAL_STORAGE})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface TRICKPLAY_MODE {
-    }
-
     public static final int TRICKPLAY_MODE_ENABLED = 0;
     public static final int TRICKPLAY_MODE_DISABLED = 1;
     public static final int TRICKPLAY_MODE_USE_EXTERNAL_STORAGE = 2;
-
+    private static final String TAG = "CustomizationManager";
+    private static final boolean DEBUG = false;
+    private static final String[] CUSTOMIZE_PERMISSIONS = {
+            CommonConstants.BASE_PACKAGE + ".permission.CUSTOMIZE_TV_APP"
+    };
+    private static final String CATEGORY_TV_CUSTOMIZATION =
+            CommonConstants.BASE_PACKAGE + ".category";
     private static final String[] TRICKPLAY_MODE_STRINGS = {
             "enabled", "disabled", "use_external_storage_only"
     };
-
     private static final HashMap<String, String> INTENT_CATEGORY_TO_ROW_ID;
+    private static final String RES_ID_PARTNER_ROW_TITLE = "partner_row_title";
+    private static final String RES_ID_HAS_LINUX_DVB_BUILT_IN_TUNER =
+            "has_linux_dvb_built_in_tuner";
+    private static final String RES_ID_TRICKPLAY_MODE = "trickplay_mode";
+    private static final String RES_TYPE_STRING = "string";
+    private static final String RES_TYPE_BOOLEAN = "bool";
+    private static String sCustomizationPackage;
+    private static Boolean sHasLinuxDvbBuiltInTuner;
+    private static @TRICKPLAY_MODE
+    Integer sTrickplayMode;
 
     static {
         INTENT_CATEGORY_TO_ROW_ID = new HashMap<>();
@@ -83,25 +80,11 @@ public class CustomizationManager {
         INTENT_CATEGORY_TO_ROW_ID.put(CATEGORY_TV_CUSTOMIZATION + ".PARTNER_ROW", ID_PARTNER_ROW);
     }
 
-    private static final String RES_ID_PARTNER_ROW_TITLE = "partner_row_title";
-    private static final String RES_ID_HAS_LINUX_DVB_BUILT_IN_TUNER =
-            "has_linux_dvb_built_in_tuner";
-    private static final String RES_ID_TRICKPLAY_MODE = "trickplay_mode";
-
-    private static final String RES_TYPE_STRING = "string";
-    private static final String RES_TYPE_BOOLEAN = "bool";
-
-    private static String sCustomizationPackage;
-    private static Boolean sHasLinuxDvbBuiltInTuner;
-    private static @TRICKPLAY_MODE
-    Integer sTrickplayMode;
-
     private final Context mContext;
+    private final Map<String, List<CustomAction>> mRowIdToCustomActionsMap = new HashMap<>();
     private boolean mInitialized;
 
     private String mPartnerRowTitle;
-    private final Map<String, List<CustomAction>> mRowIdToCustomActionsMap = new HashMap<>();
-
     public CustomizationManager(Context context) {
         mContext = context;
         mInitialized = false;
@@ -300,5 +283,10 @@ public class CustomizationManager {
      */
     public String getPartnerRowTitle() {
         return mPartnerRowTitle;
+    }
+
+    @IntDef({TRICKPLAY_MODE_ENABLED, TRICKPLAY_MODE_DISABLED, TRICKPLAY_MODE_USE_EXTERNAL_STORAGE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface TRICKPLAY_MODE {
     }
 }

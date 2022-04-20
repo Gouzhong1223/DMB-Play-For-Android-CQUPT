@@ -37,20 +37,6 @@ public final class ScanChannel {
      */
     public final Integer radioFrequencyNumber;
 
-    public static ScanChannel forTuner(
-            String deliverySystemType, int frequency, String modulation,
-            Integer radioFrequencyNumber) {
-        return new ScanChannel(
-                Channel.TunerType.TYPE_TUNER_VALUE, lookupDeliveryStringToInt(deliverySystemType),
-                frequency, modulation, null, radioFrequencyNumber);
-    }
-
-    public static ScanChannel forFile(int frequency, String filename) {
-        return new ScanChannel(Channel.TunerType.TYPE_FILE_VALUE,
-                Channel.DeliverySystemType.DELIVERY_SYSTEM_UNDEFINED, frequency, "file:",
-                filename, null);
-    }
-
     private ScanChannel(
             int type,
             Channel.DeliverySystemType deliverySystemType,
@@ -64,6 +50,20 @@ public final class ScanChannel {
         this.modulation = modulation;
         this.filename = filename;
         this.radioFrequencyNumber = radioFrequencyNumber;
+    }
+
+    public static ScanChannel forTuner(
+            String deliverySystemType, int frequency, String modulation,
+            Integer radioFrequencyNumber) {
+        return new ScanChannel(
+                Channel.TunerType.TYPE_TUNER_VALUE, lookupDeliveryStringToInt(deliverySystemType),
+                frequency, modulation, null, radioFrequencyNumber);
+    }
+
+    public static ScanChannel forFile(int frequency, String filename) {
+        return new ScanChannel(Channel.TunerType.TYPE_FILE_VALUE,
+                Channel.DeliverySystemType.DELIVERY_SYSTEM_UNDEFINED, frequency, "file:",
+                filename, null);
     }
 
     private static Channel.DeliverySystemType lookupDeliveryStringToInt(String deliverySystemType) {

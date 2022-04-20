@@ -16,10 +16,10 @@
 
 package cn.edu.cqupt.dmb.player.tuner.source;
 
-import cn.edu.cqupt.dmb.player.common.compat.TvInputConstantCompat;
-
 import com.google.android.exoplayer.extractor.ts.TsExtractor;
 import com.google.android.exoplayer2.upstream.DataSource;
+
+import cn.edu.cqupt.dmb.player.common.compat.TvInputConstantCompat;
 
 /**
  * {@link DataSource} for MPEG-TS stream, which will be used by {@link TsExtractor}.

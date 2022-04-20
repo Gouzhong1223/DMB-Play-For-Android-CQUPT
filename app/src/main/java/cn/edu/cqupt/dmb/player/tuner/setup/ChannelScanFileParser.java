@@ -18,8 +18,6 @@ package cn.edu.cqupt.dmb.player.tuner.setup;
 
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.tuner.api.ScanChannel;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,11 +25,16 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.edu.cqupt.dmb.player.tuner.api.ScanChannel;
+
 /**
  * Parses plain text formatted scan files, which contain the list of channels.
  */
 public final class ChannelScanFileParser {
     private static final String TAG = "ChannelScanFileParser";
+
+    private ChannelScanFileParser() {
+    }
 
     /**
      * Parses a given scan file and returns the list of {@link ScanChannel} objects.
@@ -69,8 +72,5 @@ public final class ChannelScanFileParser {
             Log.e(TAG, "error on parseScanFile()", e);
         }
         return scanChannelList;
-    }
-
-    private ChannelScanFileParser() {
     }
 }

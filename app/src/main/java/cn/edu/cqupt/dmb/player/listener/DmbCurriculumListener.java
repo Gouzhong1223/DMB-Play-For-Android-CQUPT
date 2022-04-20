@@ -19,17 +19,14 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  */
 public class DmbCurriculumListener implements DmbListener {
 
-    private static final String TAG = "DmbCurriculumListener";
-
     public static final int MESSAGE_UPDATE_PICTURE = 0x100;
-
+    private static final String TAG = "DmbCurriculumListener";
     private final Handler handler;
-    private Integer length;
-
     /**
      * 文件缓冲区
      */
     private final byte[] fileBuffer = new byte[1024 * 1024 * 2];
+    private Integer length;
 
     public DmbCurriculumListener(Handler handler) {
         this.handler = handler;

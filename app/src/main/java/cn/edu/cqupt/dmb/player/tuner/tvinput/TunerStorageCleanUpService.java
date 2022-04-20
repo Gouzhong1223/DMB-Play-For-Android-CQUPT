@@ -26,15 +26,15 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.BaseApplication;
-import cn.edu.cqupt.dmb.player.common.recording.RecordingStorageStatusManager;
-import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import cn.edu.cqupt.dmb.player.common.BaseApplication;
+import cn.edu.cqupt.dmb.player.common.recording.RecordingStorageStatusManager;
+import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
 
 /**
  * Creates {@link JobService} to clean up recorded program files which are not referenced from

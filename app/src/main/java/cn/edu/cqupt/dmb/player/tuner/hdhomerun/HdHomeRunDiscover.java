@@ -16,10 +16,10 @@
 
 package cn.edu.cqupt.dmb.player.tuner.hdhomerun;
 
-import androidx.annotation.NonNull;
-
 import android.util.Log;
 import android.util.Pair;
+
+import androidx.annotation.NonNull;
 
 import java.io.IOException;
 import java.net.DatagramPacket;

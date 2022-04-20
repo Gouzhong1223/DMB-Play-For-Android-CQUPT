@@ -20,13 +20,13 @@ import android.content.Context;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.compat.TvInputConstantCompat;
-import cn.edu.cqupt.dmb.player.tuner.TunerHal;
-import cn.edu.cqupt.dmb.player.tuner.dvb.DvbDeviceAccessor.DvbDeviceInfoWrapper;
-
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import cn.edu.cqupt.dmb.player.common.compat.TvInputConstantCompat;
+import cn.edu.cqupt.dmb.player.tuner.TunerHal;
+import cn.edu.cqupt.dmb.player.tuner.dvb.DvbDeviceAccessor.DvbDeviceInfoWrapper;
 
 /**
  * A class to handle a hardware Linux DVB API supported tuner device.
@@ -48,6 +48,17 @@ public class DvbTunerHal extends TunerHal {
     public DvbTunerHal(Context context) {
         super(context);
         mDvbDeviceAccessor = new DvbDeviceAccessor(context);
+    }
+
+    /**
+     * Gets the number of USB tuner devices currently present.
+     */
+    public static int getNumberOfDevices(Context context) {
+        try {
+            return (new DvbDeviceAccessor(context)).getNumOfDvbDevices();
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     @Override
@@ -175,17 +186,6 @@ public class DvbTunerHal extends TunerHal {
             }
         }
         return -1;
-    }
-
-    /**
-     * Gets the number of USB tuner devices currently present.
-     */
-    public static int getNumberOfDevices(Context context) {
-        try {
-            return (new DvbDeviceAccessor(context)).getNumOfDvbDevices();
-        } catch (Exception e) {
-            return 0;
-        }
     }
 
     @Override

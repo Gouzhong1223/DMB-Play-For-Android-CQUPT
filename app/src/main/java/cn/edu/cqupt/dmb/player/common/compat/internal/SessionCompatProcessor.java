@@ -18,11 +18,11 @@ package cn.edu.cqupt.dmb.player.common.compat.internal;
 import android.os.Bundle;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.compat.api.SessionEventNotifier;
-
 import com.google.protobuf.GeneratedMessageLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Parser;
+
+import cn.edu.cqupt.dmb.player.common.compat.api.SessionEventNotifier;
 
 /**
  * Sends {@code events} to the TV App via {@link SessionEventNotifier} and receives {@code commands}

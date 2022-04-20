@@ -17,26 +17,23 @@
 package cn.edu.cqupt.dmb.player.tuner.setup;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-
 import android.text.InputFilter;
 import android.text.InputFilter.AllCaps;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.widget.GuidanceStylist.Guidance;
 import androidx.leanback.widget.GuidedAction;
 import androidx.leanback.widget.GuidedActionsStylist;
+
+import java.util.List;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupGuidedStepFragment;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupMultiPaneFragment;
 import cn.edu.cqupt.dmb.player.common.util.LocationUtils;
 import cn.edu.cqupt.dmb.player.common.util.PostalCodeUtils;
-
-
-import java.util.List;
 
 /**
  * A fragment for users to enter postal code.

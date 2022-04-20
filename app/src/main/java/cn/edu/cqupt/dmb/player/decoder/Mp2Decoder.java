@@ -25,17 +25,17 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  */
 public class Mp2Decoder extends Thread {
     private static final String TAG = "Mp2Decoder";
-    private AudioTrack audioTrack;
-    private byte[] mp2Buffer;
-    private byte[] pcmBuffer;
-    private final DmbListener dmbListener;
     private static final BufferedInputStream bufferedInputStream;
-
     private static final PipedInputStream pipedInputStream = new PipedInputStream(1024 * 2);
 
     static {
         bufferedInputStream = new BufferedInputStream(pipedInputStream);
     }
+
+    private final DmbListener dmbListener;
+    private AudioTrack audioTrack;
+    private byte[] mp2Buffer;
+    private byte[] pcmBuffer;
 
     public Mp2Decoder(DmbListener dmbListener) {
         this.dmbListener = dmbListener;

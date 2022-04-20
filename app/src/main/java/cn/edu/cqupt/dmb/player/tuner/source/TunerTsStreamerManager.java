@@ -20,13 +20,6 @@ import android.content.Context;
 
 import androidx.annotation.VisibleForTesting;
 
-import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
-import cn.edu.cqupt.dmb.player.common.util.AutoCloseableUtils;
-import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
-import cn.edu.cqupt.dmb.player.tuner.api.TunerFactory;
-import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
-import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector.EventListener;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,6 +28,13 @@ import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
+import cn.edu.cqupt.dmb.player.common.util.AutoCloseableUtils;
+import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
+import cn.edu.cqupt.dmb.player.tuner.api.TunerFactory;
+import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
+import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector.EventListener;
 
 /**
  * Manages {@link TunerTsStreamer} for playback and recording. The class hides handling of {@link
@@ -185,6 +185,65 @@ public class TunerTsStreamerManager {
     }
 
     /**
+     * Supports sharing {@link Tuner} among multiple sessions. The class also supports session
+     * affinity for {@link Tuner} allocation.
+     */
+    private static class TunerHalManager {
+        private final Map<Integer, Tuner> mTunerHals = new HashMap<>();
+        private final TunerFactory mTunerFactory;
+
+        private TunerHalManager(TunerFactory mTunerFactory) {
+            this.mTunerFactory = mTunerFactory;
+        }
+
+        private Tuner getOrCreateTunerHal(Context context, int sessionId) {
+            // Handles session affinity.
+            Tuner hal = mTunerHals.get(sessionId);
+            if (hal != null) {
+                mTunerHals.remove(sessionId);
+                return hal;
+            }
+            // Finds a TunerHal which is cached for other sessions.
+            Iterator it = mTunerHals.keySet().iterator();
+            if (it.hasNext()) {
+                Integer key = (Integer) it.next();
+                hal = mTunerHals.get(key);
+                mTunerHals.remove(key);
+                return hal;
+            }
+            return mTunerFactory.createInstance(context);
+        }
+
+        private void releaseTunerHal(Tuner hal, int sessionId, boolean reuse) {
+            if (!reuse || !hal.isReusable()) {
+                AutoCloseableUtils.closeQuietly(hal);
+                return;
+            }
+            Tuner cachedHal = mTunerHals.get(sessionId);
+            if (cachedHal != hal) {
+                mTunerHals.put(sessionId, hal);
+                if (cachedHal != null) {
+                    AutoCloseableUtils.closeQuietly(cachedHal);
+                }
+            }
+        }
+
+        private void releaseCachedHal(int sessionId) {
+            Tuner hal = mTunerHals.get(sessionId);
+            if (hal != null) {
+                mTunerHals.remove(sessionId);
+            }
+            if (hal != null) {
+                AutoCloseableUtils.closeQuietly(hal);
+            }
+        }
+
+        private void addTunerHal(Tuner tunerHal, int sessionId) {
+            mTunerHals.put(sessionId, tunerHal);
+        }
+    }
+
+    /**
      * {@link TunerTsStreamer} creation can be cancelled by a new tune request for the same session.
      * The class supports the cancellation in creating new {@link TunerTsStreamer}.
      */
@@ -246,65 +305,6 @@ public class TunerTsStreamerManager {
         // @GuardedBy("mCancelLock")
         private boolean isCancelledLocked() {
             return mCancelled;
-        }
-    }
-
-    /**
-     * Supports sharing {@link Tuner} among multiple sessions. The class also supports session
-     * affinity for {@link Tuner} allocation.
-     */
-    private static class TunerHalManager {
-        private final Map<Integer, Tuner> mTunerHals = new HashMap<>();
-        private final TunerFactory mTunerFactory;
-
-        private TunerHalManager(TunerFactory mTunerFactory) {
-            this.mTunerFactory = mTunerFactory;
-        }
-
-        private Tuner getOrCreateTunerHal(Context context, int sessionId) {
-            // Handles session affinity.
-            Tuner hal = mTunerHals.get(sessionId);
-            if (hal != null) {
-                mTunerHals.remove(sessionId);
-                return hal;
-            }
-            // Finds a TunerHal which is cached for other sessions.
-            Iterator it = mTunerHals.keySet().iterator();
-            if (it.hasNext()) {
-                Integer key = (Integer) it.next();
-                hal = mTunerHals.get(key);
-                mTunerHals.remove(key);
-                return hal;
-            }
-            return mTunerFactory.createInstance(context);
-        }
-
-        private void releaseTunerHal(Tuner hal, int sessionId, boolean reuse) {
-            if (!reuse || !hal.isReusable()) {
-                AutoCloseableUtils.closeQuietly(hal);
-                return;
-            }
-            Tuner cachedHal = mTunerHals.get(sessionId);
-            if (cachedHal != hal) {
-                mTunerHals.put(sessionId, hal);
-                if (cachedHal != null) {
-                    AutoCloseableUtils.closeQuietly(cachedHal);
-                }
-            }
-        }
-
-        private void releaseCachedHal(int sessionId) {
-            Tuner hal = mTunerHals.get(sessionId);
-            if (hal != null) {
-                mTunerHals.remove(sessionId);
-            }
-            if (hal != null) {
-                AutoCloseableUtils.closeQuietly(hal);
-            }
-        }
-
-        private void addTunerHal(Tuner tunerHal, int sessionId) {
-            mTunerHals.put(sessionId, tunerHal);
         }
     }
 }

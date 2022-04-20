@@ -19,16 +19,14 @@ package cn.edu.cqupt.dmb.player.tuner.setup;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-
 import androidx.leanback.widget.GuidanceStylist.Guidance;
 import androidx.leanback.widget.GuidedAction;
+
+import java.util.List;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupGuidedStepFragment;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupMultiPaneFragment;
-
-
-import java.util.List;
 
 /**
  * A fragment for connection type selection.

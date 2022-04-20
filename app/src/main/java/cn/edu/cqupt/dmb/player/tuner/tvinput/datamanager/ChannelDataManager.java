@@ -29,18 +29,11 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.os.RemoteException;
-
 import android.text.format.DateUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import cn.edu.cqupt.dmb.player.common.util.PermissionUtils;
-import cn.edu.cqupt.dmb.player.tuner.data.PsipData.EitItem;
-import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
-import cn.edu.cqupt.dmb.player.tuner.prefs.TunerPreferences;
-import cn.edu.cqupt.dmb.player.tuner.util.ConvertUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,6 +46,12 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import cn.edu.cqupt.dmb.player.common.util.PermissionUtils;
+import cn.edu.cqupt.dmb.player.tuner.data.PsipData.EitItem;
+import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
+import cn.edu.cqupt.dmb.player.tuner.prefs.TunerPreferences;
+import cn.edu.cqupt.dmb.player.tuner.util.ConvertUtils;
 
 /**
  * Manages the channel info and EPG data for a specific inputId.
@@ -104,56 +103,19 @@ public class ChannelDataManager implements Handler.Callback {
 
     private final Context mContext;
     private final String mInputId;
-    private ProgramInfoListener mListener;
-    private ChannelHandlingDoneListener mChannelHandlingDoneListener;
-    private Handler mChannelScanHandler;
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
     private final ConcurrentHashMap<Long, TunerChannel> mTunerChannelMap;
     private final ConcurrentSkipListMap<TunerChannel, Long> mTunerChannelIdMap;
     private final Uri mChannelsUri;
-
     // Used for scanning
     private final ConcurrentSkipListSet<TunerChannel> mScannedChannels;
     private final ConcurrentSkipListSet<TunerChannel> mPreviousScannedChannels;
     private final AtomicBoolean mIsScanning;
     private final AtomicBoolean scanCompleted = new AtomicBoolean();
-
-    public interface ProgramInfoListener {
-
-        /**
-         * Invoked when a request for getting programs of a channel has been processed and passes
-         * the requested channel and the programs retrieved from database to the listener.
-         */
-        void onRequestProgramsResponse(TunerChannel channel, List<EitItem> programs);
-
-        /**
-         * Invoked when programs of a channel have been arrived and passes the arrived channel and
-         * programs to the listener.
-         */
-        void onProgramsArrived(TunerChannel channel, List<EitItem> programs);
-
-        /**
-         * Invoked when a channel has been arrived and passes the arrived channel to the listener.
-         */
-        void onChannelArrived(TunerChannel channel);
-
-        /**
-         * Invoked when the database schema has been changed and the old-format channels have been
-         * deleted. A receiver should notify to a user that re-scanning channels is necessary.
-         */
-        void onRescanNeeded();
-    }
-
-    /**
-     * Listens for all channel handling to be done.
-     */
-    public interface ChannelHandlingDoneListener {
-        /**
-         * Invoked when all pending channels have been handled.
-         */
-        void onChannelHandlingDone();
-    }
+    private ProgramInfoListener mListener;
+    private ChannelHandlingDoneListener mChannelHandlingDoneListener;
+    private Handler mChannelScanHandler;
 
     public ChannelDataManager(Context context, String inputId) {
         mContext = context;
@@ -264,8 +226,6 @@ public class ChannelDataManager implements Handler.Callback {
         }
     }
 
-    // For scanning process
-
     /**
      * Invoked when starting a scanning mode. This method gets the previous channels to detect the
      * obsolete channels after scanning and initializes the variables used for scanning.
@@ -299,6 +259,8 @@ public class ChannelDataManager implements Handler.Callback {
         scanCompleted.set(true);
         mHandler.sendMessageAtFrontOfQueue(mHandler.obtainMessage(MSG_HANDLE_CHANNEL, null));
     }
+
+    // For scanning process
 
     public void scannedChannelHandlingCompleted() {
         mIsScanning.set(false);
@@ -784,6 +746,42 @@ public class ChannelDataManager implements Handler.Callback {
             mTunerChannelMap.put(channel.getChannelId(), channel);
             mTunerChannelIdMap.put(channel, channel.getChannelId());
         }
+    }
+
+    public interface ProgramInfoListener {
+
+        /**
+         * Invoked when a request for getting programs of a channel has been processed and passes
+         * the requested channel and the programs retrieved from database to the listener.
+         */
+        void onRequestProgramsResponse(TunerChannel channel, List<EitItem> programs);
+
+        /**
+         * Invoked when programs of a channel have been arrived and passes the arrived channel and
+         * programs to the listener.
+         */
+        void onProgramsArrived(TunerChannel channel, List<EitItem> programs);
+
+        /**
+         * Invoked when a channel has been arrived and passes the arrived channel to the listener.
+         */
+        void onChannelArrived(TunerChannel channel);
+
+        /**
+         * Invoked when the database schema has been changed and the old-format channels have been
+         * deleted. A receiver should notify to a user that re-scanning channels is necessary.
+         */
+        void onRescanNeeded();
+    }
+
+    /**
+     * Listens for all channel handling to be done.
+     */
+    public interface ChannelHandlingDoneListener {
+        /**
+         * Invoked when all pending channels have been handled.
+         */
+        void onChannelHandlingDone();
     }
 
     private static class ChannelEvent {

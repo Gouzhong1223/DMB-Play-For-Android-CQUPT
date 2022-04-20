@@ -23,6 +23,12 @@ package cn.edu.cqupt.dmb.player.common.buildtype;
 public interface HasBuildType {
 
     /**
+     * @deprecated use injection instead.
+     */
+    @Deprecated
+    BuildType getBuildType();
+
+    /**
      * Compile time constant for build type.
      */
     enum BuildType {
@@ -31,10 +37,4 @@ public interface HasBuildType {
         NO_JNI_TEST,
         PROD
     }
-
-    /**
-     * @deprecated use injection instead.
-     */
-    @Deprecated
-    BuildType getBuildType();
 }

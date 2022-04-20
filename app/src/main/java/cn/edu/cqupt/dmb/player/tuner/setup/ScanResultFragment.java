@@ -21,18 +21,16 @@ import android.content.res.Resources;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-
 import androidx.leanback.widget.GuidanceStylist.Guidance;
 import androidx.leanback.widget.GuidedAction;
+
+import java.util.List;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupGuidedStepFragment;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupMultiPaneFragment;
-
 import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
 import cn.edu.cqupt.dmb.player.tuner.prefs.TunerPreferences;
-
-import java.util.List;
 
 /**
  * A fragment to show found channels.

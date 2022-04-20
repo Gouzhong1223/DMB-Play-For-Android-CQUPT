@@ -22,8 +22,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.tuner.tvinput.debug.TunerDebug;
-
 import com.google.android.exoplayer.CodecCounters;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaClock;
@@ -40,6 +38,8 @@ import com.google.android.exoplayer.util.MimeTypes;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+
+import cn.edu.cqupt.dmb.player.tuner.tvinput.debug.TunerDebug;
 
 /**
  * Decodes and renders DTV audio. Supports MediaCodec based decoding, passthrough playback and
@@ -58,50 +58,31 @@ public class MpegTsDefaultAudioTrackRenderer extends TrackRenderer implements Me
     // MPEG-1 audio Layer II and III has 1152 frames per sample.
     // 1152 frames duration is 24ms when sample rate is 48Khz.
     static final long MP2_SAMPLE_DURATION_US = 24000;
-
-    // This is around 150ms, 150ms is big enough not to under-run AudioTrack,
-    // and  150ms is also small enough to fill the buffer rapidly.
-    static int BUFFERED_SAMPLES_IN_AUDIOTRACK = 5;
-    public static final long INITIAL_AUDIO_BUFFERING_TIME_US =
-            BUFFERED_SAMPLES_IN_AUDIOTRACK * AC3_SAMPLE_DURATION_US;
-
     private static final String TAG = "MpegTsDefaultAudioTrac";
     private static final boolean DEBUG = false;
-
-    /**
-     * Interface definition for a callback to be notified of {@link
-     * AudioTrack} error.
-     */
-    public interface EventListener {
-        void onAudioTrackInitializationError(AudioTrack.InitializationException e);
-
-        void onAudioTrackWriteError(AudioTrack.WriteException e);
-    }
-
     private static final int DEFAULT_INPUT_BUFFER_SIZE = 16384 * 2;
     private static final int DEFAULT_OUTPUT_BUFFER_SIZE = 1024 * 1024;
     private static final int MONITOR_DURATION_MS = 1000;
     private static final int AC3_HEADER_BITRATE_OFFSET = 4;
     private static final int MP2_HEADER_BITRATE_OFFSET = 2;
     private static final int MP2_HEADER_BITRATE_MASK = 0xfc;
-
     // Keep this as static in order to prevent new framework AudioTrack creation
     // while old AudioTrack is being released.
     private static final AudioTrackWrapper AUDIO_TRACK = new AudioTrackWrapper();
     private static final long KEEP_ALIVE_AFTER_EOS_DURATION_MS = 3000;
-
     // Ignore AudioTrack backward movement if duration of movement is below the threshold.
     private static final long BACKWARD_AUDIO_TRACK_MOVE_THRESHOLD_US = 3000;
-
     // AudioTrack position cannot go ahead beyond this limit.
     private static final long CURRENT_POSITION_FROM_PTS_LIMIT_US = 1000000;
-
     // Since MediaCodec processing and AudioTrack playing add delay,
     // PTS interpolated time should be delayed reasonably when AudioTrack is not used.
     private static final long ESTIMATED_TRACK_RENDERING_DELAY_US = 500000;
-
+    // This is around 150ms, 150ms is big enough not to under-run AudioTrack,
+    // and  150ms is also small enough to fill the buffer rapidly.
+    static int BUFFERED_SAMPLES_IN_AUDIOTRACK = 5;
+    public static final long INITIAL_AUDIO_BUFFERING_TIME_US =
+            BUFFERED_SAMPLES_IN_AUDIOTRACK * AC3_SAMPLE_DURATION_US;
     private final MediaCodecSelector mSelector;
-
     private final CodecCounters mCodecCounters;
     private final SampleSource.SampleSourceReader mSource;
     private final MediaFormatHolder mFormatHolder;
@@ -109,13 +90,13 @@ public class MpegTsDefaultAudioTrackRenderer extends TrackRenderer implements Me
     private final Handler mEventHandler;
     private final AudioTrackMonitor mMonitor;
     private final AudioClock mAudioClock;
-
+    private final ByteBuffer mOutputBuffer;
+    private final ArrayList<Integer> mTracksIndex;
     private MediaFormat mFormat;
     private SampleHolder mSampleHolder;
     private String mDecodingMime;
     private boolean mFormatConfigured;
     private int mSampleSize;
-    private final ByteBuffer mOutputBuffer;
     private AudioDecoder mAudioDecoder;
     private boolean mOutputReady;
     private int mTrackIndex;
@@ -131,9 +112,7 @@ public class MpegTsDefaultAudioTrackRenderer extends TrackRenderer implements Me
     private boolean mIsStopped;
     private boolean mEnabled = true;
     private boolean mIsMuted;
-    private final ArrayList<Integer> mTracksIndex;
     private boolean mUseFrameworkDecoder;
-
     public MpegTsDefaultAudioTrackRenderer(
             SampleSource source,
             MediaCodecSelector selector,
@@ -705,5 +684,15 @@ public class MpegTsDefaultAudioTrackRenderer extends TrackRenderer implements Me
             // the current position. If not, AUDIO_TRACK has the obsolete data.
             seekTo(mAudioClock.getPositionUs());
         }
+    }
+
+    /**
+     * Interface definition for a callback to be notified of {@link
+     * AudioTrack} error.
+     */
+    public interface EventListener {
+        void onAudioTrackInitializationError(AudioTrack.InitializationException e);
+
+        void onAudioTrackWriteError(AudioTrack.WriteException e);
     }
 }

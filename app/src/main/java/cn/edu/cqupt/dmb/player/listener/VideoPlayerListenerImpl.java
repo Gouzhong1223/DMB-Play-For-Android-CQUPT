@@ -22,6 +22,15 @@ public class VideoPlayerListenerImpl implements VideoPlayerListener {
 
     private final VideoPlayerFrame videoPlayerFrame;
 
+    /**
+     * 构造方法,返回监听器实例
+     *
+     * @param videoPlayerFrame 自定义的 TS 播放器 View
+     */
+    public VideoPlayerListenerImpl(VideoPlayerFrame videoPlayerFrame) {
+        this.videoPlayerFrame = videoPlayerFrame;
+    }
+
     @Override
     public void onBufferingUpdate(IMediaPlayer iMediaPlayer, int i) {
         Log.i(TAG, "onBufferingUpdate i = " + i);
@@ -60,14 +69,5 @@ public class VideoPlayerListenerImpl implements VideoPlayerListener {
     @Override
     public void onVideoSizeChanged(IMediaPlayer iMediaPlayer, int i, int i1, int i2, int i3) {
         Log.i(TAG, "onVideoSizeChanged");
-    }
-
-    /**
-     * 构造方法,返回监听器实例
-     *
-     * @param videoPlayerFrame 自定义的 TS 播放器 View
-     */
-    public VideoPlayerListenerImpl(VideoPlayerFrame videoPlayerFrame) {
-        this.videoPlayerFrame = videoPlayerFrame;
     }
 }

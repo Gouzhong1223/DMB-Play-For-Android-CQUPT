@@ -19,14 +19,14 @@ package cn.edu.cqupt.dmb.player.tuner.source;
 import android.content.Context;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+
+import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
 
 /**
  * Stores TS files to the disk for debugging.
@@ -40,13 +40,12 @@ public class TsStreamWriter {
     private static final int MAX_GET_ID_RETRY_COUNT = 5;
     private static final int MAX_INSTANCE_ID = 10000;
     private static final String SEPARATOR = "_";
-
-    private FileOutputStream mFileOutputStream;
-    private long mFileStartTimeMs;
-    private String mFileName = null;
     private final String mDirectoryPath;
     private final File mDirectory;
     private final int mInstanceId;
+    private FileOutputStream mFileOutputStream;
+    private long mFileStartTimeMs;
+    private String mFileName = null;
     private TunerChannel mChannel;
 
     public TsStreamWriter(Context context) {
@@ -69,6 +68,31 @@ public class TsStreamWriter {
             }
             mInstanceId = generateInstanceId();
         }
+    }
+
+    /**
+     * Gets the instance ID of a given file.
+     *
+     * @param file the file whose TsStreamWriter ID is returned
+     * @return the TsStreamWriter ID of the file or NO_INSTANCE_ID if not available
+     */
+    private static int getFileId(File file) {
+        if (file == null || !file.isFile()) {
+            return NO_INSTANCE_ID;
+        }
+        String fileName = file.getName();
+        int lastSeparator = fileName.lastIndexOf(SEPARATOR);
+        if (!fileName.endsWith(".ts") || lastSeparator == -1) {
+            return NO_INSTANCE_ID;
+        }
+        try {
+            return Integer.parseInt(fileName.substring(lastSeparator + 1, fileName.length() - 3));
+        } catch (NumberFormatException e) {
+            if (DEBUG) {
+                Log.e(TAG, fileName + " is not a valid file name.");
+            }
+        }
+        return NO_INSTANCE_ID;
     }
 
     /**
@@ -215,30 +239,5 @@ public class TsStreamWriter {
             }
         }
         return idSet;
-    }
-
-    /**
-     * Gets the instance ID of a given file.
-     *
-     * @param file the file whose TsStreamWriter ID is returned
-     * @return the TsStreamWriter ID of the file or NO_INSTANCE_ID if not available
-     */
-    private static int getFileId(File file) {
-        if (file == null || !file.isFile()) {
-            return NO_INSTANCE_ID;
-        }
-        String fileName = file.getName();
-        int lastSeparator = fileName.lastIndexOf(SEPARATOR);
-        if (!fileName.endsWith(".ts") || lastSeparator == -1) {
-            return NO_INSTANCE_ID;
-        }
-        try {
-            return Integer.parseInt(fileName.substring(lastSeparator + 1, fileName.length() - 3));
-        } catch (NumberFormatException e) {
-            if (DEBUG) {
-                Log.e(TAG, fileName + " is not a valid file name.");
-            }
-        }
-        return NO_INSTANCE_ID;
     }
 }

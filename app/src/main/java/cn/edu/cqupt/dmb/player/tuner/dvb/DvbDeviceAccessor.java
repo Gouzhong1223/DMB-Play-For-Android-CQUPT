@@ -19,14 +19,11 @@ package cn.edu.cqupt.dmb.player.tuner.dvb;
 import android.content.Context;
 import android.media.tv.TvInputManager;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import android.util.Log;
-
-import cn.edu.cqupt.dmb.player.common.recording.RecordingCapability;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,25 +34,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import cn.edu.cqupt.dmb.player.common.recording.RecordingCapability;
+
 /**
  * Provides with the file descriptors to access DVB device.
  */
 public class DvbDeviceAccessor {
-    private static final String TAG = "DvbDeviceAccessor";
-
-    @IntDef({DVB_DEVICE_DEMUX, DVB_DEVICE_DVR, DVB_DEVICE_FRONTEND})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface DvbDevice {
-    }
-
     public static final int DVB_DEVICE_DEMUX = 0; // TvInputManager.DVB_DEVICE_DEMUX;
     public static final int DVB_DEVICE_DVR = 1; // TvInputManager.DVB_DEVICE_DVR;
     public static final int DVB_DEVICE_FRONTEND = 2; // TvInputManager.DVB_DEVICE_FRONTEND;
-
+    private static final String TAG = "DvbDeviceAccessor";
     private static Method sGetDvbDeviceListMethod;
     private static Method sOpenDvbDeviceMethod;
-
-    private final TvInputManager mTvInputManager;
 
     static {
         try {
@@ -73,6 +63,8 @@ public class DvbDeviceAccessor {
             Log.e(TAG, "Couldn't find method", e);
         }
     }
+
+    private final TvInputManager mTvInputManager;
 
     public DvbDeviceAccessor(Context context) {
         mTvInputManager = (TvInputManager) context.getSystemService(Context.TV_INPUT_SERVICE);
@@ -155,13 +147,14 @@ public class DvbDeviceAccessor {
                 .build();
     }
 
+    @IntDef({DVB_DEVICE_DEMUX, DVB_DEVICE_DVR, DVB_DEVICE_FRONTEND})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface DvbDevice {
+    }
+
     public static class DvbDeviceInfoWrapper implements Comparable<DvbDeviceInfoWrapper> {
         private static Method sGetAdapterIdMethod;
         private static Method sGetDeviceIdMethod;
-        private final Object mDvbDeviceInfo;
-        private final int mAdapterId;
-        private final int mDeviceId;
-        private final long mId;
 
         static {
             try {
@@ -176,6 +169,11 @@ public class DvbDeviceAccessor {
                 Log.e(TAG, "Couldn't find method", e);
             }
         }
+
+        private final Object mDvbDeviceInfo;
+        private final int mAdapterId;
+        private final int mDeviceId;
+        private final long mId;
 
         public DvbDeviceInfoWrapper(Object dvbDeviceInfo) {
             mDvbDeviceInfo = dvbDeviceInfo;

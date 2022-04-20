@@ -17,15 +17,12 @@
 package cn.edu.cqupt.dmb.player.common;
 
 import android.media.tv.TvContentRating;
-
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.memory.MemoryManageable;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.common.collect.ImmutableList;
 
@@ -35,6 +32,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import cn.edu.cqupt.dmb.player.common.memory.MemoryManageable;
+
 /**
  * TvContentRating cache.
  */
@@ -42,42 +41,14 @@ public final class TvContentRatingCache implements MemoryManageable {
     private static final String TAG = "TvContentRatings";
 
     private static final TvContentRatingCache INSTANCE = new TvContentRatingCache();
-
-    public static TvContentRatingCache getInstance() {
-        return INSTANCE;
-    }
-
     // @GuardedBy("TvContentRatingCache.this")
     private final Map<String, ImmutableList<TvContentRating>> mRatingsMultiMap = new ArrayMap<>();
 
-    /**
-     * Returns an array TvContentRatings from a string of comma separated set of rating strings
-     * creating each from {@link TvContentRating#unflattenFromString(String)} if needed or an empty
-     * list if the string is empty or contains no valid ratings.
-     */
-    public synchronized ImmutableList<TvContentRating> getRatings(
-            @Nullable String commaSeparatedRatings) {
-        if (TextUtils.isEmpty(commaSeparatedRatings)) {
-            return ImmutableList.of();
-        }
-        ImmutableList<TvContentRating> tvContentRatings;
-        if (mRatingsMultiMap.containsKey(commaSeparatedRatings)) {
-            tvContentRatings = mRatingsMultiMap.get(commaSeparatedRatings);
-        } else {
-            String normalizedRatings =
-                    TextUtils.join(",", getSortedSetFromCsv(commaSeparatedRatings));
-            if (mRatingsMultiMap.containsKey(normalizedRatings)) {
-                tvContentRatings = mRatingsMultiMap.get(normalizedRatings);
-            } else {
-                tvContentRatings = stringToContentRatings(commaSeparatedRatings);
-                mRatingsMultiMap.put(normalizedRatings, tvContentRatings);
-            }
-            if (!normalizedRatings.equals(commaSeparatedRatings)) {
-                // Add an entry so the non normalized entry points to the same result;
-                mRatingsMultiMap.put(commaSeparatedRatings, tvContentRatings);
-            }
-        }
-        return tvContentRatings;
+    private TvContentRatingCache() {
+    }
+
+    public static TvContentRatingCache getInstance() {
+        return INSTANCE;
     }
 
     /**
@@ -138,11 +109,38 @@ public final class TvContentRatingCache implements MemoryManageable {
         return TextUtils.join(",", ratingStrings);
     }
 
+    /**
+     * Returns an array TvContentRatings from a string of comma separated set of rating strings
+     * creating each from {@link TvContentRating#unflattenFromString(String)} if needed or an empty
+     * list if the string is empty or contains no valid ratings.
+     */
+    public synchronized ImmutableList<TvContentRating> getRatings(
+            @Nullable String commaSeparatedRatings) {
+        if (TextUtils.isEmpty(commaSeparatedRatings)) {
+            return ImmutableList.of();
+        }
+        ImmutableList<TvContentRating> tvContentRatings;
+        if (mRatingsMultiMap.containsKey(commaSeparatedRatings)) {
+            tvContentRatings = mRatingsMultiMap.get(commaSeparatedRatings);
+        } else {
+            String normalizedRatings =
+                    TextUtils.join(",", getSortedSetFromCsv(commaSeparatedRatings));
+            if (mRatingsMultiMap.containsKey(normalizedRatings)) {
+                tvContentRatings = mRatingsMultiMap.get(normalizedRatings);
+            } else {
+                tvContentRatings = stringToContentRatings(commaSeparatedRatings);
+                mRatingsMultiMap.put(normalizedRatings, tvContentRatings);
+            }
+            if (!normalizedRatings.equals(commaSeparatedRatings)) {
+                // Add an entry so the non normalized entry points to the same result;
+                mRatingsMultiMap.put(commaSeparatedRatings, tvContentRatings);
+            }
+        }
+        return tvContentRatings;
+    }
+
     @Override
     public synchronized void performTrimMemory(int level) {
         mRatingsMultiMap.clear();
-    }
-
-    private TvContentRatingCache() {
     }
 }

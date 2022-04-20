@@ -27,17 +27,14 @@ import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
  * A helper class for the tuner preferences.
  */
 public class TunerPreferences extends CommonPreferences {
+    public static final int CHANNEL_DATA_VERSION_NOT_SET = -1;
     private static final String TAG = "TunerPreferences";
-
     private static final String PREFS_KEY_CHANNEL_DATA_VERSION = "channel_data_version";
     private static final String PREFS_KEY_SCANNED_CHANNEL_COUNT = "scanned_channel_count";
     private static final String PREFS_KEY_SCAN_DONE = "scan_done";
     private static final String PREFS_KEY_TRICKPLAY_EXPIRED_MS = "trickplay_expired_ms";
-
     private static final String SHARED_PREFS_NAME =
             CommonConstants.BASE_PACKAGE + ".tuner.preferences";
-
-    public static final int CHANNEL_DATA_VERSION_NOT_SET = -1;
 
     protected static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);

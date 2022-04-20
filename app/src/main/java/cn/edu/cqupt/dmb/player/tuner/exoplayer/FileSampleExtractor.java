@@ -18,21 +18,19 @@ package cn.edu.cqupt.dmb.player.tuner.exoplayer;
 
 import android.os.Handler;
 
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.BufferManager;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.PlaybackBufferListener;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.RecordingSampleBuffer;
-
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
-//import com.google.android.exoplayer.MediaFormatUtil;
 import com.google.android.exoplayer.SampleHolder;
-import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.BufferManager;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.PlaybackBufferListener;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.RecordingSampleBuffer;
 
 /**
  * A class that plays a recorded stream without using {@link android.media.MediaExtractor}, since
@@ -41,26 +39,13 @@ import java.util.List;
 public class FileSampleExtractor implements SampleExtractor {
     private static final String TAG = "FileSampleExtractor";
     private static final boolean DEBUG = false;
-
-    private int mTrackCount;
-    private boolean mReleased;
-
     private final List<MediaFormat> mTrackFormats = new ArrayList<>();
     private final BufferManager mBufferManager;
     private final PlaybackBufferListener mBufferListener;
-    private BufferManager.SampleBuffer mSampleBuffer;
     private final RecordingSampleBuffer.Factory mRecordingSampleBufferFactory;
-
-    /**
-     * Factory for {@link FileSampleExtractor}}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        FileSampleExtractor create(
-                BufferManager bufferManager, PlaybackBufferListener bufferListener);
-    }
+    private int mTrackCount;
+    private boolean mReleased;
+    private BufferManager.SampleBuffer mSampleBuffer;
 
     @AutoFactory(implementing = Factory.class)
     public FileSampleExtractor(
@@ -159,5 +144,16 @@ public class FileSampleExtractor implements SampleExtractor {
 
     @Override
     public void setOnCompletionListener(OnCompletionListener listener, Handler handler) {
+    }
+
+    /**
+     * Factory for {@link FileSampleExtractor}}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        FileSampleExtractor create(
+                BufferManager bufferManager, PlaybackBufferListener bufferListener);
     }
 }

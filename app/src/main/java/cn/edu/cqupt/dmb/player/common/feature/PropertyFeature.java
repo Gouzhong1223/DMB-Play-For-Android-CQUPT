@@ -27,10 +27,6 @@ import cn.edu.cqupt.dmb.player.common.BooleanSystemProperty;
  */
 public final class PropertyFeature implements Feature {
 
-    public static PropertyFeature create(String key, boolean defaultValue) {
-        return new PropertyFeature(key, defaultValue);
-    }
-
     private final BooleanSystemProperty mProperty;
 
     /**
@@ -51,6 +47,10 @@ public final class PropertyFeature implements Feature {
                             + " characters.");
         }
         mProperty = new BooleanSystemProperty(key, defaultValue);
+    }
+
+    public static PropertyFeature create(String key, boolean defaultValue) {
+        return new PropertyFeature(key, defaultValue);
     }
 
     @Override

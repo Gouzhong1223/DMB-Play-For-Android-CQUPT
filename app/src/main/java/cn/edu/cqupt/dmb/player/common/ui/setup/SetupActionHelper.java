@@ -28,6 +28,9 @@ import android.view.View.OnClickListener;
 public class SetupActionHelper {
     private static final String TAG = "SetupActionHelper";
 
+    private SetupActionHelper() {
+    }
+
     /**
      * Executes the action.
      */
@@ -88,8 +91,5 @@ public class SetupActionHelper {
         public void onClick(View v) {
             SetupActionHelper.onActionClick(mFragment, mCategory, mActionId, mParams);
         }
-    }
-
-    private SetupActionHelper() {
     }
 }

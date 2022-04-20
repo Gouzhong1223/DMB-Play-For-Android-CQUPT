@@ -15,10 +15,9 @@
  */
 package cn.edu.cqupt.dmb.player.tuner.source;
 
-import cn.edu.cqupt.dmb.player.tuner.api.TunerFactory;
-
 import javax.inject.Singleton;
 
+import cn.edu.cqupt.dmb.player.tuner.api.TunerFactory;
 import dagger.Module;
 import dagger.Provides;
 

@@ -29,6 +29,9 @@ public final class Sdk {
 
     public static final Feature AT_LEAST_O = new AtLeast(VERSION_CODES.O);
 
+    private Sdk() {
+    }
+
     private static final class AtLeast implements Feature {
 
         private final int versionCode;
@@ -41,8 +44,5 @@ public final class Sdk {
         public boolean isEnabled(Context unused) {
             return VERSION.SDK_INT >= versionCode;
         }
-    }
-
-    private Sdk() {
     }
 }

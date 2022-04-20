@@ -22,13 +22,15 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.os.Bundle;
 import android.os.Handler;
-
-import androidx.annotation.NonNull;
-
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.widget.GuidanceStylist.Guidance;
 import androidx.leanback.widget.GuidedAction;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupActionHelper;
@@ -36,25 +38,18 @@ import cn.edu.cqupt.dmb.player.common.ui.setup.SetupGuidedStepFragment;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupMultiPaneFragment;
 import cn.edu.cqupt.dmb.player.common.util.LocationUtils;
 
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A fragment shows the rationale of location permission
  */
 public class LocationFragment extends SetupMultiPaneFragment {
-    private static final String TAG = "cn.edu.cqupt.dmb.player.tuner.setup.LocationFragment";
-    private static final boolean DEBUG = false;
-
     public static final String ACTION_CATEGORY = "cn.edu.cqupt.dmb.player.tuner.setup.LocationFragment";
     public static final String KEY_POSTAL_CODE = "key_postal_code";
-
     public static final int ACTION_ALLOW_PERMISSION = 1;
     public static final int ENTER_ZIP_CODE = 2;
     public static final int ACTION_GETTING_LOCATION = 3;
     public static final int GET_LOCATION_TIMEOUT_MS = 3000;
+    private static final String TAG = "cn.edu.cqupt.dmb.player.tuner.setup.LocationFragment";
+    private static final boolean DEBUG = false;
 
     @Override
     protected SetupGuidedStepFragment onCreateContentFragment() {
@@ -83,7 +78,13 @@ public class LocationFragment extends SetupMultiPaneFragment {
         private String mPostalCode;
         private boolean mPermissionGranted;
 
-        private final Runnable mTimeoutRunnable =
+        @NonNull
+        @Override
+        public Guidance onCreateGuidance(Bundle savedInstanceState) {
+            String title = getString(R.string.location_guidance_title);
+            String description = getString(R.string.location_guidance_description);
+            return new Guidance(title, description, getString(R.string.ut_setup_breadcrumb), null);
+        }        private final Runnable mTimeoutRunnable =
                 () -> {
                     synchronized (mPostalCodeLock) {
                         if (DEBUG) {
@@ -96,14 +97,6 @@ public class LocationFragment extends SetupMultiPaneFragment {
                         }
                     }
                 };
-
-        @NonNull
-        @Override
-        public Guidance onCreateGuidance(Bundle savedInstanceState) {
-            String title = getString(R.string.location_guidance_title);
-            String description = getString(R.string.location_guidance_description);
-            return new Guidance(title, description, getString(R.string.ut_setup_breadcrumb), null);
-        }
 
         @Override
         public void onCreateActions(
@@ -237,5 +230,7 @@ public class LocationFragment extends SetupMultiPaneFragment {
                         this, ACTION_CATEGORY, ACTION_ALLOW_PERMISSION, params);
             }
         }
+
+
     }
 }

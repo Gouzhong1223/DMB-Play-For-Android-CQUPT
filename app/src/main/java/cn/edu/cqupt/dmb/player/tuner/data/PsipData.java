@@ -21,15 +21,15 @@ import android.text.format.DateUtils;
 
 import androidx.annotation.NonNull;
 
-import cn.edu.cqupt.dmb.player.common.util.StringUtils;
-import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscAudioTrack;
-import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscCaptionTrack;
-import cn.edu.cqupt.dmb.player.tuner.util.ConvertUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import cn.edu.cqupt.dmb.player.common.util.StringUtils;
+import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscAudioTrack;
+import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscCaptionTrack;
+import cn.edu.cqupt.dmb.player.tuner.util.ConvertUtils;
 
 /**
  * Collection of ATSC PSIP table items.
@@ -39,22 +39,37 @@ public class PsipData {
     private PsipData() {
     }
 
+    /**
+     * {@link TvTracksInterface} for serving the audio and caption tracks.
+     */
+    public interface TvTracksInterface {
+        /**
+         * Set the flag that tells the caption tracks have been found in this section container.
+         */
+        void setHasCaptionTrack();
+
+        /**
+         * Returns whether or not the caption tracks have been found in this section container. If
+         * true, zero caption track will be interpreted as a clearance of the caption tracks.
+         */
+        boolean hasCaptionTrack();
+
+        /**
+         * Returns the audio tracks received.
+         */
+        List<AtscAudioTrack> getAudioTracks();
+
+        /**
+         * Returns the caption tracks received.
+         */
+        List<AtscCaptionTrack> getCaptionTracks();
+    }
+
     public static class PsipSection {
         private final int mTableId;
         private final int mTableIdExtension;
         private final int mSectionNumber;
         private final boolean mCurrentNextIndicator;
-
-        public static PsipSection create(byte[] data) {
-            if (data.length < 9) {
-                return null;
-            }
-            int tableId = data[0] & 0xff;
-            int tableIdExtension = (data[3] & 0xff) << 8 | (data[4] & 0xff);
-            int sectionNumber = data[6] & 0xff;
-            boolean currentNextIndicator = (data[5] & 0x01) != 0;
-            return new PsipSection(tableId, tableIdExtension, sectionNumber, currentNextIndicator);
-        }
 
         private PsipSection(
                 int tableId,
@@ -65,6 +80,17 @@ public class PsipData {
             mTableIdExtension = tableIdExtension;
             mSectionNumber = sectionNumber;
             mCurrentNextIndicator = currentNextIndicator;
+        }
+
+        public static PsipSection create(byte[] data) {
+            if (data.length < 9) {
+                return null;
+            }
+            int tableId = data[0] & 0xff;
+            int tableIdExtension = (data[3] & 0xff) << 8 | (data[4] & 0xff);
+            int sectionNumber = data[6] & 0xff;
+            boolean currentNextIndicator = (data[5] & 0x01) != 0;
+            return new PsipSection(tableId, tableIdExtension, sectionNumber, currentNextIndicator);
         }
 
         public int getTableId() {
@@ -105,32 +131,6 @@ public class PsipData {
             }
             return false;
         }
-    }
-
-    /**
-     * {@link TvTracksInterface} for serving the audio and caption tracks.
-     */
-    public interface TvTracksInterface {
-        /**
-         * Set the flag that tells the caption tracks have been found in this section container.
-         */
-        void setHasCaptionTrack();
-
-        /**
-         * Returns whether or not the caption tracks have been found in this section container. If
-         * true, zero caption track will be interpreted as a clearance of the caption tracks.
-         */
-        boolean hasCaptionTrack();
-
-        /**
-         * Returns the audio tracks received.
-         */
-        List<AtscAudioTrack> getAudioTracks();
-
-        /**
-         * Returns the caption tracks received.
-         */
-        List<AtscCaptionTrack> getCaptionTracks();
     }
 
     public static class MgtItem {
@@ -235,12 +235,12 @@ public class PsipData {
                     mSourceId);
         }
 
-        public void setDescription(String description) {
-            mDescription = description;
-        }
-
         public String getDescription() {
             return mDescription;
+        }
+
+        public void setDescription(String description) {
+            mDescription = description;
         }
     }
 
@@ -692,15 +692,15 @@ public class PsipData {
         private final long mProgramId;
         private final int mEventId;
         private final String mTitleText;
-        private String mDescription;
         private final long mStartTime;
         private final int mLengthInSecond;
         private final String mContentRating;
         private final List<AtscAudioTrack> mAudioTracks;
         private final List<AtscCaptionTrack> mCaptionTracks;
-        private boolean mHasCaptionTrack;
         private final String mBroadcastGenre;
         private final String mCanonicalGenre;
+        private String mDescription;
+        private boolean mHasCaptionTrack;
 
         public EitItem(
                 long programId,
@@ -739,12 +739,12 @@ public class PsipData {
             return mTitleText;
         }
 
-        public void setDescription(String description) {
-            mDescription = description;
-        }
-
         public String getDescription() {
             return mDescription;
+        }
+
+        public void setDescription(String description) {
+            mDescription = description;
         }
 
         public long getStartTime() {

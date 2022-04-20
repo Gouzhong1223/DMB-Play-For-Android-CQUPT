@@ -19,12 +19,7 @@ package cn.edu.cqupt.dmb.player.tuner.exoplayer2;
 import android.media.MediaFormat;
 import android.os.Handler;
 
-
 import androidx.annotation.Nullable;
-
-import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.BufferManager;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.PlaybackBufferListener;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.RecordingSampleBuffer;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -44,6 +39,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.BufferManager;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.PlaybackBufferListener;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.RecordingSampleBuffer;
+
 /**
  * A class that plays a recorded stream without using {@link android.media.MediaExtractor}, since
  * all samples are extracted and stored to the permanent storage already.
@@ -52,29 +51,15 @@ public class FileSampleExtractor implements SampleExtractor {
     private static final String TAG = "FileSampleExtractor";
     private static final boolean DEBUG = false;
     private final long mRecordingDurationMs;
-    private IOException mOnPrepareException = null;
-
-    private boolean mReleased;
     private final BufferManager mBufferManager;
     private final PlaybackBufferListener mBufferListener;
-    private BufferManager.SampleBuffer mSampleBuffer;
     private final RecordingSampleBuffer.Factory mRecordingSampleBufferFactory;
-    private TrackGroupArray mTrackGroupArray = new TrackGroupArray();
     private final Runnable mRunnable;
+    private IOException mOnPrepareException = null;
+    private boolean mReleased;
+    private BufferManager.SampleBuffer mSampleBuffer;
+    private TrackGroupArray mTrackGroupArray = new TrackGroupArray();
     private Callback mCallback;
-
-    /**
-     * Factory for {@link FileSampleExtractor}}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        FileSampleExtractor create(
-                BufferManager bufferManager,
-                PlaybackBufferListener bufferListener,
-                long durationMs);
-    }
 
     @AutoFactory(implementing = Factory.class)
     public FileSampleExtractor(
@@ -93,6 +78,15 @@ public class FileSampleExtractor implements SampleExtractor {
                 mOnPrepareException = e;
             }
         };
+    }
+
+    @Nullable
+    private static String getOptionalStringV16(MediaFormat mediaFormat, String key) {
+        return mediaFormat.containsKey(key) ? mediaFormat.getString(key) : null;
+    }
+
+    private static int getOptionalIntegerV16(MediaFormat mediaFormat, String key) {
+        return mediaFormat.containsKey(key) ? mediaFormat.getInteger(key) : Format.NO_VALUE;
     }
 
     @Override
@@ -210,15 +204,6 @@ public class FileSampleExtractor implements SampleExtractor {
         }
     }
 
-    @Nullable
-    private static String getOptionalStringV16(MediaFormat mediaFormat, String key) {
-        return mediaFormat.containsKey(key) ? mediaFormat.getString(key) : null;
-    }
-
-    private static int getOptionalIntegerV16(MediaFormat mediaFormat, String key) {
-        return mediaFormat.containsKey(key) ? mediaFormat.getInteger(key) : Format.NO_VALUE;
-    }
-
     @Override
     public TrackGroupArray getTrackGroups() {
         return mTrackGroupArray;
@@ -281,5 +266,18 @@ public class FileSampleExtractor implements SampleExtractor {
 
     @Override
     public void setOnCompletionListener(OnCompletionListener listener, Handler handler) {
+    }
+
+    /**
+     * Factory for {@link FileSampleExtractor}}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        FileSampleExtractor create(
+                BufferManager bufferManager,
+                PlaybackBufferListener bufferListener,
+                long durationMs);
     }
 }

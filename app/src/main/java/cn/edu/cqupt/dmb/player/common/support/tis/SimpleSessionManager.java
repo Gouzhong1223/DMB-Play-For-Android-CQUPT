@@ -18,10 +18,9 @@ package cn.edu.cqupt.dmb.player.common.support.tis;
 import android.media.tv.TvInputService.Session;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
+import android.util.ArraySet;
 
 import androidx.annotation.VisibleForTesting;
-
-import android.util.ArraySet;
 
 import com.google.common.collect.ImmutableSet;
 

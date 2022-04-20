@@ -24,12 +24,6 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 public class SendDataToUsbTask implements Callable<Integer> {
 
     private static final String TAG = "SendDataToUsbTask-";
-
-
-    /**
-     * 读写数据的超时时间
-     */
-    int TIMEOUT = DmbPlayerConstant.DEFAULT_READ_TIME_OUT.getDmbConstantValue();
     /**
      * 存储从USB中读取到的数据
      */
@@ -42,6 +36,10 @@ public class SendDataToUsbTask implements Callable<Integer> {
      * 已经打开的USB链接
      */
     private final UsbDeviceConnection usbDeviceConnection;
+    /**
+     * 读写数据的超时时间
+     */
+    int TIMEOUT = DmbPlayerConstant.DEFAULT_READ_TIME_OUT.getDmbConstantValue();
 
     public SendDataToUsbTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection) {
         this.bytes = bytes;

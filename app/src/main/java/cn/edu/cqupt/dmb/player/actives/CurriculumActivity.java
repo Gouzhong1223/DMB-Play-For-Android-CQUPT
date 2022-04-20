@@ -29,10 +29,8 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
  */
 public class CurriculumActivity extends Activity {
 
-    private static final String TAG = "CurriculumActivity";
-
     public static final int MESSAGE_UPDATE_CURRICULUM = DmbPlayerConstant.MESSAGE_UPDATE_CURRICULUM.getDmbConstantValue();
-
+    private static final String TAG = "CurriculumActivity";
     /**
      * 单例线程池,运行TPEG解码线程的
      */

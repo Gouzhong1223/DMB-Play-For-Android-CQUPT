@@ -25,18 +25,28 @@ import java.util.Objects;
  * Static representation of the recording capability of a TvInputService.
  */
 public final class RecordingCapability implements Parcelable {
+    public static final Creator<RecordingCapability> CREATOR =
+            new Creator<RecordingCapability>() {
+                @Override
+                public RecordingCapability createFromParcel(Parcel in) {
+                    return new RecordingCapability(in);
+                }
+
+                @Override
+                public RecordingCapability[] newArray(int size) {
+                    return new RecordingCapability[size];
+                }
+            };
     /**
      * The inputId this capability represents.
      */
     public final String inputId;
-
     /**
      * The max number of concurrent sessions that require a tuner.
      *
      * <p>Both recording and playing live TV requires a Tuner.
      */
     public final int maxConcurrentTunedSessions;
-
     /**
      * The max number concurrent session that play a stream.
      *
@@ -44,14 +54,12 @@ public final class RecordingCapability implements Parcelable {
      * live TV and playing a recorded stream.
      */
     public final int maxConcurrentPlayingSessions;
-
     /**
      * Max number of concurrent sessions all types.
      *
      * <p>This may be limited by bandwidth or CPU or other factors.
      */
     public final int maxConcurrentSessionsOfAllTypes;
-
     /**
      * True if a tuned session can support recording and playback from the same resource.
      */
@@ -76,6 +84,10 @@ public final class RecordingCapability implements Parcelable {
         maxConcurrentPlayingSessions = in.readInt();
         maxConcurrentSessionsOfAllTypes = in.readInt();
         playbackWhileRecording = in.readByte() != 0;
+    }
+
+    public static Builder builder() {
+        return new Builder();
     }
 
     @Override
@@ -129,23 +141,6 @@ public final class RecordingCapability implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    public static final Creator<RecordingCapability> CREATOR =
-            new Creator<RecordingCapability>() {
-                @Override
-                public RecordingCapability createFromParcel(Parcel in) {
-                    return new RecordingCapability(in);
-                }
-
-                @Override
-                public RecordingCapability[] newArray(int size) {
-                    return new RecordingCapability[size];
-                }
-            };
-
-    public static Builder builder() {
-        return new Builder();
     }
 
     public static final class Builder {

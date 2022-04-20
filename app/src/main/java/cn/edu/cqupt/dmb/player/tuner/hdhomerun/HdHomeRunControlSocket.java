@@ -16,12 +16,10 @@
 
 package cn.edu.cqupt.dmb.player.tuner.hdhomerun;
 
-import androidx.annotation.Nullable;
-
 import android.util.Log;
 import android.util.Pair;
 
-import cn.edu.cqupt.dmb.player.tuner.hdhomerun.HdHomeRunDiscover.HdHomeRunDiscoverDevice;
+import androidx.annotation.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +29,8 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+
+import cn.edu.cqupt.dmb.player.tuner.hdhomerun.HdHomeRunDiscover.HdHomeRunDiscoverDevice;
 
 /**
  * A class to send/receive control commands and results to/from HDHomeRun devices via TCP sockets.

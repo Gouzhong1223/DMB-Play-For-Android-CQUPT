@@ -47,15 +47,6 @@ public class FadeAndShortSlide extends Visibility {
     private static final String PROPNAME_DELAY = "propname_delay";
 
     private static final int DEFAULT_DISTANCE = 200;
-
-    private abstract static class CalculateSlide {
-        /**
-         * Returns the translation value for view when it goes out of the scene
-         */
-        public abstract float getGoneX(
-                ViewGroup sceneRoot, View view, int[] position, int distance);
-    }
-
     private static final CalculateSlide sCalculateStart =
             new CalculateSlide() {
                 @Override
@@ -72,7 +63,6 @@ public class FadeAndShortSlide extends Visibility {
                     return x;
                 }
             };
-
     private static final CalculateSlide sCalculateEnd =
             new CalculateSlide() {
                 @Override
@@ -89,18 +79,14 @@ public class FadeAndShortSlide extends Visibility {
                     return x;
                 }
             };
-
     private static final ViewPositionComparator sViewPositionComparator =
             new ViewPositionComparator();
-
+    // TODO: Consider using TransitionPropagation.
+    private final int[] mParentIdsForDelay;
     private int mSlideEdge;
     private CalculateSlide mSlideCalculator = sCalculateEnd;
     private Visibility mFade = new Fade();
-
-    // TODO: Consider using TransitionPropagation.
-    private final int[] mParentIdsForDelay;
     private int mDistance = DEFAULT_DISTANCE;
-
     public FadeAndShortSlide() {
         this(Gravity.START);
     }
@@ -323,6 +309,14 @@ public class FadeAndShortSlide extends Visibility {
      */
     public void setDistance(int distance) {
         mDistance = distance;
+    }
+
+    private abstract static class CalculateSlide {
+        /**
+         * Returns the translation value for view when it goes out of the scene
+         */
+        public abstract float getGoneX(
+                ViewGroup sceneRoot, View view, int[] position, int distance);
     }
 
     private static class ViewPositionComparator implements Comparator<View> {

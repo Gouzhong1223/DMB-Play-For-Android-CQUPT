@@ -40,6 +40,18 @@ public final class ApplicationModule {
     }
 
     @Provides
+    @MainLooper
+    static Looper provideMainLooper() {
+        return Looper.getMainLooper();
+    }
+
+    @Provides
+    @Reusable
+    static Clock providesClock() {
+        return Clock.SYSTEM;
+    }
+
+    @Provides
     Application provideApplication() {
         return mApplication;
     }
@@ -51,19 +63,7 @@ public final class ApplicationModule {
     }
 
     @Provides
-    @MainLooper
-    static Looper provideMainLooper() {
-        return Looper.getMainLooper();
-    }
-
-    @Provides
     ContentResolver provideContentResolver() {
         return mApplication.getContentResolver();
-    }
-
-    @Provides
-    @Reusable
-    static Clock providesClock() {
-        return Clock.SYSTEM;
     }
 }

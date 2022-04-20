@@ -27,38 +27,36 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 @RequiresApi(api = Build.VERSION_CODES.R)
 public class DmbMpegListener implements DmbListener {
 
-    private static final String TAG = "DmbMpegListener";
-
     /**
      * 开始播放视频的消息
      */
     public static final int MESSAGE_START_PLAY_VIDEO = DmbPlayerConstant.MESSAGE_START_PLAY_VIDEO.getDmbConstantValue();
-
-    /**
-     * 自定义的视频播放回调
-     */
-    private final Handler handler;
-
-    /**
-     * 是否已经发送了播放视频的消息
-     */
-    private boolean sendMsg = false;
-
+    private static final String TAG = "DmbMpegListener";
     /**
      * 头帧
      */
     private static final int FIRST_FRAME = 2;
-
     /**
      * 中间帧
      */
     private static final int MIDDLE_FRAME = 1;
-
     /**
      * 尾帧
      */
     private static final int LAST_FRAME = 3;
-
+    /**
+     * 自定义的视频播放回调
+     */
+    private final Handler handler;
+    /**
+     * 已经可以播放的TS流输出流<br/>
+     * 读取这个流的线程在MPEG播放器里面
+     */
+    private final PipedOutputStream pipedOutputStream;
+    /**
+     * 是否已经发送了播放视频的消息
+     */
+    private boolean sendMsg = false;
     /**
      * 文件名
      */
@@ -68,12 +66,6 @@ public class DmbMpegListener implements DmbListener {
         this.handler = handler;
         this.pipedOutputStream = pipedOutputStream;
     }
-
-    /**
-     * 已经可以播放的TS流输出流<br/>
-     * 读取这个流的线程在MPEG播放器里面
-     */
-    private final PipedOutputStream pipedOutputStream;
 
     @Override
     public void onSuccess(String fileName, byte[] tpegData, int length) {

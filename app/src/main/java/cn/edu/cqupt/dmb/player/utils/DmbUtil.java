@@ -32,8 +32,26 @@ public class DmbUtil {
 
     public static final String CACHE_DIRECTORY = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DMB/";
     public static final String CHARACTER_SET = "gb2312";
+    public static final String FREQUENCY = "frequency";
+    public static final String RECEIVER_ID = "receiver_id";
+    public static final String ENCRYPTION = "encryption";
+    public static final String FIRST_TIME = "first_time";
+    public static final String SIGNAL = "signal";
+    public static final String BUILDING = "building";
     private static final String TAG = "Utils";
+    private static final String U_DISK_PATH = null;
+    /* xml config file key names */
+    private static final String SHARED_PREFERENCES_NAME = "shared_preferences_name";
+    /* SharedPreference methods */
+    private static SharedPreferences sharedPreferences;
 
+    /* init directory */
+    static {
+        File file = new File(CACHE_DIRECTORY);
+        if (!file.exists() || !file.isDirectory()) {
+            file.mkdirs();
+        }
+    }
 
     public static void getPermission(Activity activity) {
         int permissionCheck1 = ContextCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -42,17 +60,6 @@ public class DmbUtil {
             ActivityCompat.requestPermissions(activity,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
                             Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
-        }
-    }
-
-
-    private static final String U_DISK_PATH = null;
-
-    /* init directory */
-    static {
-        File file = new File(CACHE_DIRECTORY);
-        if (!file.exists() || !file.isDirectory()) {
-            file.mkdirs();
         }
     }
 
@@ -95,17 +102,6 @@ public class DmbUtil {
             Log.e(TAG, "open file fail");
         }
     }
-
-    /* xml config file key names */
-    private static final String SHARED_PREFERENCES_NAME = "shared_preferences_name";
-    public static final String FREQUENCY = "frequency";
-    public static final String RECEIVER_ID = "receiver_id";
-    public static final String ENCRYPTION = "encryption";
-    public static final String FIRST_TIME = "first_time";
-    public static final String SIGNAL = "signal";
-    public static final String BUILDING = "building";
-    /* SharedPreference methods */
-    private static SharedPreferences sharedPreferences;
 
     public static int getInt(Context context, String key, int defValue) {
         if (sharedPreferences == null) {

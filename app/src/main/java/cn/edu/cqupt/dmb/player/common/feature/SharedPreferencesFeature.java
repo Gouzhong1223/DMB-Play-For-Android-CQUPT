@@ -30,10 +30,10 @@ public final class SharedPreferencesFeature implements Feature {
     private static final boolean DEBUG = false;
 
     private final String mKey;
-    private boolean mEnabled;
     private final boolean mDefaultValue;
-    private SharedPreferences mSharedPreferences;
     private final Feature mBaseFeature;
+    private boolean mEnabled;
+    private SharedPreferences mSharedPreferences;
 
     /**
      * Create SharedPreferences controlled feature.

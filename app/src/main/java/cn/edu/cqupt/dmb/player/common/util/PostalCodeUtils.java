@@ -17,19 +17,18 @@
 package cn.edu.cqupt.dmb.player.common.util;
 
 import android.content.Context;
-
-import androidx.annotation.NonNull;
-
 import android.text.TextUtils;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.CommonPreferences;
+import androidx.annotation.NonNull;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import cn.edu.cqupt.dmb.player.common.CommonPreferences;
 
 /**
  * A utility class to update, get, and set the last known postal or zip code.
@@ -49,6 +48,9 @@ public class PostalCodeUtils {
 
     private static final Map<String, Pattern> REGION_PATTERN = new HashMap<>();
     private static final Map<String, Integer> REGION_MAX_LENGTH = new HashMap<>();
+    // The longest postcode number is 10-character-long.
+    // Use a larger number to accommodate future changes.
+    private static final int DEFAULT_MAX_LENGTH = 16;
 
     static {
         REGION_PATTERN.put(Locale.US.getCountry(), Pattern.compile(POSTCODE_REGEX_US));
@@ -58,10 +60,6 @@ public class PostalCodeUtils {
         REGION_MAX_LENGTH.put(Locale.US.getCountry(), 5);
         REGION_MAX_LENGTH.put(Locale.UK.getCountry(), 8);
     }
-
-    // The longest postcode number is 10-character-long.
-    // Use a larger number to accommodate future changes.
-    private static final int DEFAULT_MAX_LENGTH = 16;
 
     /**
      * Returns {@code true} if postal code has been changed
@@ -99,14 +97,6 @@ public class PostalCodeUtils {
     }
 
     /**
-     * An {@link Exception} class to notify no valid postal or zip code is available.
-     */
-    public static class NoPostalCodeException extends Exception {
-        public NoPostalCodeException() {
-        }
-    }
-
-    /**
      * Checks whether a postcode matches the format of the specific region.
      *
      * @return {@code false} if the region is supported and the postcode doesn't match; {@code true}
@@ -127,5 +117,13 @@ public class PostalCodeUtils {
         Integer maxLength =
                 REGION_MAX_LENGTH.get(LocationUtils.getCurrentCountry(context).toUpperCase());
         return maxLength == null ? DEFAULT_MAX_LENGTH : maxLength;
+    }
+
+    /**
+     * An {@link Exception} class to notify no valid postal or zip code is available.
+     */
+    public static class NoPostalCodeException extends Exception {
+        public NoPostalCodeException() {
+        }
     }
 }

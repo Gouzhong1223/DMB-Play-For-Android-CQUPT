@@ -41,6 +41,10 @@ public class SqlParams {
         return mTables;
     }
 
+    public void setTables(String tables) {
+        mTables = tables;
+    }
+
     public @Nullable
     String getSelection() {
         return mSelection;
@@ -49,10 +53,6 @@ public class SqlParams {
     public @Nullable
     String[] getSelectionArgs() {
         return mSelectionArgs;
-    }
-
-    public void setTables(String tables) {
-        mTables = tables;
     }
 
     public void setWhere(String selection, String... selectionArgs) {

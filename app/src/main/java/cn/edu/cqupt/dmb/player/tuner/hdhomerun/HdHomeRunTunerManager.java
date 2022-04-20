@@ -19,10 +19,9 @@ package cn.edu.cqupt.dmb.player.tuner.hdhomerun;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import androidx.annotation.WorkerThread;
-
-import android.util.Log;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -53,6 +52,15 @@ class HdHomeRunTunerManager {
             sInstance = new HdHomeRunTunerManager();
         }
         return sInstance;
+    }
+
+    /**
+     * Marks the device associated to this instance as a scanned device. Scanned device has higher
+     * priority among multiple HDHomeRun devices.
+     */
+    static void markAsScannedDevice(Context context, HdHomeRunDevice device) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        sp.edit().putInt(PREF_KEY_SCANNED_DEVICE_ID, device.getDeviceId()).apply();
     }
 
     /**
@@ -116,15 +124,6 @@ class HdHomeRunTunerManager {
     synchronized void releaseDevice(HdHomeRunDevice device) {
         if (DEBUG) Log.d(TAG, "releaseDevice: " + device);
         mUsedDevices.remove(device);
-    }
-
-    /**
-     * Marks the device associated to this instance as a scanned device. Scanned device has higher
-     * priority among multiple HDHomeRun devices.
-     */
-    static void markAsScannedDevice(Context context, HdHomeRunDevice device) {
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
-        sp.edit().putInt(PREF_KEY_SCANNED_DEVICE_ID, device.getDeviceId()).apply();
     }
 
     private void updateDevicesLocked(Integer deviceId) {

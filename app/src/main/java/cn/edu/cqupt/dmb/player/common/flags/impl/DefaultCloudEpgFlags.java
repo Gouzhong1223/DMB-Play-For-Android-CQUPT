@@ -17,9 +17,8 @@ package cn.edu.cqupt.dmb.player.common.flags.impl;
 
 import com.google.common.collect.ImmutableList;
 
-import cn.edu.cqupt.dmb.player.common.flags.TypedFeatures.StringListParam;
-
 import cn.edu.cqupt.dmb.player.common.flags.CloudEpgFlags;
+import cn.edu.cqupt.dmb.player.common.flags.TypedFeatures.StringListParam;
 
 /**
  * Default flags for Cloud EPG

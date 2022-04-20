@@ -20,13 +20,14 @@ import android.content.Context;
 import android.media.tv.TvInputService.Session;
 import android.os.Handler;
 import android.os.Message;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.tuner.cc.CaptionLayout;
@@ -34,17 +35,11 @@ import cn.edu.cqupt.dmb.player.tuner.cc.CaptionTrackRenderer;
 import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionEvent;
 import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscCaptionTrack;
 import cn.edu.cqupt.dmb.player.tuner.util.GlobalSettingsUtils;
-import cn.edu.cqupt.dmb.player.tuner.util.StatusTextUtils;
-
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 
 /**
  * Executes {@link Session} overlay changes on the main thread.
  */
 public final class TunerSessionOverlay implements Handler.Callback {
-    private static final boolean DEBUG = false;
-
     /**
      * Displays the given {@link String} message object in the message view.
      */
@@ -91,25 +86,15 @@ public final class TunerSessionOverlay implements Handler.Callback {
      * Displays a toast signalling that a re-scan is required. Does not expect a message object.
      */
     public static final int MSG_UI_TOAST_RESCAN_NEEDED = 11;
-
+    private static final boolean DEBUG = false;
     private final Context mContext;
     private final Handler mHandler;
     private final View mOverlayView;
     private final TextView mMessageView;
     private final TextView mStatusView;
-//    private final TextView mAudioStatusView;
+    //    private final TextView mAudioStatusView;
     private final ViewGroup mMessageLayout;
     private final CaptionTrackRenderer mCaptionTrackRenderer;
-
-    /**
-     * Factory for {@link TunerSessionOverlay}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        TunerSessionOverlay create(Context context);
-    }
 
     /**
      * Creates and inflates a {@link Session} overlay from the given context.
@@ -227,5 +212,15 @@ public final class TunerSessionOverlay implements Handler.Callback {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Factory for {@link TunerSessionOverlay}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        TunerSessionOverlay create(Context context);
     }
 }

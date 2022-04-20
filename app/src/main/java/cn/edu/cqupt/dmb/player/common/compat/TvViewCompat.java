@@ -18,10 +18,6 @@ package cn.edu.cqupt.dmb.player.common.compat;
 
 import android.content.Context;
 import android.media.tv.TvView;
-
-import android.os.Bundle;
-
-
 import android.util.ArrayMap;
 import android.util.AttributeSet;
 

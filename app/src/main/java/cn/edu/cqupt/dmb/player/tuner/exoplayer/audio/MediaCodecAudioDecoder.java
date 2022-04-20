@@ -34,17 +34,14 @@ import java.util.ArrayList;
  * A decoder to use MediaCodec for decoding audio stream.
  */
 public class MediaCodecAudioDecoder extends AudioDecoder {
-    private static final String TAG = "MediaCodecAudioDecoder";
-
     public static final int INDEX_INVALID = -1;
-
+    private static final String TAG = "MediaCodecAudioDecoder";
     private final CodecCounters mCodecCounters;
     private final MediaCodecSelector mSelector;
-
-    private MediaCodec mCodec;
     private final MediaCodec.BufferInfo mOutputBufferInfo;
-    private ByteBuffer mMediaCodecOutputBuffer;
     private final ArrayList<Long> mDecodeOnlyPresentationTimestamps;
+    private MediaCodec mCodec;
+    private ByteBuffer mMediaCodecOutputBuffer;
     private boolean mWaitingForFirstSyncFrame;
     private boolean mIsNewIndex;
     private int mInputIndex;

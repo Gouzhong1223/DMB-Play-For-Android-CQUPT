@@ -55,6 +55,15 @@ public enum FrequencyModule {
         this.deviceID = deviceID;
     }
 
+    public static FrequencyModule getFrequencyModuleBySerialNumber(Integer serialNumber) {
+        for (FrequencyModule value : values()) {
+            if (Objects.equals(value.getSerialNumber(), serialNumber)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
     public String getModuleName() {
         return moduleName;
     }
@@ -77,14 +86,5 @@ public enum FrequencyModule {
         return "工作模块=" + moduleName +
                 ", 工作频点=" + frequency +
                 ", 设备 ID=" + deviceID;
-    }
-
-    public static FrequencyModule getFrequencyModuleBySerialNumber(Integer serialNumber) {
-        for (FrequencyModule value : values()) {
-            if (Objects.equals(value.getSerialNumber(), serialNumber)) {
-                return value;
-            }
-        }
-        return null;
     }
 }

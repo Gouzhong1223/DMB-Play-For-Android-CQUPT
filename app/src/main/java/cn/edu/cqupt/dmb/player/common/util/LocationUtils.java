@@ -23,14 +23,11 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import android.text.TextUtils;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.BuildConfig;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -53,6 +50,9 @@ public class LocationUtils {
     private static Address sAddress;
     private static String sCountry;
     private static IOException sError;
+
+    private LocationUtils() {
+    }
 
     /**
      * Checks the current location.
@@ -92,21 +92,6 @@ public class LocationUtils {
             return address.getPostalCode();
         }
         return null;
-    }
-
-    /**
-     * The listener used when address is updated.
-     */
-    public interface OnUpdateAddressListener {
-        /**
-         * Called when address is updated.
-         *
-         * <p>This listener is removed when this method returns true.
-         *
-         * @return {@code true} if the job has been finished and the listener needs to be removed;
-         * {@code false} otherwise.
-         */
-        boolean onUpdateAddress(Address address);
     }
 
     /**
@@ -188,7 +173,19 @@ public class LocationUtils {
         }
     }
 
-    private LocationUtils() {
+    /**
+     * The listener used when address is updated.
+     */
+    public interface OnUpdateAddressListener {
+        /**
+         * Called when address is updated.
+         *
+         * <p>This listener is removed when this method returns true.
+         *
+         * @return {@code true} if the job has been finished and the listener needs to be removed;
+         * {@code false} otherwise.
+         */
+        boolean onUpdateAddress(Address address);
     }
 
     private static class LocationUtilsHelper {

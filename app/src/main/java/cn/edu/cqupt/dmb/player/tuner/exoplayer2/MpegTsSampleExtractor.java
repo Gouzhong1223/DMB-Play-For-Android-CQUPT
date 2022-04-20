@@ -20,12 +20,7 @@ import android.media.MediaFormat;
 import android.net.Uri;
 import android.os.Handler;
 
-
 import androidx.annotation.Nullable;
-
-import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.BufferManager;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.InputBufferPool;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.PlaybackBufferListener;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -43,6 +38,10 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.BufferManager;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.InputBufferPool;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.PlaybackBufferListener;
+
 /**
  * Extracts samples from {@link DataSource} for MPEG-TS streams.
  * Managed captions for live and recorded playback since exoplayer earlier version needed it.
@@ -55,39 +54,14 @@ public final class MpegTsSampleExtractor implements SampleExtractor, SampleExtra
     private final SampleExtractor mSampleExtractor;
     private final List<Format> mTrackFormats = new ArrayList<>();
     private final List<Boolean> mReachedEos = new ArrayList<>();
-    private int mVideoTrackIndex;
     private final InputBufferPool mCcInputBufferPool = new InputBufferPool();
     private final List<DecoderInputBuffer> mPendingCcSamples = new LinkedList<>();
-
+    private int mVideoTrackIndex;
     private int mCea708TextTrackIndex;
     private boolean mCea708TextTrackSelected;
 
     private CcParser mCcParser;
     private Callback mCallback;
-
-    private void init() {
-        mVideoTrackIndex = -1;
-        mCea708TextTrackIndex = -1;
-        mCea708TextTrackSelected = false;
-    }
-
-    /**
-     * Factory for {@link MpegTsSampleExtractor}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        MpegTsSampleExtractor create(
-                BufferManager bufferManager,
-                PlaybackBufferListener bufferListener,
-                long durationMs);
-
-        MpegTsSampleExtractor create(
-                DataSource source,
-                @Nullable BufferManager bufferManager,
-                PlaybackBufferListener bufferListener);
-    }
 
     /**
      * Creates MpegTsSampleExtractor for a {@link DataSource}.
@@ -125,6 +99,12 @@ public final class MpegTsSampleExtractor implements SampleExtractor, SampleExtra
         mSampleExtractor =
                 fileSampleExtractorFactory.create(bufferManager, bufferListener, durationMs);
         init();
+    }
+
+    private void init() {
+        mVideoTrackIndex = -1;
+        mCea708TextTrackIndex = -1;
+        mCea708TextTrackSelected = false;
     }
 
     @Override
@@ -264,6 +244,24 @@ public final class MpegTsSampleExtractor implements SampleExtractor, SampleExtra
             }
         }
         mCallback.onPrepared();
+    }
+
+    /**
+     * Factory for {@link MpegTsSampleExtractor}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        MpegTsSampleExtractor create(
+                BufferManager bufferManager,
+                PlaybackBufferListener bufferListener,
+                long durationMs);
+
+        MpegTsSampleExtractor create(
+                DataSource source,
+                @Nullable BufferManager bufferManager,
+                PlaybackBufferListener bufferListener);
     }
 
     private abstract class CcParser {

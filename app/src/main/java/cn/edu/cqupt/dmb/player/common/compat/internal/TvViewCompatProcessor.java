@@ -15,9 +15,9 @@
  */
 package cn.edu.cqupt.dmb.player.common.compat.internal;
 
-import androidx.annotation.NonNull;
-
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import cn.edu.cqupt.dmb.player.common.compat.api.PrivateCommandSender;
 import cn.edu.cqupt.dmb.player.common.compat.api.TvInputCallbackCompatEvents;

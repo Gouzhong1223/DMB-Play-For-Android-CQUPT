@@ -22,14 +22,14 @@ import android.content.Context;
  */
 public final class HasUtils {
 
+    private HasUtils() {
+    }
+
     /**
      * Returns the application context.
      */
     public static Context getApplicationContext(Context context) {
         Context appContext = context.getApplicationContext();
         return appContext != null ? appContext : context;
-    }
-
-    private HasUtils() {
     }
 }

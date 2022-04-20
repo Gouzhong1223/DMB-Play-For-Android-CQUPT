@@ -17,17 +17,10 @@
 package cn.edu.cqupt.dmb.player.tuner.exoplayer2;
 
 import android.content.Context;
-
 import android.view.Surface;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data;
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionEvent;
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Parser;
-import cn.edu.cqupt.dmb.player.tuner.source.TsDataSource;
-import cn.edu.cqupt.dmb.player.tuner.tvinput.debug.TunerDebug;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -54,6 +47,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data;
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionEvent;
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Parser;
+import cn.edu.cqupt.dmb.player.tuner.source.TsDataSource;
+import cn.edu.cqupt.dmb.player.tuner.tvinput.debug.TunerDebug;
+
 /**
  * MPEG-2 TS stream player implementation using ExoPlayer2.
  */
@@ -64,83 +63,17 @@ public class MpegTsPlayerV2
         TextOutput,
         VideoRendererEventListener {
 
-    /**
-     * Interface definition for a callback to be notified of changes in player state.
-     */
-    public interface Callback {
-        /**
-         * Called when player state changes.
-         *
-         * @param playbackState notifies the updated player state.
-         */
-        void onStateChanged(@PlayerState int playbackState);
-
-        /**
-         * Called when player has ended with an error.
-         */
-        void onError(Exception e);
-
-        /**
-         * Called when size of input video to the player changes.
-         */
-        void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio);
-
-        /**
-         * Called when player rendered its first frame.
-         */
-        void onRenderedFirstFrame();
-
-        /**
-         * Called when audio stream is unplayable.
-         */
-        void onAudioUnplayable();
-
-        /**
-         * Called when player drops some frames.
-         */
-        void onSmoothTrickplayForceStopped();
-    }
-
-    /**
-     * Interface definition for a callback to be notified of changes on video display.
-     */
-    public interface VideoEventListener {
-        /**
-         * Notifies the caption event.
-         */
-        void onEmitCaptionEvent(CaptionEvent event);
-
-        /**
-         * Notifies the discovered caption service number.
-         */
-        void onDiscoverCaptionServiceNumber(int serviceNumber);
-    }
-
     public static final int MIN_BUFFER_MS = 0;
     public static final int MIN_REBUFFER_MS = 500;
-
-    @IntDef({TRACK_TYPE_VIDEO, TRACK_TYPE_AUDIO, TRACK_TYPE_TEXT})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface TrackType {
-    }
-
     public static final int TRACK_TYPE_VIDEO = 0;
     public static final int TRACK_TYPE_AUDIO = 1;
     public static final int TRACK_TYPE_TEXT = 2;
-
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
-    public @interface PlayerState {
-    }
-
     public static final int STATE_IDLE = Player.STATE_IDLE;
     public static final int STATE_BUFFERING = Player.STATE_BUFFERING;
     public static final int STATE_READY = Player.STATE_READY;
     public static final int STATE_ENDED = Player.STATE_ENDED;
-
     private final SimpleExoPlayer mPlayer;
     private final DefaultTrackSelector mTrackSelector;
-
     private DefaultTrackSelector.Parameters mTrackSelectorParameters;
     private TrackGroupArray mLastSeenTrackGroupArray;
     private TrackSelectionArray mLastSeenTrackSelections;
@@ -148,7 +81,6 @@ public class MpegTsPlayerV2
     private TsDataSource mDataSource;
     private VideoEventListener mVideoEventListener;
     private boolean mCaptionsAvailable = false;
-
     /**
      * Creates MPEG2-TS stream player.
      *
@@ -536,5 +468,67 @@ public class MpegTsPlayerV2
         if (mCallback != null) {
             mCallback.onSmoothTrickplayForceStopped();
         }
+    }
+
+    /**
+     * Interface definition for a callback to be notified of changes in player state.
+     */
+    public interface Callback {
+        /**
+         * Called when player state changes.
+         *
+         * @param playbackState notifies the updated player state.
+         */
+        void onStateChanged(@PlayerState int playbackState);
+
+        /**
+         * Called when player has ended with an error.
+         */
+        void onError(Exception e);
+
+        /**
+         * Called when size of input video to the player changes.
+         */
+        void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio);
+
+        /**
+         * Called when player rendered its first frame.
+         */
+        void onRenderedFirstFrame();
+
+        /**
+         * Called when audio stream is unplayable.
+         */
+        void onAudioUnplayable();
+
+        /**
+         * Called when player drops some frames.
+         */
+        void onSmoothTrickplayForceStopped();
+    }
+
+    /**
+     * Interface definition for a callback to be notified of changes on video display.
+     */
+    public interface VideoEventListener {
+        /**
+         * Notifies the caption event.
+         */
+        void onEmitCaptionEvent(CaptionEvent event);
+
+        /**
+         * Notifies the discovered caption service number.
+         */
+        void onDiscoverCaptionServiceNumber(int serviceNumber);
+    }
+
+    @IntDef({TRACK_TYPE_VIDEO, TRACK_TYPE_AUDIO, TRACK_TYPE_TEXT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface TrackType {
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({STATE_IDLE, STATE_BUFFERING, STATE_READY, STATE_ENDED})
+    public @interface PlayerState {
     }
 }

@@ -35,10 +35,8 @@ import cn.edu.cqupt.dmb.player.R;
  * A helper class for setup animation.
  */
 public final class SetupAnimationHelper {
-    public static final long DELAY_BETWEEN_SIBLINGS_MS = applyAnimationTimeScale(33);
-
     private static final float ANIMATION_TIME_SCALE = 1.0f;
-
+    public static final long DELAY_BETWEEN_SIBLINGS_MS = applyAnimationTimeScale(33);
     private static boolean sInitialized;
     private static long sFragmentTransitionDuration;
     private static int sFragmentTransitionLongDistance;
@@ -68,69 +66,6 @@ public final class SetupAnimationHelper {
     private static void checkInitialized() {
         if (!sInitialized) {
             throw new IllegalStateException("SetupAnimationHelper not initialized");
-        }
-    }
-
-    public static class TransitionBuilder {
-        private int mSlideEdge = Gravity.START;
-        private final int mDistance = sFragmentTransitionLongDistance;
-        private long mDuration = sFragmentTransitionDuration;
-        private int[] mParentIdForDelay;
-        private int[] mExcludeIds;
-
-        public TransitionBuilder() {
-            checkInitialized();
-        }
-
-        /**
-         * Sets the edge of the slide transition.
-         *
-         * @see android.transition.Slide#setSlideEdge
-         */
-        public TransitionBuilder setSlideEdge(int slideEdge) {
-            mSlideEdge = slideEdge;
-            return this;
-        }
-
-        /**
-         * Sets the duration of the transition.
-         */
-        public TransitionBuilder setDuration(long duration) {
-            mDuration = duration;
-            return this;
-        }
-
-        /**
-         * Sets the ID of the view whose descendants will perform delayed move.
-         *
-         * @see android.view.ViewGroup#isTransitionGroup
-         */
-        public TransitionBuilder setParentIdsForDelay(int[] parentIdForDelay) {
-            mParentIdForDelay = parentIdForDelay;
-            return this;
-        }
-
-        /**
-         * Sets the ID's of the views which will not be included in the transition.
-         */
-        public TransitionBuilder setExcludeIds(int[] excludeIds) {
-            mExcludeIds = excludeIds;
-            return this;
-        }
-
-        /**
-         * Builds and returns the {@link Transition}.
-         */
-        public Transition build() {
-            FadeAndShortSlide transition = new FadeAndShortSlide(mSlideEdge, mParentIdForDelay);
-            transition.setDistance(mDistance);
-            transition.setDuration(mDuration);
-            if (mExcludeIds != null) {
-                for (int id : mExcludeIds) {
-                    transition.excludeTarget(id, true);
-                }
-            }
-            return transition;
         }
     }
 
@@ -245,5 +180,68 @@ public final class SetupAnimationHelper {
                     });
         }
         return animator;
+    }
+
+    public static class TransitionBuilder {
+        private final int mDistance = sFragmentTransitionLongDistance;
+        private int mSlideEdge = Gravity.START;
+        private long mDuration = sFragmentTransitionDuration;
+        private int[] mParentIdForDelay;
+        private int[] mExcludeIds;
+
+        public TransitionBuilder() {
+            checkInitialized();
+        }
+
+        /**
+         * Sets the edge of the slide transition.
+         *
+         * @see android.transition.Slide#setSlideEdge
+         */
+        public TransitionBuilder setSlideEdge(int slideEdge) {
+            mSlideEdge = slideEdge;
+            return this;
+        }
+
+        /**
+         * Sets the duration of the transition.
+         */
+        public TransitionBuilder setDuration(long duration) {
+            mDuration = duration;
+            return this;
+        }
+
+        /**
+         * Sets the ID of the view whose descendants will perform delayed move.
+         *
+         * @see android.view.ViewGroup#isTransitionGroup
+         */
+        public TransitionBuilder setParentIdsForDelay(int[] parentIdForDelay) {
+            mParentIdForDelay = parentIdForDelay;
+            return this;
+        }
+
+        /**
+         * Sets the ID's of the views which will not be included in the transition.
+         */
+        public TransitionBuilder setExcludeIds(int[] excludeIds) {
+            mExcludeIds = excludeIds;
+            return this;
+        }
+
+        /**
+         * Builds and returns the {@link Transition}.
+         */
+        public Transition build() {
+            FadeAndShortSlide transition = new FadeAndShortSlide(mSlideEdge, mParentIdForDelay);
+            transition.setDistance(mDistance);
+            transition.setDuration(mDuration);
+            if (mExcludeIds != null) {
+                for (int id : mExcludeIds) {
+                    transition.excludeTarget(id, true);
+                }
+            }
+            return transition;
+        }
     }
 }

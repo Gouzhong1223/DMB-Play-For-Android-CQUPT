@@ -36,10 +36,15 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupFragment;
-
 import cn.edu.cqupt.dmb.player.tuner.api.ScanChannel;
 import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
 import cn.edu.cqupt.dmb.player.tuner.data.Channel.TunerType;
@@ -53,33 +58,22 @@ import cn.edu.cqupt.dmb.player.tuner.source.TunerTsStreamer;
 import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector;
 import cn.edu.cqupt.dmb.player.tuner.tvinput.datamanager.ChannelDataManager;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 /**
  * A fragment for scanning channels.
  */
 public class ScanFragment extends SetupFragment {
-    private static final String TAG = "ScanFragment";
-    private static final boolean DEBUG = false;
-
-    // In the fake mode, the connection to antenna or cable is not necessary.
-    // Instead fake channels are added.
-    private static final boolean FAKE_MODE = false;
-
-    private static final String VCTLESS_CHANNEL_NAME_FORMAT = "RF%d-%d";
-
     public static final String ACTION_CATEGORY = "cn.edu.cqupt.dmb.player.tuner.setup.ScanFragment";
     public static final int ACTION_CANCEL = 1;
     public static final int ACTION_FINISH = 2;
-
     public static final String EXTRA_FOR_CHANNEL_SCAN_FILE = "scan_file_choice";
     public static final String EXTRA_FOR_INPUT_ID = "input_id";
     public static final String KEY_CHANNEL_NUMBERS = "channel_numbers";
-
+    private static final String TAG = "ScanFragment";
+    private static final boolean DEBUG = false;
+    // In the fake mode, the connection to antenna or cable is not necessary.
+    // Instead fake channels are added.
+    private static final boolean FAKE_MODE = false;
+    private static final String VCTLESS_CHANNEL_NAME_FORMAT = "RF%d-%d";
     // Allows adding audio-only channels (CJ music channel) for which VCT is not present.
     private static final boolean ADD_CJ_MUSIC_CHANNELS = false;
     private static final int CJ_MUSIC_CHANNEL_FREQUENCY = 585000000;
@@ -275,6 +269,52 @@ public class ScanFragment extends SetupFragment {
         public void add(TunerChannel channel) {
             mChannels.add(channel);
             notifyDataSetChanged();
+        }
+    }
+
+    private static class FakeTsStreamer implements TsStreamer {
+        private final EventDetector.EventListener mEventListener;
+        private int mProgramNumber = 0;
+
+        FakeTsStreamer(EventDetector.EventListener eventListener) {
+            mEventListener = eventListener;
+        }
+
+        @Override
+        public boolean startStream(ScanChannel channel) {
+            if (++mProgramNumber % 2 == 1) {
+                return true;
+            }
+            final String displayNumber = Integer.toString(mProgramNumber);
+            final String name = "Channel-" + mProgramNumber;
+            mEventListener.onChannelDetected(
+                    new TunerChannel(mProgramNumber, new ArrayList<>()) {
+                        @Override
+                        public String getDisplayNumber() {
+                            return displayNumber;
+                        }
+
+                        @Override
+                        public String getName() {
+                            return name;
+                        }
+                    },
+                    true);
+            return true;
+        }
+
+        @Override
+        public boolean startStream(TunerChannel channel) {
+            return false;
+        }
+
+        @Override
+        public void stopStream() {
+        }
+
+        @Override
+        public TsDataSource createDataSource() {
+            return null;
         }
     }
 
@@ -567,52 +607,6 @@ public class ScanFragment extends SetupFragment {
                 getActivity().finish();
             }
             mChannelScanTask = null;
-        }
-    }
-
-    private static class FakeTsStreamer implements TsStreamer {
-        private final EventDetector.EventListener mEventListener;
-        private int mProgramNumber = 0;
-
-        FakeTsStreamer(EventDetector.EventListener eventListener) {
-            mEventListener = eventListener;
-        }
-
-        @Override
-        public boolean startStream(ScanChannel channel) {
-            if (++mProgramNumber % 2 == 1) {
-                return true;
-            }
-            final String displayNumber = Integer.toString(mProgramNumber);
-            final String name = "Channel-" + mProgramNumber;
-            mEventListener.onChannelDetected(
-                    new TunerChannel(mProgramNumber, new ArrayList<>()) {
-                        @Override
-                        public String getDisplayNumber() {
-                            return displayNumber;
-                        }
-
-                        @Override
-                        public String getName() {
-                            return name;
-                        }
-                    },
-                    true);
-            return true;
-        }
-
-        @Override
-        public boolean startStream(TunerChannel channel) {
-            return false;
-        }
-
-        @Override
-        public void stopStream() {
-        }
-
-        @Override
-        public TsDataSource createDataSource() {
-            return null;
         }
     }
 }

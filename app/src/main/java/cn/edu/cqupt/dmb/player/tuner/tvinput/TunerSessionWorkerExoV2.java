@@ -32,13 +32,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.os.SystemClock;
-
-import androidx.annotation.AnyThread;
-import androidx.annotation.MainThread;
-import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
-import androidx.annotation.WorkerThread;
-
 import android.text.Html;
 import android.text.TextUtils;
 import android.util.Log;
@@ -46,6 +39,27 @@ import android.util.Pair;
 import android.util.SparseArray;
 import android.view.Surface;
 import android.view.accessibility.CaptioningManager;
+
+import androidx.annotation.AnyThread;
+import androidx.annotation.MainThread;
+import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
+
+import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.audio.AudioCapabilities;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
+import com.google.common.collect.ImmutableList;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.common.CommonPreferences.TrickplaySetting;
 import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
@@ -80,21 +94,6 @@ import cn.edu.cqupt.dmb.player.tuner.tvinput.datamanager.ChannelDataManager;
 import cn.edu.cqupt.dmb.player.tuner.tvinput.debug.TunerDebug;
 import cn.edu.cqupt.dmb.player.tuner.util.StatusTextUtils;
 
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.audio.AudioCapabilities;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
-import com.google.common.collect.ImmutableList;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-
 /**
  * Handles playback related operations on a worker thread.
  */
@@ -108,12 +107,6 @@ public class TunerSessionWorkerExoV2 implements
         ChannelDataManager.ProgramInfoListener,
         Handler.Callback {
 
-    private static final String TAG = "TunerSessionWorkerExoV2";
-    private static final boolean DEBUG = false;
-    private static final boolean ENABLE_PROFILER = true;
-    private static final String PLAY_FROM_CHANNEL = "channel";
-    private static final int MIN_BUFFER_SIZE_DEF = 256; // 256MB
-
     // Public messages
     public static final int MSG_SELECT_TRACK = 1;
     public static final int MSG_UPDATE_CAPTION_TRACK = 2;
@@ -124,13 +117,22 @@ public class TunerSessionWorkerExoV2 implements
     public static final int MSG_TIMESHIFT_SET_PLAYBACKPARAMS = 7;
     public static final int MSG_UNBLOCKED_RATING = 9;
     public static final int MSG_TUNER_PREFERENCES_CHANGED = 10;
-
+    public static final ImmutableList<TvContentRating> NO_CONTENT_RATINGS = ImmutableList.of();
     // Private messages
     @VisibleForTesting
     protected static final int MSG_TUNE = 1000;
-    private static final int MSG_RELEASE = 1001;
     @VisibleForTesting
     protected static final int MSG_RETRY_PLAYBACK = 1002;
+    @VisibleForTesting
+    protected static final int MSG_CHECK_SIGNAL = 1018;
+    @VisibleForTesting
+    protected static final int MSG_CHECK_SIGNAL_STRENGTH = 1026;
+    private static final String TAG = "TunerSessionWorkerExoV2";
+    private static final boolean DEBUG = false;
+    private static final boolean ENABLE_PROFILER = true;
+    private static final String PLAY_FROM_CHANNEL = "channel";
+    private static final int MIN_BUFFER_SIZE_DEF = 256; // 256MB
+    private static final int MSG_RELEASE = 1001;
     private static final int MSG_START_PLAYBACK = 1003;
     private static final int MSG_UPDATE_PROGRAM = 1008;
     private static final int MSG_SCHEDULE_OF_PROGRAMS = 1009;
@@ -139,8 +141,6 @@ public class TunerSessionWorkerExoV2 implements
     private static final int MSG_PARENTAL_CONTROLS = 1015;
     private static final int MSG_RESCHEDULE_PROGRAMS = 1016;
     private static final int MSG_BUFFER_START_TIME_CHANGED = 1017;
-    @VisibleForTesting
-    protected static final int MSG_CHECK_SIGNAL = 1018;
     private static final int MSG_DISCOVER_CAPTION_SERVICE_NUMBER = 1019;
     private static final int MSG_RESET_PLAYBACK = 1020;
     private static final int MSG_BUFFER_STATE_CHANGED = 1021;
@@ -148,9 +148,6 @@ public class TunerSessionWorkerExoV2 implements
     private static final int MSG_STOP_TUNE = 1023;
     private static final int MSG_SET_SURFACE = 1024;
     private static final int MSG_NOTIFY_AUDIO_TRACK_UPDATED = 1025;
-    @VisibleForTesting
-    protected static final int MSG_CHECK_SIGNAL_STRENGTH = 1026;
-
     private static final int TS_PACKET_SIZE = 188;
     private static final int CHECK_NO_SIGNAL_INITIAL_DELAY_MS = 4000;
     private static final int CHECK_NO_SIGNAL_PERIOD_MS = 500;
@@ -166,11 +163,9 @@ public class TunerSessionWorkerExoV2 implements
     private static final int PLAYBACK_RETRY_DELAY_MS = 5000;
     private static final int MAX_IMMEDIATE_RETRY_COUNT = 5;
     private static final long INVALID_TIME = -1;
-
     // Some examples of the track ids of the audio tracks, "a0", "a1", "a2".
     // The number after prefix is being used for indicating a index of the given audio track.
     private static final String AUDIO_TRACK_PREFIX = "a";
-
     // Some examples of the tracks id of the caption tracks, "s1", "s2", "s3".
     // The number after prefix is being used for indicating a index of a caption service number
     // of the given caption track.
@@ -178,15 +173,12 @@ public class TunerSessionWorkerExoV2 implements
     private static final int TRACK_PREFIX_SIZE = 1;
     private static final String VIDEO_TRACK_ID = "v";
     private static final long BUFFER_UNDERFLOW_BUFFER_MS = 5000;
-
     // Actual interval would be divided by the speed.
     private static final int EXPECTED_KEY_FRAME_INTERVAL_MS = 500;
     private static final int MIN_TRICKPLAY_SEEK_INTERVAL_MS = 20;
     private static final int RELEASE_WAIT_INTERVAL_MS = 50;
     private static final long TRICKPLAY_OFF_DURATION_MS = TimeUnit.DAYS.toMillis(14);
     private static final long SEEK_MARGIN_MS = TimeUnit.SECONDS.toMillis(2);
-    public static final ImmutableList<TvContentRating> NO_CONTENT_RATINGS = ImmutableList.of();
-
     /**
      * Guarantees that at most one active worker exists at any give time. Synchronization between
      * multiple TunerSessionWorkerExoV2 is necessary when concurrent release and creation takes
@@ -202,6 +194,18 @@ public class TunerSessionWorkerExoV2 implements
     private final @TRICKPLAY_MODE
     int mTrickplayModeCustomization;
     private final MpegTsSampleExtractor.Factory mMpegTsSampleExtractorFactory;
+    private final Handler mHandler;
+    private final ArrayList<TvTrackInfo> mTvTracks;
+    private final SparseArray<AtscAudioTrack> mAudioTrackMap;
+    private final SparseArray<AtscCaptionTrack> mCaptionTrackMap;
+    private final TvInputManager mTvInputManager;
+    private final AudioCapabilitiesReceiverV2Wrapper mAudioCapabilitiesReceiver;
+    private final TvContentRatingCache mTvContentRatingCache = TvContentRatingCache.getInstance();
+    private final TunerSessionExoV2 mSession;
+    private final TunerSessionOverlay mTunerSessionOverlay;
+    private final boolean mHasSoftwareAudioDecoder;
+    private final Object mReleaseLock = new Object();
+    private final LegacyFlags mLegacyFlags;
     private volatile Surface mSurface;
     private volatile float mVolume = 1.0f;
     private volatile boolean mCaptionEnabled;
@@ -215,11 +219,7 @@ public class TunerSessionWorkerExoV2 implements
     int mTrickplaySetting;
     private long mTrickplayExpiredMs;
     private String mRecordingId;
-    private final Handler mHandler;
     private int mRetryCount;
-    private final ArrayList<TvTrackInfo> mTvTracks;
-    private final SparseArray<AtscAudioTrack> mAudioTrackMap;
-    private final SparseArray<AtscCaptionTrack> mCaptionTrackMap;
     private AtscCaptionTrack mCaptionTrack;
     private PlaybackParams mPlaybackParams = new PlaybackParams();
     private boolean mPlayerStarted = false;
@@ -227,24 +227,16 @@ public class TunerSessionWorkerExoV2 implements
     private boolean mReportedWeakSignal = false;
     private EitItem mProgram;
     private List<EitItem> mPrograms;
-    private final TvInputManager mTvInputManager;
     private boolean mChannelBlocked;
     private TvContentRating mUnblockedContentRating;
     private long mLastPositionMs;
-    private final AudioCapabilitiesReceiverV2Wrapper mAudioCapabilitiesReceiver;
     private AudioCapabilities mAudioCapabilities;
     private long mLastLimitInBytes;
-    private final TvContentRatingCache mTvContentRatingCache = TvContentRatingCache.getInstance();
-    private final TunerSessionExoV2 mSession;
-    private final TunerSessionOverlay mTunerSessionOverlay;
-    private final boolean mHasSoftwareAudioDecoder;
     private int mPlayerState = MpegTsPlayerV2.STATE_IDLE;
     private long mBufferingStartTimeMs;
     private long mReadyStartTimeMs;
     private boolean mIsActiveSession;
     private boolean mReleaseRequested; // Guarded by mReleaseLock
-    private final Object mReleaseLock = new Object();
-    private final LegacyFlags mLegacyFlags;
     private Uri mChannelUri;
     private Uri mRecordingUri;
     private boolean mOnTuneUsesRecording = false;
@@ -252,20 +244,6 @@ public class TunerSessionWorkerExoV2 implements
     private int mSignalStrength;
     private long mRecordedProgramStartTimeMs;
     private BufferManager mBufferManager;
-
-    /**
-     * Factory for {@link TunerSessionWorkerExoV2}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        TunerSessionWorkerExoV2 create(
-                Context context,
-                ChannelDataManager channelDataManager,
-                TunerSessionExoV2 tunerSession,
-                TunerSessionOverlay tunerSessionOverlay);
-    }
 
     @AutoFactory(implementing = Factory.class)
     public TunerSessionWorkerExoV2(
@@ -692,51 +670,6 @@ public class TunerSessionWorkerExoV2 implements
         } catch (UnsupportedOperationException | NumberFormatException e) {
         }
         return -1;
-    }
-
-    private static class RecordedProgram {
-        private final long mChannelId;
-        private final String mDataUri;
-        private final long mStartTimeMillis;
-
-        private static final String[] PROJECTION = {
-                TvContract.Programs.COLUMN_CHANNEL_ID,
-                TvContract.RecordedPrograms.COLUMN_RECORDING_DATA_URI,
-                TvContract.RecordedPrograms.COLUMN_START_TIME_UTC_MILLIS,
-        };
-
-        public RecordedProgram(Cursor cursor) {
-            int index = 0;
-            mChannelId = cursor.getLong(index++);
-            mDataUri = cursor.getString(index++);
-            mStartTimeMillis = cursor.getLong(index++);
-        }
-
-        public RecordedProgram(long channelId, String dataUri) {
-            mChannelId = channelId;
-            mDataUri = dataUri;
-            mStartTimeMillis = 0;
-        }
-
-        public static RecordedProgram onQuery(Cursor c) {
-            RecordedProgram recording = null;
-            if (c != null && c.moveToNext()) {
-                recording = new RecordedProgram(c);
-            }
-            return recording;
-        }
-
-        public String getDataUri() {
-            return mDataUri;
-        }
-
-        public long getStartTime() {
-            return mStartTimeMillis;
-        }
-
-        public long getChannelId() {
-            return mChannelId;
-        }
     }
 
     private RecordedProgram getRecordedProgram(Uri recordedUri) {
@@ -2065,6 +1998,64 @@ public class TunerSessionWorkerExoV2 implements
         mReportedWeakSignal = false;
         if (mSession != null) {
             mSession.notifyVideoAvailable();
+        }
+    }
+
+    /**
+     * Factory for {@link TunerSessionWorkerExoV2}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        TunerSessionWorkerExoV2 create(
+                Context context,
+                ChannelDataManager channelDataManager,
+                TunerSessionExoV2 tunerSession,
+                TunerSessionOverlay tunerSessionOverlay);
+    }
+
+    private static class RecordedProgram {
+        private static final String[] PROJECTION = {
+                TvContract.Programs.COLUMN_CHANNEL_ID,
+                TvContract.RecordedPrograms.COLUMN_RECORDING_DATA_URI,
+                TvContract.RecordedPrograms.COLUMN_START_TIME_UTC_MILLIS,
+        };
+        private final long mChannelId;
+        private final String mDataUri;
+        private final long mStartTimeMillis;
+
+        public RecordedProgram(Cursor cursor) {
+            int index = 0;
+            mChannelId = cursor.getLong(index++);
+            mDataUri = cursor.getString(index++);
+            mStartTimeMillis = cursor.getLong(index++);
+        }
+
+        public RecordedProgram(long channelId, String dataUri) {
+            mChannelId = channelId;
+            mDataUri = dataUri;
+            mStartTimeMillis = 0;
+        }
+
+        public static RecordedProgram onQuery(Cursor c) {
+            RecordedProgram recording = null;
+            if (c != null && c.moveToNext()) {
+                recording = new RecordedProgram(c);
+            }
+            return recording;
+        }
+
+        public String getDataUri() {
+            return mDataUri;
+        }
+
+        public long getStartTime() {
+            return mStartTimeMillis;
+        }
+
+        public long getChannelId() {
+            return mChannelId;
         }
     }
 }

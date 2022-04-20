@@ -20,9 +20,6 @@ import android.os.ConditionVariable;
 
 import androidx.annotation.NonNull;
 
-import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.SampleExtractor;
-
 import com.google.android.exoplayer.C;
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.SampleHolder;
@@ -30,6 +27,9 @@ import com.google.android.exoplayer.SampleSource;
 
 import java.io.IOException;
 import java.util.List;
+
+import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.SampleExtractor;
 
 /**
  * Handles I/O for {@link SampleExtractor} when physical storage based buffer is not used. Trickplay

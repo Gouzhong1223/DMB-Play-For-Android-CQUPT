@@ -32,24 +32,10 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 public class DmbBroadcastReceiver extends BroadcastReceiver {
 
     private static final String ACTION_USB_PERMISSION = DmbPlayerConstant.ACTION_USB_PERMISSION.getDmbConstantDescribe();
-
-    private UsbManager usbManager;
-
-    private final Context context;
-
-    @SuppressLint("StaticFieldLeak")
-    private static volatile DmbBroadcastReceiver dmbBroadcastReceiver;
-
-    /**
-     * 主页面的回调处理器
-     */
-    private final Handler handler;
-
     /**
      * 跳转到默认场景的消息
      */
     private static final int MESSAGE_JUMP_DEFAULT_ACTIVITY = DmbPlayerConstant.MESSAGE_JUMP_DEFAULT_ACTIVITY.getDmbConstantValue();
-
     /**
      * 设备的厂商 ID
      */
@@ -58,6 +44,14 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * 设备的产品 ID
      */
     private static final int PID = DmbPlayerConstant.DMB_P_ID.getDmbConstantValue();
+    @SuppressLint("StaticFieldLeak")
+    private static volatile DmbBroadcastReceiver dmbBroadcastReceiver;
+    private final Context context;
+    /**
+     * 主页面的回调处理器
+     */
+    private final Handler handler;
+    private UsbManager usbManager;
 
     private DmbBroadcastReceiver(Context context, Handler handler) {
         this.handler = handler;

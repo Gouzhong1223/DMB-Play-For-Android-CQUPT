@@ -64,21 +64,17 @@ public class SubtitleView extends View {
 
     private final TextPaint mTextPaint;
     private final Paint mPaint;
-
+    private final float mSpacingMult;
+    private final float mSpacingAdd;
     private CharSequence mText;
-
     private int mForegroundColor;
     private int mBackgroundColor;
     private int mEdgeColor;
     private int mEdgeType;
-
     private boolean mHasMeasurements;
     private int mLastMeasuredWidth;
     private StaticLayout mLayout;
-
     private Alignment mAlignment;
-    private final float mSpacingMult;
-    private final float mSpacingAdd;
     private int mInnerPaddingX;
     private float mWhiteSpaceWidth;
     private ArrayList<Integer> mPrefixSpaces = new ArrayList<>();

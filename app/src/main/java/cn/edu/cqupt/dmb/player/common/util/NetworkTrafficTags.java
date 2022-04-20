@@ -32,6 +32,9 @@ public final class NetworkTrafficTags {
     public static final int HDHOMERUN = 3;
     public static final int EPG_FETCH = 4;
 
+    private NetworkTrafficTags() {
+    }
+
     /**
      * An executor which simply wraps a provided delegate executor, but calls {@link
      * TrafficStats#setThreadStatsTag(int)} before executing any task.
@@ -58,8 +61,5 @@ public final class NetworkTrafficTags {
                         }
                     });
         }
-    }
-
-    private NetworkTrafficTags() {
     }
 }

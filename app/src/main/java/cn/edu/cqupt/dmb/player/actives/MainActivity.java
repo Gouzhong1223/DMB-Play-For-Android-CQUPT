@@ -36,22 +36,18 @@ public class MainActivity extends Activity {
     private static final String ACTION_USB_PERMISSION = DmbPlayerConstant.ACTION_USB_PERMISSION.getDmbConstantDescribe();
     private static final String TAG = "MainActivity";
     private static final int WRITE_STORAGE_REQUEST_CODE = 100;
-
-    /**
-     * 设备的 ID 号
-     */
-    public static volatile int id;
-
-    /**
-     * USB广播接收器
-     */
-    private DmbBroadcastReceiver dmbBroadcastReceiver;
-
     /**
      * 跳转到默认场景的消息
      */
     private static final int MESSAGE_JUMP_DEFAULT_ACTIVITY = DmbPlayerConstant.MESSAGE_JUMP_DEFAULT_ACTIVITY.getDmbConstantValue();
-
+    /**
+     * 设备的 ID 号
+     */
+    public static volatile int id;
+    /**
+     * USB广播接收器
+     */
+    private DmbBroadcastReceiver dmbBroadcastReceiver;
     /**
      * 默认的工作场景
      */

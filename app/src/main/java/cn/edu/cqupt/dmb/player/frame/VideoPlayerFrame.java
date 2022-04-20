@@ -30,31 +30,62 @@ import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
 public class VideoPlayerFrame extends FrameLayout {
 
     private static final String TAG = "VideoPlayerFrame";
-
-    /**
-     * 播放器
-     */
-    private IMediaPlayer iMediaPlayer = null;
-
-    /**
-     * 播放器视图
-     */
-    private SurfaceView surfaceView = null;
-
     /**
      * 调用播放器的 Context
      */
     private final Context context;
-
+    /**
+     * 播放器
+     */
+    private IMediaPlayer iMediaPlayer = null;
+    /**
+     * 播放器视图
+     */
+    private SurfaceView surfaceView = null;
+    /**
+     * 这个是 IMediaPlayer 用来监听视频大小改变的监听器的
+     * 有时候我们收到的视频,前一个和后一个分辨率可能不一样,当视频切换的时候就需要重新设置 IMediaPlayer
+     */
+    private final IMediaPlayer.OnVideoSizeChangedListener videoSizeChangedListener = (iMediaPlayer, i, i1, i2, i3) -> {
+        int videoWidth = iMediaPlayer.getVideoWidth();
+        int videoHeight = iMediaPlayer.getVideoHeight();
+        if (videoWidth != 0 && videoHeight != 0) {
+            surfaceView.getHolder().setFixedSize(videoWidth, videoHeight);
+        }
+    };
     /**
      * 播放监听器
      */
     private VideoPlayerListener videoPlayerListener;
-
+    /**
+     * 创建一个 IMediaPlayer 的前置处理监听器
+     */
+    private final IMediaPlayer.OnPreparedListener onPreparedListener = new IMediaPlayer.OnPreparedListener() {
+        @Override
+        public void onPrepared(IMediaPlayer iMediaPlayer) {
+            if (videoPlayerListener != null) {
+                videoPlayerListener.onPrepared(iMediaPlayer);
+            }
+        }
+    };
     /**
      * 数据源
      */
     private IMediaDataSource iMediaDataSource;
+
+    public VideoPlayerFrame(Context context) {
+        this(context, null);
+    }
+
+    public VideoPlayerFrame(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public VideoPlayerFrame(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        this.context = context;
+        init();
+    }
 
     /**
      * 初始化 View
@@ -260,44 +291,5 @@ public class VideoPlayerFrame extends FrameLayout {
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec", value);//开启硬解码
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-auto-rotate", value);
         ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "mediacodec-handle-resolution-change", value);
-    }
-
-
-    /**
-     * 创建一个 IMediaPlayer 的前置处理监听器
-     */
-    private final IMediaPlayer.OnPreparedListener onPreparedListener = new IMediaPlayer.OnPreparedListener() {
-        @Override
-        public void onPrepared(IMediaPlayer iMediaPlayer) {
-            if (videoPlayerListener != null) {
-                videoPlayerListener.onPrepared(iMediaPlayer);
-            }
-        }
-    };
-
-    /**
-     * 这个是 IMediaPlayer 用来监听视频大小改变的监听器的
-     * 有时候我们收到的视频,前一个和后一个分辨率可能不一样,当视频切换的时候就需要重新设置 IMediaPlayer
-     */
-    private final IMediaPlayer.OnVideoSizeChangedListener videoSizeChangedListener = (iMediaPlayer, i, i1, i2, i3) -> {
-        int videoWidth = iMediaPlayer.getVideoWidth();
-        int videoHeight = iMediaPlayer.getVideoHeight();
-        if (videoWidth != 0 && videoHeight != 0) {
-            surfaceView.getHolder().setFixedSize(videoWidth, videoHeight);
-        }
-    };
-
-    public VideoPlayerFrame(Context context) {
-        this(context, null);
-    }
-
-    public VideoPlayerFrame(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public VideoPlayerFrame(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        this.context = context;
-        init();
     }
 }

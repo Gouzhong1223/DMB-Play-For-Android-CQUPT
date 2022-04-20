@@ -26,12 +26,8 @@ import androidx.annotation.NonNull;
  */
 public class Cea708Data {
 
-    private Cea708Data() {
-    }
-
     // According to CEA-708B, the range of valid service number is between 1 and 63.
     public static final int EMPTY_SERVICE_NUMBER = 0;
-
     // For the details of the ranges of DTVCC code groups, see CEA-708B Table 6.
     public static final int CODE_C0_RANGE_START = 0x00;
     public static final int CODE_C0_RANGE_END = 0x1f;
@@ -49,13 +45,11 @@ public class Cea708Data {
     public static final int CODE_G2_RANGE_END = 0x7f;
     public static final int CODE_G3_RANGE_START = 0xa0;
     public static final int CODE_G3_RANGE_END = 0xff;
-
     // The following ranges are defined in CEA-708B Section 7.4.1.
     public static final int CODE_C0_SKIP2_RANGE_START = 0x18;
     public static final int CODE_C0_SKIP2_RANGE_END = 0x1f;
     public static final int CODE_C0_SKIP1_RANGE_START = 0x10;
     public static final int CODE_C0_SKIP1_RANGE_END = 0x17;
-
     // The following ranges are defined in CEA-708B Section 7.4.7.
     public static final int CODE_C2_SKIP0_RANGE_START = 0x00;
     public static final int CODE_C2_SKIP0_RANGE_END = 0x07;
@@ -65,13 +59,11 @@ public class Cea708Data {
     public static final int CODE_C2_SKIP2_RANGE_END = 0x17;
     public static final int CODE_C2_SKIP3_RANGE_START = 0x18;
     public static final int CODE_C2_SKIP3_RANGE_END = 0x1f;
-
     // The following ranges are defined in CEA-708B Section 7.4.8.
     public static final int CODE_C3_SKIP4_RANGE_START = 0x80;
     public static final int CODE_C3_SKIP4_RANGE_END = 0x87;
     public static final int CODE_C3_SKIP5_RANGE_START = 0x88;
     public static final int CODE_C3_SKIP5_RANGE_END = 0x8f;
-
     // The following values are the special characters of CEA-708 spec.
     public static final int CODE_C0_NUL = 0x00;
     public static final int CODE_C0_ETX = 0x03;
@@ -86,7 +78,6 @@ public class Cea708Data {
     public static final int CODE_G2_NBTSP = 0x21;
     public static final int CODE_G2_BLK = 0x30;
     public static final int CODE_G3_CC = 0xa0;
-
     // The following values are the command bits of CEA-708 spec.
     public static final int CODE_C1_CW0 = 0x80;
     public static final int CODE_C1_CW1 = 0x81;
@@ -116,6 +107,8 @@ public class Cea708Data {
     public static final int CODE_C1_DF5 = 0x9d;
     public static final int CODE_C1_DF6 = 0x9e;
     public static final int CODE_C1_DF7 = 0x9f;
+    private Cea708Data() {
+    }
 
     public static class CcPacket implements Comparable<CcPacket> {
         public final byte[] bytes;

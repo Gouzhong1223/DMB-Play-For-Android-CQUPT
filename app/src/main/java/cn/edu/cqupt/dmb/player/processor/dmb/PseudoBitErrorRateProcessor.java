@@ -1,7 +1,5 @@
 package cn.edu.cqupt.dmb.player.processor.dmb;
 
-import android.util.Log;
-
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -16,9 +14,9 @@ import android.util.Log;
 public class PseudoBitErrorRateProcessor implements DataProcessing {
 
     private static final String TAG = "PseudoBitErrorRateProcessor";
+    int bbReg0, bbReg3;
     private volatile int ber;
     private volatile int bitRate;
-    int bbReg0, bbReg3;
 
     @Override
     public void processData(byte[] usbData) {
@@ -42,15 +40,15 @@ public class PseudoBitErrorRateProcessor implements DataProcessing {
         return bitRate;
     }
 
+    public void setBitRate(int bitRate) {
+        this.bitRate = bitRate;
+    }
+
     public int getBbReg0() {
         return bbReg0;
     }
 
     public int getBbReg3() {
         return bbReg3;
-    }
-
-    public void setBitRate(int bitRate) {
-        this.bitRate = bitRate;
     }
 }

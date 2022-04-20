@@ -20,11 +20,6 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
-import cn.edu.cqupt.dmb.player.common.compat.TvInputConstantCompat;
-import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
-import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -32,35 +27,43 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
+import cn.edu.cqupt.dmb.player.common.compat.TvInputConstantCompat;
+import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
+import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
+
 /**
  * Tuner implementation for HdHomeRun
  */
 public class HdHomeRunTunerHal implements Tuner {
+    public static final char VCHANNEL_SEPARATOR = '.';
+    public static final int CONNECTION_TIMEOUT_MS_FOR_URLCONNECTION = 3000; // 3 sec
+    public static final int READ_TIMEOUT_MS_FOR_URLCONNECTION = 10000; // 10 sec
     private static final String TAG = "HdHomeRunTunerHal";
     private static final boolean DEBUG = false;
-
     private static final String CABLECARD_MODEL = "cablecard";
     private static final String ATSC_MODEL = "atsc";
     private static final String DVBC_MODEL = "dvbc";
     private static final String DVBT_MODEL = "dvbt";
-
     private final HdHomeRunTunerManager mTunerManager;
+    private final Context mContext;
     private HdHomeRunDevice mDevice;
     private BufferedInputStream mInputStream;
     private HttpURLConnection mConnection;
     private String mHttpConnectionAddress;
-    private final Context mContext;
-
     @DeliverySystemType
     private int mDeliverySystemType = DELIVERY_SYSTEM_UNDEFINED;
-
-    public static final char VCHANNEL_SEPARATOR = '.';
-    public static final int CONNECTION_TIMEOUT_MS_FOR_URLCONNECTION = 3000; // 3 sec
-    public static final int READ_TIMEOUT_MS_FOR_URLCONNECTION = 10000; // 10 sec
 
     public HdHomeRunTunerHal(Context context) {
         mTunerManager = HdHomeRunTunerManager.getInstance();
         mContext = context;
+    }
+
+    /**
+     * Gets the number of tuners in a given HDHomeRun devices.
+     */
+    public static int getNumberOfDevices() {
+        return HdHomeRunTunerManager.getInstance().getTunerCount();
     }
 
     @Override
@@ -222,13 +225,6 @@ public class HdHomeRunTunerHal implements Tuner {
             mConnection.disconnect();
             mConnection = null;
         }
-    }
-
-    /**
-     * Gets the number of tuners in a given HDHomeRun devices.
-     */
-    public static int getNumberOfDevices() {
-        return HdHomeRunTunerManager.getInstance().getTunerCount();
     }
 
     /**

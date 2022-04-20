@@ -17,14 +17,13 @@
 package cn.edu.cqupt.dmb.player.common.ui.setup;
 
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
+
+import androidx.annotation.Nullable;
 
 import cn.edu.cqupt.dmb.player.R;
 
@@ -33,14 +32,12 @@ import cn.edu.cqupt.dmb.player.R;
  * A fragment for channel source info/setup.
  */
 public abstract class SetupMultiPaneFragment extends SetupFragment {
-    private static final String TAG = "SetupMultiPaneFragment";
-    private static final boolean DEBUG = false;
-
     public static final int ACTION_DONE = Integer.MAX_VALUE;
     public static final int ACTION_SKIP = ACTION_DONE - 1;
     public static final int MAX_SUBCLASSES_ID = ACTION_SKIP - 1;
-
     public static final String CONTENT_FRAGMENT_TAG = "content_fragment";
+    private static final String TAG = "SetupMultiPaneFragment";
+    private static final boolean DEBUG = false;
 
     @Override
     public View onCreateView(

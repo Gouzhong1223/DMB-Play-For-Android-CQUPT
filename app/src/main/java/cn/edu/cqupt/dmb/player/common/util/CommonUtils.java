@@ -23,14 +23,14 @@ import android.os.Build;
 import android.util.ArraySet;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.CommonConstants;
-import cn.edu.cqupt.dmb.player.common.actions.InputSetupActionUtils;
-
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
+
+import cn.edu.cqupt.dmb.player.common.CommonConstants;
+import cn.edu.cqupt.dmb.player.common.actions.InputSetupActionUtils;
 
 /**
  * Util class for common use in TV app and inputs.
@@ -52,13 +52,12 @@ public final class CommonUtils {
     // Bundled (system) inputs not in the list will get the high priority
     // so they and their channels come first in the UI.
     private static final Set<String> BUNDLED_PACKAGE_SET = new ArraySet<>();
+    private static Boolean sRunningInTest;
 
     static {
         BUNDLED_PACKAGE_SET.add("cn.edu.cqupt.dmb.player");
 // AOSP_Comment_Out         BUNDLED_PACKAGE_SET.add(CommonConstants.BASE_PACKAGE);
     }
-
-    private static Boolean sRunningInTest;
 
     private CommonUtils() {
     }

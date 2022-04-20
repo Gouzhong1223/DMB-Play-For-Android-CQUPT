@@ -20,16 +20,15 @@ import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
 import android.media.tv.TvInputInfo;
 import android.media.tv.TvInputService;
+import android.util.Log;
 
 import androidx.annotation.VisibleForTesting;
 
-import android.util.Log;
+import org.xmlpull.v1.XmlPullParser;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.xmlpull.v1.XmlPullParser;
 
 /**
  * TIF Compatibility for {@link TvInputInfo}.

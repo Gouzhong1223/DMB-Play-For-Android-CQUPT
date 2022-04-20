@@ -23,31 +23,29 @@ import android.os.StrictMode;
 
 import androidx.annotation.VisibleForTesting;
 
+import javax.inject.Inject;
+
 import cn.edu.cqupt.dmb.player.common.dev.DeveloperPreferences;
 import cn.edu.cqupt.dmb.player.common.feature.CommonFeatures;
 import cn.edu.cqupt.dmb.player.common.recording.RecordingStorageStatusManager;
 import cn.edu.cqupt.dmb.player.common.util.Clock;
 import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
 import cn.edu.cqupt.dmb.player.common.util.Debug;
-
 import dagger.Lazy;
 import dagger.android.DaggerApplication;
-
-import javax.inject.Inject;
 
 /**
  * The base application class for TV applications.
  */
 public abstract class BaseApplication extends DaggerApplication implements BaseSingletons {
-    @Inject
-    Lazy<RecordingStorageStatusManager> mRecordingStorageStatusManager;
-
     /**
      * An instance of {@link BaseSingletons}. Note that this can be set directly only for the test
      * purpose.
      */
     @VisibleForTesting
     public static BaseSingletons sSingletons;
+    @Inject
+    Lazy<RecordingStorageStatusManager> mRecordingStorageStatusManager;
 
     /**
      * Returns the {@link BaseSingletons} using the application context.

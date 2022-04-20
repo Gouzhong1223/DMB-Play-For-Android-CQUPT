@@ -15,8 +15,8 @@
  */
 package cn.edu.cqupt.dmb.player.common.flags.impl;
 
-import cn.edu.cqupt.dmb.player.common.flags.TypedFeatures.StringListParam;
 import cn.edu.cqupt.dmb.player.common.flags.StartupFlags;
+import cn.edu.cqupt.dmb.player.common.flags.TypedFeatures.StringListParam;
 
 /**
  * Default {@link StartupFlags}

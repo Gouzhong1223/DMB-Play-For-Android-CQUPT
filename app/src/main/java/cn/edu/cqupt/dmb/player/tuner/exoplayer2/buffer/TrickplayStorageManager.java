@@ -19,17 +19,16 @@ package cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.provider.Settings;
-
-import androidx.annotation.NonNull;
-
 import android.util.Pair;
 
-import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
+import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
+
+import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
 
 /**
  * Manages Trickplay storage.
@@ -53,6 +52,13 @@ public class TrickplayStorageManager implements BufferManager.StorageManager {
 
     private final long mMaxBufferSize;
 
+    public TrickplayStorageManager(Context context, @NonNull File baseDir, long maxBufferSize) {
+        initParamsIfNeeded(context, new File(baseDir, BUFFER_DIR));
+        sBufferDir.mkdirs();
+        mMaxBufferSize = maxBufferSize;
+        clearStorage();
+    }
+
     private static void initParamsIfNeeded(Context context, @NonNull File path) {
         // TODO: Support multi-sessions.
         SoftPreconditions.checkState(sBufferDir == null || sBufferDir.equals(path));
@@ -72,13 +78,6 @@ public class TrickplayStorageManager implements BufferManager.StorageManager {
                         SYS_STORAGE_THRESHOLD_MAX_BYTES,
                         DEFAULT_THRESHOLD_MAX_BYTES);
         sStorageBufferBytes = Math.min(lowPercentageToBytes, maxLowBytes);
-    }
-
-    public TrickplayStorageManager(Context context, @NonNull File baseDir, long maxBufferSize) {
-        initParamsIfNeeded(context, new File(baseDir, BUFFER_DIR));
-        sBufferDir.mkdirs();
-        mMaxBufferSize = maxBufferSize;
-        clearStorage();
     }
 
     private void clearStorage() {

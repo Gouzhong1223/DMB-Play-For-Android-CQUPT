@@ -20,8 +20,6 @@ import android.media.MediaCodec;
 import android.os.Handler;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.tuner.features.TunerFeatures;
-
 import com.google.android.exoplayer.DecoderInfo;
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaCodecSelector;
@@ -32,6 +30,8 @@ import com.google.android.exoplayer.MediaSoftwareCodecUtil;
 import com.google.android.exoplayer.SampleSource;
 
 import java.lang.reflect.Field;
+
+import cn.edu.cqupt.dmb.player.tuner.features.TunerFeatures;
 
 /**
  * MPEG-2 TS video track renderer
@@ -46,10 +46,6 @@ public class MpegTsVideoTrackRenderer extends MediaCodecVideoTrackRenderer {
     private static final String MIMETYPE_MPEG2 = "video/mpeg2";
     private static Field sRenderedFirstFrameField;
 
-    private final boolean mIsSwCodecEnabled;
-    private boolean mCodecIsSwPreferred;
-    private boolean mSetRenderedFirstFrame;
-
     static {
         // Remove the reflection below once b/31223646 is resolved.
         try {
@@ -60,6 +56,10 @@ public class MpegTsVideoTrackRenderer extends MediaCodecVideoTrackRenderer {
             // Null-checking for {@code sRenderedFirstFrameField} will do the error handling.
         }
     }
+
+    private final boolean mIsSwCodecEnabled;
+    private boolean mCodecIsSwPreferred;
+    private boolean mSetRenderedFirstFrame;
 
     public MpegTsVideoTrackRenderer(
             Context context,

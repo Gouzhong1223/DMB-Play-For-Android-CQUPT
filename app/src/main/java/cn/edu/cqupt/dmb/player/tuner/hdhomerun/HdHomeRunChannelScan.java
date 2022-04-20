@@ -22,10 +22,6 @@ import android.os.ConditionVariable;
 import android.util.Log;
 import android.util.Xml;
 
-import cn.edu.cqupt.dmb.player.tuner.api.ChannelScanListener;
-import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
-import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector.EventListener;
-
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -34,6 +30,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.regex.Pattern;
+
+import cn.edu.cqupt.dmb.player.tuner.api.ChannelScanListener;
+import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
+import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector.EventListener;
 
 /**
  * A helper class to perform channel scan on HDHomeRun tuner.

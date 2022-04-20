@@ -26,6 +26,17 @@ import android.util.SparseArray;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import cn.edu.cqupt.dmb.player.common.feature.Model;
 import cn.edu.cqupt.dmb.player.tuner.data.Channel.AtscServiceType;
 import cn.edu.cqupt.dmb.player.tuner.data.PsiData.PatItem;
@@ -53,39 +64,10 @@ import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscCaptionTrack;
 import cn.edu.cqupt.dmb.player.tuner.util.ByteArrayBuffer;
 import cn.edu.cqupt.dmb.player.tuner.util.ConvertUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * Parses ATSC PSIP sections.
  */
 public class SectionParser {
-    private static final String TAG = "SectionParser";
-    private static final boolean DEBUG = false;
-
-    private static final byte TABLE_ID_PAT = (byte) 0x00;
-    private static final byte TABLE_ID_PMT = (byte) 0x02;
-    private static final byte TABLE_ID_MGT = (byte) 0xc7;
-    private static final byte TABLE_ID_TVCT = (byte) 0xc8;
-    private static final byte TABLE_ID_CVCT = (byte) 0xc9;
-    private static final byte TABLE_ID_EIT = (byte) 0xcb;
-    private static final byte TABLE_ID_ETT = (byte) 0xcc;
-
-    // Table id for DVB
-    private static final byte TABLE_ID_SDT = (byte) 0x42;
-    private static final byte TABLE_ID_DVB_ACTUAL_P_F_EIT = (byte) 0x4e;
-    private static final byte TABLE_ID_DVB_OTHER_P_F_EIT = (byte) 0x4f;
-    private static final byte TABLE_ID_DVB_ACTUAL_SCHEDULE_EIT = (byte) 0x50;
-    private static final byte TABLE_ID_DVB_OTHER_SCHEDULE_EIT = (byte) 0x60;
-
     // For details of the structure for the tags of descriptors, see ATSC A/65 Table 6.25.
     public static final int DESCRIPTOR_TAG_ISO639LANGUAGE = 0x0a;
     public static final int DESCRIPTOR_TAG_CAPTION_SERVICE = 0x86;
@@ -93,75 +75,11 @@ public class SectionParser {
     public static final int DESCRIPTOR_TAG_AC3_AUDIO_STREAM = 0x81;
     public static final int DESCRIPTOR_TAG_EXTENDED_CHANNEL_NAME = 0xa0;
     public static final int DESCRIPTOR_TAG_GENRE = 0xab;
-
     // For details of the structure for the tags of DVB descriptors, see DVB Document A038 Table 12.
     public static final int DVB_DESCRIPTOR_TAG_SERVICE = 0x48;
     public static final int DVB_DESCRIPTOR_TAG_SHORT_EVENT = 0X4d;
     public static final int DVB_DESCRIPTOR_TAG_CONTENT = 0x54;
     public static final int DVB_DESCRIPTOR_TAG_PARENTAL_RATING = 0x55;
-
-    private static final byte COMPRESSION_TYPE_NO_COMPRESSION = (byte) 0x00;
-    private static final byte MODE_SELECTED_UNICODE_RANGE_1 = (byte) 0x00; // 0x0000 - 0x00ff
-    private static final byte MODE_UTF16 = (byte) 0x3f;
-    private static final byte MODE_SCSU = (byte) 0x3e;
-    private static final int MAX_SHORT_NAME_BYTES = 14;
-
-    // See ANSI/CEA-766-C.
-    private static final int RATING_REGION_US_TV = 1;
-    private static final int RATING_REGION_KR_TV = 4;
-
-    // The following values are defined in the TV app.
-    // See https://developer.android.com/reference/android/media/tv/TvContentRating.html.
-    private static final String RATING_DOMAIN = "cn.edu.cqupt.dmb.player";
-    private static final String RATING_REGION_RATING_SYSTEM_US_TV = "US_TV";
-    private static final String RATING_REGION_RATING_SYSTEM_US_MV = "US_MV";
-    private static final String RATING_REGION_RATING_SYSTEM_KR_TV = "KR_TV";
-
-    private static final String[] RATING_REGION_TABLE_US_TV = {
-            "US_TV_Y", "US_TV_Y7", "US_TV_G", "US_TV_PG", "US_TV_14", "US_TV_MA"
-    };
-
-    private static final String[] RATING_REGION_TABLE_US_MV = {
-            "US_MV_G", "US_MV_PG", "US_MV_PG13", "US_MV_R", "US_MV_NC17"
-    };
-
-    private static final String[] RATING_REGION_TABLE_KR_TV = {
-            "KR_TV_ALL", "KR_TV_7", "KR_TV_12", "KR_TV_15", "KR_TV_19"
-    };
-
-    private static final String[] RATING_REGION_TABLE_US_TV_SUBRATING = {
-            "US_TV_D", "US_TV_L", "US_TV_S", "US_TV_V", "US_TV_FV"
-    };
-
-    // According to ANSI-CEA-766-D
-    private static final int VALUE_US_TV_Y = 1;
-    private static final int VALUE_US_TV_Y7 = 2;
-    private static final int VALUE_US_TV_NONE = 1;
-    private static final int VALUE_US_TV_G = 2;
-    private static final int VALUE_US_TV_PG = 3;
-    private static final int VALUE_US_TV_14 = 4;
-    private static final int VALUE_US_TV_MA = 5;
-
-    private static final int DIMENSION_US_TV_RATING = 0;
-    private static final int DIMENSION_US_TV_D = 1;
-    private static final int DIMENSION_US_TV_L = 2;
-    private static final int DIMENSION_US_TV_S = 3;
-    private static final int DIMENSION_US_TV_V = 4;
-    private static final int DIMENSION_US_TV_Y = 5;
-    private static final int DIMENSION_US_TV_FV = 6;
-    private static final int DIMENSION_US_MV_RATING = 7;
-
-    private static final int VALUE_US_MV_G = 2;
-    private static final int VALUE_US_MV_PG = 3;
-    private static final int VALUE_US_MV_PG13 = 4;
-    private static final int VALUE_US_MV_R = 5;
-    private static final int VALUE_US_MV_NC17 = 6;
-    private static final int VALUE_US_MV_X = 7;
-
-    private static final String STRING_US_TV_Y = "US_TV_Y";
-    private static final String STRING_US_TV_Y7 = "US_TV_Y7";
-    private static final String STRING_US_TV_FV = "US_TV_FV";
-
     /*
      * The following CRC table is from the code generated by the following command.
      * $ python pycrc.py --model crc-32-mpeg --algorithm table-driven --generate c
@@ -233,7 +151,72 @@ public class SectionParser {
             0xafb010b1, 0xab710d06, 0xa6322bdf, 0xa2f33668,
             0xbcb4666d, 0xb8757bda, 0xb5365d03, 0xb1f740b4
     };
-
+    private static final String TAG = "SectionParser";
+    private static final boolean DEBUG = false;
+    private static final byte TABLE_ID_PAT = (byte) 0x00;
+    private static final byte TABLE_ID_PMT = (byte) 0x02;
+    private static final byte TABLE_ID_MGT = (byte) 0xc7;
+    private static final byte TABLE_ID_TVCT = (byte) 0xc8;
+    private static final byte TABLE_ID_CVCT = (byte) 0xc9;
+    private static final byte TABLE_ID_EIT = (byte) 0xcb;
+    private static final byte TABLE_ID_ETT = (byte) 0xcc;
+    // Table id for DVB
+    private static final byte TABLE_ID_SDT = (byte) 0x42;
+    private static final byte TABLE_ID_DVB_ACTUAL_P_F_EIT = (byte) 0x4e;
+    private static final byte TABLE_ID_DVB_OTHER_P_F_EIT = (byte) 0x4f;
+    private static final byte TABLE_ID_DVB_ACTUAL_SCHEDULE_EIT = (byte) 0x50;
+    private static final byte TABLE_ID_DVB_OTHER_SCHEDULE_EIT = (byte) 0x60;
+    private static final byte COMPRESSION_TYPE_NO_COMPRESSION = (byte) 0x00;
+    private static final byte MODE_SELECTED_UNICODE_RANGE_1 = (byte) 0x00; // 0x0000 - 0x00ff
+    private static final byte MODE_UTF16 = (byte) 0x3f;
+    private static final byte MODE_SCSU = (byte) 0x3e;
+    private static final int MAX_SHORT_NAME_BYTES = 14;
+    // See ANSI/CEA-766-C.
+    private static final int RATING_REGION_US_TV = 1;
+    private static final int RATING_REGION_KR_TV = 4;
+    // The following values are defined in the TV app.
+    // See https://developer.android.com/reference/android/media/tv/TvContentRating.html.
+    private static final String RATING_DOMAIN = "cn.edu.cqupt.dmb.player";
+    private static final String RATING_REGION_RATING_SYSTEM_US_TV = "US_TV";
+    private static final String RATING_REGION_RATING_SYSTEM_US_MV = "US_MV";
+    private static final String RATING_REGION_RATING_SYSTEM_KR_TV = "KR_TV";
+    private static final String[] RATING_REGION_TABLE_US_TV = {
+            "US_TV_Y", "US_TV_Y7", "US_TV_G", "US_TV_PG", "US_TV_14", "US_TV_MA"
+    };
+    private static final String[] RATING_REGION_TABLE_US_MV = {
+            "US_MV_G", "US_MV_PG", "US_MV_PG13", "US_MV_R", "US_MV_NC17"
+    };
+    private static final String[] RATING_REGION_TABLE_KR_TV = {
+            "KR_TV_ALL", "KR_TV_7", "KR_TV_12", "KR_TV_15", "KR_TV_19"
+    };
+    private static final String[] RATING_REGION_TABLE_US_TV_SUBRATING = {
+            "US_TV_D", "US_TV_L", "US_TV_S", "US_TV_V", "US_TV_FV"
+    };
+    // According to ANSI-CEA-766-D
+    private static final int VALUE_US_TV_Y = 1;
+    private static final int VALUE_US_TV_Y7 = 2;
+    private static final int VALUE_US_TV_NONE = 1;
+    private static final int VALUE_US_TV_G = 2;
+    private static final int VALUE_US_TV_PG = 3;
+    private static final int VALUE_US_TV_14 = 4;
+    private static final int VALUE_US_TV_MA = 5;
+    private static final int DIMENSION_US_TV_RATING = 0;
+    private static final int DIMENSION_US_TV_D = 1;
+    private static final int DIMENSION_US_TV_L = 2;
+    private static final int DIMENSION_US_TV_S = 3;
+    private static final int DIMENSION_US_TV_V = 4;
+    private static final int DIMENSION_US_TV_Y = 5;
+    private static final int DIMENSION_US_TV_FV = 6;
+    private static final int DIMENSION_US_MV_RATING = 7;
+    private static final int VALUE_US_MV_G = 2;
+    private static final int VALUE_US_MV_PG = 3;
+    private static final int VALUE_US_MV_PG13 = 4;
+    private static final int VALUE_US_MV_R = 5;
+    private static final int VALUE_US_MV_NC17 = 6;
+    private static final int VALUE_US_MV_X = 7;
+    private static final String STRING_US_TV_Y = "US_TV_Y";
+    private static final String STRING_US_TV_Y7 = "US_TV_Y7";
+    private static final String STRING_US_TV_FV = "US_TV_FV";
     // A table which maps ATSC genres to TIF genres.
     // See ATSC/65 Table 6.20.
     private static final String[] CANONICAL_GENRES_TABLE = {
@@ -595,6 +578,9 @@ public class SectionParser {
 
     // Audio language code map from ISO 639-2/B to 639-2/T, in order to show correct audio language.
     private static final HashMap<String, String> ISO_LANGUAGE_CODE_MAP;
+    @Nullable
+    private static final Charset SCSU_CHARSET =
+            Charset.isSupported("SCSU") ? Charset.forName("SCSU") : null;
 
     static {
         ISO_LANGUAGE_CODE_MAP = new HashMap<>();
@@ -621,587 +607,13 @@ public class SectionParser {
         ISO_LANGUAGE_CODE_MAP.put("esl", "spa"); // Special entry for channel 9-1 KQED in bay area.
     }
 
-    @Nullable
-    private static final Charset SCSU_CHARSET =
-            Charset.isSupported("SCSU") ? Charset.forName("SCSU") : null;
-
     // Containers to store the last version numbers of the PSIP sections.
     private final HashMap<PsipSection, Integer> mSectionVersionMap = new HashMap<>();
     private final SparseArray<List<EttItem>> mParsedEttItems = new SparseArray<>();
-
-    public interface OutputListener {
-        void onPatParsed(List<PatItem> items);
-
-        void onPmtParsed(int programNumber, List<PmtItem> items);
-
-        void onMgtParsed(List<MgtItem> items);
-
-        void onVctParsed(List<VctItem> items, int sectionNumber, int lastSectionNumber);
-
-        void onEitParsed(int sourceId, List<EitItem> items);
-
-        void onEttParsed(int sourceId, List<EttItem> descriptions);
-
-        void onSdtParsed(List<SdtItem> items);
-    }
-
     private final OutputListener mListener;
 
     public SectionParser(OutputListener listener) {
         mListener = listener;
-    }
-
-    public void parseSections(ByteArrayBuffer data) {
-        int pos = 0;
-        while (pos + 3 <= data.length()) {
-            if ((data.byteAt(pos) & 0xff) == 0xff) {
-                // Clear stuffing bytes according to H222.0 section 2.4.4.
-                data.setLength(0);
-                break;
-            }
-            int sectionLength =
-                    (((data.byteAt(pos + 1) & 0x0f) << 8) | (data.byteAt(pos + 2) & 0xff)) + 3;
-            if (pos + sectionLength > data.length()) {
-                break;
-            }
-            if (DEBUG) {
-                Log.d(TAG, "parseSections 0x" + Integer.toHexString(data.byteAt(pos) & 0xff));
-            }
-            parseSection(Arrays.copyOfRange(data.buffer(), pos, pos + sectionLength));
-            pos += sectionLength;
-        }
-        if (mListener != null) {
-            for (int i = 0; i < mParsedEttItems.size(); ++i) {
-                int sourceId = mParsedEttItems.keyAt(i);
-                List<EttItem> descriptions = mParsedEttItems.valueAt(i);
-                mListener.onEttParsed(sourceId, descriptions);
-            }
-        }
-        mParsedEttItems.clear();
-    }
-
-    public void resetVersionNumbers() {
-        mSectionVersionMap.clear();
-    }
-
-    private void parseSection(byte[] data) {
-        if (!checkSanity(data)) {
-            Log.d(TAG, "Bad CRC!");
-            return;
-        }
-        PsipSection section = PsipSection.create(data);
-        if (section == null) {
-            return;
-        }
-
-        // The currentNextIndicator indicates that the section sent is currently applicable.
-        if (!section.getCurrentNextIndicator()) {
-            return;
-        }
-        int versionNumber = (data[5] & 0x3e) >> 1;
-        Integer oldVersionNumber = mSectionVersionMap.get(section);
-
-        // The versionNumber shall be incremented when a change in the information carried within
-        // the section occurs.
-        if (oldVersionNumber != null && versionNumber == oldVersionNumber) {
-            return;
-        }
-        boolean result = false;
-        switch (data[0]) {
-            case TABLE_ID_PAT:
-                result = parsePAT(data);
-                break;
-            case TABLE_ID_PMT:
-                result = parsePMT(data);
-                break;
-            case TABLE_ID_MGT:
-                result = parseMGT(data);
-                break;
-            case TABLE_ID_TVCT:
-            case TABLE_ID_CVCT:
-                result = parseVCT(data);
-                break;
-            case TABLE_ID_EIT:
-                result = parseEIT(data);
-                break;
-            case TABLE_ID_ETT:
-                result = parseETT(data);
-                break;
-            case TABLE_ID_SDT:
-                result = parseSDT(data);
-                break;
-            case TABLE_ID_DVB_ACTUAL_P_F_EIT:
-            case TABLE_ID_DVB_ACTUAL_SCHEDULE_EIT:
-                result = parseDVBEIT(data);
-                break;
-            default:
-                break;
-        }
-        if (result) {
-            mSectionVersionMap.put(section, versionNumber);
-        }
-    }
-
-    private boolean parsePAT(byte[] data) {
-        if (DEBUG) {
-            Log.d(TAG, "PAT is discovered.");
-        }
-        int pos = 8;
-
-        List<PatItem> results = new ArrayList<>();
-        for (; pos < data.length - 4; pos = pos + 4) {
-            if (pos > data.length - 4 - 4) {
-                Log.e(TAG, "Broken PAT.");
-                return false;
-            }
-            int programNo = ((data[pos] & 0xff) << 8) | (data[pos + 1] & 0xff);
-            int pmtPid = ((data[pos + 2] & 0x1f) << 8) | (data[pos + 3] & 0xff);
-            results.add(new PatItem(programNo, pmtPid));
-        }
-        if (mListener != null) {
-            mListener.onPatParsed(results);
-        }
-        return true;
-    }
-
-    private boolean parsePMT(byte[] data) {
-        int table_id_ext = ((data[3] & 0xff) << 8) | (data[4] & 0xff);
-        if (DEBUG) {
-            Log.d(TAG, "PMT is discovered. programNo = " + table_id_ext);
-        }
-        if (data.length <= 11) {
-            Log.e(TAG, "Broken PMT.");
-            return false;
-        }
-        int pcrPid = (data[8] & 0x1f) << 8 | data[9];
-        int programInfoLen = (data[10] & 0x0f) << 8 | data[11];
-        int pos = 12;
-        List<TsDescriptor> descriptors = parseDescriptors(data, pos, pos + programInfoLen);
-        pos += programInfoLen;
-        if (DEBUG) {
-            Log.d(TAG, "PMT descriptors size: " + descriptors.size());
-        }
-        List<PmtItem> results = new ArrayList<>();
-        for (; pos < data.length - 4; ) {
-            if (pos < 0) {
-                Log.e(TAG, "Broken PMT.");
-                return false;
-            }
-            int streamType = data[pos] & 0xff;
-            int esPid = (data[pos + 1] & 0x1f) << 8 | (data[pos + 2] & 0xff);
-            int esInfoLen = (data[pos + 3] & 0xf) << 8 | (data[pos + 4] & 0xff);
-            if (data.length < pos + esInfoLen + 5) {
-                Log.e(TAG, "Broken PMT.");
-                return false;
-            }
-            descriptors = parseDescriptors(data, pos + 5, pos + 5 + esInfoLen);
-            List<AtscAudioTrack> audioTracks = generateAudioTracks(descriptors);
-            List<AtscCaptionTrack> captionTracks = generateCaptionTracks(descriptors);
-            PmtItem pmtItem = new PmtItem(streamType, esPid, audioTracks, captionTracks);
-            if (DEBUG) {
-                Log.d(TAG, "PMT " + pmtItem + " descriptors size: " + descriptors.size());
-            }
-            results.add(pmtItem);
-            pos = pos + esInfoLen + 5;
-        }
-        results.add(new PmtItem(PmtItem.ES_PID_PCR, pcrPid, null, null));
-        if (mListener != null) {
-            mListener.onPmtParsed(table_id_ext, results);
-        }
-        return true;
-    }
-
-    private boolean parseMGT(byte[] data) {
-        // For details of the structure for MGT, see ATSC A/65 Table 6.2.
-        if (DEBUG) {
-            Log.d(TAG, "MGT is discovered.");
-        }
-        if (data.length <= 10) {
-            Log.e(TAG, "Broken MGT.");
-            return false;
-        }
-        int tablesDefined = ((data[9] & 0xff) << 8) | (data[10] & 0xff);
-        int pos = 11;
-        List<MgtItem> results = new ArrayList<>();
-        for (int i = 0; i < tablesDefined; ++i) {
-            if (data.length <= pos + 10) {
-                Log.e(TAG, "Broken MGT.");
-                return false;
-            }
-            int tableType = ((data[pos] & 0xff) << 8) | (data[pos + 1] & 0xff);
-            int tableTypePid = ((data[pos + 2] & 0x1f) << 8) | (data[pos + 3] & 0xff);
-            int descriptorsLength = ((data[pos + 9] & 0x0f) << 8) | (data[pos + 10] & 0xff);
-            pos += 11 + descriptorsLength;
-            results.add(new MgtItem(tableType, tableTypePid));
-        }
-        // Skip the remaining descriptor part which we don't use.
-
-        if (mListener != null) {
-            mListener.onMgtParsed(results);
-        }
-        return true;
-    }
-
-    private boolean parseVCT(byte[] data) {
-        // For details of the structure for VCT, see ATSC A/65 Table 6.4 and 6.8.
-        if (DEBUG) {
-            Log.d(TAG, "VCT is discovered.");
-        }
-        if (data.length <= 9) {
-            Log.e(TAG, "Broken VCT.");
-            return false;
-        }
-        int numChannelsInSection = (data[9] & 0xff);
-        int sectionNumber = (data[6] & 0xff);
-        int lastSectionNumber = (data[7] & 0xff);
-        if (sectionNumber > lastSectionNumber) {
-            // According to section 6.3.1 of the spec ATSC A/65,
-            // last section number is the largest section number.
-            Log.w(
-                    TAG,
-                    "Invalid VCT. Section Number "
-                            + sectionNumber
-                            + " > Last Section Number "
-                            + lastSectionNumber);
-            return false;
-        }
-        int pos = 10;
-        List<VctItem> results = new ArrayList<>();
-        for (int i = 0; i < numChannelsInSection; ++i) {
-            if (data.length <= pos + 31) {
-                Log.e(TAG, "Broken VCT.");
-                return false;
-            }
-            String shortName = "";
-            int shortNameSize = getShortNameSize(data, pos);
-            shortName =
-                    new String(Arrays.copyOfRange(data, pos, pos + shortNameSize), StandardCharsets.UTF_16);
-            if ((data[pos + 14] & 0xf0) != 0xf0) {
-                Log.e(TAG, "Broken VCT.");
-                return false;
-            }
-            int majorNumber = ((data[pos + 14] & 0x0f) << 6) | ((data[pos + 15] & 0xff) >> 2);
-            int minorNumber = ((data[pos + 15] & 0x03) << 8) | (data[pos + 16] & 0xff);
-            if ((majorNumber & 0x3f0) == 0x3f0) {
-                // If the six MSBs are 111111, these indicate that there is only one-part channel
-                // number. To see details, refer A/65 Section 6.3.2.
-                majorNumber = ((majorNumber & 0xf) << 10) + minorNumber;
-                minorNumber = 0;
-            }
-            int channelTsid = ((data[pos + 22] & 0xff) << 8) | (data[pos + 23] & 0xff);
-            int programNumber = ((data[pos + 24] & 0xff) << 8) | (data[pos + 25] & 0xff);
-            boolean accessControlled = (data[pos + 26] & 0x20) != 0;
-            boolean hidden = (data[pos + 26] & 0x10) != 0;
-            int serviceType = (data[pos + 27] & 0x3f);
-            int sourceId = ((data[pos + 28] & 0xff) << 8) | (data[pos + 29] & 0xff);
-            int descriptorsPos = pos + 32;
-            int descriptorsLength = ((data[pos + 30] & 0x03) << 8) | (data[pos + 31] & 0xff);
-            pos += 32 + descriptorsLength;
-            if (data.length < pos) {
-                Log.e(TAG, "Broken VCT.");
-                return false;
-            }
-            List<TsDescriptor> descriptors =
-                    parseDescriptors(data, descriptorsPos, descriptorsPos + descriptorsLength);
-            String longName = null;
-            for (TsDescriptor descriptor : descriptors) {
-                if (descriptor instanceof ExtendedChannelNameDescriptor) {
-                    ExtendedChannelNameDescriptor extendedChannelNameDescriptor =
-                            (ExtendedChannelNameDescriptor) descriptor;
-                    longName = extendedChannelNameDescriptor.getLongChannelName();
-                    break;
-                }
-            }
-            if (DEBUG) {
-                Log.d(
-                        TAG,
-                        String.format(
-                                "Found channel [%s] %s - serviceType: %d tsid: 0x%x program: %d"
-                                        + " channel: %d-%d encrypted: %b hidden: %b, descriptors: %d",
-                                shortName,
-                                longName,
-                                serviceType,
-                                channelTsid,
-                                programNumber,
-                                majorNumber,
-                                minorNumber,
-                                accessControlled,
-                                hidden,
-                                descriptors.size()));
-            }
-            if ((serviceType == AtscServiceType.SERVICE_TYPE_ATSC_AUDIO_VALUE
-                    || serviceType
-                    == AtscServiceType.SERVICE_TYPE_ATSC_DIGITAL_TELEVISION_VALUE
-                    || serviceType
-                    == AtscServiceType
-                    .SERVICE_TYPE_UNASSOCIATED_SMALL_SCREEN_SERVICE_VALUE)
-                    && !accessControlled
-                    && !hidden) {
-                // Hide hidden, encrypted, or unsupported ATSC service type channels
-                results.add(
-                        new VctItem(
-                                shortName,
-                                longName,
-                                serviceType,
-                                channelTsid,
-                                programNumber,
-                                majorNumber,
-                                minorNumber,
-                                sourceId));
-            }
-        }
-        // Skip the remaining descriptor part which we don't use.
-
-        if (mListener != null) {
-            mListener.onVctParsed(results, sectionNumber, lastSectionNumber);
-        }
-        return true;
-    }
-
-    private boolean parseEIT(byte[] data) {
-        // For details of the structure for EIT, see ATSC A/65 Table 6.11.
-        if (DEBUG) {
-            Log.d(TAG, "EIT is discovered.");
-        }
-        if (data.length <= 9) {
-            Log.e(TAG, "Broken EIT.");
-            return false;
-        }
-        int sourceId = ((data[3] & 0xff) << 8) | (data[4] & 0xff);
-        int numEventsInSection = (data[9] & 0xff);
-
-        int pos = 10;
-        List<EitItem> results = new ArrayList<>();
-        for (int i = 0; i < numEventsInSection; ++i) {
-            if (data.length <= pos + 9) {
-                Log.e(TAG, "Broken EIT.");
-                return false;
-            }
-            if ((data[pos] & 0xc0) != 0xc0) {
-                Log.e(TAG, "Broken EIT.");
-                return false;
-            }
-            int eventId = ((data[pos] & 0x3f) << 8) + (data[pos + 1] & 0xff);
-            long startTime =
-                    ((data[pos + 2] & (long) 0xff) << 24)
-                            | ((data[pos + 3] & 0xff) << 16)
-                            | ((data[pos + 4] & 0xff) << 8)
-                            | (data[pos + 5] & 0xff);
-            int lengthInSecond =
-                    ((data[pos + 6] & 0x0f) << 16)
-                            | ((data[pos + 7] & 0xff) << 8)
-                            | (data[pos + 8] & 0xff);
-            int titleLength = (data[pos + 9] & 0xff);
-            if (data.length <= pos + 10 + titleLength + 1) {
-                Log.e(TAG, "Broken EIT.");
-                return false;
-            }
-            String titleText = "";
-            if (titleLength > 0) {
-                titleText = extractText(data, pos + 10);
-            }
-            if ((data[pos + 10 + titleLength] & 0xf0) != 0xf0) {
-                Log.e(TAG, "Broken EIT.");
-                return false;
-            }
-            int descriptorsLength =
-                    ((data[pos + 10 + titleLength] & 0x0f) << 8)
-                            | (data[pos + 10 + titleLength + 1] & 0xff);
-            int descriptorsPos = pos + 10 + titleLength + 2;
-            if (data.length < descriptorsPos + descriptorsLength) {
-                Log.e(TAG, "Broken EIT.");
-                return false;
-            }
-            List<TsDescriptor> descriptors =
-                    parseDescriptors(data, descriptorsPos, descriptorsPos + descriptorsLength);
-            if (DEBUG) {
-                Log.d(TAG, String.format("EIT descriptors size: %d", descriptors.size()));
-            }
-            String contentRating = generateContentRating(descriptors);
-            String broadcastGenre = generateBroadcastGenre(descriptors);
-            String canonicalGenre = generateCanonicalGenre(descriptors);
-            List<AtscAudioTrack> audioTracks = generateAudioTracks(descriptors);
-            List<AtscCaptionTrack> captionTracks = generateCaptionTracks(descriptors);
-            pos += 10 + titleLength + 2 + descriptorsLength;
-            results.add(
-                    new EitItem(
-                            EitItem.INVALID_PROGRAM_ID,
-                            eventId,
-                            titleText,
-                            startTime,
-                            lengthInSecond,
-                            contentRating,
-                            audioTracks,
-                            captionTracks,
-                            broadcastGenre,
-                            canonicalGenre,
-                            null));
-        }
-        if (mListener != null) {
-            mListener.onEitParsed(sourceId, results);
-        }
-        return true;
-    }
-
-    private boolean parseETT(byte[] data) {
-        // For details of the structure for ETT, see ATSC A/65 Table 6.13.
-        if (DEBUG) {
-            Log.d(TAG, "ETT is discovered.");
-        }
-        if (data.length <= 12) {
-            Log.e(TAG, "Broken ETT.");
-            return false;
-        }
-        int sourceId = ((data[9] & 0xff) << 8) | (data[10] & 0xff);
-        int eventId = (((data[11] & 0xff) << 8) | (data[12] & 0xff)) >> 2;
-        String text = extractText(data, 13);
-        List<EttItem> ettItems = mParsedEttItems.get(sourceId);
-        if (ettItems == null) {
-            ettItems = new ArrayList<>();
-            mParsedEttItems.put(sourceId, ettItems);
-        }
-        ettItems.add(new EttItem(eventId, text));
-        return true;
-    }
-
-    private boolean parseSDT(byte[] data) {
-        // For details of the structure for SDT, see DVB Document A038 Table 5.
-        if (DEBUG) {
-            Log.d(TAG, "SDT id discovered");
-        }
-        if (data.length <= 11) {
-            Log.e(TAG, "Broken SDT.");
-            return false;
-        }
-        if ((data[1] & 0x80) >> 7 != 1) {
-            Log.e(TAG, "Broken SDT, section syntax indicator error.");
-            return false;
-        }
-        int sectionLength = ((data[1] & 0x0f) << 8) | (data[2] & 0xff);
-        int transportStreamId = ((data[3] & 0xff) << 8) | (data[4] & 0xff);
-        int originalNetworkId = ((data[8] & 0xff) << 8) | (data[9] & 0xff);
-        int pos = 11;
-        if (sectionLength + 3 > data.length) {
-            Log.e(TAG, "Broken SDT.");
-        }
-        List<SdtItem> sdtItems = new ArrayList<>();
-        while (pos + 9 < data.length) {
-            int serviceId = ((data[pos] & 0xff) << 8) | (data[pos + 1] & 0xff);
-            int descriptorsLength = ((data[pos + 3] & 0x0f) << 8) | (data[pos + 4] & 0xff);
-            pos += 5;
-            List<TsDescriptor> descriptors = parseDescriptors(data, pos, pos + descriptorsLength);
-            List<ServiceDescriptor> serviceDescriptors = generateServiceDescriptors(descriptors);
-            String serviceName = "";
-            String serviceProviderName = "";
-            int serviceType = 0;
-            for (ServiceDescriptor serviceDescriptor : serviceDescriptors) {
-                serviceName = serviceDescriptor.getServiceName();
-                serviceProviderName = serviceDescriptor.getServiceProviderName();
-                serviceType = serviceDescriptor.getServiceType();
-            }
-            if (serviceDescriptors.size() > 0) {
-                sdtItems.add(
-                        new SdtItem(
-                                serviceName,
-                                serviceProviderName,
-                                serviceType,
-                                serviceId,
-                                originalNetworkId));
-            }
-            pos += descriptorsLength;
-        }
-        if (mListener != null) {
-            mListener.onSdtParsed(sdtItems);
-        }
-        return true;
-    }
-
-    private boolean parseDVBEIT(byte[] data) {
-        // For details of the structure for DVB ETT, see DVB Document A038 Table 7.
-        if (DEBUG) {
-            Log.d(TAG, "DVB EIT is discovered.");
-        }
-        if (data.length < 18) {
-            Log.e(TAG, "Broken DVB EIT.");
-            return false;
-        }
-        int sectionLength = ((data[1] & 0x0f) << 8) | (data[2] & 0xff);
-        int sourceId = ((data[3] & 0xff) << 8) | (data[4] & 0xff);
-        int transportStreamId = ((data[8] & 0xff) << 8) | (data[9] & 0xff);
-        int originalNetworkId = ((data[10] & 0xff) << 8) | (data[11] & 0xff);
-
-        int pos = 14;
-        List<EitItem> results = new ArrayList<>();
-        while (pos + 12 < data.length) {
-            int eventId = ((data[pos] & 0xff) << 8) + (data[pos + 1] & 0xff);
-            float modifiedJulianDate = ((data[pos + 2] & 0xff) << 8) | (data[pos + 3] & 0xff);
-            int startYear = (int) ((modifiedJulianDate - 15078.2f) / 365.25f);
-            int mjdMonth =
-                    (int)
-                            ((modifiedJulianDate - 14956.1f - (int) (startYear * 365.25f))
-                                    / 30.6001f);
-            int startDay =
-                    (int) modifiedJulianDate
-                            - 14956
-                            - (int) (startYear * 365.25f)
-                            - (int) (mjdMonth * 30.6001f);
-            int startMonth = mjdMonth - 1;
-            if (mjdMonth == 14 || mjdMonth == 15) {
-                startYear += 1;
-                startMonth -= 12;
-            }
-            int startHour = ((data[pos + 4] & 0xf0) >> 4) * 10 + (data[pos + 4] & 0x0f);
-            int startMinute = ((data[pos + 5] & 0xf0) >> 4) * 10 + (data[pos + 5] & 0x0f);
-            int startSecond = ((data[pos + 6] & 0xf0) >> 4) * 10 + (data[pos + 6] & 0x0f);
-            Calendar calendar = Calendar.getInstance();
-            startYear += 1900;
-            calendar.set(startYear, startMonth, startDay, startHour, startMinute, startSecond);
-            long startTime =
-                    ConvertUtils.convertUnixEpochToGPSTime(calendar.getTimeInMillis() / 1000);
-            int durationInSecond =
-                    (((data[pos + 7] & 0xf0) >> 4) * 10 + (data[pos + 7] & 0x0f)) * 3600
-                            + (((data[pos + 8] & 0xf0) >> 4) * 10 + (data[pos + 8] & 0x0f)) * 60
-                            + (((data[pos + 9] & 0xf0) >> 4) * 10 + (data[pos + 9] & 0x0f));
-            int descriptorsLength = ((data[pos + 10] & 0x0f) << 8) | (data[pos + 10 + 1] & 0xff);
-            int descriptorsPos = pos + 10 + 2;
-            if (data.length < descriptorsPos + descriptorsLength) {
-                Log.e(TAG, "Broken EIT.");
-                return false;
-            }
-            List<TsDescriptor> descriptors =
-                    parseDescriptors(data, descriptorsPos, descriptorsPos + descriptorsLength);
-            if (DEBUG) {
-                Log.d(TAG, String.format("DVB EIT descriptors size: %d", descriptors.size()));
-            }
-            // TODO: Add logic to generating content rating for dvb. See DVB document 6.2.28 for
-            // details. Content rating here will be null
-            String contentRating = generateContentRating(descriptors);
-            // TODO: Add logic for generating genre for dvb. See DVB document 6.2.9 for details.
-            // Genre here will be null here.
-            String broadcastGenre = generateBroadcastGenre(descriptors);
-            String canonicalGenre = generateCanonicalGenre(descriptors);
-            String titleText = generateShortEventName(descriptors);
-            List<AtscAudioTrack> audioTracks = generateAudioTracks(descriptors);
-            List<AtscCaptionTrack> captionTracks = generateCaptionTracks(descriptors);
-            pos += 12 + descriptorsLength;
-            results.add(
-                    new EitItem(
-                            EitItem.INVALID_PROGRAM_ID,
-                            eventId,
-                            titleText,
-                            startTime,
-                            durationInSecond,
-                            contentRating,
-                            audioTracks,
-                            captionTracks,
-                            broadcastGenre,
-                            canonicalGenre,
-                            null));
-        }
-        if (mListener != null) {
-            mListener.onEitParsed(sourceId, results);
-        }
-        return true;
     }
 
     private static List<AtscAudioTrack> generateAudioTracks(List<TsDescriptor> descriptors) {
@@ -2106,5 +1518,574 @@ public class SectionParser {
             return crc == 0;
         }
         return true;
+    }
+
+    public void parseSections(ByteArrayBuffer data) {
+        int pos = 0;
+        while (pos + 3 <= data.length()) {
+            if ((data.byteAt(pos) & 0xff) == 0xff) {
+                // Clear stuffing bytes according to H222.0 section 2.4.4.
+                data.setLength(0);
+                break;
+            }
+            int sectionLength =
+                    (((data.byteAt(pos + 1) & 0x0f) << 8) | (data.byteAt(pos + 2) & 0xff)) + 3;
+            if (pos + sectionLength > data.length()) {
+                break;
+            }
+            if (DEBUG) {
+                Log.d(TAG, "parseSections 0x" + Integer.toHexString(data.byteAt(pos) & 0xff));
+            }
+            parseSection(Arrays.copyOfRange(data.buffer(), pos, pos + sectionLength));
+            pos += sectionLength;
+        }
+        if (mListener != null) {
+            for (int i = 0; i < mParsedEttItems.size(); ++i) {
+                int sourceId = mParsedEttItems.keyAt(i);
+                List<EttItem> descriptions = mParsedEttItems.valueAt(i);
+                mListener.onEttParsed(sourceId, descriptions);
+            }
+        }
+        mParsedEttItems.clear();
+    }
+
+    public void resetVersionNumbers() {
+        mSectionVersionMap.clear();
+    }
+
+    private void parseSection(byte[] data) {
+        if (!checkSanity(data)) {
+            Log.d(TAG, "Bad CRC!");
+            return;
+        }
+        PsipSection section = PsipSection.create(data);
+        if (section == null) {
+            return;
+        }
+
+        // The currentNextIndicator indicates that the section sent is currently applicable.
+        if (!section.getCurrentNextIndicator()) {
+            return;
+        }
+        int versionNumber = (data[5] & 0x3e) >> 1;
+        Integer oldVersionNumber = mSectionVersionMap.get(section);
+
+        // The versionNumber shall be incremented when a change in the information carried within
+        // the section occurs.
+        if (oldVersionNumber != null && versionNumber == oldVersionNumber) {
+            return;
+        }
+        boolean result = false;
+        switch (data[0]) {
+            case TABLE_ID_PAT:
+                result = parsePAT(data);
+                break;
+            case TABLE_ID_PMT:
+                result = parsePMT(data);
+                break;
+            case TABLE_ID_MGT:
+                result = parseMGT(data);
+                break;
+            case TABLE_ID_TVCT:
+            case TABLE_ID_CVCT:
+                result = parseVCT(data);
+                break;
+            case TABLE_ID_EIT:
+                result = parseEIT(data);
+                break;
+            case TABLE_ID_ETT:
+                result = parseETT(data);
+                break;
+            case TABLE_ID_SDT:
+                result = parseSDT(data);
+                break;
+            case TABLE_ID_DVB_ACTUAL_P_F_EIT:
+            case TABLE_ID_DVB_ACTUAL_SCHEDULE_EIT:
+                result = parseDVBEIT(data);
+                break;
+            default:
+                break;
+        }
+        if (result) {
+            mSectionVersionMap.put(section, versionNumber);
+        }
+    }
+
+    private boolean parsePAT(byte[] data) {
+        if (DEBUG) {
+            Log.d(TAG, "PAT is discovered.");
+        }
+        int pos = 8;
+
+        List<PatItem> results = new ArrayList<>();
+        for (; pos < data.length - 4; pos = pos + 4) {
+            if (pos > data.length - 4 - 4) {
+                Log.e(TAG, "Broken PAT.");
+                return false;
+            }
+            int programNo = ((data[pos] & 0xff) << 8) | (data[pos + 1] & 0xff);
+            int pmtPid = ((data[pos + 2] & 0x1f) << 8) | (data[pos + 3] & 0xff);
+            results.add(new PatItem(programNo, pmtPid));
+        }
+        if (mListener != null) {
+            mListener.onPatParsed(results);
+        }
+        return true;
+    }
+
+    private boolean parsePMT(byte[] data) {
+        int table_id_ext = ((data[3] & 0xff) << 8) | (data[4] & 0xff);
+        if (DEBUG) {
+            Log.d(TAG, "PMT is discovered. programNo = " + table_id_ext);
+        }
+        if (data.length <= 11) {
+            Log.e(TAG, "Broken PMT.");
+            return false;
+        }
+        int pcrPid = (data[8] & 0x1f) << 8 | data[9];
+        int programInfoLen = (data[10] & 0x0f) << 8 | data[11];
+        int pos = 12;
+        List<TsDescriptor> descriptors = parseDescriptors(data, pos, pos + programInfoLen);
+        pos += programInfoLen;
+        if (DEBUG) {
+            Log.d(TAG, "PMT descriptors size: " + descriptors.size());
+        }
+        List<PmtItem> results = new ArrayList<>();
+        for (; pos < data.length - 4; ) {
+            if (pos < 0) {
+                Log.e(TAG, "Broken PMT.");
+                return false;
+            }
+            int streamType = data[pos] & 0xff;
+            int esPid = (data[pos + 1] & 0x1f) << 8 | (data[pos + 2] & 0xff);
+            int esInfoLen = (data[pos + 3] & 0xf) << 8 | (data[pos + 4] & 0xff);
+            if (data.length < pos + esInfoLen + 5) {
+                Log.e(TAG, "Broken PMT.");
+                return false;
+            }
+            descriptors = parseDescriptors(data, pos + 5, pos + 5 + esInfoLen);
+            List<AtscAudioTrack> audioTracks = generateAudioTracks(descriptors);
+            List<AtscCaptionTrack> captionTracks = generateCaptionTracks(descriptors);
+            PmtItem pmtItem = new PmtItem(streamType, esPid, audioTracks, captionTracks);
+            if (DEBUG) {
+                Log.d(TAG, "PMT " + pmtItem + " descriptors size: " + descriptors.size());
+            }
+            results.add(pmtItem);
+            pos = pos + esInfoLen + 5;
+        }
+        results.add(new PmtItem(PmtItem.ES_PID_PCR, pcrPid, null, null));
+        if (mListener != null) {
+            mListener.onPmtParsed(table_id_ext, results);
+        }
+        return true;
+    }
+
+    private boolean parseMGT(byte[] data) {
+        // For details of the structure for MGT, see ATSC A/65 Table 6.2.
+        if (DEBUG) {
+            Log.d(TAG, "MGT is discovered.");
+        }
+        if (data.length <= 10) {
+            Log.e(TAG, "Broken MGT.");
+            return false;
+        }
+        int tablesDefined = ((data[9] & 0xff) << 8) | (data[10] & 0xff);
+        int pos = 11;
+        List<MgtItem> results = new ArrayList<>();
+        for (int i = 0; i < tablesDefined; ++i) {
+            if (data.length <= pos + 10) {
+                Log.e(TAG, "Broken MGT.");
+                return false;
+            }
+            int tableType = ((data[pos] & 0xff) << 8) | (data[pos + 1] & 0xff);
+            int tableTypePid = ((data[pos + 2] & 0x1f) << 8) | (data[pos + 3] & 0xff);
+            int descriptorsLength = ((data[pos + 9] & 0x0f) << 8) | (data[pos + 10] & 0xff);
+            pos += 11 + descriptorsLength;
+            results.add(new MgtItem(tableType, tableTypePid));
+        }
+        // Skip the remaining descriptor part which we don't use.
+
+        if (mListener != null) {
+            mListener.onMgtParsed(results);
+        }
+        return true;
+    }
+
+    private boolean parseVCT(byte[] data) {
+        // For details of the structure for VCT, see ATSC A/65 Table 6.4 and 6.8.
+        if (DEBUG) {
+            Log.d(TAG, "VCT is discovered.");
+        }
+        if (data.length <= 9) {
+            Log.e(TAG, "Broken VCT.");
+            return false;
+        }
+        int numChannelsInSection = (data[9] & 0xff);
+        int sectionNumber = (data[6] & 0xff);
+        int lastSectionNumber = (data[7] & 0xff);
+        if (sectionNumber > lastSectionNumber) {
+            // According to section 6.3.1 of the spec ATSC A/65,
+            // last section number is the largest section number.
+            Log.w(
+                    TAG,
+                    "Invalid VCT. Section Number "
+                            + sectionNumber
+                            + " > Last Section Number "
+                            + lastSectionNumber);
+            return false;
+        }
+        int pos = 10;
+        List<VctItem> results = new ArrayList<>();
+        for (int i = 0; i < numChannelsInSection; ++i) {
+            if (data.length <= pos + 31) {
+                Log.e(TAG, "Broken VCT.");
+                return false;
+            }
+            String shortName = "";
+            int shortNameSize = getShortNameSize(data, pos);
+            shortName =
+                    new String(Arrays.copyOfRange(data, pos, pos + shortNameSize), StandardCharsets.UTF_16);
+            if ((data[pos + 14] & 0xf0) != 0xf0) {
+                Log.e(TAG, "Broken VCT.");
+                return false;
+            }
+            int majorNumber = ((data[pos + 14] & 0x0f) << 6) | ((data[pos + 15] & 0xff) >> 2);
+            int minorNumber = ((data[pos + 15] & 0x03) << 8) | (data[pos + 16] & 0xff);
+            if ((majorNumber & 0x3f0) == 0x3f0) {
+                // If the six MSBs are 111111, these indicate that there is only one-part channel
+                // number. To see details, refer A/65 Section 6.3.2.
+                majorNumber = ((majorNumber & 0xf) << 10) + minorNumber;
+                minorNumber = 0;
+            }
+            int channelTsid = ((data[pos + 22] & 0xff) << 8) | (data[pos + 23] & 0xff);
+            int programNumber = ((data[pos + 24] & 0xff) << 8) | (data[pos + 25] & 0xff);
+            boolean accessControlled = (data[pos + 26] & 0x20) != 0;
+            boolean hidden = (data[pos + 26] & 0x10) != 0;
+            int serviceType = (data[pos + 27] & 0x3f);
+            int sourceId = ((data[pos + 28] & 0xff) << 8) | (data[pos + 29] & 0xff);
+            int descriptorsPos = pos + 32;
+            int descriptorsLength = ((data[pos + 30] & 0x03) << 8) | (data[pos + 31] & 0xff);
+            pos += 32 + descriptorsLength;
+            if (data.length < pos) {
+                Log.e(TAG, "Broken VCT.");
+                return false;
+            }
+            List<TsDescriptor> descriptors =
+                    parseDescriptors(data, descriptorsPos, descriptorsPos + descriptorsLength);
+            String longName = null;
+            for (TsDescriptor descriptor : descriptors) {
+                if (descriptor instanceof ExtendedChannelNameDescriptor) {
+                    ExtendedChannelNameDescriptor extendedChannelNameDescriptor =
+                            (ExtendedChannelNameDescriptor) descriptor;
+                    longName = extendedChannelNameDescriptor.getLongChannelName();
+                    break;
+                }
+            }
+            if (DEBUG) {
+                Log.d(
+                        TAG,
+                        String.format(
+                                "Found channel [%s] %s - serviceType: %d tsid: 0x%x program: %d"
+                                        + " channel: %d-%d encrypted: %b hidden: %b, descriptors: %d",
+                                shortName,
+                                longName,
+                                serviceType,
+                                channelTsid,
+                                programNumber,
+                                majorNumber,
+                                minorNumber,
+                                accessControlled,
+                                hidden,
+                                descriptors.size()));
+            }
+            if ((serviceType == AtscServiceType.SERVICE_TYPE_ATSC_AUDIO_VALUE
+                    || serviceType
+                    == AtscServiceType.SERVICE_TYPE_ATSC_DIGITAL_TELEVISION_VALUE
+                    || serviceType
+                    == AtscServiceType
+                    .SERVICE_TYPE_UNASSOCIATED_SMALL_SCREEN_SERVICE_VALUE)
+                    && !accessControlled
+                    && !hidden) {
+                // Hide hidden, encrypted, or unsupported ATSC service type channels
+                results.add(
+                        new VctItem(
+                                shortName,
+                                longName,
+                                serviceType,
+                                channelTsid,
+                                programNumber,
+                                majorNumber,
+                                minorNumber,
+                                sourceId));
+            }
+        }
+        // Skip the remaining descriptor part which we don't use.
+
+        if (mListener != null) {
+            mListener.onVctParsed(results, sectionNumber, lastSectionNumber);
+        }
+        return true;
+    }
+
+    private boolean parseEIT(byte[] data) {
+        // For details of the structure for EIT, see ATSC A/65 Table 6.11.
+        if (DEBUG) {
+            Log.d(TAG, "EIT is discovered.");
+        }
+        if (data.length <= 9) {
+            Log.e(TAG, "Broken EIT.");
+            return false;
+        }
+        int sourceId = ((data[3] & 0xff) << 8) | (data[4] & 0xff);
+        int numEventsInSection = (data[9] & 0xff);
+
+        int pos = 10;
+        List<EitItem> results = new ArrayList<>();
+        for (int i = 0; i < numEventsInSection; ++i) {
+            if (data.length <= pos + 9) {
+                Log.e(TAG, "Broken EIT.");
+                return false;
+            }
+            if ((data[pos] & 0xc0) != 0xc0) {
+                Log.e(TAG, "Broken EIT.");
+                return false;
+            }
+            int eventId = ((data[pos] & 0x3f) << 8) + (data[pos + 1] & 0xff);
+            long startTime =
+                    ((data[pos + 2] & (long) 0xff) << 24)
+                            | ((data[pos + 3] & 0xff) << 16)
+                            | ((data[pos + 4] & 0xff) << 8)
+                            | (data[pos + 5] & 0xff);
+            int lengthInSecond =
+                    ((data[pos + 6] & 0x0f) << 16)
+                            | ((data[pos + 7] & 0xff) << 8)
+                            | (data[pos + 8] & 0xff);
+            int titleLength = (data[pos + 9] & 0xff);
+            if (data.length <= pos + 10 + titleLength + 1) {
+                Log.e(TAG, "Broken EIT.");
+                return false;
+            }
+            String titleText = "";
+            if (titleLength > 0) {
+                titleText = extractText(data, pos + 10);
+            }
+            if ((data[pos + 10 + titleLength] & 0xf0) != 0xf0) {
+                Log.e(TAG, "Broken EIT.");
+                return false;
+            }
+            int descriptorsLength =
+                    ((data[pos + 10 + titleLength] & 0x0f) << 8)
+                            | (data[pos + 10 + titleLength + 1] & 0xff);
+            int descriptorsPos = pos + 10 + titleLength + 2;
+            if (data.length < descriptorsPos + descriptorsLength) {
+                Log.e(TAG, "Broken EIT.");
+                return false;
+            }
+            List<TsDescriptor> descriptors =
+                    parseDescriptors(data, descriptorsPos, descriptorsPos + descriptorsLength);
+            if (DEBUG) {
+                Log.d(TAG, String.format("EIT descriptors size: %d", descriptors.size()));
+            }
+            String contentRating = generateContentRating(descriptors);
+            String broadcastGenre = generateBroadcastGenre(descriptors);
+            String canonicalGenre = generateCanonicalGenre(descriptors);
+            List<AtscAudioTrack> audioTracks = generateAudioTracks(descriptors);
+            List<AtscCaptionTrack> captionTracks = generateCaptionTracks(descriptors);
+            pos += 10 + titleLength + 2 + descriptorsLength;
+            results.add(
+                    new EitItem(
+                            EitItem.INVALID_PROGRAM_ID,
+                            eventId,
+                            titleText,
+                            startTime,
+                            lengthInSecond,
+                            contentRating,
+                            audioTracks,
+                            captionTracks,
+                            broadcastGenre,
+                            canonicalGenre,
+                            null));
+        }
+        if (mListener != null) {
+            mListener.onEitParsed(sourceId, results);
+        }
+        return true;
+    }
+
+    private boolean parseETT(byte[] data) {
+        // For details of the structure for ETT, see ATSC A/65 Table 6.13.
+        if (DEBUG) {
+            Log.d(TAG, "ETT is discovered.");
+        }
+        if (data.length <= 12) {
+            Log.e(TAG, "Broken ETT.");
+            return false;
+        }
+        int sourceId = ((data[9] & 0xff) << 8) | (data[10] & 0xff);
+        int eventId = (((data[11] & 0xff) << 8) | (data[12] & 0xff)) >> 2;
+        String text = extractText(data, 13);
+        List<EttItem> ettItems = mParsedEttItems.get(sourceId);
+        if (ettItems == null) {
+            ettItems = new ArrayList<>();
+            mParsedEttItems.put(sourceId, ettItems);
+        }
+        ettItems.add(new EttItem(eventId, text));
+        return true;
+    }
+
+    private boolean parseSDT(byte[] data) {
+        // For details of the structure for SDT, see DVB Document A038 Table 5.
+        if (DEBUG) {
+            Log.d(TAG, "SDT id discovered");
+        }
+        if (data.length <= 11) {
+            Log.e(TAG, "Broken SDT.");
+            return false;
+        }
+        if ((data[1] & 0x80) >> 7 != 1) {
+            Log.e(TAG, "Broken SDT, section syntax indicator error.");
+            return false;
+        }
+        int sectionLength = ((data[1] & 0x0f) << 8) | (data[2] & 0xff);
+        int transportStreamId = ((data[3] & 0xff) << 8) | (data[4] & 0xff);
+        int originalNetworkId = ((data[8] & 0xff) << 8) | (data[9] & 0xff);
+        int pos = 11;
+        if (sectionLength + 3 > data.length) {
+            Log.e(TAG, "Broken SDT.");
+        }
+        List<SdtItem> sdtItems = new ArrayList<>();
+        while (pos + 9 < data.length) {
+            int serviceId = ((data[pos] & 0xff) << 8) | (data[pos + 1] & 0xff);
+            int descriptorsLength = ((data[pos + 3] & 0x0f) << 8) | (data[pos + 4] & 0xff);
+            pos += 5;
+            List<TsDescriptor> descriptors = parseDescriptors(data, pos, pos + descriptorsLength);
+            List<ServiceDescriptor> serviceDescriptors = generateServiceDescriptors(descriptors);
+            String serviceName = "";
+            String serviceProviderName = "";
+            int serviceType = 0;
+            for (ServiceDescriptor serviceDescriptor : serviceDescriptors) {
+                serviceName = serviceDescriptor.getServiceName();
+                serviceProviderName = serviceDescriptor.getServiceProviderName();
+                serviceType = serviceDescriptor.getServiceType();
+            }
+            if (serviceDescriptors.size() > 0) {
+                sdtItems.add(
+                        new SdtItem(
+                                serviceName,
+                                serviceProviderName,
+                                serviceType,
+                                serviceId,
+                                originalNetworkId));
+            }
+            pos += descriptorsLength;
+        }
+        if (mListener != null) {
+            mListener.onSdtParsed(sdtItems);
+        }
+        return true;
+    }
+
+    private boolean parseDVBEIT(byte[] data) {
+        // For details of the structure for DVB ETT, see DVB Document A038 Table 7.
+        if (DEBUG) {
+            Log.d(TAG, "DVB EIT is discovered.");
+        }
+        if (data.length < 18) {
+            Log.e(TAG, "Broken DVB EIT.");
+            return false;
+        }
+        int sectionLength = ((data[1] & 0x0f) << 8) | (data[2] & 0xff);
+        int sourceId = ((data[3] & 0xff) << 8) | (data[4] & 0xff);
+        int transportStreamId = ((data[8] & 0xff) << 8) | (data[9] & 0xff);
+        int originalNetworkId = ((data[10] & 0xff) << 8) | (data[11] & 0xff);
+
+        int pos = 14;
+        List<EitItem> results = new ArrayList<>();
+        while (pos + 12 < data.length) {
+            int eventId = ((data[pos] & 0xff) << 8) + (data[pos + 1] & 0xff);
+            float modifiedJulianDate = ((data[pos + 2] & 0xff) << 8) | (data[pos + 3] & 0xff);
+            int startYear = (int) ((modifiedJulianDate - 15078.2f) / 365.25f);
+            int mjdMonth =
+                    (int)
+                            ((modifiedJulianDate - 14956.1f - (int) (startYear * 365.25f))
+                                    / 30.6001f);
+            int startDay =
+                    (int) modifiedJulianDate
+                            - 14956
+                            - (int) (startYear * 365.25f)
+                            - (int) (mjdMonth * 30.6001f);
+            int startMonth = mjdMonth - 1;
+            if (mjdMonth == 14 || mjdMonth == 15) {
+                startYear += 1;
+                startMonth -= 12;
+            }
+            int startHour = ((data[pos + 4] & 0xf0) >> 4) * 10 + (data[pos + 4] & 0x0f);
+            int startMinute = ((data[pos + 5] & 0xf0) >> 4) * 10 + (data[pos + 5] & 0x0f);
+            int startSecond = ((data[pos + 6] & 0xf0) >> 4) * 10 + (data[pos + 6] & 0x0f);
+            Calendar calendar = Calendar.getInstance();
+            startYear += 1900;
+            calendar.set(startYear, startMonth, startDay, startHour, startMinute, startSecond);
+            long startTime =
+                    ConvertUtils.convertUnixEpochToGPSTime(calendar.getTimeInMillis() / 1000);
+            int durationInSecond =
+                    (((data[pos + 7] & 0xf0) >> 4) * 10 + (data[pos + 7] & 0x0f)) * 3600
+                            + (((data[pos + 8] & 0xf0) >> 4) * 10 + (data[pos + 8] & 0x0f)) * 60
+                            + (((data[pos + 9] & 0xf0) >> 4) * 10 + (data[pos + 9] & 0x0f));
+            int descriptorsLength = ((data[pos + 10] & 0x0f) << 8) | (data[pos + 10 + 1] & 0xff);
+            int descriptorsPos = pos + 10 + 2;
+            if (data.length < descriptorsPos + descriptorsLength) {
+                Log.e(TAG, "Broken EIT.");
+                return false;
+            }
+            List<TsDescriptor> descriptors =
+                    parseDescriptors(data, descriptorsPos, descriptorsPos + descriptorsLength);
+            if (DEBUG) {
+                Log.d(TAG, String.format("DVB EIT descriptors size: %d", descriptors.size()));
+            }
+            // TODO: Add logic to generating content rating for dvb. See DVB document 6.2.28 for
+            // details. Content rating here will be null
+            String contentRating = generateContentRating(descriptors);
+            // TODO: Add logic for generating genre for dvb. See DVB document 6.2.9 for details.
+            // Genre here will be null here.
+            String broadcastGenre = generateBroadcastGenre(descriptors);
+            String canonicalGenre = generateCanonicalGenre(descriptors);
+            String titleText = generateShortEventName(descriptors);
+            List<AtscAudioTrack> audioTracks = generateAudioTracks(descriptors);
+            List<AtscCaptionTrack> captionTracks = generateCaptionTracks(descriptors);
+            pos += 12 + descriptorsLength;
+            results.add(
+                    new EitItem(
+                            EitItem.INVALID_PROGRAM_ID,
+                            eventId,
+                            titleText,
+                            startTime,
+                            durationInSecond,
+                            contentRating,
+                            audioTracks,
+                            captionTracks,
+                            broadcastGenre,
+                            canonicalGenre,
+                            null));
+        }
+        if (mListener != null) {
+            mListener.onEitParsed(sourceId, results);
+        }
+        return true;
+    }
+
+    public interface OutputListener {
+        void onPatParsed(List<PatItem> items);
+
+        void onPmtParsed(int programNumber, List<PmtItem> items);
+
+        void onMgtParsed(List<MgtItem> items);
+
+        void onVctParsed(List<VctItem> items, int sectionNumber, int lastSectionNumber);
+
+        void onEitParsed(int sourceId, List<EitItem> items);
+
+        void onEttParsed(int sourceId, List<EttItem> descriptions);
+
+        void onSdtParsed(List<SdtItem> items);
     }
 }

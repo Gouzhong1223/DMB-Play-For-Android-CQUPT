@@ -17,24 +17,16 @@
 package cn.edu.cqupt.dmb.player.tuner.exoplayer;
 
 import android.net.Uri;
-import com.google.android.exoplayer.MediaFormat;
 import android.os.ConditionVariable;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
-
 import android.util.Pair;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.audio.MpegTsDefaultAudioTrackRenderer;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.BufferManager;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.PlaybackBufferListener;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.RecordingSampleBuffer;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.SimpleSampleBuffer;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
@@ -44,8 +36,8 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.FormatHolder;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaPeriod;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.SampleStream;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.FixedTrackSelection;
@@ -63,6 +55,12 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.audio.MpegTsDefaultAudioTrackRenderer;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.BufferManager;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.PlaybackBufferListener;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.RecordingSampleBuffer;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.SimpleSampleBuffer;
+
 /**
  * A class that extracts samples from a live broadcast stream while storing the sample on the disk.
  * For demux, this class relies on {@link com.google.android.exoplayer.extractor.ts.TsExtractor}.
@@ -75,36 +73,20 @@ public class ExoPlayerSampleExtractor implements SampleExtractor {
     private final long mId;
 
     private final Handler.Callback mSourceReaderWorker;
-
+    private final AtomicBoolean mOnCompletionCalled = new AtomicBoolean();
+    private final HashMap<Integer, Long> mLastExtractedPositionUsMap = new HashMap<>();
+    private final List<Pair<Integer, SampleHolder>> mPendingSamples = new ArrayList<>();
     private BufferManager.SampleBuffer mSampleBuffer;
     private Handler mSourceReaderHandler;
     private volatile boolean mPrepared;
-    private final AtomicBoolean mOnCompletionCalled = new AtomicBoolean();
     private IOException mExceptionOnPrepare;
     private List<MediaFormat> mTrackFormats;
     private int mVideoTrackIndex = INVALID_TRACK_INDEX;
     private boolean mVideoTrackMet;
     private long mBaseSamplePts = Long.MIN_VALUE;
-    private final HashMap<Integer, Long> mLastExtractedPositionUsMap = new HashMap<>();
-    private final List<Pair<Integer, SampleHolder>> mPendingSamples = new ArrayList<>();
     private OnCompletionListener mOnCompletionListener;
     private Handler mOnCompletionListenerHandler;
     private IOException mError;
-
-    /**
-     * Factory for {@link ExoPlayerSampleExtractor}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        ExoPlayerSampleExtractor create(
-                Uri uri,
-                DataSource source,
-                @Nullable BufferManager bufferManager,
-                PlaybackBufferListener bufferListener,
-                boolean isRecording);
-    }
 
     @AutoFactory(implementing = Factory.class)
     public ExoPlayerSampleExtractor(
@@ -175,6 +157,137 @@ public class ExoPlayerSampleExtractor implements SampleExtractor {
         mOnCompletionListenerHandler = handler;
     }
 
+    @Override
+    public void maybeThrowError() throws IOException {
+        if (mError != null) {
+            IOException e = mError;
+            mError = null;
+            throw e;
+        }
+    }
+
+    @Override
+    public boolean prepare() throws IOException {
+        if (!mSourceReaderThread.isAlive()) {
+            mSourceReaderThread.start();
+            mSourceReaderHandler =
+                    new Handler(mSourceReaderThread.getLooper(), mSourceReaderWorker);
+            mSourceReaderHandler.sendEmptyMessage(SourceReaderWorker.MSG_PREPARE);
+        }
+        if (mExceptionOnPrepare != null) {
+            throw mExceptionOnPrepare;
+        }
+        return mPrepared;
+    }
+
+    @Override
+    public List<MediaFormat> getTrackFormats() {
+        return mTrackFormats;
+    }
+
+    @Override
+    public void getTrackMediaFormat(int track, MediaFormatHolder outMediaFormatHolder) {
+        outMediaFormatHolder.format = mTrackFormats.get(track);
+        outMediaFormatHolder.drmInitData = null;
+    }
+
+    @Override
+    public void selectTrack(int index) {
+        mSampleBuffer.selectTrack(index);
+    }
+
+    @Override
+    public void deselectTrack(int index) {
+        mSampleBuffer.deselectTrack(index);
+    }
+
+    @Override
+    public long getBufferedPositionUs() {
+        return mSampleBuffer.getBufferedPositionUs();
+    }
+
+    @Override
+    public boolean continueBuffering(long positionUs) {
+        return mSampleBuffer.continueBuffering(positionUs);
+    }
+
+    @Override
+    public void seekTo(long positionUs) {
+        mSampleBuffer.seekTo(positionUs);
+    }
+
+    @Override
+    public int readSample(int track, SampleHolder sampleHolder) {
+        return mSampleBuffer.readSample(track, sampleHolder);
+    }
+
+    @Override
+    public void release() {
+        if (mSourceReaderThread.isAlive()) {
+            mSourceReaderHandler.removeCallbacksAndMessages(null);
+            mSourceReaderHandler.sendEmptyMessage(SourceReaderWorker.MSG_RELEASE);
+            mSourceReaderThread.quitSafely();
+            // Return early in this case so that session worker can start working on the next
+            // request as early as it can. The clean up will be done in the reader thread while
+            // handling MSG_RELEASE.
+        } else {
+            cleanUp();
+        }
+    }
+
+    private void cleanUp() {
+        boolean result = true;
+        try {
+            if (mSampleBuffer != null) {
+                mSampleBuffer.release();
+                mSampleBuffer = null;
+            }
+        } catch (IOException e) {
+            result = false;
+        }
+        notifyCompletionIfNeeded(result);
+        setOnCompletionListener(null, null);
+    }
+
+    private void notifyCompletionIfNeeded(final boolean result) {
+        if (!mOnCompletionCalled.getAndSet(true)) {
+            final OnCompletionListener listener = mOnCompletionListener;
+            final long lastExtractedPositionUs = getLastExtractedPositionUs();
+            if (mOnCompletionListenerHandler != null && mOnCompletionListener != null) {
+                mOnCompletionListenerHandler.post(
+                        () -> listener.onCompletion(result, lastExtractedPositionUs));
+            }
+        }
+    }
+
+    private long getLastExtractedPositionUs() {
+        long lastExtractedPositionUs = Long.MIN_VALUE;
+        for (Map.Entry<Integer, Long> entry : mLastExtractedPositionUsMap.entrySet()) {
+            if (mVideoTrackIndex != entry.getKey()) {
+                lastExtractedPositionUs = Math.max(lastExtractedPositionUs, entry.getValue());
+            }
+        }
+        if (lastExtractedPositionUs == Long.MIN_VALUE) {
+            lastExtractedPositionUs = com.google.android.exoplayer.C.UNKNOWN_TIME_US;
+        }
+        return lastExtractedPositionUs;
+    }
+
+    /**
+     * Factory for {@link ExoPlayerSampleExtractor}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        ExoPlayerSampleExtractor create(
+                Uri uri,
+                DataSource source,
+                @Nullable BufferManager bufferManager,
+                PlaybackBufferListener bufferListener,
+                boolean isRecording);
+    }
+
     private class SourceReaderWorker implements Handler.Callback, MediaPeriod.Callback {
         public static final int MSG_PREPARE = 1;
         public static final int MSG_FETCH_SAMPLES = 2;
@@ -183,13 +296,13 @@ public class ExoPlayerSampleExtractor implements SampleExtractor {
 
         private final MediaSource mSampleSource;
         private final MediaSource.SourceInfoRefreshListener mSampleSourceListener;
+        private final DecoderInputBuffer mDecoderInputBuffer;
+        private final SampleHolder mSampleHolder;
         private MediaPeriod mMediaPeriod;
         private SampleStream[] mStreams;
         private boolean[] mTrackMetEos;
         private boolean mMetEos = false;
         private long mCurrentPosition;
-        private final DecoderInputBuffer mDecoderInputBuffer;
-        private final SampleHolder mSampleHolder;
         private boolean mPrepareRequested;
 
         public SourceReaderWorker(MediaSource sampleSource) {
@@ -481,121 +594,5 @@ public class ExoPlayerSampleExtractor implements SampleExtractor {
                 mSampleBuffer.handleWriteSpeedSlow();
             }
         }
-    }
-
-    @Override
-    public void maybeThrowError() throws IOException {
-        if (mError != null) {
-            IOException e = mError;
-            mError = null;
-            throw e;
-        }
-    }
-
-    @Override
-    public boolean prepare() throws IOException {
-        if (!mSourceReaderThread.isAlive()) {
-            mSourceReaderThread.start();
-            mSourceReaderHandler =
-                    new Handler(mSourceReaderThread.getLooper(), mSourceReaderWorker);
-            mSourceReaderHandler.sendEmptyMessage(SourceReaderWorker.MSG_PREPARE);
-        }
-        if (mExceptionOnPrepare != null) {
-            throw mExceptionOnPrepare;
-        }
-        return mPrepared;
-    }
-
-    @Override
-    public List<MediaFormat> getTrackFormats() {
-        return mTrackFormats;
-    }
-
-    @Override
-    public void getTrackMediaFormat(int track, MediaFormatHolder outMediaFormatHolder) {
-        outMediaFormatHolder.format = mTrackFormats.get(track);
-        outMediaFormatHolder.drmInitData = null;
-    }
-
-    @Override
-    public void selectTrack(int index) {
-        mSampleBuffer.selectTrack(index);
-    }
-
-    @Override
-    public void deselectTrack(int index) {
-        mSampleBuffer.deselectTrack(index);
-    }
-
-    @Override
-    public long getBufferedPositionUs() {
-        return mSampleBuffer.getBufferedPositionUs();
-    }
-
-    @Override
-    public boolean continueBuffering(long positionUs) {
-        return mSampleBuffer.continueBuffering(positionUs);
-    }
-
-    @Override
-    public void seekTo(long positionUs) {
-        mSampleBuffer.seekTo(positionUs);
-    }
-
-    @Override
-    public int readSample(int track, SampleHolder sampleHolder) {
-        return mSampleBuffer.readSample(track, sampleHolder);
-    }
-
-    @Override
-    public void release() {
-        if (mSourceReaderThread.isAlive()) {
-            mSourceReaderHandler.removeCallbacksAndMessages(null);
-            mSourceReaderHandler.sendEmptyMessage(SourceReaderWorker.MSG_RELEASE);
-            mSourceReaderThread.quitSafely();
-            // Return early in this case so that session worker can start working on the next
-            // request as early as it can. The clean up will be done in the reader thread while
-            // handling MSG_RELEASE.
-        } else {
-            cleanUp();
-        }
-    }
-
-    private void cleanUp() {
-        boolean result = true;
-        try {
-            if (mSampleBuffer != null) {
-                mSampleBuffer.release();
-                mSampleBuffer = null;
-            }
-        } catch (IOException e) {
-            result = false;
-        }
-        notifyCompletionIfNeeded(result);
-        setOnCompletionListener(null, null);
-    }
-
-    private void notifyCompletionIfNeeded(final boolean result) {
-        if (!mOnCompletionCalled.getAndSet(true)) {
-            final OnCompletionListener listener = mOnCompletionListener;
-            final long lastExtractedPositionUs = getLastExtractedPositionUs();
-            if (mOnCompletionListenerHandler != null && mOnCompletionListener != null) {
-                mOnCompletionListenerHandler.post(
-                        () -> listener.onCompletion(result, lastExtractedPositionUs));
-            }
-        }
-    }
-
-    private long getLastExtractedPositionUs() {
-        long lastExtractedPositionUs = Long.MIN_VALUE;
-        for (Map.Entry<Integer, Long> entry : mLastExtractedPositionUsMap.entrySet()) {
-            if (mVideoTrackIndex != entry.getKey()) {
-                lastExtractedPositionUs = Math.max(lastExtractedPositionUs, entry.getValue());
-            }
-        }
-        if (lastExtractedPositionUs == Long.MIN_VALUE) {
-            lastExtractedPositionUs = com.google.android.exoplayer.C.UNKNOWN_TIME_US;
-        }
-        return lastExtractedPositionUs;
     }
 }

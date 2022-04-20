@@ -19,12 +19,12 @@ package cn.edu.cqupt.dmb.player.tuner;
 import android.content.Context;
 import android.util.Log;
 
+import java.util.Objects;
+
 import cn.edu.cqupt.dmb.player.common.BuildConfig;
 import cn.edu.cqupt.dmb.player.common.annotation.UsedByNative;
 import cn.edu.cqupt.dmb.player.common.compat.TvInputConstantCompat;
 import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
-
-import java.util.Objects;
 
 /**
  * A base class to handle a hardware tuner device.
@@ -39,6 +39,12 @@ public abstract class TunerHal implements Tuner {
     private static final int DEFAULT_VSB_TUNE_TIMEOUT_MS = 2000;
     private static final int DEFAULT_QAM_TUNE_TIMEOUT_MS = 4000; // Some device takes time for
 
+    static {
+        if (!BuildConfig.NO_JNI_TEST) {
+            System.loadLibrary("tunertvinput_jni");
+        }
+    }
+
     @DeliverySystemType
     private int mDeliverySystemType;
     @DeliverySystemType
@@ -46,12 +52,6 @@ public abstract class TunerHal implements Tuner {
     private boolean mIsStreaming;
     private int mFrequency;
     private String mModulation;
-
-    static {
-        if (!BuildConfig.NO_JNI_TEST) {
-            System.loadLibrary("tunertvinput_jni");
-        }
-    }
 
     protected TunerHal(Context context) {
         mIsStreaming = false;

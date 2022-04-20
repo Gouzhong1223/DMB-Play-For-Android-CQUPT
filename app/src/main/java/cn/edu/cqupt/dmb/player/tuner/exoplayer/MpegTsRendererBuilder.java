@@ -18,14 +18,7 @@ package cn.edu.cqupt.dmb.player.tuner.exoplayer;
 
 import android.content.Context;
 
-
 import androidx.annotation.Nullable;
-
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.MpegTsPlayer.RendererBuilder;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.MpegTsPlayer.RendererBuilderCallback;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.audio.MpegTsDefaultAudioTrackRenderer;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.BufferManager;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.PlaybackBufferListener;
 
 import com.google.android.exoplayer.MediaCodecSelector;
 import com.google.android.exoplayer.SampleSource;
@@ -33,6 +26,12 @@ import com.google.android.exoplayer.TrackRenderer;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
+
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.MpegTsPlayer.RendererBuilder;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.MpegTsPlayer.RendererBuilderCallback;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.audio.MpegTsDefaultAudioTrackRenderer;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.BufferManager;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer.PlaybackBufferListener;
 
 /**
  * Builder for renderer objects for {@link MpegTsPlayer}.
@@ -42,19 +41,6 @@ public class MpegTsRendererBuilder implements RendererBuilder {
     private final BufferManager mBufferManager;
     private final PlaybackBufferListener mBufferListener;
     private final MpegTsSampleExtractor.Factory mMpegTsSampleExtractorFactory;
-
-    /**
-     * Factory for {@link MpegTsRendererBuilder}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        MpegTsRendererBuilder create(
-                Context context,
-                @Nullable BufferManager bufferManager,
-                PlaybackBufferListener bufferListener);
-    }
 
     @AutoFactory(implementing = Factory.class)
     public MpegTsRendererBuilder(
@@ -96,5 +82,18 @@ public class MpegTsRendererBuilder implements RendererBuilder {
         renderers[MpegTsPlayer.TRACK_TYPE_AUDIO] = audioRenderer;
         renderers[MpegTsPlayer.TRACK_TYPE_TEXT] = textRenderer;
         callback.onRenderers(null, renderers);
+    }
+
+    /**
+     * Factory for {@link MpegTsRendererBuilder}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        MpegTsRendererBuilder create(
+                Context context,
+                @Nullable BufferManager bufferManager,
+                PlaybackBufferListener bufferListener);
     }
 }

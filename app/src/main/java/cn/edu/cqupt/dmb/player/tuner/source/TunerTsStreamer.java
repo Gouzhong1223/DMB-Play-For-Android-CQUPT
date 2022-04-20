@@ -24,14 +24,6 @@ import android.util.Pair;
 
 import androidx.annotation.Nullable;
 
-import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
-import cn.edu.cqupt.dmb.player.tuner.api.ScanChannel;
-import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
-import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
-import cn.edu.cqupt.dmb.player.tuner.prefs.TunerPreferences;
-import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector;
-import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector.EventListener;
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.TransferListener;
@@ -40,6 +32,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
+
+import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
+import cn.edu.cqupt.dmb.player.tuner.api.ScanChannel;
+import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
+import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
+import cn.edu.cqupt.dmb.player.tuner.prefs.TunerPreferences;
+import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector;
+import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector.EventListener;
 
 /**
  * Provides MPEG-2 TS stream sources for channel playing from an underlying tuner device.
@@ -59,100 +59,16 @@ public class TunerTsStreamer implements TsStreamer {
 
     private final Object mCircularBufferMonitor = new Object();
     private final byte[] mCircularBuffer = new byte[CIRCULAR_BUFFER_SIZE];
-    private long mBytesFetched;
     private final AtomicLong mLastReadPosition = new AtomicLong();
-    private boolean mStreaming;
-
     private final Tuner mTunerHal;
-    private TunerChannel mChannel;
-    private Thread mStreamingThread;
     private final EventDetector mEventDetector;
     private final List<Pair<EventListener, Boolean>> mEventListenerActions = new ArrayList<>();
-
     private final TsStreamWriter mTsStreamWriter;
+    private long mBytesFetched;
+    private boolean mStreaming;
+    private TunerChannel mChannel;
+    private Thread mStreamingThread;
     private String mChannelNumber;
-
-    public static class TunerDataSource extends TsDataSource {
-        private final TunerTsStreamer mTsStreamer;
-        private final AtomicLong mLastReadPosition = new AtomicLong(0);
-        private long mStartBufferedPosition;
-        private Uri mUri;
-
-        private TunerDataSource(TunerTsStreamer tsStreamer) {
-            mTsStreamer = tsStreamer;
-            mStartBufferedPosition = tsStreamer.getBufferedPosition();
-        }
-
-        @Override
-        public long getBufferedPosition() {
-            return mTsStreamer.getBufferedPosition() - mStartBufferedPosition;
-        }
-
-        @Override
-        public long getLastReadPosition() {
-            return mLastReadPosition.get();
-        }
-
-        @Override
-        public void shiftStartPosition(long offset) {
-            SoftPreconditions.checkState(mLastReadPosition.get() == 0);
-            SoftPreconditions.checkArgument(0 <= offset && offset <= getBufferedPosition());
-            mStartBufferedPosition += offset;
-        }
-
-        @Override
-        public long open(DataSpec dataSpec) {
-            mUri = dataSpec.uri;
-            mLastReadPosition.set(0);
-            return C.LENGTH_UNSET;
-        }
-
-        @Override
-        public void close() {
-            mUri = null;
-        }
-
-        @Override
-        public int read(byte[] buffer, int offset, int readLength) throws IOException {
-            int ret =
-                    mTsStreamer.readAt(
-                            mStartBufferedPosition + mLastReadPosition.get(),
-                            buffer,
-                            offset,
-                            readLength);
-            if (ret > 0) {
-                mLastReadPosition.addAndGet(ret);
-            } else if (ret == READ_ERROR_BUFFER_OVERWRITTEN) {
-                long currentPosition = mStartBufferedPosition + mLastReadPosition.get();
-                long endPosition = mTsStreamer.getBufferedPosition();
-                long diff =
-                        ((endPosition - currentPosition + TS_PACKET_SIZE - 1) / TS_PACKET_SIZE)
-                                * TS_PACKET_SIZE;
-                Log.w(TAG, "Demux position jump by overwritten buffer: " + diff);
-                mStartBufferedPosition = currentPosition + diff;
-                mLastReadPosition.set(0);
-                return 0;
-            }
-            return ret;
-        }
-
-        @Override
-        public int getSignalStrength() {
-            return mTsStreamer.getSignalStrength();
-        }
-
-        @Override
-        public void addTransferListener(TransferListener transferListener) {
-            // TODO: Implement to support metrics collection.
-        }
-
-        @Nullable
-        @Override
-        public Uri getUri() {
-            return mUri;
-        }
-
-    }
 
     /**
      * Creates {@link TsStreamer} for playing or recording the specified channel.
@@ -345,6 +261,132 @@ public class TunerTsStreamer implements TsStreamer {
         return mTunerHal.getSignalStrength();
     }
 
+    /**
+     * Reads data from internal buffer.
+     *
+     * @param pos    the position to read from
+     * @param buffer to read
+     * @param offset start position of the read buffer
+     * @param amount number of bytes to read
+     * @return number of read bytes when successful, {@code -1} otherwise
+     * @throws IOException
+     */
+    public int readAt(long pos, byte[] buffer, int offset, int amount) throws IOException {
+        while (true) {
+            synchronized (mCircularBufferMonitor) {
+                if (!mStreaming) {
+                    return READ_ERROR_STREAMING_ENDED;
+                }
+                if (mBytesFetched - CIRCULAR_BUFFER_SIZE > pos) {
+                    Log.w(TAG, "Demux is requesting the data which is already overwritten.");
+                    return READ_ERROR_BUFFER_OVERWRITTEN;
+                }
+                if (mBytesFetched < pos + amount) {
+                    try {
+                        mCircularBufferMonitor.wait(READ_TIMEOUT_MS);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                    // Try again to prevent starvation.
+                    // Give chances to read from other threads.
+                    continue;
+                }
+                int startPos = (int) (pos % CIRCULAR_BUFFER_SIZE);
+                int endPos = (int) ((pos + amount) % CIRCULAR_BUFFER_SIZE);
+                int firstLength = (startPos > endPos ? CIRCULAR_BUFFER_SIZE : endPos) - startPos;
+                System.arraycopy(mCircularBuffer, startPos, buffer, offset, firstLength);
+                if (firstLength < amount) {
+                    System.arraycopy(
+                            mCircularBuffer, 0, buffer, offset + firstLength, amount - firstLength);
+                }
+                mCircularBufferMonitor.notifyAll();
+                return amount;
+            }
+        }
+    }
+
+    public static class TunerDataSource extends TsDataSource {
+        private final TunerTsStreamer mTsStreamer;
+        private final AtomicLong mLastReadPosition = new AtomicLong(0);
+        private long mStartBufferedPosition;
+        private Uri mUri;
+
+        private TunerDataSource(TunerTsStreamer tsStreamer) {
+            mTsStreamer = tsStreamer;
+            mStartBufferedPosition = tsStreamer.getBufferedPosition();
+        }
+
+        @Override
+        public long getBufferedPosition() {
+            return mTsStreamer.getBufferedPosition() - mStartBufferedPosition;
+        }
+
+        @Override
+        public long getLastReadPosition() {
+            return mLastReadPosition.get();
+        }
+
+        @Override
+        public void shiftStartPosition(long offset) {
+            SoftPreconditions.checkState(mLastReadPosition.get() == 0);
+            SoftPreconditions.checkArgument(0 <= offset && offset <= getBufferedPosition());
+            mStartBufferedPosition += offset;
+        }
+
+        @Override
+        public long open(DataSpec dataSpec) {
+            mUri = dataSpec.uri;
+            mLastReadPosition.set(0);
+            return C.LENGTH_UNSET;
+        }
+
+        @Override
+        public void close() {
+            mUri = null;
+        }
+
+        @Override
+        public int read(byte[] buffer, int offset, int readLength) throws IOException {
+            int ret =
+                    mTsStreamer.readAt(
+                            mStartBufferedPosition + mLastReadPosition.get(),
+                            buffer,
+                            offset,
+                            readLength);
+            if (ret > 0) {
+                mLastReadPosition.addAndGet(ret);
+            } else if (ret == READ_ERROR_BUFFER_OVERWRITTEN) {
+                long currentPosition = mStartBufferedPosition + mLastReadPosition.get();
+                long endPosition = mTsStreamer.getBufferedPosition();
+                long diff =
+                        ((endPosition - currentPosition + TS_PACKET_SIZE - 1) / TS_PACKET_SIZE)
+                                * TS_PACKET_SIZE;
+                Log.w(TAG, "Demux position jump by overwritten buffer: " + diff);
+                mStartBufferedPosition = currentPosition + diff;
+                mLastReadPosition.set(0);
+                return 0;
+            }
+            return ret;
+        }
+
+        @Override
+        public int getSignalStrength() {
+            return mTsStreamer.getSignalStrength();
+        }
+
+        @Override
+        public void addTransferListener(TransferListener transferListener) {
+            // TODO: Implement to support metrics collection.
+        }
+
+        @Nullable
+        @Override
+        public Uri getUri() {
+            return mUri;
+        }
+
+    }
+
     private class StreamingThread extends Thread {
         @Override
         public void run() {
@@ -413,50 +455,6 @@ public class TunerTsStreamer implements TsStreamer {
             }
 
             Log.i(TAG, "Streaming stopped");
-        }
-    }
-
-    /**
-     * Reads data from internal buffer.
-     *
-     * @param pos    the position to read from
-     * @param buffer to read
-     * @param offset start position of the read buffer
-     * @param amount number of bytes to read
-     * @return number of read bytes when successful, {@code -1} otherwise
-     * @throws IOException
-     */
-    public int readAt(long pos, byte[] buffer, int offset, int amount) throws IOException {
-        while (true) {
-            synchronized (mCircularBufferMonitor) {
-                if (!mStreaming) {
-                    return READ_ERROR_STREAMING_ENDED;
-                }
-                if (mBytesFetched - CIRCULAR_BUFFER_SIZE > pos) {
-                    Log.w(TAG, "Demux is requesting the data which is already overwritten.");
-                    return READ_ERROR_BUFFER_OVERWRITTEN;
-                }
-                if (mBytesFetched < pos + amount) {
-                    try {
-                        mCircularBufferMonitor.wait(READ_TIMEOUT_MS);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                    }
-                    // Try again to prevent starvation.
-                    // Give chances to read from other threads.
-                    continue;
-                }
-                int startPos = (int) (pos % CIRCULAR_BUFFER_SIZE);
-                int endPos = (int) ((pos + amount) % CIRCULAR_BUFFER_SIZE);
-                int firstLength = (startPos > endPos ? CIRCULAR_BUFFER_SIZE : endPos) - startPos;
-                System.arraycopy(mCircularBuffer, startPos, buffer, offset, firstLength);
-                if (firstLength < amount) {
-                    System.arraycopy(
-                            mCircularBuffer, 0, buffer, offset + firstLength, amount - firstLength);
-                }
-                mCircularBufferMonitor.notifyAll();
-                return amount;
-            }
         }
     }
 }

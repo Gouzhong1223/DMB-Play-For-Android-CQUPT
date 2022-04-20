@@ -16,12 +16,10 @@
 
 package cn.edu.cqupt.dmb.player.tuner.hdhomerun;
 
-import androidx.annotation.NonNull;
-
 import android.util.Log;
 import android.util.Pair;
 
-import cn.edu.cqupt.dmb.player.tuner.hdhomerun.HdHomeRunDiscover.HdHomeRunDiscoverDevice;
+import androidx.annotation.NonNull;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -33,23 +31,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.zip.CRC32;
 
-class HdHomeRunUtils {
-    private static final String TAG = "HdHomeRunUtils";
-    private static final boolean DEBUG = false;
+import cn.edu.cqupt.dmb.player.tuner.hdhomerun.HdHomeRunDiscover.HdHomeRunDiscoverDevice;
 
+class HdHomeRunUtils {
     static final int HDHOMERUN_DEVICE_TYPE_WILDCARD = 0xFFFFFFFF;
     static final int HDHOMERUN_DEVICE_TYPE_TUNER = 0x00000001;
     static final int HDHOMERUN_DEVICE_ID_WILDCARD = 0xFFFFFFFF;
-
     static final int HDHOMERUN_DISCOVER_UDP_PORT = 65001;
     static final int HDHOMERUN_CONTROL_TCP_PORT = 65001;
-
     static final short HDHOMERUN_TYPE_INVALID = -1;
     static final short HDHOMERUN_TYPE_DISCOVER_REQUEST = 0x0002;
     static final short HDHOMERUN_TYPE_DISCOVER_REPLY = 0x0003;
     static final short HDHOMERUN_TYPE_GETSET_REQUEST = 0x0004;
     static final short HDHOMERUN_TYPE_GETSET_REPLY = 0x0005;
-
     static final byte HDHOMERUN_TAG_DEVICE_TYPE = 0x01;
     static final byte HDHOMERUN_TAG_DEVICE_ID = 0x02;
     static final byte HDHOMERUN_TAG_GETSET_NAME = 0x03;
@@ -57,10 +51,14 @@ class HdHomeRunUtils {
     static final int HDHOMERUN_TAG_ERROR_MESSAGE = 0x05;
     static final int HDHOMERUN_TAG_TUNER_COUNT = 0x10;
     static final int HDHOMERUN_TAG_BASE_URL = 0x2A;
-
     static final int HDHOMERUN_CONTROL_CONNECT_TIMEOUT_MS = 2500;
     static final int HDHOMERUN_CONTROL_SEND_TIMEOUT_MS = 2500;
     static final int HDHOMERUN_CONTROL_RECEIVE_TIMEOUT_MS = 2500;
+    private static final String TAG = "HdHomeRunUtils";
+    private static final boolean DEBUG = false;
+
+    private HdHomeRunUtils() {
+    }
 
     /**
      * Finds HDHomeRun devices with given IP, type, and ID.
@@ -201,8 +199,5 @@ class HdHomeRunUtils {
             crc >>= 8;
         }
         return result;
-    }
-
-    private HdHomeRunUtils() {
     }
 }

@@ -25,6 +25,11 @@ import cn.edu.cqupt.dmb.player.tuner.tvinput.datamanager.ChannelDataManager;
  */
 public interface TunerRecordingSessionFactory {
 
+    RecordingSession create(
+            String inputId,
+            RecordingSessionReleasedCallback releasedCallback,
+            ChannelDataManager channelDataManager);
+
     /**
      * Called when a recording session is released
      */
@@ -37,9 +42,4 @@ public interface TunerRecordingSessionFactory {
          */
         void onReleased(RecordingSession session);
     }
-
-    RecordingSession create(
-            String inputId,
-            RecordingSessionReleasedCallback releasedCallback,
-            ChannelDataManager channelDataManager);
 }

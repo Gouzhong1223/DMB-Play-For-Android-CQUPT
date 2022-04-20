@@ -23,10 +23,10 @@ import android.provider.Settings;
  * Utility class that get information of global settings.
  */
 public class GlobalSettingsUtils {
+    public static final int ENCODED_SURROUND_OUTPUT_NEVER = 1;
     // Since global surround setting is hided, add the related variable here for checking surround
     // sound setting when the audio is unavailable. Remove this workaround after b/31254857 fixed.
     private static final String ENCODED_SURROUND_OUTPUT = "encoded_surround_output";
-    public static final int ENCODED_SURROUND_OUTPUT_NEVER = 1;
 
     private GlobalSettingsUtils() {
     }

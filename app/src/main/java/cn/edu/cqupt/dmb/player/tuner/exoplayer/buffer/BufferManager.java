@@ -18,17 +18,12 @@ package cn.edu.cqupt.dmb.player.tuner.exoplayer.buffer;
 
 import android.media.MediaFormat;
 import android.os.ConditionVariable;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
-
 import android.util.ArrayMap;
 import android.util.Log;
 import android.util.Pair;
 
-import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
-import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.SampleExtractor;
+import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 
 import com.google.android.exoplayer.SampleHolder;
 
@@ -43,6 +38,10 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
+import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.SampleExtractor;
 
 /**
  * Manages {@link SampleChunk} objects.
@@ -69,8 +68,9 @@ public class BufferManager {
     private final Map<String, Long> mStartPositionMap = new ArrayMap<>();
     private final Map<String, ChunkEvictedListener> mEvictListeners = new ArrayMap<>();
     private final StorageManager mStorageManager;
-    private long mBufferSize = 0;
     private final EvictChunkQueueMap mPendingDelete = new EvictChunkQueueMap();
+    private final AtomicInteger mSpeedCheckCount = new AtomicInteger();
+    private long mBufferSize = 0;
     private final SampleChunk.ChunkCallback mChunkCallback =
             new SampleChunk.ChunkCallback() {
                 @Override
@@ -83,297 +83,10 @@ public class BufferManager {
                     mBufferSize -= chunk.getSize();
                 }
             };
-
     private int mMinSampleSizeForSpeedCheck = MINIMUM_SAMPLE_SIZE_FOR_SPEED_CHECK;
     private long mTotalWriteSize;
     private long mTotalWriteTimeNs;
     private float mWriteBandwidth = 0.0f;
-    private final AtomicInteger mSpeedCheckCount = new AtomicInteger();
-
-    public interface ChunkEvictedListener {
-        void onChunkEvicted(String id, long createdTimeMs);
-    }
-
-    /**
-     * Handles I/O between BufferManager and {@link SampleExtractor}.
-     */
-    public interface SampleBuffer {
-
-        /**
-         * Initializes SampleBuffer.
-         *
-         * @param Ids          track identifiers for storage read/write.
-         * @param mediaFormats meta-data for each track.
-         * @throws IOException
-         */
-        void init(
-                @NonNull List<String> Ids,
-                @NonNull List<com.google.android.exoplayer.MediaFormat> mediaFormats)
-                throws IOException;
-
-        /**
-         * Selects the track {@code index} for reading sample data.
-         */
-        void selectTrack(int index);
-
-        /**
-         * Deselects the track at {@code index}, so that no more samples will be read from the
-         * track.
-         */
-        void deselectTrack(int index);
-
-        /**
-         * Writes sample to storage.
-         *
-         * @param index             track index
-         * @param sample            sample to write at storage
-         * @param conditionVariable notifies the completion of writing sample.
-         * @throws IOException
-         */
-        void writeSample(int index, SampleHolder sample, ConditionVariable conditionVariable)
-                throws IOException;
-
-        /**
-         * Checks whether storage write speed is slow.
-         */
-        boolean isWriteSpeedSlow(int sampleSize, long writeDurationNs);
-
-        /**
-         * Handles when write speed is slow.
-         *
-         * @throws IOException
-         */
-        void handleWriteSpeedSlow() throws IOException;
-
-        /**
-         * Sets the flag when EoS was reached.
-         */
-        void setEos();
-
-        /**
-         * Reads the next sample in the track at index {@code track} into {@code sampleHolder},
-         * returning {@link com.google.android.exoplayer.SampleSource#SAMPLE_READ} if it is
-         * available. If the next sample is not available, returns {@link
-         * com.google.android.exoplayer.SampleSource#NOTHING_READ}.
-         */
-        int readSample(int index, SampleHolder outSample);
-
-        /**
-         * Seeks to the specified time in microseconds.
-         */
-        void seekTo(long positionUs);
-
-        /**
-         * Returns an estimate of the position up to which data is buffered.
-         */
-        long getBufferedPositionUs();
-
-        /**
-         * Returns whether there is buffered data.
-         */
-        boolean continueBuffering(long positionUs);
-
-        /**
-         * Cleans up and releases everything.
-         *
-         * @throws IOException
-         */
-        void release() throws IOException;
-    }
-
-    /**
-     * A Track format which will be loaded and saved from the permanent storage for recordings.
-     */
-    public static class TrackFormat {
-
-        /**
-         * The track id for the specified track. The track id will be used as a track identifier for
-         * recordings.
-         */
-        public final String trackId;
-
-        /**
-         * The {@link MediaFormat} for the specified track.
-         */
-        public final MediaFormat format;
-
-        /**
-         * Creates TrackFormat.
-         *
-         * @param trackId
-         * @param format
-         */
-        public TrackFormat(String trackId, MediaFormat format) {
-            this.trackId = trackId;
-            this.format = format;
-        }
-    }
-
-    /**
-     * A Holder for a sample position which will be loaded from the index file for recordings.
-     */
-    public static class PositionHolder {
-
-        /**
-         * The current sample position in microseconds. The position is identical to the
-         * PTS(presentation time stamp) of the sample.
-         */
-        public final long positionUs;
-
-        /**
-         * Base sample position for the current {@link SampleChunk}.
-         */
-        public final long basePositionUs;
-
-        /**
-         * The file offset for the current sample in the current {@link SampleChunk}.
-         */
-        public final int offset;
-
-        /**
-         * Creates a holder for a specific position in the recording.
-         *
-         * @param positionUs
-         * @param offset
-         */
-        public PositionHolder(long positionUs, long basePositionUs, int offset) {
-            this.positionUs = positionUs;
-            this.basePositionUs = basePositionUs;
-            this.offset = offset;
-        }
-    }
-
-    /**
-     * Storage configuration and policy manager for {@link BufferManager}
-     */
-    public interface StorageManager {
-
-        /**
-         * Provides eligible storage directory for {@link BufferManager}.
-         *
-         * @return a directory to save buffer(chunks) and meta files
-         */
-        File getBufferDir();
-
-        /**
-         * Informs whether the storage is used for persistent use. (eg. dvr recording/play)
-         *
-         * @return {@code true} if stored files are persistent
-         */
-        boolean isPersistent();
-
-        /**
-         * Informs whether the storage usage exceeds pre-determined size.
-         *
-         * @param bufferSize    the current total usage of Storage in bytes.
-         * @param pendingDelete the current storage usage which will be deleted in near future by
-         *                      bytes
-         * @return {@code true} if it reached pre-determined max size
-         */
-        boolean reachedStorageMax(long bufferSize, long pendingDelete);
-
-        /**
-         * Informs whether the storage has enough remained space.
-         *
-         * @param pendingDelete the current storage usage which will be deleted in near future by
-         *                      bytes
-         * @return {@code true} if it has enough space
-         */
-        boolean hasEnoughBuffer(long pendingDelete);
-
-        /**
-         * Reads track name & {@link MediaFormat} from storage.
-         *
-         * @param isAudio {@code true} if it is for audio track
-         * @return {@link List} of TrackFormat
-         */
-        List<TrackFormat> readTrackInfoFiles(boolean isAudio);
-
-        /**
-         * Reads key sample positions for each written sample from storage.
-         *
-         * @param trackId track name
-         * @return indexes of the specified track
-         * @throws IOException
-         */
-        ArrayList<PositionHolder> readIndexFile(String trackId) throws IOException;
-
-        /**
-         * Writes track information to storage.
-         *
-         * @param formatList {@list List} of TrackFormat
-         * @param isAudio    {@code true} if it is for audio track
-         * @throws IOException
-         */
-        void writeTrackInfoFiles(List<TrackFormat> formatList, boolean isAudio) throws IOException;
-
-        /**
-         * Writes index file to storage.
-         *
-         * @param trackName track name
-         * @param index     {@link SampleChunk} container
-         * @throws IOException
-         */
-        void writeIndexFile(String trackName, SortedMap<Long, Pair<SampleChunk, Integer>> index)
-                throws IOException;
-
-        /**
-         * Writes to index file to storage.
-         *
-         * @param trackName   track name
-         * @param size        size of sample
-         * @param position    position in micro seconds
-         * @param sampleChunk {@link SampleChunk} chunk to be added
-         * @param offset      offset
-         * @throws IOException
-         */
-        void updateIndexFile(
-                String trackName, int size, long position, SampleChunk sampleChunk, int offset)
-                throws IOException;
-    }
-
-    private static class EvictChunkQueueMap {
-        private final Map<String, LinkedList<SampleChunk>> mEvictMap = new ArrayMap<>();
-        private long mSize;
-
-        private void init(String key) {
-            mEvictMap.put(key, new LinkedList<>());
-        }
-
-        private void add(String key, SampleChunk chunk) {
-            LinkedList<SampleChunk> queue = mEvictMap.get(key);
-            if (queue != null) {
-                mSize += chunk.getSize();
-                queue.add(chunk);
-            }
-        }
-
-        private SampleChunk poll(String key, long startPositionUs) {
-            LinkedList<SampleChunk> queue = mEvictMap.get(key);
-            if (queue != null) {
-                SampleChunk chunk = queue.peek();
-                if (chunk != null && chunk.getStartPositionUs() < startPositionUs) {
-                    mSize -= chunk.getSize();
-                    return queue.poll();
-                }
-            }
-            return null;
-        }
-
-        private long getSize() {
-            return mSize;
-        }
-
-        private void release() {
-            for (Map.Entry<String, LinkedList<SampleChunk>> entry : mEvictMap.entrySet()) {
-                for (SampleChunk chunk : entry.getValue()) {
-                    SampleChunk.IoState.release(chunk, true);
-                }
-            }
-            mEvictMap.clear();
-            mSize = 0;
-        }
-    }
 
     public BufferManager(StorageManager storageManager) {
         this(storageManager, new SampleChunk.SampleChunkCreator());
@@ -385,16 +98,16 @@ public class BufferManager {
         mSampleChunkCreator = sampleChunkCreator;
     }
 
+    private static String getFileName(String id, long positionUs) {
+        return String.format(Locale.ENGLISH, "%s_%016x.chunk", id, positionUs);
+    }
+
     public void registerChunkEvictedListener(String id, ChunkEvictedListener listener) {
         mEvictListeners.put(id, listener);
     }
 
     public void unregisterChunkEvictedListener(String id) {
         mEvictListeners.remove(id);
-    }
-
-    private static String getFileName(String id, long positionUs) {
-        return String.format(Locale.ENGLISH, "%s_%016x.chunk", id, positionUs);
     }
 
     /**
@@ -757,5 +470,290 @@ public class BufferManager {
     @VisibleForTesting
     public void setMinimumSampleSizeForSpeedCheck(int sampleSize) {
         mMinSampleSizeForSpeedCheck = sampleSize;
+    }
+
+    public interface ChunkEvictedListener {
+        void onChunkEvicted(String id, long createdTimeMs);
+    }
+
+    /**
+     * Handles I/O between BufferManager and {@link SampleExtractor}.
+     */
+    public interface SampleBuffer {
+
+        /**
+         * Initializes SampleBuffer.
+         *
+         * @param Ids          track identifiers for storage read/write.
+         * @param mediaFormats meta-data for each track.
+         * @throws IOException
+         */
+        void init(
+                @NonNull List<String> Ids,
+                @NonNull List<com.google.android.exoplayer.MediaFormat> mediaFormats)
+                throws IOException;
+
+        /**
+         * Selects the track {@code index} for reading sample data.
+         */
+        void selectTrack(int index);
+
+        /**
+         * Deselects the track at {@code index}, so that no more samples will be read from the
+         * track.
+         */
+        void deselectTrack(int index);
+
+        /**
+         * Writes sample to storage.
+         *
+         * @param index             track index
+         * @param sample            sample to write at storage
+         * @param conditionVariable notifies the completion of writing sample.
+         * @throws IOException
+         */
+        void writeSample(int index, SampleHolder sample, ConditionVariable conditionVariable)
+                throws IOException;
+
+        /**
+         * Checks whether storage write speed is slow.
+         */
+        boolean isWriteSpeedSlow(int sampleSize, long writeDurationNs);
+
+        /**
+         * Handles when write speed is slow.
+         *
+         * @throws IOException
+         */
+        void handleWriteSpeedSlow() throws IOException;
+
+        /**
+         * Sets the flag when EoS was reached.
+         */
+        void setEos();
+
+        /**
+         * Reads the next sample in the track at index {@code track} into {@code sampleHolder},
+         * returning {@link com.google.android.exoplayer.SampleSource#SAMPLE_READ} if it is
+         * available. If the next sample is not available, returns {@link
+         * com.google.android.exoplayer.SampleSource#NOTHING_READ}.
+         */
+        int readSample(int index, SampleHolder outSample);
+
+        /**
+         * Seeks to the specified time in microseconds.
+         */
+        void seekTo(long positionUs);
+
+        /**
+         * Returns an estimate of the position up to which data is buffered.
+         */
+        long getBufferedPositionUs();
+
+        /**
+         * Returns whether there is buffered data.
+         */
+        boolean continueBuffering(long positionUs);
+
+        /**
+         * Cleans up and releases everything.
+         *
+         * @throws IOException
+         */
+        void release() throws IOException;
+    }
+
+    /**
+     * Storage configuration and policy manager for {@link BufferManager}
+     */
+    public interface StorageManager {
+
+        /**
+         * Provides eligible storage directory for {@link BufferManager}.
+         *
+         * @return a directory to save buffer(chunks) and meta files
+         */
+        File getBufferDir();
+
+        /**
+         * Informs whether the storage is used for persistent use. (eg. dvr recording/play)
+         *
+         * @return {@code true} if stored files are persistent
+         */
+        boolean isPersistent();
+
+        /**
+         * Informs whether the storage usage exceeds pre-determined size.
+         *
+         * @param bufferSize    the current total usage of Storage in bytes.
+         * @param pendingDelete the current storage usage which will be deleted in near future by
+         *                      bytes
+         * @return {@code true} if it reached pre-determined max size
+         */
+        boolean reachedStorageMax(long bufferSize, long pendingDelete);
+
+        /**
+         * Informs whether the storage has enough remained space.
+         *
+         * @param pendingDelete the current storage usage which will be deleted in near future by
+         *                      bytes
+         * @return {@code true} if it has enough space
+         */
+        boolean hasEnoughBuffer(long pendingDelete);
+
+        /**
+         * Reads track name & {@link MediaFormat} from storage.
+         *
+         * @param isAudio {@code true} if it is for audio track
+         * @return {@link List} of TrackFormat
+         */
+        List<TrackFormat> readTrackInfoFiles(boolean isAudio);
+
+        /**
+         * Reads key sample positions for each written sample from storage.
+         *
+         * @param trackId track name
+         * @return indexes of the specified track
+         * @throws IOException
+         */
+        ArrayList<PositionHolder> readIndexFile(String trackId) throws IOException;
+
+        /**
+         * Writes track information to storage.
+         *
+         * @param formatList {@list List} of TrackFormat
+         * @param isAudio    {@code true} if it is for audio track
+         * @throws IOException
+         */
+        void writeTrackInfoFiles(List<TrackFormat> formatList, boolean isAudio) throws IOException;
+
+        /**
+         * Writes index file to storage.
+         *
+         * @param trackName track name
+         * @param index     {@link SampleChunk} container
+         * @throws IOException
+         */
+        void writeIndexFile(String trackName, SortedMap<Long, Pair<SampleChunk, Integer>> index)
+                throws IOException;
+
+        /**
+         * Writes to index file to storage.
+         *
+         * @param trackName   track name
+         * @param size        size of sample
+         * @param position    position in micro seconds
+         * @param sampleChunk {@link SampleChunk} chunk to be added
+         * @param offset      offset
+         * @throws IOException
+         */
+        void updateIndexFile(
+                String trackName, int size, long position, SampleChunk sampleChunk, int offset)
+                throws IOException;
+    }
+
+    /**
+     * A Track format which will be loaded and saved from the permanent storage for recordings.
+     */
+    public static class TrackFormat {
+
+        /**
+         * The track id for the specified track. The track id will be used as a track identifier for
+         * recordings.
+         */
+        public final String trackId;
+
+        /**
+         * The {@link MediaFormat} for the specified track.
+         */
+        public final MediaFormat format;
+
+        /**
+         * Creates TrackFormat.
+         *
+         * @param trackId
+         * @param format
+         */
+        public TrackFormat(String trackId, MediaFormat format) {
+            this.trackId = trackId;
+            this.format = format;
+        }
+    }
+
+    /**
+     * A Holder for a sample position which will be loaded from the index file for recordings.
+     */
+    public static class PositionHolder {
+
+        /**
+         * The current sample position in microseconds. The position is identical to the
+         * PTS(presentation time stamp) of the sample.
+         */
+        public final long positionUs;
+
+        /**
+         * Base sample position for the current {@link SampleChunk}.
+         */
+        public final long basePositionUs;
+
+        /**
+         * The file offset for the current sample in the current {@link SampleChunk}.
+         */
+        public final int offset;
+
+        /**
+         * Creates a holder for a specific position in the recording.
+         *
+         * @param positionUs
+         * @param offset
+         */
+        public PositionHolder(long positionUs, long basePositionUs, int offset) {
+            this.positionUs = positionUs;
+            this.basePositionUs = basePositionUs;
+            this.offset = offset;
+        }
+    }
+
+    private static class EvictChunkQueueMap {
+        private final Map<String, LinkedList<SampleChunk>> mEvictMap = new ArrayMap<>();
+        private long mSize;
+
+        private void init(String key) {
+            mEvictMap.put(key, new LinkedList<>());
+        }
+
+        private void add(String key, SampleChunk chunk) {
+            LinkedList<SampleChunk> queue = mEvictMap.get(key);
+            if (queue != null) {
+                mSize += chunk.getSize();
+                queue.add(chunk);
+            }
+        }
+
+        private SampleChunk poll(String key, long startPositionUs) {
+            LinkedList<SampleChunk> queue = mEvictMap.get(key);
+            if (queue != null) {
+                SampleChunk chunk = queue.peek();
+                if (chunk != null && chunk.getStartPositionUs() < startPositionUs) {
+                    mSize -= chunk.getSize();
+                    return queue.poll();
+                }
+            }
+            return null;
+        }
+
+        private long getSize() {
+            return mSize;
+        }
+
+        private void release() {
+            for (Map.Entry<String, LinkedList<SampleChunk>> entry : mEvictMap.entrySet()) {
+                for (SampleChunk chunk : entry.getValue()) {
+                    SampleChunk.IoState.release(chunk, true);
+                }
+            }
+            mEvictMap.clear();
+            mSize = 0;
+        }
     }
 }

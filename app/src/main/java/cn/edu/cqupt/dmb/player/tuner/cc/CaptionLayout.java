@@ -68,11 +68,11 @@ public class CaptionLayout extends ScaledLayout {
         mSafeTitleAreaLayout.removeView(captionWindowLayout);
     }
 
-    public void setCaptionTrack(AtscCaptionTrack captionTrack) {
-        mCaptionTrack = captionTrack;
-    }
-
     public AtscCaptionTrack getCaptionTrack() {
         return mCaptionTrack;
+    }
+
+    public void setCaptionTrack(AtscCaptionTrack captionTrack) {
+        mCaptionTrack = captionTrack;
     }
 }

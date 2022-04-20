@@ -18,14 +18,63 @@ package cn.edu.cqupt.dmb.player.common.feature;
 
 import android.content.Context;
 
-import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
-
 import java.util.Arrays;
+
+import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
 
 /**
  * Static utilities for features.
  */
 public class FeatureUtils {
+
+    /**
+     * A feature that is always enabled.
+     */
+    public static final Feature ON =
+            new Feature() {
+                @Override
+                public boolean isEnabled(Context context) {
+                    return true;
+                }
+
+                @Override
+                public String toString() {
+                    return "on";
+                }
+            };
+    /**
+     * A feature that is always disabled.
+     */
+    public static final Feature OFF =
+            new Feature() {
+                @Override
+                public boolean isEnabled(Context context) {
+                    return false;
+                }
+
+                @Override
+                public String toString() {
+                    return "off";
+                }
+            };
+    /**
+     * True if running in robolectric.
+     */
+    public static final Feature ROBOLECTRIC =
+            new Feature() {
+                @Override
+                public boolean isEnabled(Context context) {
+                    return CommonUtils.isRoboTest();
+                }
+
+                @Override
+                public String toString() {
+                    return "isRobolecteric";
+                }
+            };
+
+    private FeatureUtils() {
+    }
 
     /**
      * Returns a feature that is enabled if any of {@code features} is enabled.
@@ -92,56 +141,5 @@ public class FeatureUtils {
                 return "not(" + feature + ")";
             }
         };
-    }
-
-    /**
-     * A feature that is always enabled.
-     */
-    public static final Feature ON =
-            new Feature() {
-                @Override
-                public boolean isEnabled(Context context) {
-                    return true;
-                }
-
-                @Override
-                public String toString() {
-                    return "on";
-                }
-            };
-
-    /**
-     * A feature that is always disabled.
-     */
-    public static final Feature OFF =
-            new Feature() {
-                @Override
-                public boolean isEnabled(Context context) {
-                    return false;
-                }
-
-                @Override
-                public String toString() {
-                    return "off";
-                }
-            };
-
-    /**
-     * True if running in robolectric.
-     */
-    public static final Feature ROBOLECTRIC =
-            new Feature() {
-                @Override
-                public boolean isEnabled(Context context) {
-                    return CommonUtils.isRoboTest();
-                }
-
-                @Override
-                public String toString() {
-                    return "isRobolecteric";
-                }
-            };
-
-    private FeatureUtils() {
     }
 }

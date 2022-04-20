@@ -20,8 +20,6 @@ import android.media.MediaFormat;
 import android.util.Log;
 import android.util.Pair;
 
-import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscCaptionTrack;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -35,6 +33,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+
+import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscCaptionTrack;
 
 /**
  * Manages DVR storage.

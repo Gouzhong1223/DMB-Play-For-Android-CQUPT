@@ -17,11 +17,10 @@
 package cn.edu.cqupt.dmb.player.tuner.dvb;
 
 import android.content.Context;
-
-import androidx.annotation.WorkerThread;
-
 import android.util.Log;
 import android.util.Pair;
+
+import androidx.annotation.WorkerThread;
 
 import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
 import cn.edu.cqupt.dmb.player.tuner.api.TunerFactory;
@@ -30,12 +29,10 @@ import cn.edu.cqupt.dmb.player.tuner.api.TunerFactory;
  * TunerHal factory that creates all built in tuner types.
  */
 public final class DvbTunerHalFactory implements TunerFactory {
+    public static final TunerFactory INSTANCE = new DvbTunerHalFactory();
     private static final String TAG = "DvbTunerHalFactory";
     private static final boolean DEBUG = false;
-
     private final int mBuiltInTunerType = Tuner.BUILT_IN_TUNER_TYPE_LINUX_DVB;
-
-    public static final TunerFactory INSTANCE = new DvbTunerHalFactory();
 
     private DvbTunerHalFactory() {
     }

@@ -25,9 +25,8 @@ import cn.edu.cqupt.dmb.player.common.BuildConfig;
  * Times a duration.
  */
 public final class DurationTimer {
-    private static final String TAG = "DurationTimer";
     public static final long TIME_NOT_SET = -1;
-
+    private static final String TAG = "DurationTimer";
     private long mStartTimeMs = TIME_NOT_SET;
     private String mTag = TAG;
     private boolean mLogEngOnly;

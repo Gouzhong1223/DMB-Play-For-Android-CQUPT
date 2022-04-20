@@ -18,9 +18,6 @@ package cn.edu.cqupt.dmb.player.tuner.exoplayer;
 
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionEvent;
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Parser;
-
 import com.google.android.exoplayer.ExoPlaybackException;
 import com.google.android.exoplayer.MediaClock;
 import com.google.android.exoplayer.MediaFormat;
@@ -32,17 +29,18 @@ import com.google.android.exoplayer.util.Assertions;
 
 import java.io.IOException;
 
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionEvent;
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Parser;
+
 /**
  * A {@link TrackRenderer} for CEA-708 textual subtitles.
  */
 public class Cea708TextTrackRenderer extends TrackRenderer
         implements Cea708Parser.OnCea708ParserListener {
-    private static final String TAG = "Cea708TextTrackRenderer";
-    private static final boolean DEBUG = false;
-
     public static final int MSG_SERVICE_NUMBER = 1;
     public static final int MSG_ENABLE_CLOSED_CAPTION = 2;
-
+    private static final String TAG = "Cea708TextTrackRenderer";
+    private static final boolean DEBUG = false;
     // According to CEA-708B, the maximum value of closed caption bandwidth is 9600bps.
     private static final int DEFAULT_INPUT_BUFFER_SIZE = 9600 / 8;
 
@@ -57,14 +55,6 @@ public class Cea708TextTrackRenderer extends TrackRenderer
     private boolean mRenderingDisabled;
     private Cea708Parser mCea708Parser;
     private CcListener mCcListener;
-
-    public interface CcListener {
-        void emitEvent(CaptionEvent captionEvent);
-
-        void clearCaption();
-
-        void discoverServiceNumber(int serviceNumber);
-    }
 
     public Cea708TextTrackRenderer(SampleSource source) {
         mSource = source.register();
@@ -302,5 +292,13 @@ public class Cea708TextTrackRenderer extends TrackRenderer
             default:
                 super.handleMessage(messageType, message);
         }
+    }
+
+    public interface CcListener {
+        void emitEvent(CaptionEvent captionEvent);
+
+        void clearCaption();
+
+        void discoverServiceNumber(int serviceNumber);
     }
 }

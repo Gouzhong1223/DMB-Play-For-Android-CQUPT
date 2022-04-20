@@ -27,6 +27,19 @@ import android.text.TextUtils;
  * functionality.
  */
 public class HdHomeRunDevice implements Parcelable {
+    public static final Creator<HdHomeRunDevice> CREATOR =
+            new Creator<HdHomeRunDevice>() {
+
+                @Override
+                public HdHomeRunDevice createFromParcel(Parcel in) {
+                    return new HdHomeRunDevice(in);
+                }
+
+                @Override
+                public HdHomeRunDevice[] newArray(int size) {
+                    return new HdHomeRunDevice[size];
+                }
+            };
     private final int mIpAddress;
     private final int mDeviceType;
     private final int mDeviceId;
@@ -160,18 +173,4 @@ public class HdHomeRunDevice implements Parcelable {
                 && getTunerIndex() == rhs.getTunerIndex()
                 && TextUtils.equals(getDeviceModel(), rhs.getDeviceModel());
     }
-
-    public static final Creator<HdHomeRunDevice> CREATOR =
-            new Creator<HdHomeRunDevice>() {
-
-                @Override
-                public HdHomeRunDevice createFromParcel(Parcel in) {
-                    return new HdHomeRunDevice(in);
-                }
-
-                @Override
-                public HdHomeRunDevice[] newArray(int size) {
-                    return new HdHomeRunDevice[size];
-                }
-            };
 }

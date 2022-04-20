@@ -16,17 +16,17 @@
 
 package cn.edu.cqupt.dmb.player.tuner.hdhomerun;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
-import android.util.Log;
-
-import cn.edu.cqupt.dmb.player.tuner.hdhomerun.HdHomeRunDiscover.HdHomeRunDiscoverDevice;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import cn.edu.cqupt.dmb.player.tuner.hdhomerun.HdHomeRunDiscover.HdHomeRunDiscoverDevice;
 
 /**
  * An interface class provides methods to access physical HDHomeRun devices.
@@ -39,6 +39,9 @@ public class HdHomeRunInterface {
     private static final int FETCH_DEVICE_NAME_TRY_NUM = 2;
     private static final int MAX_DEVICES = 1;
     private static final boolean DISABLE_CABLE = false;
+
+    private HdHomeRunInterface() {
+    }
 
     /**
      * Scans for HDHomeRun devices on the network.
@@ -133,8 +136,5 @@ public class HdHomeRunInterface {
             }
         }
         return null;
-    }
-
-    private HdHomeRunInterface() {
     }
 }

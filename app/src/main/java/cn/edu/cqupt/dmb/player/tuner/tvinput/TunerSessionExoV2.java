@@ -29,6 +29,9 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.View;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
+
 import cn.edu.cqupt.dmb.player.common.CommonPreferences.CommonPreferencesChangedListener;
 import cn.edu.cqupt.dmb.player.common.compat.TisSessionCompat;
 import cn.edu.cqupt.dmb.player.common.dagger.annotations.ApplicationContext;
@@ -37,9 +40,6 @@ import cn.edu.cqupt.dmb.player.tuner.tvinput.datamanager.ChannelDataManager;
 import cn.edu.cqupt.dmb.player.tuner.tvinput.factory.TunerSessionFactory;
 import cn.edu.cqupt.dmb.player.tuner.tvinput.factory.TunerSessionFactory.SessionRecordingCallback;
 import cn.edu.cqupt.dmb.player.tuner.tvinput.factory.TunerSessionFactory.SessionReleasedCallback;
-
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 
 /**
  * Provides a tuner TV input session.

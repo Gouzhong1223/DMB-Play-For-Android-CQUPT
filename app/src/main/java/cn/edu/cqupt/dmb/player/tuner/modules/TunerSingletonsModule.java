@@ -1,7 +1,6 @@
 package cn.edu.cqupt.dmb.player.tuner.modules;
 
 import cn.edu.cqupt.dmb.player.tuner.singletons.TunerSingletons;
-
 import dagger.Module;
 
 /**

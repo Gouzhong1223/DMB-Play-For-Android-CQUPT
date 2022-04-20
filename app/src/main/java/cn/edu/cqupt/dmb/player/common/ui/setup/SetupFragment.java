@@ -18,9 +18,6 @@ package cn.edu.cqupt.dmb.player.common.ui.setup;
 
 import android.app.Fragment;
 import android.os.Bundle;
-
-import androidx.annotation.IntDef;
-
 import android.transition.Transition;
 import android.transition.Transition.TransitionListener;
 import android.view.Gravity;
@@ -29,36 +26,23 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
-import cn.edu.cqupt.dmb.player.common.ui.setup.animation.FadeAndShortSlide;
-import cn.edu.cqupt.dmb.player.common.ui.setup.animation.SetupAnimationHelper;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+
+import cn.edu.cqupt.dmb.player.common.ui.setup.animation.FadeAndShortSlide;
+import cn.edu.cqupt.dmb.player.common.ui.setup.animation.SetupAnimationHelper;
 
 /**
  * A fragment which slides when it is entering/exiting.
  */
 public abstract class SetupFragment extends Fragment {
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef(
-            flag = true,
-            value = {
-                    FRAGMENT_ENTER_TRANSITION,
-                    FRAGMENT_EXIT_TRANSITION,
-                    FRAGMENT_REENTER_TRANSITION,
-                    FRAGMENT_RETURN_TRANSITION
-            }
-    )
-    public @interface FragmentTransitionType {
-    }
-
     public static final int FRAGMENT_ENTER_TRANSITION = 0x01;
     public static final int FRAGMENT_EXIT_TRANSITION = FRAGMENT_ENTER_TRANSITION << 1;
     public static final int FRAGMENT_REENTER_TRANSITION = FRAGMENT_ENTER_TRANSITION << 2;
     public static final int FRAGMENT_RETURN_TRANSITION = FRAGMENT_ENTER_TRANSITION << 3;
-
     private boolean mEnterTransitionRunning;
-
     private final TransitionListener mTransitionListener =
             new TransitionListener() {
                 @Override
@@ -85,6 +69,16 @@ public abstract class SetupFragment extends Fragment {
                 }
             };
 
+    public SetupFragment() {
+        setAllowEnterTransitionOverlap(false);
+        setAllowReturnTransitionOverlap(false);
+        enableFragmentTransition(
+                FRAGMENT_ENTER_TRANSITION
+                        | FRAGMENT_EXIT_TRANSITION
+                        | FRAGMENT_REENTER_TRANSITION
+                        | FRAGMENT_RETURN_TRANSITION);
+    }
+
     /**
      * Returns {@code true} if the enter/reenter transition is running.
      */
@@ -96,16 +90,6 @@ public abstract class SetupFragment extends Fragment {
      * Called when the enter/reenter transition ends.
      */
     protected void onEnterTransitionEnd() {
-    }
-
-    public SetupFragment() {
-        setAllowEnterTransitionOverlap(false);
-        setAllowReturnTransitionOverlap(false);
-        enableFragmentTransition(
-                FRAGMENT_ENTER_TRANSITION
-                        | FRAGMENT_EXIT_TRANSITION
-                        | FRAGMENT_REENTER_TRANSITION
-                        | FRAGMENT_RETURN_TRANSITION);
     }
 
     @Override
@@ -260,5 +244,18 @@ public abstract class SetupFragment extends Fragment {
      */
     public int[] getSharedElementIds() {
         return null;
+    }
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(
+            flag = true,
+            value = {
+                    FRAGMENT_ENTER_TRANSITION,
+                    FRAGMENT_EXIT_TRANSITION,
+                    FRAGMENT_REENTER_TRANSITION,
+                    FRAGMENT_RETURN_TRANSITION
+            }
+    )
+    public @interface FragmentTransitionType {
     }
 }

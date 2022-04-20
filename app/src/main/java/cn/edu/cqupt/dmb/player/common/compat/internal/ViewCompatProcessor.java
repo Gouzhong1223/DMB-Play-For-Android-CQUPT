@@ -19,11 +19,11 @@ import android.os.Bundle;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.compat.api.PrivateCommandSender;
-
 import com.google.protobuf.GeneratedMessageLite;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Parser;
+
+import cn.edu.cqupt.dmb.player.common.compat.api.PrivateCommandSender;
 
 /**
  * Sends {@code commands} to the {@code session} via {@link PrivateCommandSender} and receives

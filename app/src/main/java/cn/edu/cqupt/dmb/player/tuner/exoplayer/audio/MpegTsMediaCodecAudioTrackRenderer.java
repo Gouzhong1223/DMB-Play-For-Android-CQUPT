@@ -34,16 +34,6 @@ import com.google.android.exoplayer.SampleSource;
 public class MpegTsMediaCodecAudioTrackRenderer extends MediaCodecAudioTrackRenderer {
     private final Ac3EventListener mListener;
 
-    public interface Ac3EventListener extends EventListener {
-        /**
-         * Invoked when a {@link android.media.PlaybackParams} set to an {@link
-         * android.media.AudioTrack} is not valid.
-         *
-         * @param e The corresponding exception.
-         */
-        void onAudioTrackSetPlaybackParamsError(IllegalArgumentException e);
-    }
-
     public MpegTsMediaCodecAudioTrackRenderer(
             SampleSource source,
             MediaCodecSelector mediaCodecSelector,
@@ -51,6 +41,19 @@ public class MpegTsMediaCodecAudioTrackRenderer extends MediaCodecAudioTrackRend
             EventListener eventListener) {
         super(source, mediaCodecSelector, eventHandler, eventListener);
         mListener = (Ac3EventListener) eventListener;
+    }
+
+    private static boolean isAudioTrackSetPlaybackParamsError(IllegalArgumentException e) {
+        if (e.getStackTrace() == null || e.getStackTrace().length < 1) {
+            return false;
+        }
+        for (StackTraceElement element : e.getStackTrace()) {
+            String elementString = element.toString();
+            if (elementString.startsWith("android.media.AudioTrack.setPlaybackParams")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -74,16 +77,13 @@ public class MpegTsMediaCodecAudioTrackRenderer extends MediaCodecAudioTrackRend
         }
     }
 
-    private static boolean isAudioTrackSetPlaybackParamsError(IllegalArgumentException e) {
-        if (e.getStackTrace() == null || e.getStackTrace().length < 1) {
-            return false;
-        }
-        for (StackTraceElement element : e.getStackTrace()) {
-            String elementString = element.toString();
-            if (elementString.startsWith("android.media.AudioTrack.setPlaybackParams")) {
-                return true;
-            }
-        }
-        return false;
+    public interface Ac3EventListener extends EventListener {
+        /**
+         * Invoked when a {@link android.media.PlaybackParams} set to an {@link
+         * android.media.AudioTrack} is not valid.
+         *
+         * @param e The corresponding exception.
+         */
+        void onAudioTrackSetPlaybackParamsError(IllegalArgumentException e);
     }
 }

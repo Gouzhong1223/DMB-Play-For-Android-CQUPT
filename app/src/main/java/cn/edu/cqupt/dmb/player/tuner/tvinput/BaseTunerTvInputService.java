@@ -24,12 +24,6 @@ import android.media.tv.TvInputService;
 import android.net.Uri;
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.feature.CommonFeatures;
-import cn.edu.cqupt.dmb.player.common.flags.TunerFlags;
-import cn.edu.cqupt.dmb.player.tuner.tvinput.datamanager.ChannelDataManager;
-import cn.edu.cqupt.dmb.player.tuner.tvinput.factory.TunerRecordingSessionFactory;
-import cn.edu.cqupt.dmb.player.tuner.tvinput.factory.TunerSessionFactory;
-
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -42,6 +36,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import cn.edu.cqupt.dmb.player.common.feature.CommonFeatures;
+import cn.edu.cqupt.dmb.player.common.flags.TunerFlags;
+import cn.edu.cqupt.dmb.player.tuner.tvinput.datamanager.ChannelDataManager;
+import cn.edu.cqupt.dmb.player.tuner.tvinput.factory.TunerRecordingSessionFactory;
+import cn.edu.cqupt.dmb.player.tuner.tvinput.factory.TunerSessionFactory;
 import dagger.android.AndroidInjection;
 
 /**

@@ -23,9 +23,8 @@ import android.util.Log;
  * A class to maintain various debugging information.
  */
 public class TunerDebug {
-    private static final String TAG = "TunerDebug";
     public static final boolean ENABLED = false;
-
+    private static final String TAG = "TunerDebug";
     private int mVideoFrameDrop;
     private int mBytesInQueue;
 
@@ -45,10 +44,6 @@ public class TunerDebug {
     private TunerDebug() {
         mVideoFrameDrop = 0;
         mLastCheckTimestampMs = SystemClock.elapsedRealtime();
-    }
-
-    private static class LazyHolder {
-        private static final TunerDebug INSTANCE = new TunerDebug();
     }
 
     public static TunerDebug getInstance() {
@@ -71,19 +66,14 @@ public class TunerDebug {
         return videoFrameDrop;
     }
 
-    public static void setBytesInQueue(int bytesInQueue) {
-        TunerDebug sTunerDebug = getInstance();
-        sTunerDebug.mBytesInQueue = bytesInQueue;
-    }
-
     public static int getBytesInQueue() {
         TunerDebug sTunerDebug = getInstance();
         return sTunerDebug.mBytesInQueue;
     }
 
-    public static void setAudioPositionUs(long audioPositionUs) {
+    public static void setBytesInQueue(int bytesInQueue) {
         TunerDebug sTunerDebug = getInstance();
-        sTunerDebug.mAudioPositionUs = audioPositionUs;
+        sTunerDebug.mBytesInQueue = bytesInQueue;
     }
 
     public static long getAudioPositionUs() {
@@ -91,9 +81,9 @@ public class TunerDebug {
         return sTunerDebug.mAudioPositionUs;
     }
 
-    public static void setAudioPtsUs(long audioPtsUs) {
+    public static void setAudioPositionUs(long audioPositionUs) {
         TunerDebug sTunerDebug = getInstance();
-        sTunerDebug.mAudioPtsUs = audioPtsUs;
+        sTunerDebug.mAudioPositionUs = audioPositionUs;
     }
 
     public static long getAudioPtsUs() {
@@ -101,14 +91,19 @@ public class TunerDebug {
         return sTunerDebug.mAudioPtsUs;
     }
 
-    public static void setVideoPtsUs(long videoPtsUs) {
+    public static void setAudioPtsUs(long audioPtsUs) {
         TunerDebug sTunerDebug = getInstance();
-        sTunerDebug.mVideoPtsUs = videoPtsUs;
+        sTunerDebug.mAudioPtsUs = audioPtsUs;
     }
 
     public static long getVideoPtsUs() {
         TunerDebug sTunerDebug = getInstance();
         return sTunerDebug.mVideoPtsUs;
+    }
+
+    public static void setVideoPtsUs(long videoPtsUs) {
+        TunerDebug sTunerDebug = getInstance();
+        sTunerDebug.mVideoPtsUs = videoPtsUs;
     }
 
     public static void calculateDiff() {
@@ -145,5 +140,9 @@ public class TunerDebug {
     public static long getVideoPtsUsRate() {
         TunerDebug sTunerDebug = getInstance();
         return sTunerDebug.mVideoPtsUsRate;
+    }
+
+    private static class LazyHolder {
+        private static final TunerDebug INSTANCE = new TunerDebug();
     }
 }

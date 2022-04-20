@@ -20,22 +20,10 @@ import android.content.Context;
 import android.media.AudioFormat;
 import android.media.MediaCodec.CryptoException;
 import android.media.PlaybackParams;
-
 import android.os.Handler;
 import android.view.Surface;
 
 import androidx.annotation.IntDef;
-
-import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data;
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionEvent;
-import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.audio.MpegTsDefaultAudioTrackRenderer;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.audio.MpegTsMediaCodecAudioTrackRenderer;
-import cn.edu.cqupt.dmb.player.tuner.source.TsDataSource;
-import cn.edu.cqupt.dmb.player.tuner.source.TsDataSourceManager;
-import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector.EventListener;
-import cn.edu.cqupt.dmb.player.tuner.tvinput.debug.TunerDebug;
 
 import com.google.android.exoplayer.DummyTrackRenderer;
 import com.google.android.exoplayer.ExoPlaybackException;
@@ -52,6 +40,17 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data;
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionEvent;
+import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.audio.MpegTsDefaultAudioTrackRenderer;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.audio.MpegTsMediaCodecAudioTrackRenderer;
+import cn.edu.cqupt.dmb.player.tuner.source.TsDataSource;
+import cn.edu.cqupt.dmb.player.tuner.source.TsDataSourceManager;
+import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector.EventListener;
+import cn.edu.cqupt.dmb.player.tuner.tvinput.debug.TunerDebug;
+
 /**
  * MPEG-2 TS stream player implementation using ExoPlayer.
  */
@@ -60,112 +59,36 @@ public class MpegTsPlayer
         MediaCodecVideoTrackRenderer.EventListener,
         MpegTsDefaultAudioTrackRenderer.EventListener,
         MpegTsMediaCodecAudioTrackRenderer.Ac3EventListener {
-    private int mCaptionServiceNumber = Cea708Data.EMPTY_SERVICE_NUMBER;
-
-    /**
-     * Interface definition for building specific track renderers.
-     */
-    public interface RendererBuilder {
-        void buildRenderers(
-                MpegTsPlayer mpegTsPlayer, DataSource dataSource, RendererBuilderCallback callback);
-    }
-
-    /**
-     * Interface definition for {@link RendererBuilder#buildRenderers} to notify the result.
-     */
-    public interface RendererBuilderCallback {
-        void onRenderers(String[][] trackNames, TrackRenderer[] renderers);
-
-        void onRenderersError(Exception e);
-    }
-
-    /**
-     * Interface definition for a callback to be notified of changes in player state.
-     */
-    public interface Listener {
-        void onStateChanged(boolean playWhenReady, int playbackState);
-
-        void onError(Exception e);
-
-        void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio);
-
-        void onDrawnToSurface(MpegTsPlayer player, Surface surface);
-
-        void onAudioUnplayable();
-
-        void onSmoothTrickplayForceStopped();
-    }
-
-    /**
-     * Interface definition for a callback to be notified of changes on video display.
-     */
-    public interface VideoEventListener {
-        /**
-         * Notifies the caption event.
-         */
-        void onEmitCaptionEvent(CaptionEvent event);
-
-        /**
-         * Notifies clearing up whole closed caption event.
-         */
-        void onClearCaptionEvent();
-
-        /**
-         * Notifies the discovered caption service number.
-         */
-        void onDiscoverCaptionServiceNumber(int serviceNumber);
-    }
-
     public static final int RENDERER_COUNT = 3;
     public static final int MIN_BUFFER_MS = 0;
     public static final int MIN_REBUFFER_MS = 500;
-
-    @IntDef({TRACK_TYPE_VIDEO, TRACK_TYPE_AUDIO, TRACK_TYPE_TEXT})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface TrackType {
-    }
-
     public static final int TRACK_TYPE_VIDEO = 0;
     public static final int TRACK_TYPE_AUDIO = 1;
     public static final int TRACK_TYPE_TEXT = 2;
-
-    @IntDef({
-            RENDERER_BUILDING_STATE_IDLE,
-            RENDERER_BUILDING_STATE_BUILDING,
-            RENDERER_BUILDING_STATE_BUILT
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface RendererBuildingState {
-    }
-
     private static final int RENDERER_BUILDING_STATE_IDLE = 1;
     private static final int RENDERER_BUILDING_STATE_BUILDING = 2;
     private static final int RENDERER_BUILDING_STATE_BUILT = 3;
-
     private static final float MAX_SMOOTH_TRICKPLAY_SPEED = 9.0f;
     private static final float MIN_SMOOTH_TRICKPLAY_SPEED = 0.1f;
-
     private final RendererBuilder mRendererBuilder;
     private final ExoPlayer mPlayer;
     private final Handler mMainHandler;
     private final AudioCapabilities mAudioCapabilities;
     private final TsDataSourceManager mSourceManager;
-
+    private final Cea708TextTrackRenderer.CcListener mCcListener;
+    private int mCaptionServiceNumber = Cea708Data.EMPTY_SERVICE_NUMBER;
     private Listener mListener;
     @RendererBuildingState
     private int mRendererBuildingState;
-
     private Surface mSurface;
     private TsDataSource mDataSource;
     private InternalRendererBuilderCallback mBuilderCallback;
     private TrackRenderer mVideoRenderer;
     private TrackRenderer mAudioRenderer;
     private Cea708TextTrackRenderer mTextRenderer;
-    private final Cea708TextTrackRenderer.CcListener mCcListener;
     private VideoEventListener mVideoEventListener;
     private boolean mTrickplayRunning;
     private float mVolume;
-
     /**
      * Creates MPEG2-TS stream player.
      *
@@ -217,6 +140,13 @@ public class MpegTsPlayer
     }
 
     /**
+     * Returns the current surface of the player.
+     */
+    public Surface getSurface() {
+        return mSurface;
+    }
+
+    /**
      * Sets the surface for the player.
      *
      * @param surface the {@link Surface} to render video
@@ -224,13 +154,6 @@ public class MpegTsPlayer
     public void setSurface(Surface surface) {
         mSurface = surface;
         pushSurface(false);
-    }
-
-    /**
-     * Returns the current surface of the player.
-     */
-    public Surface getSurface() {
-        return mSurface;
     }
 
     /**
@@ -310,17 +233,6 @@ public class MpegTsPlayer
         if (mListener != null) {
             mListener.onError(e);
         }
-    }
-
-    /**
-     * Sets the player state to pause or play.
-     *
-     * @param playWhenReady sets the player state to being ready to play when {@code true}, sets the
-     *                      player state to being paused when {@code false}
-     */
-    public void setPlayWhenReady(boolean playWhenReady) {
-        mPlayer.setPlayWhenReady(playWhenReady);
-        stopSmoothTrickplay(false);
     }
 
     /**
@@ -453,6 +365,17 @@ public class MpegTsPlayer
      */
     public boolean getPlayWhenReady() {
         return mPlayer.getPlayWhenReady();
+    }
+
+    /**
+     * Sets the player state to pause or play.
+     *
+     * @param playWhenReady sets the player state to being ready to play when {@code true}, sets the
+     *                      player state to being paused when {@code false}
+     */
+    public void setPlayWhenReady(boolean playWhenReady) {
+        mPlayer.setPlayWhenReady(playWhenReady);
+        stopSmoothTrickplay(false);
     }
 
     /**
@@ -679,6 +602,74 @@ public class MpegTsPlayer
             return;
         }
         mPlayer.setSelectedTrack(type, allowRendererEnable ? 0 : -1);
+    }
+
+    /**
+     * Interface definition for building specific track renderers.
+     */
+    public interface RendererBuilder {
+        void buildRenderers(
+                MpegTsPlayer mpegTsPlayer, DataSource dataSource, RendererBuilderCallback callback);
+    }
+
+    /**
+     * Interface definition for {@link RendererBuilder#buildRenderers} to notify the result.
+     */
+    public interface RendererBuilderCallback {
+        void onRenderers(String[][] trackNames, TrackRenderer[] renderers);
+
+        void onRenderersError(Exception e);
+    }
+
+    /**
+     * Interface definition for a callback to be notified of changes in player state.
+     */
+    public interface Listener {
+        void onStateChanged(boolean playWhenReady, int playbackState);
+
+        void onError(Exception e);
+
+        void onVideoSizeChanged(int width, int height, float pixelWidthHeightRatio);
+
+        void onDrawnToSurface(MpegTsPlayer player, Surface surface);
+
+        void onAudioUnplayable();
+
+        void onSmoothTrickplayForceStopped();
+    }
+
+    /**
+     * Interface definition for a callback to be notified of changes on video display.
+     */
+    public interface VideoEventListener {
+        /**
+         * Notifies the caption event.
+         */
+        void onEmitCaptionEvent(CaptionEvent event);
+
+        /**
+         * Notifies clearing up whole closed caption event.
+         */
+        void onClearCaptionEvent();
+
+        /**
+         * Notifies the discovered caption service number.
+         */
+        void onDiscoverCaptionServiceNumber(int serviceNumber);
+    }
+
+    @IntDef({TRACK_TYPE_VIDEO, TRACK_TYPE_AUDIO, TRACK_TYPE_TEXT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface TrackType {
+    }
+
+    @IntDef({
+            RENDERER_BUILDING_STATE_IDLE,
+            RENDERER_BUILDING_STATE_BUILDING,
+            RENDERER_BUILDING_STATE_BUILT
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RendererBuildingState {
     }
 
     private class MpegTsCcListener implements Cea708TextTrackRenderer.CcListener {

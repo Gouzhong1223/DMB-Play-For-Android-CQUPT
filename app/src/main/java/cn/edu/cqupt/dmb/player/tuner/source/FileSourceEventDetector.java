@@ -20,6 +20,11 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import cn.edu.cqupt.dmb.player.tuner.data.PsiData.PatItem;
 import cn.edu.cqupt.dmb.player.tuner.data.PsiData.PmtItem;
 import cn.edu.cqupt.dmb.player.tuner.data.PsipData.EitItem;
@@ -31,11 +36,6 @@ import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
 import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector.EventListener;
 import cn.edu.cqupt.dmb.player.tuner.ts.TsParser;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * PSIP event detector for a file source.
  *
@@ -43,11 +43,9 @@ import java.util.Set;
  * PSIP-related events via {@link TsParser.TsOutputListener}.
  */
 public class FileSourceEventDetector {
+    public static final int ALL_PROGRAM_NUMBERS = 0;
     private static final String TAG = "FileSourceEventDetector";
     private static final boolean DEBUG = false;
-    public static final int ALL_PROGRAM_NUMBERS = 0;
-
-    private TsParser mTsParser;
     private final Set<Integer> mVctProgramNumberSet = new HashSet<>();
     private final Set<Integer> mSdtProgramNumberSet = new HashSet<>();
     private final SparseArray<TunerChannel> mChannelMap = new SparseArray<>();
@@ -55,54 +53,9 @@ public class FileSourceEventDetector {
     private final SparseBooleanArray mEitCaptionTracksFound = new SparseBooleanArray();
     private final EventListener mEventListener;
     private final boolean mEnableDvbSignal;
+    private TsParser mTsParser;
     private FileTsStreamer.StreamProvider mStreamProvider;
     private int mProgramNumber = ALL_PROGRAM_NUMBERS;
-
-    public FileSourceEventDetector(EventListener listener, boolean enableDvbSignal) {
-        mEventListener = listener;
-        mEnableDvbSignal = enableDvbSignal;
-    }
-
-    /**
-     * Starts detecting channel and program information.
-     *
-     * @param provider      MPEG-2 transport stream source.
-     * @param programNumber The program number if this is for handling tune request. For scanning
-     *                      purpose, supply {@link #ALL_PROGRAM_NUMBERS}.
-     */
-    public void start(FileTsStreamer.StreamProvider provider, int programNumber) {
-        mStreamProvider = provider;
-        mProgramNumber = programNumber;
-        reset();
-    }
-
-    private void reset() {
-        mTsParser = new TsParser(mTsOutputListener, mEnableDvbSignal); // TODO: Use TsParser.reset()
-        mStreamProvider.clearPidFilter();
-        mVctProgramNumberSet.clear();
-        mSdtProgramNumberSet.clear();
-        mVctCaptionTracksFound.clear();
-        mEitCaptionTracksFound.clear();
-        mChannelMap.clear();
-    }
-
-    public void feedTSStream(byte[] data, int startOffset, int length) {
-        if (mStreamProvider.isFilterEmpty()) {
-            startListening(TsParser.ATSC_SI_BASE_PID);
-            startListening(TsParser.PAT_PID);
-        }
-        if (mTsParser != null) {
-            mTsParser.feedTSData(data, startOffset, length);
-        }
-    }
-
-    private void startListening(int pid) {
-        if (mStreamProvider.isInFilter(pid)) {
-            return;
-        }
-        mStreamProvider.addPidFilter(pid);
-    }
-
     private final TsParser.TsOutputListener mTsOutputListener =
             new TsParser.TsOutputListener() {
                 @Override
@@ -257,4 +210,49 @@ public class FileSourceEventDetector {
                     }
                 }
             };
+
+    public FileSourceEventDetector(EventListener listener, boolean enableDvbSignal) {
+        mEventListener = listener;
+        mEnableDvbSignal = enableDvbSignal;
+    }
+
+    /**
+     * Starts detecting channel and program information.
+     *
+     * @param provider      MPEG-2 transport stream source.
+     * @param programNumber The program number if this is for handling tune request. For scanning
+     *                      purpose, supply {@link #ALL_PROGRAM_NUMBERS}.
+     */
+    public void start(FileTsStreamer.StreamProvider provider, int programNumber) {
+        mStreamProvider = provider;
+        mProgramNumber = programNumber;
+        reset();
+    }
+
+    private void reset() {
+        mTsParser = new TsParser(mTsOutputListener, mEnableDvbSignal); // TODO: Use TsParser.reset()
+        mStreamProvider.clearPidFilter();
+        mVctProgramNumberSet.clear();
+        mSdtProgramNumberSet.clear();
+        mVctCaptionTracksFound.clear();
+        mEitCaptionTracksFound.clear();
+        mChannelMap.clear();
+    }
+
+    public void feedTSStream(byte[] data, int startOffset, int length) {
+        if (mStreamProvider.isFilterEmpty()) {
+            startListening(TsParser.ATSC_SI_BASE_PID);
+            startListening(TsParser.PAT_PID);
+        }
+        if (mTsParser != null) {
+            mTsParser.feedTSData(data, startOffset, length);
+        }
+    }
+
+    private void startListening(int pid) {
+        if (mStreamProvider.isInFilter(pid)) {
+            return;
+        }
+        mStreamProvider.addPidFilter(pid);
+    }
 }

@@ -16,10 +16,10 @@
 
 package cn.edu.cqupt.dmb.player.tuner.data;
 
+import java.util.List;
+
 import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscAudioTrack;
 import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscCaptionTrack;
-
-import java.util.List;
 
 /**
  * Collection of MPEG PSI table items.

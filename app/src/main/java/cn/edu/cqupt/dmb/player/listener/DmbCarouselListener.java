@@ -30,21 +30,18 @@ public class DmbCarouselListener implements DmbListener {
     private final byte[] fileBuffer = new byte[1024 * 1024 * 2];
 
     private final Handler handler;
-
-    /**
-     * 发送更新信号消息的计数器,cnt==5 的时候发送一次更新信号消息,发送之后清零
-     */
-    private int cnt = 0;
-
     /**
      * 处理更新轮播图的消息类型
      */
     private final Integer MESSAGE_UPDATE_CAROUSEL = DmbPlayerConstant.MESSAGE_UPDATE_CAROUSEL.getDmbConstantValue();
-
     /**
      * 监听信号更新的 message 类型
      */
     private final int MESSAGE_UPDATE_SIGNAL = DmbPlayerConstant.MESSAGE_UPDATE_SIGNAL.getDmbConstantValue();
+    /**
+     * 发送更新信号消息的计数器,cnt==5 的时候发送一次更新信号消息,发送之后清零
+     */
+    private int cnt = 0;
 
     public DmbCarouselListener(Handler handler) {
         this.handler = handler;

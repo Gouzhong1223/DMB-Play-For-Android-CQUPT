@@ -25,9 +25,6 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
 
-import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.RecordingSampleBuffer.BufferReason;
-
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 import com.google.android.exoplayer2.mediacodec.MediaFormatUtil;
@@ -41,6 +38,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer.RecordingSampleBuffer.BufferReason;
 
 /**
  * Handles all {@link SampleChunk} I/O operations. An I/O dedicated thread handles all I/O
@@ -70,8 +70,6 @@ public class SampleChunkIoHelper implements Handler.Callback {
     private final BufferManager mBufferManager;
     private final InputBufferPool mInputBufferPool;
     private final IoCallback mIoCallback;
-
-    private Handler mIoHandler;
     private final ConcurrentLinkedQueue<DecoderInputBuffer>[] mReadSampleBuffers;
     private final ConcurrentLinkedQueue<DecoderInputBuffer>[] mHandlerReadSampleBuffers;
     private final long[] mWriteIndexEndPositionUs;
@@ -81,65 +79,11 @@ public class SampleChunkIoHelper implements Handler.Callback {
     private final Set<Integer> mSelectedTracks = new ArraySet<>();
     private final long[] mReadChunkOffset;
     private final long[] mReadChunkPositionUs;
+    private Handler mIoHandler;
     private long mBufferDurationUs = 0;
     private boolean mWriteEnded;
     private boolean mErrorNotified;
     private boolean mFinished;
-
-    /**
-     * A Callback for I/O events.
-     */
-    public abstract static class IoCallback {
-
-        /**
-         * Called when there is no sample to read.
-         */
-        public void onIoReachedEos() {
-        }
-
-        /**
-         * Called when there is an irrecoverable error during I/O.
-         */
-        public void onIoError() {
-        }
-    }
-
-    private static class IoParams {
-        private final int index;
-        private final long positionUs;
-        private final DecoderInputBuffer sample;
-        private final ConditionVariable conditionVariable;
-        private final ConcurrentLinkedQueue<DecoderInputBuffer> readSampleBuffer;
-
-        private IoParams(
-                int index,
-                long positionUs,
-                DecoderInputBuffer sample,
-                ConditionVariable conditionVariable,
-                ConcurrentLinkedQueue<DecoderInputBuffer> readSampleBuffer) {
-            this.index = index;
-            this.positionUs = positionUs;
-            this.sample = sample;
-            this.conditionVariable = conditionVariable;
-            this.readSampleBuffer = readSampleBuffer;
-        }
-    }
-
-    /**
-     * Factory for {@link SampleChunkIoHelper}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        SampleChunkIoHelper create(
-                List<String> ids,
-                List<Format> formats,
-                @BufferReason int bufferReason,
-                BufferManager bufferManager,
-                InputBufferPool inputBufferPool,
-                IoCallback ioCallback);
-    }
 
     /**
      * Creates {@link SampleChunk} I/O handler.
@@ -636,6 +580,61 @@ public class SampleChunkIoHelper implements Handler.Callback {
                     Math.min(
                             mBufferManager.getStartPositionUs(mIds.get(i)), currentStartPositionUs);
             mBufferManager.evictChunks(mIds.get(i), evictEndPositionUs);
+        }
+    }
+
+    /**
+     * Factory for {@link SampleChunkIoHelper}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        SampleChunkIoHelper create(
+                List<String> ids,
+                List<Format> formats,
+                @BufferReason int bufferReason,
+                BufferManager bufferManager,
+                InputBufferPool inputBufferPool,
+                IoCallback ioCallback);
+    }
+
+    /**
+     * A Callback for I/O events.
+     */
+    public abstract static class IoCallback {
+
+        /**
+         * Called when there is no sample to read.
+         */
+        public void onIoReachedEos() {
+        }
+
+        /**
+         * Called when there is an irrecoverable error during I/O.
+         */
+        public void onIoError() {
+        }
+    }
+
+    private static class IoParams {
+        private final int index;
+        private final long positionUs;
+        private final DecoderInputBuffer sample;
+        private final ConditionVariable conditionVariable;
+        private final ConcurrentLinkedQueue<DecoderInputBuffer> readSampleBuffer;
+
+        private IoParams(
+                int index,
+                long positionUs,
+                DecoderInputBuffer sample,
+                ConditionVariable conditionVariable,
+                ConcurrentLinkedQueue<DecoderInputBuffer> readSampleBuffer) {
+            this.index = index;
+            this.positionUs = positionUs;
+            this.sample = sample;
+            this.conditionVariable = conditionVariable;
+            this.readSampleBuffer = readSampleBuffer;
         }
     }
 }

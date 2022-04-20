@@ -17,10 +17,9 @@
 package cn.edu.cqupt.dmb.player.tuner.hdhomerun;
 
 import android.content.Context;
+import android.util.Pair;
 
 import androidx.annotation.WorkerThread;
-
-import android.util.Pair;
 
 import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
 import cn.edu.cqupt.dmb.player.tuner.api.TunerFactory;

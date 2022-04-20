@@ -40,14 +40,6 @@ import android.view.accessibility.CaptioningManager.CaptionStyle;
 import android.view.accessibility.CaptioningManager.CaptioningChangeListener;
 import android.widget.RelativeLayout;
 
-import cn.edu.cqupt.dmb.player.common.flags.TunerFlags;
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionPenAttr;
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionPenColor;
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionWindow;
-import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionWindowAttr;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer.text.SubtitleView;
-import cn.edu.cqupt.dmb.player.tuner.layout.ScaledLayout;
-
 import com.google.android.exoplayer.text.CaptionStyleCompat;
 import com.google.android.exoplayer2.text.Cue;
 import com.google.auto.factory.AutoFactory;
@@ -59,6 +51,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import cn.edu.cqupt.dmb.player.common.flags.TunerFlags;
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionPenAttr;
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionPenColor;
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionWindow;
+import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionWindowAttr;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer.text.SubtitleView;
+import cn.edu.cqupt.dmb.player.tuner.layout.ScaledLayout;
 
 /**
  * Layout which renders a caption window of CEA-708B. It contains a {@link SubtitleView} that takes
@@ -95,17 +95,16 @@ public class CaptionWindowLayout extends RelativeLayout implements View.OnLayout
     private static final String KOR_ALPHABET =
             new String("\uAC00".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     private static final float WIDE_SCREEN_ASPECT_RATIO_THRESHOLD = 1.6f;
-
-    private CaptionLayout mCaptionLayout;
-    private CaptionStyleCompat mCaptionStyleCompat;
-    private com.google.android.exoplayer2.text.CaptionStyleCompat mCaptionStyleCompatExoV2;
-
     // TODO: Replace SubtitleView to {@link com.google.android.exoplayer.text.SubtitleLayout}.
     private final SubtitleView mSubtitleView;
     private final com.google.android.exoplayer2.ui.SubtitleView mSubtitleViewExoV2;
-    private int mRowLimit = 0;
     private final SpannableStringBuilder mBuilder = new SpannableStringBuilder();
     private final List<CharacterStyle> mCharacterStyles = new ArrayList<>();
+    private final TunerFlags mTunerFlags;
+    private CaptionLayout mCaptionLayout;
+    private CaptionStyleCompat mCaptionStyleCompat;
+    private com.google.android.exoplayer2.text.CaptionStyleCompat mCaptionStyleCompatExoV2;
+    private int mRowLimit = 0;
     private int mCaptionWindowId;
     private int mCurrentTextRow = -1;
     private float mFontScale;
@@ -115,38 +114,6 @@ public class CaptionWindowLayout extends RelativeLayout implements View.OnLayout
     private int mLastCaptionLayoutHeight;
     private int mWindowJustify;
     private int mPrintDirection;
-    private final TunerFlags mTunerFlags;
-
-    private class SystemWideCaptioningChangeListener extends CaptioningChangeListener {
-        @Override
-        public void onUserStyleChanged(CaptionStyle userStyle) {
-            if (mTunerFlags.useExoplayerV2()) {
-                mCaptionStyleCompatExoV2 = com.google.android.exoplayer2.text.CaptionStyleCompat
-                        .createFromCaptionStyle(userStyle);
-                mSubtitleViewExoV2.setStyle(mCaptionStyleCompatExoV2);
-            } else {
-                mCaptionStyleCompat = CaptionStyleCompat.createFromCaptionStyle(userStyle);
-                mSubtitleView.setStyle(mCaptionStyleCompat);
-            }
-            updateWidestChar();
-        }
-
-        @Override
-        public void onFontScaleChanged(float fontScale) {
-            mFontScale = fontScale;
-            updateTextSize();
-        }
-    }
-
-    /**
-     * Factory for {@link CaptionWindowLayout}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        CaptionWindowLayout create(Context context);
-    }
 
     @AutoFactory(implementing = Factory.class)
     public CaptionWindowLayout(Context context, @Provided TunerFlags tunerFlags) {
@@ -191,6 +158,19 @@ public class CaptionWindowLayout extends RelativeLayout implements View.OnLayout
         }
         captioningManager.addCaptioningChangeListener(new SystemWideCaptioningChangeListener());
         updateWidestChar();
+    }
+
+    private static ArrayList<Integer> getPrefixSpaces(SpannableStringBuilder builder) {
+        ArrayList<Integer> prefixSpaces = new ArrayList<>();
+        String[] lines = TextUtils.split(builder.toString(), "\n");
+        for (String line : lines) {
+            int start = 0;
+            while (start < line.length() && line.charAt(start) <= ' ') {
+                start++;
+            }
+            prefixSpaces.add(start);
+        }
+        return prefixSpaces;
     }
 
     public int getCaptionWindowId() {
@@ -703,19 +683,6 @@ public class CaptionWindowLayout extends RelativeLayout implements View.OnLayout
         }
     }
 
-    private static ArrayList<Integer> getPrefixSpaces(SpannableStringBuilder builder) {
-        ArrayList<Integer> prefixSpaces = new ArrayList<>();
-        String[] lines = TextUtils.split(builder.toString(), "\n");
-        for (String line : lines) {
-            int start = 0;
-            while (start < line.length() && line.charAt(start) <= ' ') {
-                start++;
-            }
-            prefixSpaces.add(start);
-        }
-        return prefixSpaces;
-    }
-
     public void setRowLimit(int rowLimit) {
         if (rowLimit < 0) {
             throw new IllegalArgumentException("A rowLimit should have a positive number");
@@ -757,6 +724,37 @@ public class CaptionWindowLayout extends RelativeLayout implements View.OnLayout
                 mWindowJustify = CaptionWindowAttr.JUSTIFY_LEFT;
                 mPrintDirection = CaptionWindowAttr.PRINT_LEFT_TO_RIGHT;
                 break;
+        }
+    }
+
+    /**
+     * Factory for {@link CaptionWindowLayout}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        CaptionWindowLayout create(Context context);
+    }
+
+    private class SystemWideCaptioningChangeListener extends CaptioningChangeListener {
+        @Override
+        public void onUserStyleChanged(CaptionStyle userStyle) {
+            if (mTunerFlags.useExoplayerV2()) {
+                mCaptionStyleCompatExoV2 = com.google.android.exoplayer2.text.CaptionStyleCompat
+                        .createFromCaptionStyle(userStyle);
+                mSubtitleViewExoV2.setStyle(mCaptionStyleCompatExoV2);
+            } else {
+                mCaptionStyleCompat = CaptionStyleCompat.createFromCaptionStyle(userStyle);
+                mSubtitleView.setStyle(mCaptionStyleCompat);
+            }
+            updateWidestChar();
+        }
+
+        @Override
+        public void onFontScaleChanged(float fontScale) {
+            mFontScale = fontScale;
+            updateTextSize();
         }
     }
 }

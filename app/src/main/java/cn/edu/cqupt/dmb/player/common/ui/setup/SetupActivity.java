@@ -22,12 +22,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-
-import androidx.annotation.NonNull;
-
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.view.View;
+
+import androidx.annotation.NonNull;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.WeakHandler;
@@ -42,10 +41,9 @@ import dagger.android.DaggerActivity;
  */
 public abstract class SetupActivity extends DaggerActivity implements OnActionClickListener {
     private static final int MSG_EXECUTE_ACTION = 1;
-
+    private final Handler mHandler = new SetupActivityHandler(this);
     private boolean mShowInitialFragment = true;
     private long mFragmentTransitionDuration;
-    private final Handler mHandler = new SetupActivityHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

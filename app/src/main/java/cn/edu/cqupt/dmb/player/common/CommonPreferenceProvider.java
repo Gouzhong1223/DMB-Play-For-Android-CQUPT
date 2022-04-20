@@ -46,13 +46,13 @@ public class CommonPreferenceProvider extends ContentProvider {
 
     private static final UriMatcher sUriMatcher;
 
-    private DatabaseOpenHelper mDatabaseOpenHelper;
-
     static {
         sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
         sUriMatcher.addURI(AUTHORITY, "preferences", MATCH_PREFERENCE);
         sUriMatcher.addURI(AUTHORITY, "preferences/*", MATCH_PREFERENCE_KEY);
     }
+
+    private DatabaseOpenHelper mDatabaseOpenHelper;
 
     /**
      * Builds a Uri that points to a specific preference.
@@ -61,77 +61,6 @@ public class CommonPreferenceProvider extends ContentProvider {
      */
     public static Uri buildPreferenceUri(String key) {
         return Preferences.CONTENT_URI.buildUpon().appendPath(key).build();
-    }
-
-    /**
-     * Columns definitions for the preferences table.
-     */
-    public interface Preferences {
-
-        /**
-         * The content:// style for the preferences table.
-         */
-        Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + PATH_PREFERENCES);
-
-        /**
-         * The MIME type of a directory of preferences.
-         */
-        String CONTENT_TYPE = "vnd.android.cursor.dir/preferences";
-
-        /**
-         * The MIME type of a single preference.
-         */
-        String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/preferences";
-
-        /**
-         * The ID of this preference.
-         *
-         * <p>This is auto-incremented.
-         *
-         * <p>Type: INTEGER
-         */
-        String _ID = "_id";
-
-        /**
-         * The key of this preference.
-         *
-         * <p>Should be unique.
-         *
-         * <p>Type: TEXT
-         */
-        String COLUMN_KEY = "key";
-
-        /**
-         * The value of this preference.
-         *
-         * <p>Type: TEXT
-         */
-        String COLUMN_VALUE = "value";
-    }
-
-    private static class DatabaseOpenHelper extends SQLiteOpenHelper {
-        public DatabaseOpenHelper(Context context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        }
-
-        @Override
-        public void onCreate(SQLiteDatabase db) {
-            db.execSQL(
-                    "CREATE TABLE "
-                            + PREFERENCES_TABLE
-                            + " ("
-                            + Preferences._ID
-                            + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                            + Preferences.COLUMN_KEY
-                            + " TEXT NOT NULL,"
-                            + Preferences.COLUMN_VALUE
-                            + " TEXT);");
-        }
-
-        @Override
-        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // No-op
-        }
     }
 
     @Override
@@ -221,5 +150,76 @@ public class CommonPreferenceProvider extends ContentProvider {
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Columns definitions for the preferences table.
+     */
+    public interface Preferences {
+
+        /**
+         * The content:// style for the preferences table.
+         */
+        Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + PATH_PREFERENCES);
+
+        /**
+         * The MIME type of a directory of preferences.
+         */
+        String CONTENT_TYPE = "vnd.android.cursor.dir/preferences";
+
+        /**
+         * The MIME type of a single preference.
+         */
+        String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/preferences";
+
+        /**
+         * The ID of this preference.
+         *
+         * <p>This is auto-incremented.
+         *
+         * <p>Type: INTEGER
+         */
+        String _ID = "_id";
+
+        /**
+         * The key of this preference.
+         *
+         * <p>Should be unique.
+         *
+         * <p>Type: TEXT
+         */
+        String COLUMN_KEY = "key";
+
+        /**
+         * The value of this preference.
+         *
+         * <p>Type: TEXT
+         */
+        String COLUMN_VALUE = "value";
+    }
+
+    private static class DatabaseOpenHelper extends SQLiteOpenHelper {
+        public DatabaseOpenHelper(Context context) {
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        }
+
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL(
+                    "CREATE TABLE "
+                            + PREFERENCES_TABLE
+                            + " ("
+                            + Preferences._ID
+                            + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                            + Preferences.COLUMN_KEY
+                            + " TEXT NOT NULL,"
+                            + Preferences.COLUMN_VALUE
+                            + " TEXT);");
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            // No-op
+        }
     }
 }

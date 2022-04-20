@@ -23,6 +23,32 @@ import android.os.SystemClock;
  */
 public interface Clock {
     /**
+     * The default implementation of Clock.
+     */
+    Clock SYSTEM =
+            new Clock() {
+                @Override
+                public long currentTimeMillis() {
+                    return System.currentTimeMillis();
+                }
+
+                @Override
+                public long elapsedRealtime() {
+                    return SystemClock.elapsedRealtime();
+                }
+
+                @Override
+                public void sleep(long ms) {
+                    SystemClock.sleep(ms);
+                }
+
+                @Override
+                public long uptimeMillis() {
+                    return SystemClock.uptimeMillis();
+                }
+            };
+
+    /**
      * Returns the current time in milliseconds since January 1, 1970 00:00:00.0 UTC.
      *
      * @see System#currentTimeMillis().
@@ -51,30 +77,4 @@ public interface Clock {
      * @see SystemClock#sleep(long)
      */
     void sleep(long ms);
-
-    /**
-     * The default implementation of Clock.
-     */
-    Clock SYSTEM =
-            new Clock() {
-                @Override
-                public long currentTimeMillis() {
-                    return System.currentTimeMillis();
-                }
-
-                @Override
-                public long elapsedRealtime() {
-                    return SystemClock.elapsedRealtime();
-                }
-
-                @Override
-                public void sleep(long ms) {
-                    SystemClock.sleep(ms);
-                }
-
-                @Override
-                public long uptimeMillis() {
-                    return SystemClock.uptimeMillis();
-                }
-            };
 }

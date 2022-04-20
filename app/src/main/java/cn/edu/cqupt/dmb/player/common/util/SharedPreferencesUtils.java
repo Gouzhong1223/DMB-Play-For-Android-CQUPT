@@ -50,6 +50,9 @@ public final class SharedPreferencesUtils {
 
     private static boolean sInitializeCalled;
 
+    private SharedPreferencesUtils() {
+    }
+
     /**
      * {@link android.content.SharedPreferences} loads the preference file when {@link
      * Context#getSharedPreferences(String, int)} is called for the first time. Call {@link
@@ -85,8 +88,5 @@ public final class SharedPreferencesUtils {
                 }
             }.execute();
         }
-    }
-
-    private SharedPreferencesUtils() {
     }
 }

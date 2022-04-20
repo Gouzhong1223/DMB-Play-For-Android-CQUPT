@@ -26,6 +26,14 @@ public class SettingActivity extends Activity {
 
     private static final String TAG = "SettingActivity";
     /**
+     * 教学楼数据源
+     */
+    String[] building = new String[]{"二教", "三教", "四教", "五教", "八教"};
+    /**
+     * 使用场景
+     */
+    String[] scenes = new String[]{"户外屏播放图片", "户外屏播放视频", "教学楼课表", "宿舍安全信息", "音频"};
+    /**
      * 使用场景的下拉框
      */
     private Spinner scenesSpinner;
@@ -50,15 +58,6 @@ public class SettingActivity extends Activity {
      * 显示默认设置的TextView
      */
     private TextView defaultTextView;
-    /**
-     * 教学楼数据源
-     */
-    String[] building = new String[]{"二教", "三教", "四教", "五教", "八教"};
-    /**
-     * 使用场景
-     */
-    String[] scenes = new String[]{"户外屏播放图片", "户外屏播放视频", "教学楼课表", "宿舍安全信息", "音频"};
-
     /**
      * 应用场景枚举
      */

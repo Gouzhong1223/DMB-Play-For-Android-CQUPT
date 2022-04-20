@@ -17,11 +17,18 @@
 package cn.edu.cqupt.dmb.player.tuner.data;
 
 import android.os.SystemClock;
-
 import android.util.Log;
 import android.util.SparseIntArray;
 
 import androidx.annotation.IntDef;
+
+import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.TreeSet;
 
 import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionColor;
 import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionEvent;
@@ -32,14 +39,6 @@ import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionWindow;
 import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionWindowAttr;
 import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CcPacket;
 import cn.edu.cqupt.dmb.player.tuner.util.ByteArrayBuffer;
-
-import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.TreeSet;
 
 /**
  * A class for parsing CEA-708, which is the standard for closed captioning for ATSC DTV.
@@ -111,95 +110,6 @@ import java.util.TreeSet;
  * <p>Most of the extended code groups are being skipped.
  */
 public class Cea708Parser {
-    private static final String TAG = "Cea708Parser";
-    private static final boolean DEBUG = false;
-
-    // According to CEA-708B, the maximum value of closed caption bandwidth is 9600bps.
-    private static final int MAX_ALLOCATED_SIZE = 9600 / 8;
-    private static final String MUSIC_NOTE_CHAR =
-            new String("\u266B".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
-
-    // The following values are denoting the type of closed caption data.
-    // See CEA-708B section 4.4.1.
-    private static final int CC_TYPE_DTVCC_PACKET_START = 3;
-    private static final int CC_TYPE_DTVCC_PACKET_DATA = 2;
-
-    // The following values are defined in CEA-708B Figure 4 and 6.
-    private static final int DTVCC_MAX_PACKET_SIZE = 64;
-    private static final int DTVCC_PACKET_SIZE_SCALE_FACTOR = 2;
-    private static final int DTVCC_EXTENDED_SERVICE_NUMBER_POINT = 7;
-
-    // The following values are for seeking closed caption tracks.
-    private static final int DISCOVERY_PERIOD_MS = 10000; // 10 sec
-    private static final int DISCOVERY_NUM_BYTES_THRESHOLD = 10; // 10 bytes
-    private static final int DISCOVERY_CC_SERVICE_NUMBER_START = 1; // CC1
-    private static final int DISCOVERY_CC_SERVICE_NUMBER_END = 4; // CC4
-
-    private final ByteArrayBuffer mDtvCcPacket = new ByteArrayBuffer(MAX_ALLOCATED_SIZE);
-    private final TreeSet<CcPacket> mCcPackets = new TreeSet<>();
-    private final StringBuffer mBuffer = new StringBuffer();
-    private final SparseIntArray mDiscoveredNumBytes = new SparseIntArray(); // per service number
-    private long mLastDiscoveryLaunchedMs = SystemClock.elapsedRealtime();
-    private int mCommand = 0;
-    private int mListenServiceNumber = 0;
-    private int mDtvCcPacketCalculatedSize = 0;
-    private boolean mDtvCcPacking = false;
-    private boolean mFirstServiceNumberDiscovered;
-
-    // Assign an empty listener in order to avoid null checks.
-    private OnCea708ParserListener mListener =
-            new OnCea708ParserListener() {
-                @Override
-                public void emitEvent(CaptionEvent event) {
-                    // do nothing
-                }
-
-                @Override
-                public void discoverServiceNumber(int serviceNumber) {
-                    // do nothing
-                }
-            };
-
-    /**
-     * {@link Cea708Parser} emits caption event of three different types. {@link
-     * OnCea708ParserListener#emitEvent} is invoked with the parameter {@link CaptionEvent} to pass
-     * all the results to an observer of the decoding process.
-     *
-     * <p>{@link CaptionEvent#type} determines the type of the result and {@link CaptionEvent#obj}
-     * contains the output value of a caption event. The observer must do the casting to the
-     * corresponding type.
-     *
-     * <ul>
-     *   <li>{@code CAPTION_EMIT_TYPE_BUFFER}: Passes a caption text buffer to a observer. {@code
-     *       obj} must be of {@link String}.
-     *   <li>{@code CAPTION_EMIT_TYPE_CONTROL}: Passes a caption character control code to a
-     *       observer. {@code obj} must be of {@link Character}.
-     *   <li>{@code CAPTION_EMIT_TYPE_CLEAR_COMMAND}: Passes a clear command to a observer. {@code
-     *       obj} must be {@code NULL}.
-     * </ul>
-     */
-    @IntDef({
-            CAPTION_EMIT_TYPE_BUFFER,
-            CAPTION_EMIT_TYPE_CONTROL,
-            CAPTION_EMIT_TYPE_COMMAND_CWX,
-            CAPTION_EMIT_TYPE_COMMAND_CLW,
-            CAPTION_EMIT_TYPE_COMMAND_DSW,
-            CAPTION_EMIT_TYPE_COMMAND_HDW,
-            CAPTION_EMIT_TYPE_COMMAND_TGW,
-            CAPTION_EMIT_TYPE_COMMAND_DLW,
-            CAPTION_EMIT_TYPE_COMMAND_DLY,
-            CAPTION_EMIT_TYPE_COMMAND_DLC,
-            CAPTION_EMIT_TYPE_COMMAND_RST,
-            CAPTION_EMIT_TYPE_COMMAND_SPA,
-            CAPTION_EMIT_TYPE_COMMAND_SPC,
-            CAPTION_EMIT_TYPE_COMMAND_SPL,
-            CAPTION_EMIT_TYPE_COMMAND_SWA,
-            CAPTION_EMIT_TYPE_COMMAND_DFX
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface CaptionEmitType {
-    }
-
     public static final int CAPTION_EMIT_TYPE_BUFFER = 1;
     public static final int CAPTION_EMIT_TYPE_CONTROL = 2;
     public static final int CAPTION_EMIT_TYPE_COMMAND_CWX = 3;
@@ -216,12 +126,48 @@ public class Cea708Parser {
     public static final int CAPTION_EMIT_TYPE_COMMAND_SPL = 14;
     public static final int CAPTION_EMIT_TYPE_COMMAND_SWA = 15;
     public static final int CAPTION_EMIT_TYPE_COMMAND_DFX = 16;
+    private static final String TAG = "Cea708Parser";
+    private static final boolean DEBUG = false;
+    // According to CEA-708B, the maximum value of closed caption bandwidth is 9600bps.
+    private static final int MAX_ALLOCATED_SIZE = 9600 / 8;
+    private static final String MUSIC_NOTE_CHAR =
+            new String("\u266B".getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+    // The following values are denoting the type of closed caption data.
+    // See CEA-708B section 4.4.1.
+    private static final int CC_TYPE_DTVCC_PACKET_START = 3;
+    private static final int CC_TYPE_DTVCC_PACKET_DATA = 2;
+    // The following values are defined in CEA-708B Figure 4 and 6.
+    private static final int DTVCC_MAX_PACKET_SIZE = 64;
+    private static final int DTVCC_PACKET_SIZE_SCALE_FACTOR = 2;
+    private static final int DTVCC_EXTENDED_SERVICE_NUMBER_POINT = 7;
+    // The following values are for seeking closed caption tracks.
+    private static final int DISCOVERY_PERIOD_MS = 10000; // 10 sec
+    private static final int DISCOVERY_NUM_BYTES_THRESHOLD = 10; // 10 bytes
+    private static final int DISCOVERY_CC_SERVICE_NUMBER_START = 1; // CC1
+    private static final int DISCOVERY_CC_SERVICE_NUMBER_END = 4; // CC4
+    private final ByteArrayBuffer mDtvCcPacket = new ByteArrayBuffer(MAX_ALLOCATED_SIZE);
+    private final TreeSet<CcPacket> mCcPackets = new TreeSet<>();
+    private final StringBuffer mBuffer = new StringBuffer();
+    private final SparseIntArray mDiscoveredNumBytes = new SparseIntArray(); // per service number
+    private long mLastDiscoveryLaunchedMs = SystemClock.elapsedRealtime();
+    private int mCommand = 0;
+    private int mListenServiceNumber = 0;
+    private int mDtvCcPacketCalculatedSize = 0;
+    private boolean mDtvCcPacking = false;
+    private boolean mFirstServiceNumberDiscovered;
+    // Assign an empty listener in order to avoid null checks.
+    private OnCea708ParserListener mListener =
+            new OnCea708ParserListener() {
+                @Override
+                public void emitEvent(CaptionEvent event) {
+                    // do nothing
+                }
 
-    public interface OnCea708ParserListener {
-        void emitEvent(CaptionEvent event);
-
-        void discoverServiceNumber(int serviceNumber);
-    }
+                @Override
+                public void discoverServiceNumber(int serviceNumber) {
+                    // do nothing
+                }
+            };
 
     public void setListener(OnCea708ParserListener listener) {
         if (listener != null) {
@@ -914,5 +860,51 @@ public class Cea708Parser {
 
         // Do nothing
         return pos;
+    }
+
+    /**
+     * {@link Cea708Parser} emits caption event of three different types. {@link
+     * OnCea708ParserListener#emitEvent} is invoked with the parameter {@link CaptionEvent} to pass
+     * all the results to an observer of the decoding process.
+     *
+     * <p>{@link CaptionEvent#type} determines the type of the result and {@link CaptionEvent#obj}
+     * contains the output value of a caption event. The observer must do the casting to the
+     * corresponding type.
+     *
+     * <ul>
+     *   <li>{@code CAPTION_EMIT_TYPE_BUFFER}: Passes a caption text buffer to a observer. {@code
+     *       obj} must be of {@link String}.
+     *   <li>{@code CAPTION_EMIT_TYPE_CONTROL}: Passes a caption character control code to a
+     *       observer. {@code obj} must be of {@link Character}.
+     *   <li>{@code CAPTION_EMIT_TYPE_CLEAR_COMMAND}: Passes a clear command to a observer. {@code
+     *       obj} must be {@code NULL}.
+     * </ul>
+     */
+    @IntDef({
+            CAPTION_EMIT_TYPE_BUFFER,
+            CAPTION_EMIT_TYPE_CONTROL,
+            CAPTION_EMIT_TYPE_COMMAND_CWX,
+            CAPTION_EMIT_TYPE_COMMAND_CLW,
+            CAPTION_EMIT_TYPE_COMMAND_DSW,
+            CAPTION_EMIT_TYPE_COMMAND_HDW,
+            CAPTION_EMIT_TYPE_COMMAND_TGW,
+            CAPTION_EMIT_TYPE_COMMAND_DLW,
+            CAPTION_EMIT_TYPE_COMMAND_DLY,
+            CAPTION_EMIT_TYPE_COMMAND_DLC,
+            CAPTION_EMIT_TYPE_COMMAND_RST,
+            CAPTION_EMIT_TYPE_COMMAND_SPA,
+            CAPTION_EMIT_TYPE_COMMAND_SPC,
+            CAPTION_EMIT_TYPE_COMMAND_SPL,
+            CAPTION_EMIT_TYPE_COMMAND_SWA,
+            CAPTION_EMIT_TYPE_COMMAND_DFX
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CaptionEmitType {
+    }
+
+    public interface OnCea708ParserListener {
+        void emitEvent(CaptionEvent event);
+
+        void discoverServiceNumber(int serviceNumber);
     }
 }

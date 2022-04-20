@@ -20,14 +20,14 @@ import android.os.ConditionVariable;
 
 import androidx.annotation.NonNull;
 
-import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer2.SampleExtractor;
-
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.decoder.DecoderInputBuffer;
 
 import java.util.List;
+
+import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer2.SampleExtractor;
 
 /**
  * Handles I/O for {@link SampleExtractor} when Trickplay is disabled. Memory storage based buffer

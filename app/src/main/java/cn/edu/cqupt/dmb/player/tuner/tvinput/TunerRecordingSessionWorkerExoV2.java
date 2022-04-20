@@ -28,7 +28,6 @@ import android.media.tv.TvContract.RecordedPrograms;
 import android.media.tv.TvInputManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
@@ -39,6 +38,23 @@ import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.tvprovider.media.tv.Program;
+
+import com.google.android.exoplayer2.C;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.common.BaseApplication;
 import cn.edu.cqupt.dmb.player.common.data.RecordedProgramState;
@@ -59,24 +75,6 @@ import cn.edu.cqupt.dmb.player.tuner.source.TsDataSource;
 import cn.edu.cqupt.dmb.player.tuner.source.TsDataSourceManager;
 import cn.edu.cqupt.dmb.player.tuner.ts.EventDetector.EventListener;
 import cn.edu.cqupt.dmb.player.tuner.tvinput.datamanager.ChannelDataManager;
-
-import com.google.android.exoplayer2.C;
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Random;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Implements a DVR feature.
@@ -110,13 +108,6 @@ public class TunerRecordingSessionWorkerExoV2
     private static final int MSG_UPDATE_PARTIAL_STATE = 8;
     private static final String COLUMN_SERIES_ID = "series_id";
     private static final String COLUMN_STATE = "state";
-
-    private boolean mProgramHasSeriesIdColumn;
-    private boolean mRecordedProgramHasSeriesIdColumn;
-    private boolean mRecordedProgramHasStateColumn;
-
-    private final RecordingCapability mCapabilities;
-
     private static final String[] PROGRAM_PROJECTION = {
             TvContract.Programs.COLUMN_CHANNEL_ID,
             TvContract.Programs.COLUMN_TITLE,
@@ -135,30 +126,27 @@ public class TunerRecordingSessionWorkerExoV2
             TvContract.Programs.COLUMN_VIDEO_HEIGHT,
             TvContract.Programs.COLUMN_INTERNAL_PROVIDER_DATA
     };
-
     private static final String[] PROGRAM_PROJECTION_WITH_SERIES_ID =
             createProjectionWithSeriesId();
-
-    @IntDef({STATE_IDLE, STATE_TUNING, STATE_TUNED, STATE_RECORDING})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface DvrSessionState {
-    }
-
     private static final int STATE_IDLE = 1;
     private static final int STATE_TUNING = 2;
     private static final int STATE_TUNED = 3;
     private static final int STATE_RECORDING = 4;
-
     private static final long CHANNEL_ID_NONE = -1;
     private static final int MAX_TUNING_RETRY = 6;
-
+    private final RecordingCapability mCapabilities;
     private final Context mContext;
     private final ChannelDataManager mChannelDataManager;
     private final RecordingStorageStatusManager mRecordingStorageStatusManager;
     private final Handler mHandler;
     private final TsDataSourceManager mSourceManager;
     private final Random mRandom = new Random();
-
+    private final TunerRecordingSessionExoV2 mSession;
+    private final String mInputId;
+    private final ExoPlayerSampleExtractor.Factory mExoPlayerSampleExtractorFactory;
+    private boolean mProgramHasSeriesIdColumn;
+    private boolean mRecordedProgramHasSeriesIdColumn;
+    private boolean mRecordedProgramHasStateColumn;
     private TsDataSource mTunerSource;
     private TunerChannel mChannel;
     private File mStorageDir;
@@ -167,32 +155,14 @@ public class TunerRecordingSessionWorkerExoV2
     private Uri mRecordedProgramUri;
     private boolean mRecorderRunning;
     private SampleExtractor mRecorder;
-    private final TunerRecordingSessionExoV2 mSession;
     @DvrSessionState
     private int mSessionState = STATE_IDLE;
-    private final String mInputId;
     private Uri mProgramUri;
     private String mSeriesId;
 
     private PsipData.EitItem mCurrenProgram;
     private List<AtscCaptionTrack> mCaptionTracks;
     private DvrStorageManager mDvrStorageManager;
-    private final ExoPlayerSampleExtractor.Factory mExoPlayerSampleExtractorFactory;
-
-    /**
-     * Factory for {@link TunerRecordingSessionWorkerExoV2}}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        TunerRecordingSessionWorkerExoV2 create(
-                Context context,
-                String inputId,
-                ChannelDataManager dataManager,
-                TunerRecordingSessionExoV2 session);
-    }
-
     @AutoFactory(implementing = Factory.class)
     public TunerRecordingSessionWorkerExoV2(
             Context context,
@@ -216,6 +186,12 @@ public class TunerRecordingSessionWorkerExoV2
         mInputId = inputId;
         if (DEBUG) Log.d(TAG, mCapabilities.toString());
         mSession = session;
+    }
+
+    private static String[] createProjectionWithSeriesId() {
+        List<String> projectionList = new ArrayList<>(Arrays.asList(PROGRAM_PROJECTION));
+        projectionList.add(COLUMN_SERIES_ID);
+        return projectionList.toArray(new String[0]);
     }
 
     // PlaybackBufferListener
@@ -761,10 +737,23 @@ public class TunerRecordingSessionWorkerExoV2
         return false;
     }
 
-    private static String[] createProjectionWithSeriesId() {
-        List<String> projectionList = new ArrayList<>(Arrays.asList(PROGRAM_PROJECTION));
-        projectionList.add(COLUMN_SERIES_ID);
-        return projectionList.toArray(new String[0]);
+    @IntDef({STATE_IDLE, STATE_TUNING, STATE_TUNED, STATE_RECORDING})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface DvrSessionState {
+    }
+
+    /**
+     * Factory for {@link TunerRecordingSessionWorkerExoV2}}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        TunerRecordingSessionWorkerExoV2 create(
+                Context context,
+                String inputId,
+                ChannelDataManager dataManager,
+                TunerRecordingSessionExoV2 session);
     }
 
     private static class DeleteRecordingTask extends AsyncTask<File, Void, Void> {

@@ -28,6 +28,15 @@ public abstract class DeveloperPreference<T> {
 
     private static final String PREFERENCE_FILE_NAME =
             "cn.edu.cqupt.dmb.player.common.dev.DeveloperPreference";
+    final String mKey;
+    final T mDefaultValue;
+    private T mValue;
+
+    private DeveloperPreference(String key, T defaultValue) {
+        mKey = key;
+        mValue = null;
+        mDefaultValue = defaultValue;
+    }
 
     /**
      * Create a boolean developer preference.
@@ -52,16 +61,6 @@ public abstract class DeveloperPreference<T> {
      */
     public static DeveloperPreference<Integer> create(String key, int defaultValue) {
         return new DeveloperIntegerPreference(key, defaultValue);
-    }
-
-    final String mKey;
-    final T mDefaultValue;
-    private T mValue;
-
-    private DeveloperPreference(String key, T defaultValue) {
-        mKey = key;
-        mValue = null;
-        mDefaultValue = defaultValue;
     }
 
     /**

@@ -20,12 +20,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
 import android.graphics.Path;
-
-import androidx.leanback.R;
-
 import android.transition.Transition;
 import android.transition.TransitionValues;
 import android.view.View;
+
+import androidx.leanback.R;
 
 /**
  * This class is used by Slide and Explode to create an animator that goes from the start position
@@ -90,9 +89,9 @@ class TranslationAnimationCreator {
         private final View mViewInHierarchy;
         private final View mMovingView;
         private final int mStartX;
+        private final float mTerminalX;
         private Integer mTransitionPosition;
         private float mPausedX;
-        private final float mTerminalX;
 
         private TransitionPositionListener(
                 View movingView, View viewInHierarchy, int startX, float terminalX) {

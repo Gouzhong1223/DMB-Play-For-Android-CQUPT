@@ -18,7 +18,6 @@ package cn.edu.cqupt.dmb.player.tuner.tvinput;
 
 import android.content.Context;
 import android.net.Uri;
-
 import android.os.Bundle;
 import android.util.Log;
 
@@ -26,14 +25,14 @@ import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
+
 import cn.edu.cqupt.dmb.player.common.compat.RecordingSessionCompat;
 import cn.edu.cqupt.dmb.player.common.dagger.annotations.ApplicationContext;
 import cn.edu.cqupt.dmb.player.tuner.tvinput.datamanager.ChannelDataManager;
 import cn.edu.cqupt.dmb.player.tuner.tvinput.factory.TunerRecordingSessionFactory;
 import cn.edu.cqupt.dmb.player.tuner.tvinput.factory.TunerRecordingSessionFactory.RecordingSessionReleasedCallback;
-
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
 
 /**
  * Processes DVR recordings, and deletes the previously recorded contents.

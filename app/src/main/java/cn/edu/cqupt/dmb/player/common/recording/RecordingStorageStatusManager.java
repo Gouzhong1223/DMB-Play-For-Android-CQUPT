@@ -24,16 +24,11 @@ import android.content.IntentFilter;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.StatFs;
-
 import android.util.Log;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.IntDef;
 import androidx.annotation.WorkerThread;
-
-import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
-import cn.edu.cqupt.dmb.player.common.dagger.annotations.ApplicationContext;
-import cn.edu.cqupt.dmb.player.common.feature.CommonFeatures;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,121 +41,44 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
+import cn.edu.cqupt.dmb.player.common.dagger.annotations.ApplicationContext;
+import cn.edu.cqupt.dmb.player.common.feature.CommonFeatures;
+
 /**
  * Signals DVR storage status change such as plugging/unplugging.
  */
 @Singleton
 public class RecordingStorageStatusManager {
-    private static final String TAG = "RecordingStorageStatusManager";
-
     /**
      * Minimum storage size to support DVR
      */
     public static final long MIN_STORAGE_SIZE_FOR_DVR_IN_BYTES = 50 * 1024 * 1024 * 1024L; // 50GB
-
-    private static final long MIN_FREE_STORAGE_SIZE_FOR_DVR_IN_BYTES =
-            10 * 1024 * 1024 * 1024L; // 10GB
-    private static final String RECORDING_DATA_SUB_PATH = "/recording";
-
-    /**
-     * Storage status constants.
-     */
-    @IntDef({
-            STORAGE_STATUS_OK,
-            STORAGE_STATUS_TOTAL_CAPACITY_TOO_SMALL,
-            STORAGE_STATUS_FREE_SPACE_INSUFFICIENT,
-            STORAGE_STATUS_MISSING
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface StorageStatus {
-    }
-
     /**
      * Current storage is OK to record a program.
      */
     public static final int STORAGE_STATUS_OK = 0;
-
     /**
      * Current storage's total capacity is smaller than DVR requirement.
      */
     public static final int STORAGE_STATUS_TOTAL_CAPACITY_TOO_SMALL = 1;
-
     /**
      * Current storage's free space is insufficient to record programs.
      */
     public static final int STORAGE_STATUS_FREE_SPACE_INSUFFICIENT = 2;
-
     /**
      * Current storage is missing.
      */
     public static final int STORAGE_STATUS_MISSING = 3;
-
+    private static final String TAG = "RecordingStorageStatusManager";
+    private static final long MIN_FREE_STORAGE_SIZE_FOR_DVR_IN_BYTES =
+            10 * 1024 * 1024 * 1024L; // 10GB
+    private static final String RECORDING_DATA_SUB_PATH = "/recording";
     private final Context mContext;
     private final Set<OnStorageMountChangedListener> mOnStorageMountChangedListeners =
             new CopyOnWriteArraySet<>();
     private MountedStorageStatus mMountedStorageStatus;
     private boolean mStorageValid;
-
-    private class MountedStorageStatus {
-        private final boolean mStorageMounted;
-        private final File mStorageMountedDir;
-        private final long mStorageMountedCapacity;
-
-        private MountedStorageStatus(boolean mounted, File mountedDir, long capacity) {
-            mStorageMounted = mounted;
-            mStorageMountedDir = mountedDir;
-            mStorageMountedCapacity = capacity;
-        }
-
-        private boolean isValidForDvr() {
-            return mStorageMounted && mStorageMountedCapacity >= MIN_STORAGE_SIZE_FOR_DVR_IN_BYTES;
-        }
-
-        @Override
-        public boolean equals(Object other) {
-            if (!(other instanceof MountedStorageStatus)) {
-                return false;
-            }
-            MountedStorageStatus status = (MountedStorageStatus) other;
-            return mStorageMounted == status.mStorageMounted
-                    && Objects.equals(mStorageMountedDir, status.mStorageMountedDir)
-                    && mStorageMountedCapacity == status.mStorageMountedCapacity;
-        }
-    }
-
-    public interface OnStorageMountChangedListener {
-
-        /**
-         * Listener for DVR storage status change.
-         *
-         * @param storageMounted {@code true} when DVR possible storage is mounted, {@code false}
-         *                       otherwise.
-         */
-        void onStorageMountChanged(boolean storageMounted);
-    }
-
-    private final class StorageStatusBroadcastReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            MountedStorageStatus result = getStorageStatusInternal();
-            if (mMountedStorageStatus.equals(result)) {
-                return;
-            }
-            mMountedStorageStatus = result;
-            if (result.mStorageMounted) {
-                cleanUpDbIfNeeded();
-            }
-            boolean valid = result.isValidForDvr();
-            if (valid == mStorageValid) {
-                return;
-            }
-            mStorageValid = valid;
-            for (OnStorageMountChangedListener l : mOnStorageMountChangedListeners) {
-                l.onStorageMountChanged(valid);
-            }
-        }
-    }
-
     /**
      * Creates RecordingStorageStatusManager.
      *
@@ -287,5 +205,78 @@ public class RecordingStorageStatusManager {
             }
         }
         return new MountedStorageStatus(storageMounted, storageMountedDir, storageMountedCapacity);
+    }
+
+    /**
+     * Storage status constants.
+     */
+    @IntDef({
+            STORAGE_STATUS_OK,
+            STORAGE_STATUS_TOTAL_CAPACITY_TOO_SMALL,
+            STORAGE_STATUS_FREE_SPACE_INSUFFICIENT,
+            STORAGE_STATUS_MISSING
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface StorageStatus {
+    }
+
+    public interface OnStorageMountChangedListener {
+
+        /**
+         * Listener for DVR storage status change.
+         *
+         * @param storageMounted {@code true} when DVR possible storage is mounted, {@code false}
+         *                       otherwise.
+         */
+        void onStorageMountChanged(boolean storageMounted);
+    }
+
+    private class MountedStorageStatus {
+        private final boolean mStorageMounted;
+        private final File mStorageMountedDir;
+        private final long mStorageMountedCapacity;
+
+        private MountedStorageStatus(boolean mounted, File mountedDir, long capacity) {
+            mStorageMounted = mounted;
+            mStorageMountedDir = mountedDir;
+            mStorageMountedCapacity = capacity;
+        }
+
+        private boolean isValidForDvr() {
+            return mStorageMounted && mStorageMountedCapacity >= MIN_STORAGE_SIZE_FOR_DVR_IN_BYTES;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (!(other instanceof MountedStorageStatus)) {
+                return false;
+            }
+            MountedStorageStatus status = (MountedStorageStatus) other;
+            return mStorageMounted == status.mStorageMounted
+                    && Objects.equals(mStorageMountedDir, status.mStorageMountedDir)
+                    && mStorageMountedCapacity == status.mStorageMountedCapacity;
+        }
+    }
+
+    private final class StorageStatusBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            MountedStorageStatus result = getStorageStatusInternal();
+            if (mMountedStorageStatus.equals(result)) {
+                return;
+            }
+            mMountedStorageStatus = result;
+            if (result.mStorageMounted) {
+                cleanUpDbIfNeeded();
+            }
+            boolean valid = result.isValidForDvr();
+            if (valid == mStorageValid) {
+                return;
+            }
+            mStorageValid = valid;
+            for (OnStorageMountChangedListener l : mOnStorageMountChangedListeners) {
+                l.onStorageMountChanged(valid);
+            }
+        }
     }
 }

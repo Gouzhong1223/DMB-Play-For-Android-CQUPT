@@ -19,13 +19,6 @@ package cn.edu.cqupt.dmb.player.common.ui.setup;
 import static android.content.Context.ACCESSIBILITY_SERVICE;
 
 import android.os.Bundle;
-
-import androidx.leanback.app.GuidedStepFragment;
-import androidx.leanback.widget.GuidanceStylist;
-import androidx.leanback.widget.GuidedAction;
-import androidx.leanback.widget.GuidedActionsStylist;
-import androidx.leanback.widget.VerticalGridView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.AccessibilityDelegate;
@@ -35,6 +28,12 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.LinearLayout;
+
+import androidx.leanback.app.GuidedStepFragment;
+import androidx.leanback.widget.GuidanceStylist;
+import androidx.leanback.widget.GuidedAction;
+import androidx.leanback.widget.GuidedActionsStylist;
+import androidx.leanback.widget.VerticalGridView;
 
 import cn.edu.cqupt.dmb.player.R;
 

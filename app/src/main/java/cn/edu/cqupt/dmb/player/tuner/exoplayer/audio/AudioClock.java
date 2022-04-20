@@ -66,15 +66,6 @@ import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
     }
 
     /**
-     * @param timeUs The position to set in microseconds.
-     */
-    public void setPositionUs(long timeUs) {
-        this.mPositionUs = timeUs;
-        mDeltaUs = elapsedRealtimeMinus(timeUs);
-        mDeltaUpdatedTimeUs = SystemClock.elapsedRealtime() * 1000;
-    }
-
-    /**
      * @return The current position in microseconds.
      */
     public long getPositionUs() {
@@ -89,6 +80,15 @@ import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
         } else {
             return elapsedRealtimeMinus(mDeltaUs);
         }
+    }
+
+    /**
+     * @param timeUs The position to set in microseconds.
+     */
+    public void setPositionUs(long timeUs) {
+        this.mPositionUs = timeUs;
+        mDeltaUs = elapsedRealtimeMinus(timeUs);
+        mDeltaUpdatedTimeUs = SystemClock.elapsedRealtime() * 1000;
     }
 
     /**

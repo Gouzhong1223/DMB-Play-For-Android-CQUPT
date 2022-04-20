@@ -20,6 +20,11 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
 import cn.edu.cqupt.dmb.player.tuner.data.Channel.DeliverySystemType;
 import cn.edu.cqupt.dmb.player.tuner.data.PsiData;
@@ -29,24 +34,15 @@ import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscAudioTrack;
 import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscCaptionTrack;
 import cn.edu.cqupt.dmb.player.tuner.data.TunerChannel;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 /**
  * Detects channels and programs that are emerged or changed while parsing ATSC PSIP information.
  */
 public class EventDetector {
+    public static final int ALL_PROGRAM_NUMBERS = -1;
     private static final String TAG = "EventDetector";
     private static final boolean DEBUG = false;
-    public static final int ALL_PROGRAM_NUMBERS = -1;
-
     private final Tuner mTunerHal;
-
-    private TsParser mTsParser;
     private final Set<Integer> mPidSet = new HashSet<>();
-
     // To prevent channel duplication
     private final Set<Integer> mVctProgramNumberSet = new HashSet<>();
     private final Set<Integer> mSdtProgramNumberSet = new HashSet<>();
@@ -54,6 +50,7 @@ public class EventDetector {
     private final SparseBooleanArray mVctCaptionTracksFound = new SparseBooleanArray();
     private final SparseBooleanArray mEitCaptionTracksFound = new SparseBooleanArray();
     private final List<EventListener> mEventListeners = new ArrayList<>();
+    private TsParser mTsParser;
     private DeliverySystemType mDeliverySystemType;
     private int mFrequency;
     private String mModulation;
@@ -231,25 +228,6 @@ public class EventDetector {
             };
 
     /**
-     * Listener for detecting ATSC TV channels and receiving EPG data.
-     */
-    public interface EventListener extends cn.edu.cqupt.dmb.player.tuner.api.ChannelScanListener {
-
-        /**
-         * Fired when new program events of an ATSC TV channel arrived.
-         *
-         * @param channel an ATSC TV channel
-         * @param items   a list of EIT items that were received
-         */
-        void onEventDetected(TunerChannel channel, List<EitItem> items);
-
-        /**
-         * Fired when information of all detectable ATSC TV channels in current frequency arrived.
-         */
-        void onChannelScanDone();
-    }
-
-    /**
      * Creates a detector for ATSC TV channels and program information.
      *
      * @param tunerHal
@@ -354,5 +332,24 @@ public class EventDetector {
         if (!removed && DEBUG) {
             Log.d(TAG, "Cannot unregister a non-registered listener!");
         }
+    }
+
+    /**
+     * Listener for detecting ATSC TV channels and receiving EPG data.
+     */
+    public interface EventListener extends cn.edu.cqupt.dmb.player.tuner.api.ChannelScanListener {
+
+        /**
+         * Fired when new program events of an ATSC TV channel arrived.
+         *
+         * @param channel an ATSC TV channel
+         * @param items   a list of EIT items that were received
+         */
+        void onEventDetected(TunerChannel channel, List<EitItem> items);
+
+        /**
+         * Fired when information of all detectable ATSC TV channels in current frequency arrived.
+         */
+        void onChannelScanDone();
     }
 }

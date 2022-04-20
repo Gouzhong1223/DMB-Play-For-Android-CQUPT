@@ -24,78 +24,56 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 
-import cn.edu.cqupt.dmb.player.common.CommonPreferenceProvider.Preferences;
-import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.edu.cqupt.dmb.player.common.CommonPreferenceProvider.Preferences;
+import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
+
 /**
  * A helper class for setting/getting common preferences across applications.
  */
 public class CommonPreferences {
+    /**
+     * Trickplay setting is not changed by a user. Trickplay will be enabled in this case.
+     */
+    public static final int TRICKPLAY_SETTING_NOT_SET = -1;
+    /**
+     * Trickplay setting is disabled.
+     */
+    public static final int TRICKPLAY_SETTING_DISABLED = 0;
+    /**
+     * Trickplay setting is enabled.
+     */
+    public static final int TRICKPLAY_SETTING_ENABLED = 1;
     private static final String TAG = "CommonPreferences";
-
     private static final String PREFS_KEY_LAUNCH_SETUP = "launch_setup";
     private static final String PREFS_KEY_STORE_TS_STREAM = "store_ts_stream";
     private static final String PREFS_KEY_TRICKPLAY_SETTING = "trickplay_setting";
     private static final String PREFS_KEY_LAST_POSTAL_CODE = "last_postal_code";
-
     private static final Map<String, Class> sPref2TypeMapping = new HashMap<>();
+    private static final String SHARED_PREFS_NAME =
+            CommonConstants.BASE_PACKAGE + ".common.preferences";
+    @GuardedBy("CommonPreferences.class")
+    private static final Bundle sPreferenceValues = new Bundle();
+    protected static boolean sInitialized;
+    private static LoadPreferencesTask sLoadPreferencesTask;
+    private static ContentObserver sContentObserver;
+    private static CommonPreferencesChangedListener sPreferencesChangedListener = null;
 
     static {
         sPref2TypeMapping.put(PREFS_KEY_TRICKPLAY_SETTING, int.class);
         sPref2TypeMapping.put(PREFS_KEY_STORE_TS_STREAM, boolean.class);
         sPref2TypeMapping.put(PREFS_KEY_LAUNCH_SETUP, boolean.class);
         sPref2TypeMapping.put(PREFS_KEY_LAST_POSTAL_CODE, String.class);
-    }
-
-    private static final String SHARED_PREFS_NAME =
-            CommonConstants.BASE_PACKAGE + ".common.preferences";
-
-    @IntDef({TRICKPLAY_SETTING_NOT_SET, TRICKPLAY_SETTING_DISABLED, TRICKPLAY_SETTING_ENABLED})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface TrickplaySetting {
-    }
-
-    /**
-     * Trickplay setting is not changed by a user. Trickplay will be enabled in this case.
-     */
-    public static final int TRICKPLAY_SETTING_NOT_SET = -1;
-
-    /**
-     * Trickplay setting is disabled.
-     */
-    public static final int TRICKPLAY_SETTING_DISABLED = 0;
-
-    /**
-     * Trickplay setting is enabled.
-     */
-    public static final int TRICKPLAY_SETTING_ENABLED = 1;
-
-    @GuardedBy("CommonPreferences.class")
-    private static final Bundle sPreferenceValues = new Bundle();
-
-    private static LoadPreferencesTask sLoadPreferencesTask;
-    private static ContentObserver sContentObserver;
-    private static CommonPreferencesChangedListener sPreferencesChangedListener = null;
-
-    protected static boolean sInitialized;
-
-    /**
-     * Listeners for CommonPreferences change.
-     */
-    public interface CommonPreferencesChangedListener {
-        void onCommonPreferencesChanged();
     }
 
     /**
@@ -292,6 +270,18 @@ public class CommonPreferences {
                 return null;
             }
         }.execute();
+    }
+
+    @IntDef({TRICKPLAY_SETTING_NOT_SET, TRICKPLAY_SETTING_DISABLED, TRICKPLAY_SETTING_ENABLED})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface TrickplaySetting {
+    }
+
+    /**
+     * Listeners for CommonPreferences change.
+     */
+    public interface CommonPreferencesChangedListener {
+        void onCommonPreferencesChanged();
     }
 
     private static class LoadPreferencesTask extends AsyncTask<Void, Void, Bundle> {

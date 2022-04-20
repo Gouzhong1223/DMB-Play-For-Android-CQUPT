@@ -24,10 +24,9 @@ import static cn.edu.cqupt.dmb.player.common.feature.TestableFeature.createTesta
 import android.content.Context;
 import android.util.Log;
 
+import cn.edu.cqupt.dmb.player.common.flags.CloudEpgFlags;
 import cn.edu.cqupt.dmb.player.common.flags.has.HasCloudEpgFlags;
 import cn.edu.cqupt.dmb.player.common.util.LocationUtils;
-
-import cn.edu.cqupt.dmb.player.common.flags.CloudEpgFlags;
 
 /**
  * List of {@link Feature} that affect more than just the TV app.
@@ -35,9 +34,6 @@ import cn.edu.cqupt.dmb.player.common.flags.CloudEpgFlags;
  * <p>Remove the {@code Feature} once it is launched.
  */
 public class CommonFeatures {
-    private static final String TAG = "CommonFeatures";
-    private static final boolean DEBUG = false;
-
     /**
      * DVR
      *
@@ -47,7 +43,6 @@ public class CommonFeatures {
      */
     public static final TestableFeature DVR =
             createTestableFeature(and(Sdk.AT_LEAST_N, SystemAppFeature.SYSTEM_APP_FEATURE));
-
     /**
      * ENABLE_RECORDING_REGARDLESS_OF_STORAGE_STATUS
      *
@@ -55,7 +50,18 @@ public class CommonFeatures {
      */
     public static final Feature FORCE_RECORDING_UNTIL_NO_SPACE =
             DeveloperPreferenceFeature.create("force_recording_until_no_space", false);
+    /**
+     * Show channel signal strength.
+     */
+    public static final Feature TUNER_SIGNAL_STRENGTH = ENG_ONLY_FEATURE;
+    /**
+     * Use AudioOnlyTvService for audio-only inputs.
+     */
+    public static final Feature ENABLE_TV_SERVICE = ENG_ONLY_FEATURE;
+    private static final String TAG = "CommonFeatures";
 
+    // TODO(b/74197177): remove when UI and API finalized.
+    private static final boolean DEBUG = false;
     /**
      * Show postal code fragment before channel scan.
      */
@@ -79,15 +85,4 @@ public class CommonFeatures {
                             return false;
                         }
                     });
-
-    // TODO(b/74197177): remove when UI and API finalized.
-    /**
-     * Show channel signal strength.
-     */
-    public static final Feature TUNER_SIGNAL_STRENGTH = ENG_ONLY_FEATURE;
-
-    /**
-     * Use AudioOnlyTvService for audio-only inputs.
-     */
-    public static final Feature ENABLE_TV_SERVICE = ENG_ONLY_FEATURE;
 }

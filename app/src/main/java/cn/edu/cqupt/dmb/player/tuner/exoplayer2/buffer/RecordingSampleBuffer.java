@@ -17,14 +17,10 @@
 package cn.edu.cqupt.dmb.player.tuner.exoplayer2.buffer;
 
 import android.os.ConditionVariable;
+import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-
-import android.util.Log;
-
-import cn.edu.cqupt.dmb.player.tuner.exoplayer2.MpegTsPlayerV2;
-import cn.edu.cqupt.dmb.player.tuner.exoplayer2.SampleExtractor;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
@@ -40,66 +36,53 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import cn.edu.cqupt.dmb.player.tuner.exoplayer2.MpegTsPlayerV2;
+import cn.edu.cqupt.dmb.player.tuner.exoplayer2.SampleExtractor;
+
 /**
  * Handles I/O between {@link SampleExtractor} and {@link BufferManager}.Reads & writes samples
  * from/to {@link SampleChunk} which is backed by physical storage.
  */
 public class RecordingSampleBuffer
         implements BufferManager.SampleBuffer, BufferManager.ChunkEvictedListener {
-    private static final String TAG = "RecordingSampleBuffer";
-
-    @IntDef({BUFFER_REASON_LIVE_PLAYBACK, BUFFER_REASON_RECORDED_PLAYBACK, BUFFER_REASON_RECORDING})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface BufferReason {
-    }
-
     /**
      * A buffer reason for live-stream playback.
      */
     public static final int BUFFER_REASON_LIVE_PLAYBACK = 0;
-
     /**
      * A buffer reason for playback of a recorded program.
      */
     public static final int BUFFER_REASON_RECORDED_PLAYBACK = 1;
-
     /**
      * A buffer reason for recording a program.
      */
     public static final int BUFFER_REASON_RECORDING = 2;
-
     /**
      * The minimum duration to support seek in Trickplay.
      */
     static final long MIN_SEEK_DURATION_US = TimeUnit.MILLISECONDS.toMicros(500);
-
     /**
      * The duration of a {@link SampleChunk} for recordings.
      */
     static final long RECORDING_CHUNK_DURATION_US = MIN_SEEK_DURATION_US * 1200; // 10 minutes
-
+    private static final String TAG = "RecordingSampleBuffer";
     private static final long BUFFER_WRITE_TIMEOUT_MS = 10 * 1000; // 10 seconds
     private static final long BUFFER_NEEDED_US =
             1000L * Math.max(MpegTsPlayerV2.MIN_BUFFER_MS, MpegTsPlayerV2.MIN_REBUFFER_MS);
-
     private final BufferManager mBufferManager;
     private final PlaybackBufferListener mBufferListener;
     private final @BufferReason
     int mBufferReason;
     private final SampleChunkIoHelper.Factory mSampleChunkIoHelperFactory;
-
+    private final InputBufferPool mInputBufferPool = new InputBufferPool();
     private int mTrackCount;
     private boolean[] mTrackSelected;
     private List<SampleQueue> mReadSampleQueues;
-    private final InputBufferPool mInputBufferPool = new InputBufferPool();
     private long mCurrentPlaybackPositionUs = 0;
-
     // An error in I/O thread of {@link SampleChunkIoHelper} will be notified.
     private volatile boolean mError;
-
     // Eos was reached in I/O thread of {@link SampleChunkIoHelper}.
     private volatile boolean mEos;
-    private SampleChunkIoHelper mSampleChunkIoHelper;
     private final SampleChunkIoHelper.IoCallback mIoCallback =
             new SampleChunkIoHelper.IoCallback() {
                 @Override
@@ -112,21 +95,7 @@ public class RecordingSampleBuffer
                     mError = true;
                 }
             };
-
-    /**
-     * Factory for {@link RecordingSampleBuffer}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        RecordingSampleBuffer create(
-                BufferManager bufferManager,
-                PlaybackBufferListener bufferListener,
-                boolean enableTrickplay,
-                @BufferReason int bufferReason);
-    }
-
+    private SampleChunkIoHelper mSampleChunkIoHelper;
     /**
      * Creates {@link BufferManager.SampleBuffer} with cached I/O backed by physical storage (e.g.
      * trickplay,recording,recorded-playback).
@@ -311,5 +280,24 @@ public class RecordingSampleBuffer
             mBufferListener.onBufferStartTimeChanged(
                     createdTimeMs + TimeUnit.MICROSECONDS.toMillis(MIN_SEEK_DURATION_US));
         }
+    }
+
+    @IntDef({BUFFER_REASON_LIVE_PLAYBACK, BUFFER_REASON_RECORDED_PLAYBACK, BUFFER_REASON_RECORDING})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BufferReason {
+    }
+
+    /**
+     * Factory for {@link RecordingSampleBuffer}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        RecordingSampleBuffer create(
+                BufferManager bufferManager,
+                PlaybackBufferListener bufferListener,
+                boolean enableTrickplay,
+                @BufferReason int bufferReason);
     }
 }

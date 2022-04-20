@@ -15,9 +15,9 @@
  */
 package cn.edu.cqupt.dmb.player.common.compat.internal;
 
-import androidx.annotation.Nullable;
-
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import cn.edu.cqupt.dmb.player.common.compat.api.PrivateCommandSender;
 import cn.edu.cqupt.dmb.player.common.compat.api.RecordingClientCallbackCompatEvents;

@@ -18,22 +18,20 @@ package cn.edu.cqupt.dmb.player.tuner.setup;
 
 import android.content.res.Resources;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.widget.GuidanceStylist.Guidance;
 import androidx.leanback.widget.GuidedAction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupGuidedStepFragment;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupMultiPaneFragment;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Lineup Fragment shows available lineups and lets users select one of them.

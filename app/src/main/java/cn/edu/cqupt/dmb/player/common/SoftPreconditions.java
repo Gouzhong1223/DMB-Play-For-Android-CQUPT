@@ -17,11 +17,10 @@
 package cn.edu.cqupt.dmb.player.common;
 
 import android.content.Context;
-
-import androidx.annotation.Nullable;
-
 import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import cn.edu.cqupt.dmb.player.common.feature.Feature;
 import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
@@ -37,6 +36,9 @@ import cn.edu.cqupt.dmb.player.common.util.CommonUtils;
  */
 public final class SoftPreconditions {
     private static final String TAG = "SoftPreconditions";
+
+    private SoftPreconditions() {
+    }
 
     /**
      * Throws or logs if an expression involving the parameter of the calling method is not true.
@@ -245,8 +247,5 @@ public final class SoftPreconditions {
         }
 
         return builder.toString();
-    }
-
-    private SoftPreconditions() {
     }
 }

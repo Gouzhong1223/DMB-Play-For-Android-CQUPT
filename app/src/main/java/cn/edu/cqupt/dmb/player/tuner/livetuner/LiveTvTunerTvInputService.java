@@ -17,7 +17,6 @@
 package cn.edu.cqupt.dmb.player.tuner.livetuner;
 
 import cn.edu.cqupt.dmb.player.tuner.tvinput.BaseTunerTvInputService;
-
 import dagger.android.ContributesAndroidInjector;
 
 /**

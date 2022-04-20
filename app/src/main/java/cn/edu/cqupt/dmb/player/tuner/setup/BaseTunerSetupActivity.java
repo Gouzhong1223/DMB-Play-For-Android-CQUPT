@@ -17,8 +17,6 @@
 package cn.edu.cqupt.dmb.player.tuner.setup;
 
 import android.app.Fragment;
-
-
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -32,15 +30,18 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.core.app.NotificationCompat;
 
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.Toast;
+import java.util.concurrent.Executor;
+
+import javax.inject.Inject;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.SoftPreconditions;
@@ -50,27 +51,18 @@ import cn.edu.cqupt.dmb.player.common.ui.setup.SetupFragment;
 import cn.edu.cqupt.dmb.player.common.ui.setup.SetupMultiPaneFragment;
 import cn.edu.cqupt.dmb.player.common.util.AutoCloseableUtils;
 import cn.edu.cqupt.dmb.player.common.util.PostalCodeUtils;
-
 import cn.edu.cqupt.dmb.player.tuner.api.Tuner;
 import cn.edu.cqupt.dmb.player.tuner.api.TunerFactory;
 import cn.edu.cqupt.dmb.player.tuner.prefs.TunerPreferences;
-
-import java.util.concurrent.Executor;
-
-import javax.inject.Inject;
 
 /**
  * The base setup activity class for tuner.
  */
 public abstract class BaseTunerSetupActivity extends SetupActivity {
-    private static final String TAG = "BaseTunerSetupActivity";
-    private static final boolean DEBUG = false;
-
     /**
      * Key for passing tuner type to sub-fragments.
      */
     public static final String KEY_TUNER_TYPE = "TunerSetupActivity.tunerType";
-
     // For the notification.
     protected static final String TUNER_SET_UP_NOTIFICATION_CHANNEL_ID = "tuner_setup_channel";
     protected static final String NOTIFY_TAG = "TunerSetup";
@@ -78,7 +70,6 @@ public abstract class BaseTunerSetupActivity extends SetupActivity {
     protected static final String TAG_DRAWABLE = "drawable";
     protected static final String TAG_ICON = "ic_launcher_s";
     protected static final int PERMISSIONS_REQUEST_ACCESS_COARSE_LOCATION = 1;
-
     protected static final int[] CHANNEL_MAP_SCAN_FILE = {
 //            R.raw.ut_us_atsc_center_frequencies_8vsb,
 //            R.raw.ut_us_cable_standard_center_frequencies_qam256,
@@ -92,7 +83,8 @@ public abstract class BaseTunerSetupActivity extends SetupActivity {
             R.raw.ut_euro_all,
             R.raw.ut_euro_all */
     };
-
+    private static final String TAG = "BaseTunerSetupActivity";
+    private static final boolean DEBUG = false;
     protected final String mInputId;
 
     protected ScanFragment mLastScanFragment;
@@ -108,6 +100,147 @@ public abstract class BaseTunerSetupActivity extends SetupActivity {
 
     protected BaseTunerSetupActivity(String mInputId) {
         this.mInputId = mInputId;
+    }
+
+    /**
+     * Cancels the previously shown notification.
+     *
+     * @param context a {@link Context} instance
+     */
+    public static void cancelNotification(Context context) {
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(NOTIFY_TAG, NOTIFY_ID);
+    }
+
+    /**
+     * A callback to be invoked when the TvInputService is enabled or disabled.
+     *
+     * @param tunerSetupIntent
+     * @param context          a {@link Context} instance
+     * @param enabled          {@code true} for the { TunerTvInputService} to be enabled; otherwise
+     *                         {@code false}
+     */
+    public static void onTvInputEnabled(
+            Context context, boolean enabled, Integer tunerType, Intent tunerSetupIntent) {
+        // Send a notification for tuner setup if there's no channels and the tuner TV input
+        // setup has been not done.
+        boolean channelScanDoneOnPreference = TunerPreferences.isScanDone(context);
+        int channelCountOnPreference = TunerPreferences.getScannedChannelCount(context);
+        if (enabled && !channelScanDoneOnPreference && channelCountOnPreference == 0) {
+            TunerPreferences.setShouldShowSetupActivity(context, true);
+            sendNotification(context, tunerType, tunerSetupIntent);
+        } else {
+            TunerPreferences.setShouldShowSetupActivity(context, false);
+            cancelNotification(context);
+        }
+    }
+
+    private static void sendNotification(
+            Context context, Integer tunerType, Intent tunerSetupIntent) {
+        SoftPreconditions.checkState(
+                tunerType != null, TAG, "tunerType is null when send notification");
+        if (tunerType == null) {
+            return;
+        }
+        Resources resources = context.getResources();
+        String contentTitle = resources.getString(R.string.ut_setup_notification_content_title);
+        int contentTextId = 0;
+        switch (tunerType) {
+            case Tuner.TUNER_TYPE_BUILT_IN:
+                contentTextId = R.string.bt_setup_notification_content_text;
+                break;
+            case Tuner.TUNER_TYPE_USB:
+                contentTextId = R.string.ut_setup_notification_content_text;
+                break;
+            case Tuner.TUNER_TYPE_NETWORK:
+                contentTextId = R.string.nt_setup_notification_content_text;
+                break;
+            default: // fall out
+        }
+        String contentText = resources.getString(contentTextId);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            sendNotificationInternal(context, contentTitle, contentText, tunerSetupIntent);
+        } else {
+            Bitmap largeIcon =
+                    BitmapFactory.decodeResource(resources, R.drawable.recommendation_antenna);
+            sendRecommendationCard(context, contentTitle, contentText, largeIcon, tunerSetupIntent);
+        }
+    }
+
+    private static void sendNotificationInternal(
+            Context context, String contentTitle, String contentText, Intent tunerSetupIntent) {
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(
+                new NotificationChannel(
+                        TUNER_SET_UP_NOTIFICATION_CHANNEL_ID,
+                        context.getResources()
+                                .getString(R.string.ut_setup_notification_channel_name),
+                        NotificationManager.IMPORTANCE_HIGH));
+        Notification notification =
+                new Notification.Builder(context, TUNER_SET_UP_NOTIFICATION_CHANNEL_ID)
+                        .setContentTitle(contentTitle)
+                        .setContentText(contentText)
+                        .setSmallIcon(
+                                context.getResources()
+                                        .getIdentifier(
+                                                TAG_ICON, TAG_DRAWABLE, context.getPackageName()))
+                        .setContentIntent(
+                                createPendingIntentForSetupActivity(context, tunerSetupIntent))
+                        .setVisibility(Notification.VISIBILITY_PUBLIC)
+//                        .extend(new Notification.TvExtender())
+                        .build();
+        notificationManager.notify(NOTIFY_TAG, NOTIFY_ID, notification);
+    }
+
+    /**
+     * Sends the recommendation card to start the tuner TV input setup activity.
+     *
+     * @param tunerSetupIntent
+     * @param context          a {@link Context} instance
+     */
+    private static void sendRecommendationCard(
+            Context context,
+            String contentTitle,
+            String contentText,
+            Bitmap largeIcon,
+            Intent tunerSetupIntent) {
+        // Build and send the notification.
+        Notification notification =
+                new NotificationCompat.BigPictureStyle(
+                        new NotificationCompat.Builder(context)
+                                .setAutoCancel(false)
+                                .setContentTitle(contentTitle)
+                                .setContentText(contentText)
+                                .setContentInfo(contentText)
+                                .setCategory(Notification.CATEGORY_RECOMMENDATION)
+                                .setLargeIcon(largeIcon)
+                                .setSmallIcon(
+                                        context.getResources()
+                                                .getIdentifier(
+                                                        TAG_ICON,
+                                                        TAG_DRAWABLE,
+                                                        context.getPackageName()))
+                                .setContentIntent(
+                                        createPendingIntentForSetupActivity(
+                                                context, tunerSetupIntent)))
+                        .build();
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(NOTIFY_TAG, NOTIFY_ID, notification);
+    }
+
+    /**
+     * Returns a {@link PendingIntent} to launch the tuner TV input service.
+     *
+     * @param context          a {@link Context} instance
+     * @param tunerSetupIntent
+     */
+    private static PendingIntent createPendingIntentForSetupActivity(
+            Context context, Intent tunerSetupIntent) {
+        return PendingIntent.getActivity(
+                context, 0, tunerSetupIntent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     @Override
@@ -347,157 +480,16 @@ public abstract class BaseTunerSetupActivity extends SetupActivity {
     }
 
     /**
-     * Cancels the previously shown notification.
-     *
-     * @param context a {@link Context} instance
-     */
-    public static void cancelNotification(Context context) {
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(NOTIFY_TAG, NOTIFY_ID);
-    }
-
-    /**
-     * A callback to be invoked when the TvInputService is enabled or disabled.
-     *
-     * @param tunerSetupIntent
-     * @param context          a {@link Context} instance
-     * @param enabled          {@code true} for the { TunerTvInputService} to be enabled; otherwise
-     *                         {@code false}
-     */
-    public static void onTvInputEnabled(
-            Context context, boolean enabled, Integer tunerType, Intent tunerSetupIntent) {
-        // Send a notification for tuner setup if there's no channels and the tuner TV input
-        // setup has been not done.
-        boolean channelScanDoneOnPreference = TunerPreferences.isScanDone(context);
-        int channelCountOnPreference = TunerPreferences.getScannedChannelCount(context);
-        if (enabled && !channelScanDoneOnPreference && channelCountOnPreference == 0) {
-            TunerPreferences.setShouldShowSetupActivity(context, true);
-            sendNotification(context, tunerType, tunerSetupIntent);
-        } else {
-            TunerPreferences.setShouldShowSetupActivity(context, false);
-            cancelNotification(context);
-        }
-    }
-
-    private static void sendNotification(
-            Context context, Integer tunerType, Intent tunerSetupIntent) {
-        SoftPreconditions.checkState(
-                tunerType != null, TAG, "tunerType is null when send notification");
-        if (tunerType == null) {
-            return;
-        }
-        Resources resources = context.getResources();
-        String contentTitle = resources.getString(R.string.ut_setup_notification_content_title);
-        int contentTextId = 0;
-        switch (tunerType) {
-            case Tuner.TUNER_TYPE_BUILT_IN:
-                contentTextId = R.string.bt_setup_notification_content_text;
-                break;
-            case Tuner.TUNER_TYPE_USB:
-                contentTextId = R.string.ut_setup_notification_content_text;
-                break;
-            case Tuner.TUNER_TYPE_NETWORK:
-                contentTextId = R.string.nt_setup_notification_content_text;
-                break;
-            default: // fall out
-        }
-        String contentText = resources.getString(contentTextId);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            sendNotificationInternal(context, contentTitle, contentText, tunerSetupIntent);
-        } else {
-            Bitmap largeIcon =
-                    BitmapFactory.decodeResource(resources, R.drawable.recommendation_antenna);
-            sendRecommendationCard(context, contentTitle, contentText, largeIcon, tunerSetupIntent);
-        }
-    }
-
-    private static void sendNotificationInternal(
-            Context context, String contentTitle, String contentText, Intent tunerSetupIntent) {
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.createNotificationChannel(
-                new NotificationChannel(
-                        TUNER_SET_UP_NOTIFICATION_CHANNEL_ID,
-                        context.getResources()
-                                .getString(R.string.ut_setup_notification_channel_name),
-                        NotificationManager.IMPORTANCE_HIGH));
-        Notification notification =
-                new Notification.Builder(context, TUNER_SET_UP_NOTIFICATION_CHANNEL_ID)
-                        .setContentTitle(contentTitle)
-                        .setContentText(contentText)
-                        .setSmallIcon(
-                                context.getResources()
-                                        .getIdentifier(
-                                                TAG_ICON, TAG_DRAWABLE, context.getPackageName()))
-                        .setContentIntent(
-                                createPendingIntentForSetupActivity(context, tunerSetupIntent))
-                        .setVisibility(Notification.VISIBILITY_PUBLIC)
-//                        .extend(new Notification.TvExtender())
-                        .build();
-        notificationManager.notify(NOTIFY_TAG, NOTIFY_ID, notification);
-    }
-
-    /**
-     * Sends the recommendation card to start the tuner TV input setup activity.
-     *
-     * @param tunerSetupIntent
-     * @param context          a {@link Context} instance
-     */
-    private static void sendRecommendationCard(
-            Context context,
-            String contentTitle,
-            String contentText,
-            Bitmap largeIcon,
-            Intent tunerSetupIntent) {
-        // Build and send the notification.
-        Notification notification =
-                new NotificationCompat.BigPictureStyle(
-                        new NotificationCompat.Builder(context)
-                                .setAutoCancel(false)
-                                .setContentTitle(contentTitle)
-                                .setContentText(contentText)
-                                .setContentInfo(contentText)
-                                .setCategory(Notification.CATEGORY_RECOMMENDATION)
-                                .setLargeIcon(largeIcon)
-                                .setSmallIcon(
-                                        context.getResources()
-                                                .getIdentifier(
-                                                        TAG_ICON,
-                                                        TAG_DRAWABLE,
-                                                        context.getPackageName()))
-                                .setContentIntent(
-                                        createPendingIntentForSetupActivity(
-                                                context, tunerSetupIntent)))
-                        .build();
-        NotificationManager notificationManager =
-                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFY_TAG, NOTIFY_ID, notification);
-    }
-
-    /**
-     * Returns a {@link PendingIntent} to launch the tuner TV input service.
-     *
-     * @param context          a {@link Context} instance
-     * @param tunerSetupIntent
-     */
-    private static PendingIntent createPendingIntentForSetupActivity(
-            Context context, Intent tunerSetupIntent) {
-        return PendingIntent.getActivity(
-                context, 0, tunerSetupIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-    }
-
-    /**
      * Creates {@link Tuner} instances in a worker thread *
      */
     @VisibleForTesting
     protected static class TunerHalCreator {
         private final Context mContext;
+        private final Executor mExecutor;
+        private final TunerFactory mTunerFactory;
         @VisibleForTesting
         Tuner mTunerHal;
         private GenerateTunerHalTask mGenerateTunerHalTask;
-        private final Executor mExecutor;
-        private final TunerFactory mTunerFactory;
 
         TunerHalCreator(Context context, Executor executor, TunerFactory tunerFactory) {
             mContext = context;

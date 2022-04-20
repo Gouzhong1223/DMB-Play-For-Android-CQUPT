@@ -21,6 +21,13 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 
+import com.google.android.exoplayer2.text.Cue;
+import com.google.auto.factory.AutoFactory;
+import com.google.auto.factory.Provided;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import cn.edu.cqupt.dmb.player.common.flags.TunerFlags;
 import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionEvent;
 import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionPenAttr;
@@ -30,13 +37,6 @@ import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionWindow;
 import cn.edu.cqupt.dmb.player.tuner.data.Cea708Data.CaptionWindowAttr;
 import cn.edu.cqupt.dmb.player.tuner.data.Cea708Parser;
 import cn.edu.cqupt.dmb.player.tuner.data.Track.AtscCaptionTrack;
-
-import com.google.android.exoplayer2.text.Cue;
-import com.google.auto.factory.AutoFactory;
-import com.google.auto.factory.Provided;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Decodes and renders CEA-708.
@@ -70,22 +70,12 @@ public class CaptionTrackRenderer implements Handler.Callback {
     private final CaptionLayout mCaptionLayout;
     private final CaptionWindowLayout.Factory mCaptionWindowLayoutFactory;
     private final TunerFlags mTunerFlags;
-    private boolean mIsDelayed = false;
-    private CaptionWindowLayout mCurrentWindowLayout;
     private final CaptionWindowLayout[] mCaptionWindowLayouts =
             new CaptionWindowLayout[CAPTION_WINDOWS_MAX];
     private final ArrayList<CaptionEvent> mPendingCaptionEvents = new ArrayList<>();
     private final Handler mHandler;
-
-    /**
-     * Factory for {@link CaptionTrackRenderer}.
-     *
-     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
-     * generated class.
-     */
-    public interface Factory {
-        CaptionTrackRenderer create(CaptionLayout captionLayout);
-    }
+    private boolean mIsDelayed = false;
+    private CaptionWindowLayout mCurrentWindowLayout;
 
     @AutoFactory(implementing = Factory.class)
     public CaptionTrackRenderer(
@@ -377,5 +367,15 @@ public class CaptionTrackRenderer implements Handler.Callback {
         if (mCurrentWindowLayout != null) {
             mCurrentWindowLayout.setPenLocation(location.row, location.column);
         }
+    }
+
+    /**
+     * Factory for {@link CaptionTrackRenderer}.
+     *
+     * <p>This wrapper class keeps other classes from needing to reference the {@link AutoFactory}
+     * generated class.
+     */
+    public interface Factory {
+        CaptionTrackRenderer create(CaptionLayout captionLayout);
     }
 }

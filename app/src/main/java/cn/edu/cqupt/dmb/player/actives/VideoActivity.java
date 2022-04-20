@@ -48,47 +48,39 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 @RequiresApi(api = Build.VERSION_CODES.R)
 public class VideoActivity extends Activity {
 
-    private static final String TAG = "VideoActivity";
-    /**
-     * 自定义的视频播放组件
-     */
-    private VideoPlayerFrame videoPlayerFrame = null;
-
-    /**
-     * 单例线程池,运行MPEG解码线程的
-     */
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-    /**
-     * 已经解码的MPEG-TS视频缓冲流
-     */
-    private BufferedInputStream bufferedInputStream;
-
-    /**
-     * 已经解码的MPEG-TS视频输入流
-     */
-    private PipedInputStream pipedInputStream;
-
-    /**
-     * 已经解码的MPEG-TS视频输出流
-     */
-    private PipedOutputStream pipedOutputStream;
-
     /**
      * 视频播放回调消息
      */
     public static final int MESSAGE_START_PLAY_VIDEO = DmbPlayerConstant.MESSAGE_START_PLAY_VIDEO.getDmbConstantValue();
-
+    private static final String TAG = "VideoActivity";
     /**
      * 解码后一个MPEG-TS包的大小
      */
     private static final Integer DEFAULT_MPEG_TS_PACKET_SIZE_DECODE = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_DECODE.getDmbConstantValue();
-
     /**
      * 输出流计量倍数
      */
     private static final Integer DEFAULT_MPEG_TS_STREAM_SIZE_TIMES = DmbPlayerConstant.DEFAULT_MPEG_TS_STREAM_SIZE_TIMES.getDmbConstantValue();
-
+    /**
+     * 自定义的视频播放组件
+     */
+    private VideoPlayerFrame videoPlayerFrame = null;
+    /**
+     * 单例线程池,运行MPEG解码线程的
+     */
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    /**
+     * 已经解码的MPEG-TS视频缓冲流
+     */
+    private BufferedInputStream bufferedInputStream;
+    /**
+     * 已经解码的MPEG-TS视频输入流
+     */
+    private PipedInputStream pipedInputStream;
+    /**
+     * 已经解码的MPEG-TS视频输出流
+     */
+    private PipedOutputStream pipedOutputStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

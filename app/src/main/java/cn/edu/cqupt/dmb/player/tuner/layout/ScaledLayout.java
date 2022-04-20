@@ -27,7 +27,6 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 
-
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -47,10 +46,9 @@ public class ScaledLayout extends ViewGroup {
                     return lhs.left - rhs.left;
                 }
             };
-
-    private Rect[] mRectArray;
     private final int mMaxWidth;
     private final int mMaxHeight;
+    private Rect[] mRectArray;
 
     public ScaledLayout(Context context) {
         this(context, null);
@@ -69,56 +67,6 @@ public class ScaledLayout extends ViewGroup {
         display.getRealSize(size);
         mMaxWidth = size.x;
         mMaxHeight = size.y;
-    }
-
-    /**
-     * ScaledLayoutParams stores the four scale factors. <br>
-     * Vertical coordinate system: ({@code scaleStartRow} * 100) % ~ ({@code scaleEndRow} * 100) %
-     * Horizontal coordinate system: ({@code scaleStartCol} * 100) % ~ ({@code scaleEndCol} * 100) %
-     * <br>
-     * In XML, for example,
-     *
-     * <pre>{@code
-     * <View
-     *     app:layout_scaleStartRow="0.1"
-     *     app:layout_scaleEndRow="0.5"
-     *     app:layout_scaleStartCol="0.4"
-     *     app:layout_scaleEndCol="1" />
-     * }</pre>
-     */
-    public static class ScaledLayoutParams extends LayoutParams {
-        public static final float SCALE_UNSPECIFIED = -1;
-        public final float scaleStartRow;
-        public final float scaleEndRow;
-        public final float scaleStartCol;
-        public final float scaleEndCol;
-
-        public ScaledLayoutParams(
-                float scaleStartRow, float scaleEndRow, float scaleStartCol, float scaleEndCol) {
-            super(MATCH_PARENT, MATCH_PARENT);
-            this.scaleStartRow = scaleStartRow;
-            this.scaleEndRow = scaleEndRow;
-            this.scaleStartCol = scaleStartCol;
-            this.scaleEndCol = scaleEndCol;
-        }
-
-        public ScaledLayoutParams(Context context, AttributeSet attrs) {
-            super(MATCH_PARENT, MATCH_PARENT);
-            TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.utScaledLayout);
-            scaleStartRow =
-                    array.getFloat(
-                            R.styleable.utScaledLayout_layout_scaleStartRow, SCALE_UNSPECIFIED);
-            scaleEndRow =
-                    array.getFloat(
-                            R.styleable.utScaledLayout_layout_scaleEndRow, SCALE_UNSPECIFIED);
-            scaleStartCol =
-                    array.getFloat(
-                            R.styleable.utScaledLayout_layout_scaleStartCol, SCALE_UNSPECIFIED);
-            scaleEndCol =
-                    array.getFloat(
-                            R.styleable.utScaledLayout_layout_scaleEndCol, SCALE_UNSPECIFIED);
-            array.recycle();
-        }
     }
 
     @Override
@@ -287,6 +235,56 @@ public class ScaledLayout extends ViewGroup {
                 }
                 child.layout(childLeft, childTop, childRight, childBottom);
             }
+        }
+    }
+
+    /**
+     * ScaledLayoutParams stores the four scale factors. <br>
+     * Vertical coordinate system: ({@code scaleStartRow} * 100) % ~ ({@code scaleEndRow} * 100) %
+     * Horizontal coordinate system: ({@code scaleStartCol} * 100) % ~ ({@code scaleEndCol} * 100) %
+     * <br>
+     * In XML, for example,
+     *
+     * <pre>{@code
+     * <View
+     *     app:layout_scaleStartRow="0.1"
+     *     app:layout_scaleEndRow="0.5"
+     *     app:layout_scaleStartCol="0.4"
+     *     app:layout_scaleEndCol="1" />
+     * }</pre>
+     */
+    public static class ScaledLayoutParams extends LayoutParams {
+        public static final float SCALE_UNSPECIFIED = -1;
+        public final float scaleStartRow;
+        public final float scaleEndRow;
+        public final float scaleStartCol;
+        public final float scaleEndCol;
+
+        public ScaledLayoutParams(
+                float scaleStartRow, float scaleEndRow, float scaleStartCol, float scaleEndCol) {
+            super(MATCH_PARENT, MATCH_PARENT);
+            this.scaleStartRow = scaleStartRow;
+            this.scaleEndRow = scaleEndRow;
+            this.scaleStartCol = scaleStartCol;
+            this.scaleEndCol = scaleEndCol;
+        }
+
+        public ScaledLayoutParams(Context context, AttributeSet attrs) {
+            super(MATCH_PARENT, MATCH_PARENT);
+            TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.utScaledLayout);
+            scaleStartRow =
+                    array.getFloat(
+                            R.styleable.utScaledLayout_layout_scaleStartRow, SCALE_UNSPECIFIED);
+            scaleEndRow =
+                    array.getFloat(
+                            R.styleable.utScaledLayout_layout_scaleEndRow, SCALE_UNSPECIFIED);
+            scaleStartCol =
+                    array.getFloat(
+                            R.styleable.utScaledLayout_layout_scaleStartCol, SCALE_UNSPECIFIED);
+            scaleEndCol =
+                    array.getFloat(
+                            R.styleable.utScaledLayout_layout_scaleEndCol, SCALE_UNSPECIFIED);
+            array.recycle();
         }
     }
 }

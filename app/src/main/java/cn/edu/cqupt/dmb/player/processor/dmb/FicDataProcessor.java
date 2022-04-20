@@ -23,19 +23,16 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 public class FicDataProcessor implements DataProcessing {
 
     private static final String TAG = "FicDataProcessor";
-
+    public static volatile boolean isSelectId;
     /**
      * 初始化Fic解码器
      */
     private final FicDecoder ficDecoder = FicDecoder.getInstance(MainActivity.id, true);
-
     /**
      * 接收单个Fic
      */
     private final byte[] ficBuf = new byte[DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue()];
-
     ChannelInfo channelInfo;
-    public static volatile boolean isSelectId;
     Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
 
     @Override

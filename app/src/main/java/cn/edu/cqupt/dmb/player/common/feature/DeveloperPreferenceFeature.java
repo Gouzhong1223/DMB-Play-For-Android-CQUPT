@@ -27,6 +27,10 @@ public class DeveloperPreferenceFeature implements Feature {
 
     private final DeveloperPreference<Boolean> mPreference;
 
+    private DeveloperPreferenceFeature(DeveloperPreference<Boolean> mPreference) {
+        this.mPreference = mPreference;
+    }
+
     /**
      * Create a developer preference feature.
      *
@@ -43,10 +47,6 @@ public class DeveloperPreferenceFeature implements Feature {
     public static DeveloperPreferenceFeature from(
             DeveloperPreference<Boolean> developerPreference) {
         return new DeveloperPreferenceFeature(developerPreference);
-    }
-
-    private DeveloperPreferenceFeature(DeveloperPreference<Boolean> mPreference) {
-        this.mPreference = mPreference;
     }
 
     @Override

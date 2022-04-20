@@ -15,10 +15,6 @@
  */
 package cn.edu.cqupt.dmb.player.common.flags.impl;
 
-import dagger.Module;
-import dagger.Provides;
-import dagger.Reusable;
-
 import cn.edu.cqupt.dmb.player.common.flags.BackendKnobsFlags;
 import cn.edu.cqupt.dmb.player.common.flags.CloudEpgFlags;
 import cn.edu.cqupt.dmb.player.common.flags.DvrFlags;
@@ -27,6 +23,9 @@ import cn.edu.cqupt.dmb.player.common.flags.SetupFlags;
 import cn.edu.cqupt.dmb.player.common.flags.StartupFlags;
 import cn.edu.cqupt.dmb.player.common.flags.TunerFlags;
 import cn.edu.cqupt.dmb.player.common.flags.UiFlags;
+import dagger.Module;
+import dagger.Provides;
+import dagger.Reusable;
 
 /**
  * Provides public fields for each flag so they can be changed before injection.

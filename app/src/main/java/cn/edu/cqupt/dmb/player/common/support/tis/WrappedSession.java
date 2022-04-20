@@ -22,12 +22,11 @@ import android.media.tv.TvContentRating;
 import android.media.tv.TvInputService.Session;
 import android.net.Uri;
 import android.os.Build;
+import android.view.Surface;
+import android.view.View;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.Nullable;
-
-import android.view.Surface;
-import android.view.View;
 
 import cn.edu.cqupt.dmb.player.common.support.tis.TifSession.TifSessionCallbacks;
 import cn.edu.cqupt.dmb.player.common.support.tis.TifSession.TifSessionFactory;

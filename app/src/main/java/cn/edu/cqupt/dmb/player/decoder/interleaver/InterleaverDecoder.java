@@ -15,15 +15,15 @@ public class InterleaverDecoder {
 
     private static final Integer D = 14;
     private static final Integer N = 204;
-    private static int deinterleaverPos;
     private static final byte[][] deinterleaverBuf = new byte[D][N];
-
-    private void deinterleaverInit() {
-        deinterleaverPos = D - 1;
-    }
+    private static int deinterleaverPos;
 
     public InterleaverDecoder() {
         deinterleaverInit();
+    }
+
+    private void deinterleaverInit() {
+        deinterleaverPos = D - 1;
     }
 
     /**
