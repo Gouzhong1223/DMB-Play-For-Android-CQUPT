@@ -179,7 +179,7 @@ public class MediaCodecAudioDecoder extends AudioDecoder {
     private int getDecodeOnlyIndex(long presentationTimeUs) {
         final int size = mDecodeOnlyPresentationTimestamps.size();
         for (int i = 0; i < size; i++) {
-            if (mDecodeOnlyPresentationTimestamps.get(i).longValue() == presentationTimeUs) {
+            if (mDecodeOnlyPresentationTimestamps.get(i) == presentationTimeUs) {
                 return i;
             }
         }

@@ -185,9 +185,6 @@ public class MpegTsDefaultAudioTrackRenderer extends TrackRenderer implements Me
 
     @Override
     protected void onDisabled() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            AUDIO_TRACK.resetSessionId();
-        }
         clearDecodeState();
         mFormat = null;
         mSource.disable(mTrackIndex);

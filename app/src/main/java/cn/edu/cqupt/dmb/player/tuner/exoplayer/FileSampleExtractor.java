@@ -20,6 +20,7 @@ import android.os.Handler;
 
 import com.google.android.exoplayer.MediaFormat;
 import com.google.android.exoplayer.MediaFormatHolder;
+import com.google.android.exoplayer.MediaFormatUtil;
 import com.google.android.exoplayer.SampleHolder;
 import com.google.auto.factory.AutoFactory;
 import com.google.auto.factory.Provided;
@@ -75,7 +76,7 @@ public class FileSampleExtractor implements SampleExtractor {
         for (int i = 0; i < mTrackCount; ++i) {
             BufferManager.TrackFormat trackFormat = trackFormatList.get(i);
             ids.add(trackFormat.trackId);
-//            mTrackFormats.add(MediaFormatUtil.createMediaFormat(trackFormat.format));
+            mTrackFormats.add(MediaFormatUtil.createMediaFormat(trackFormat.format));
         }
         mSampleBuffer =
                 mRecordingSampleBufferFactory.create(
