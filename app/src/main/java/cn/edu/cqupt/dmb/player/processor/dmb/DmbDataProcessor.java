@@ -7,8 +7,7 @@ import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
-import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
-import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
+import cn.edu.cqupt.dmb.player.decoder.AbstractDmbDecoder;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
@@ -28,18 +27,14 @@ public class DmbDataProcessor implements DataProcessing {
 
 
     /**
-     * 图片的输出流
+     * USB 数据输出流
      */
-    private static final PipedOutputStream tpegPipedOutputStream = new PipedOutputStream();
-    /**
-     * 视频的输出流
-     */
-    private static final PipedOutputStream mpegTsPipedOutputStream = new PipedOutputStream();
+    private static final PipedOutputStream pipedOutputStream = new PipedOutputStream();
 
     static {
         try {
-            tpegPipedOutputStream.connect(TpegDecoder.getPipedInputStream());
-            mpegTsPipedOutputStream.connect(MpegTsDecoder.getPipedInputStream());
+            // 直接获取抽象解码器的 pip 输出流
+            pipedOutputStream.connect(AbstractDmbDecoder.getPipedInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -52,12 +47,14 @@ public class DmbDataProcessor implements DataProcessing {
         PipedOutputStream activeModulePip = getActiveModulePip();
         try {
             if (activeModulePip == null) {
+                // 如果现在没有活跃的使用场景,就直接抛弃当前接收到的数据并返回
                 return;
             }
             activeModulePip.write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
             if (!DataReadWriteUtil.initFlag) {
                 DataReadWriteUtil.initFlag = true;
             }
+            // 写完 flush 一下
             activeModulePip.flush();
         } catch (IOException e) {
             Log.e(TAG, "处理 DMB 数据出错啦!---" + e);
@@ -80,18 +77,7 @@ public class DmbDataProcessor implements DataProcessing {
             // 如果当前还没有设置活跃模块,就直接返回一个空对象
             return null;
         }
-        if (frequencyModule.getModuleName().equals(FrequencyModule.OUTDOOR_SCREEN_VIDEO.getModuleName())) {
-            // 如果当前的活跃场景是视频,就返回视频的 pip 输出流
-            return mpegTsPipedOutputStream;
-        }
-        if (frequencyModule.getModuleName().equals(FrequencyModule.OUTDOOR_SCREEN_TPEG.getModuleName())) {
-            return tpegPipedOutputStream;
-        }
-        if (frequencyModule.getModuleName().startsWith("CURRICULUM")) {
-            // 如果当前活跃的场景是课表,就返回图片的 pip 输出流
-            return tpegPipedOutputStream;
-        }
         // TODO 其余类型的 pip 输出流
-        return null;
+        return pipedOutputStream;
     }
 }

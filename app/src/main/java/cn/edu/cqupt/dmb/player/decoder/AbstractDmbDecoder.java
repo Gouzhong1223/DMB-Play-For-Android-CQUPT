@@ -36,4 +36,13 @@ public abstract class AbstractDmbDecoder implements Runnable {
     public AbstractDmbDecoder(DmbListener dmbListener) {
         this.dmbListener = dmbListener;
     }
+
+    /**
+     * 获取 pip 输入流
+     *
+     * @return PipedInputStream
+     */
+    public static PipedInputStream getPipedInputStream() {
+        return pipedInputStream;
+    }
 }
