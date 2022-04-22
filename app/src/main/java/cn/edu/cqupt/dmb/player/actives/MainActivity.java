@@ -64,23 +64,25 @@ public class MainActivity extends Activity {
         initView();
         // 初始化 DMB 的常量,设备号还有频点
         initDmbConstants();
-        firstInitMainActivity();
+        firstInitMainActivity(this);
     }
 
-    private void firstInitMainActivity() {
-        // 如果已经注册过一遍 USB 广播接收器就直接跳过了
-        if (!DataReadWriteUtil.isFirstInitMainActivity) {
-            return;
-        }
-        // 初始化USB设备过滤器
-        IntentFilter intentFilter = initIntentFilter();
-        // 注册广播
-        dmbBroadcastReceiver = DmbBroadcastReceiver.getInstance(this, new MainHandler(Looper.getMainLooper()));
-        registerReceiver(dmbBroadcastReceiver, intentFilter);
-        if (!DataReadWriteUtil.USB_READY) {
-            dmbBroadcastReceiver.tryConnectUsbDeviceAndLoadUsbData();
-        }
-        DataReadWriteUtil.isFirstInitMainActivity = false;
+    private void firstInitMainActivity(Context context) {
+        new Thread(() -> {
+            // 如果已经注册过一遍 USB 广播接收器就直接跳过了
+            if (!DataReadWriteUtil.isFirstInitMainActivity) {
+                return;
+            }
+            // 初始化USB设备过滤器
+            IntentFilter intentFilter = initIntentFilter();
+            // 注册广播
+            dmbBroadcastReceiver = DmbBroadcastReceiver.getInstance(context, new MainHandler(Looper.getMainLooper()));
+            registerReceiver(dmbBroadcastReceiver, intentFilter);
+            if (!DataReadWriteUtil.USB_READY) {
+                dmbBroadcastReceiver.tryConnectUsbDeviceAndLoadUsbData();
+            }
+            DataReadWriteUtil.isFirstInitMainActivity = false;
+        }).start();
     }
 
     /**
