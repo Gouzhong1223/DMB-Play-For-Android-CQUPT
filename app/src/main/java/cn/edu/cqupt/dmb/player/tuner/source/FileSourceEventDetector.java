@@ -45,7 +45,7 @@ import cn.edu.cqupt.dmb.player.tuner.ts.TsParser;
 public class FileSourceEventDetector {
     public static final int ALL_PROGRAM_NUMBERS = 0;
     private static final String TAG = "FileSourceEventDetector";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private final Set<Integer> mVctProgramNumberSet = new HashSet<>();
     private final Set<Integer> mSdtProgramNumberSet = new HashSet<>();
     private final SparseArray<TunerChannel> mChannelMap = new SparseArray<>();
@@ -171,6 +171,7 @@ public class FileSourceEventDetector {
                         mVctProgramNumberSet.add(channelProgramNumber);
                     }
                     if (mEventListener != null) {
+                        Log.i(TAG, "onVctItemParsed: ");
                         mEventListener.onChannelDetected(tunerChannel, !found);
                     }
                 }

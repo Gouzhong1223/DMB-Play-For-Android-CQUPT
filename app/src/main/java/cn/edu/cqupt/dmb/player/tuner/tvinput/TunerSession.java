@@ -16,13 +16,11 @@
 
 package cn.edu.cqupt.dmb.player.tuner.tvinput;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.PlaybackParams;
 import android.media.tv.TvContentRating;
 import android.media.tv.TvInputManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -155,7 +153,6 @@ public class TunerSession extends TisSessionCompat implements CommonPreferencesC
         return true;
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
     @Override
     public void onTimeShiftPlay(Uri recordUri) {
         if (recordUri == null) {

@@ -23,10 +23,13 @@
         <entry key="app/src/main/res/layout/activity_carousel.xml" value="0.20364583333333333" />
         <entry key="app/src/main/res/layout/activity_curriculum.xml" value="0.17039106145251395" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.335" />
+        <entry key="app/src/main/res/layout/activity_main2.xml" value="0.22134038800705466" />
+        <entry key="app/src/main/res/layout/activity_mpeg_ts.xml" value="0.22134038800705466" />
         <entry key="app/src/main/res/layout/activity_setting_main.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_setup.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_sushe.xml" value="0.22134038800705466" />
         <entry key="app/src/main/res/layout/activity_video.xml" value="0.14270833333333333" />
+        <entry key="app/src/main/res/layout/content_mpeg_ts.xml" value="0.22134038800705466" />
         <entry key="app/src/main/res/layout/fragment_setup_multi_pane.xml" value="0.1" />
         <entry key="app/src/main/res/layout/guided_action_editable.xml" value="0.22134038800705466" />
         <entry key="app/src/main/res/layout/ut_channel_list.xml" value="0.22134038800705466" />

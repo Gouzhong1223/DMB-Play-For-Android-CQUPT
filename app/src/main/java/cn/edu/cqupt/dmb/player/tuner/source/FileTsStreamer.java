@@ -16,6 +16,7 @@
 
 package cn.edu.cqupt.dmb.player.tuner.source;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
@@ -104,7 +105,8 @@ public class FileTsStreamer implements TsStreamer {
 
     @Override
     public boolean startStream(ScanChannel channel) {
-        String filepath = new File(FILE_DIR, channel.filename).getAbsolutePath();
+//        String filepath = new File(FILE_DIR, channel.filename).getAbsolutePath();
+        @SuppressLint("SdCardPath") String filepath = "/sdcard/video/霍元甲.ts";
         mSource = new StreamProvider(filepath);
         if (!mSource.isReady()) {
             return false;
@@ -445,7 +447,7 @@ public class FileTsStreamer implements TsStreamer {
     /**
      * A thread managing a circular buffer that holds stream data to be consumed by player. Keeps
      * reading data in from a {@link StreamProvider} to hold enough amount for buffering. Started
-     * and stopped by {@link #startStream()} and {@link #stopStream()}, respectively.
+     * and stopped by {@link #startStream(ScanChannel)} ()} and {@link #stopStream()}, respectively.
      */
     private class StreamingThread extends Thread {
         @Override

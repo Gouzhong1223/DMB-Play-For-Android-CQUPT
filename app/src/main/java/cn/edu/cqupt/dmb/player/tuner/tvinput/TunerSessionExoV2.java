@@ -143,7 +143,7 @@ public class TunerSessionExoV2 extends TisSessionCompat
     @Override
     public boolean onTune(Uri channelUri) {
         if (DEBUG) {
-            Log.d(TAG, "onTune to " + channelUri != null ? channelUri.toString() : "");
+            Log.d(TAG, channelUri.toString());
         }
         if (channelUri == null) {
             Log.w(TAG, "onTune() is failed due to null channelUri.");

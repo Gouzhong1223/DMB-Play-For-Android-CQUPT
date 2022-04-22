@@ -166,16 +166,16 @@ public class MainActivity extends Activity {
     @SuppressLint("NonConstantResourceId")
     public void onclick(View view) {
         // 设置按钮不收到 USB 影响
-        if (!DataReadWriteUtil.USB_READY && view.getId() != R.id.setting) {
-            // 如果当前USB设备没有准备好是不允许点击按钮的
-            new AlertDialog.Builder(
-                    this)
-                    .setTitle("缺少DMB设备")
-                    .setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!")
-                    .setPositiveButton("确定", null)
-                    .show();
-            return;
-        }
+//        if (!DataReadWriteUtil.USB_READY && view.getId() != R.id.setting) {
+//            // 如果当前USB设备没有准备好是不允许点击按钮的
+//            new AlertDialog.Builder(
+//                    this)
+//                    .setTitle("缺少DMB设备")
+//                    .setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!")
+//                    .setPositiveButton("确定", null)
+//                    .show();
+//            return;
+//        }
         if (DataReadWriteUtil.getDefaultFrequencyModule(this) == null && view.getId() != R.id.setting) {
             // 如果当前还没有设置默认的工作模块,就提醒用户进行设置
             new AlertDialog.Builder(
@@ -228,7 +228,7 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 break;
             case R.id.video:
-                intent.setClass(this, VideoActivity.class);
+                intent.setClass(this, MainActivity2.class);
                 startActivity(intent);
                 break;
         }

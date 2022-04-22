@@ -115,12 +115,7 @@ public class ScanFragment extends SetupFragment {
         mChannelHolder = view.findViewById(R.id.channel_holder);
         mCancelButton = (Button) view.findViewById(R.id.tune_cancel);
         mCancelButton.setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        finishScan(false);
-                    }
-                });
+                v -> finishScan(false));
         Bundle args = getArguments();
         int tunerType = (args == null ? 0 : args.getInt(BaseTunerSetupActivity.KEY_TUNER_TYPE, 0));
         TextView scanTitleView = (TextView) view.findViewById(R.id.tune_title);

@@ -131,13 +131,13 @@
     <string name="ut_stop_channel_scan">STOP CHANNEL SCAN</string>
 
     <!-- Title for lineup selection menu when TV lineups are found -->
-    <string name="ut_lineup_title_lineups_found" >Select a TV lineup</string>
+    <string name="ut_lineup_title_lineups_found">Select a TV lineup</string>
     <!-- Description for lineup selection menu when TV lineups are found.-->
-    <string name="ut_lineup_description_lineups_found" >Choose how you receive your TV signal.</string>
+    <string name="ut_lineup_description_lineups_found">Choose how you receive your TV signal.</string>
     <!-- Title for lineup selection menu when no TV lineups is found -->
-    <string name="ut_lineup_title_lineups_not_found" >No TV lineups found</string>
+    <string name="ut_lineup_title_lineups_not_found">No TV lineups found</string>
     <!-- Description for lineup selection menu when no TV lineups is found -->
-    <string name="ut_lineup_description_lineups_not_found" >Please make sure your device is connected to the internet and the zip code / postal code is correct.</string>
+    <string name="ut_lineup_description_lineups_not_found">Please make sure your device is connected to the internet and the zip code / postal code is correct.</string>
     <!-- Title for lineup selection menu when fetching lineups -->
     <string name="ut_lineup_title_fetching_lineups">Fetching TV lineups…</string>
     <!-- Description for lineup selection menu when fetching lineups -->
@@ -190,7 +190,7 @@
 
     <!-- Notification of USB channel tuner setup strings. -->
     <!-- Name of notification channel which is for tuner setup. "USB Tuner" is a TV Tuner that is connected via a USB connection.-->
-    <string name="ut_setup_notification_channel_name" >USB Tuner setup</string>
+    <string name="ut_setup_notification_channel_name">USB Tuner setup</string>
     <!-- Content title of the notification to launch the setup application of
          USB tuner TV input for scanning channels. -->
     <string name="ut_setup_notification_content_title">Scan for TV channels</string>

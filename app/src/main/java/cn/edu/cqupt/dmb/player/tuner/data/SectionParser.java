@@ -16,6 +16,7 @@
 
 package cn.edu.cqupt.dmb.player.tuner.data;
 
+import android.annotation.SuppressLint;
 import android.media.tv.TvContentRating;
 import android.media.tv.TvContract.Programs.Genres;
 import android.text.TextUtils;
@@ -892,6 +893,7 @@ public class SectionParser {
         return null;
     }
 
+    @SuppressLint("WrongConstant")
     private static String generateCanonicalGenre(List<TsDescriptor> descriptors) {
         for (TsDescriptor descriptor : descriptors) {
             if (descriptor instanceof GenreDescriptor) {
@@ -1565,6 +1567,7 @@ public class SectionParser {
 
         // The currentNextIndicator indicates that the section sent is currently applicable.
         if (!section.getCurrentNextIndicator()) {
+            Log.i(TAG, "parseSection: section.getCurrentNextIndicator()==false");
             return;
         }
         int versionNumber = (data[5] & 0x3e) >> 1;
@@ -1573,6 +1576,7 @@ public class SectionParser {
         // The versionNumber shall be incremented when a change in the information carried within
         // the section occurs.
         if (oldVersionNumber != null && versionNumber == oldVersionNumber) {
+            Log.i(TAG, "parseSection: oldVersionNumber == null || versionNumber != oldVersionNumber");
             return;
         }
         boolean result = false;
@@ -1651,7 +1655,7 @@ public class SectionParser {
             Log.d(TAG, "PMT descriptors size: " + descriptors.size());
         }
         List<PmtItem> results = new ArrayList<>();
-        for (; pos < data.length - 4; ) {
+        while (pos < data.length - 4) {
             if (pos < 0) {
                 Log.e(TAG, "Broken PMT.");
                 return false;

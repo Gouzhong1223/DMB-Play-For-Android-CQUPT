@@ -17,6 +17,7 @@
 package cn.edu.cqupt.dmb.player.tuner.features;
 
 import static cn.edu.cqupt.dmb.player.common.feature.FeatureUtils.OFF;
+import static cn.edu.cqupt.dmb.player.common.feature.FeatureUtils.ON;
 
 import cn.edu.cqupt.dmb.player.common.feature.CommonFeatures;
 import cn.edu.cqupt.dmb.player.common.feature.DeveloperPreferenceFeature;
@@ -56,7 +57,7 @@ public class TunerFeatures extends CommonFeatures {
     /**
      * Enable Dvb parsers and listeners.
      */
-    public static final Feature ENABLE_FILE_DVB = OFF;
+    public static final Feature ENABLE_FILE_DVB = ON;
 
     private TunerFeatures() {
     }

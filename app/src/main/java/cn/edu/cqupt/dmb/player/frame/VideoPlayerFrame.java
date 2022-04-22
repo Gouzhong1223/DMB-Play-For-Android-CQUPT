@@ -11,7 +11,9 @@ import android.widget.FrameLayout;
 
 import java.io.IOException;
 
+import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.listener.VideoPlayerListener;
+import tv.danmaku.ijk.media.exo.IjkExoMediaPlayer;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
@@ -276,6 +278,7 @@ public class VideoPlayerFrame extends FrameLayout {
         ijkMediaPlayer.setVolume(1.0f, 1.0f);
         // 是否打开硬编码
         boolean enableMediaCodec = true;
+        Log.i(TAG, "createPlayer: 开启硬解码");
         setEnableMediaCodec(ijkMediaPlayer, enableMediaCodec);
         return ijkMediaPlayer;
     }
