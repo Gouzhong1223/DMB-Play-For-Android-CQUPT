@@ -40,11 +40,6 @@ public class TpegDecoder extends AbstractDmbDecoder {
         super(listener);
     }
 
-    public static PipedInputStream getPipedInputStream() {
-        Log.i(TAG, "有线程正在获取TPEG的pipedInputStream");
-        return pipedInputStream;
-    }
-
     @Override
     public void run() {
         int total = 0;
