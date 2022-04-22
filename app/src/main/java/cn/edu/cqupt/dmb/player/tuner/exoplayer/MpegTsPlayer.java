@@ -89,6 +89,7 @@ public class MpegTsPlayer
     private VideoEventListener mVideoEventListener;
     private boolean mTrickplayRunning;
     private float mVolume;
+
     /**
      * Creates MPEG2-TS stream player.
      *

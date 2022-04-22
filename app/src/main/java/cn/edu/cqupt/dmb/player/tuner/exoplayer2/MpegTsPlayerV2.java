@@ -81,6 +81,7 @@ public class MpegTsPlayerV2
     private TsDataSource mDataSource;
     private VideoEventListener mVideoEventListener;
     private boolean mCaptionsAvailable = false;
+
     /**
      * Creates MPEG2-TS stream player.
      *

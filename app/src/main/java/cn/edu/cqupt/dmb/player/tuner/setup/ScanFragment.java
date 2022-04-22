@@ -28,7 +28,6 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -103,22 +102,22 @@ public class ScanFragment extends SetupFragment {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         mChannelNumbers = new ArrayList<>();
         mAdapter = new ChannelAdapter();
-        mProgressBar = (ProgressBar) view.findViewById(R.id.tune_progress);
-        mScanningMessage = (TextView) view.findViewById(R.id.tune_description);
-        ListView channelList = (ListView) view.findViewById(R.id.channel_list);
+        mProgressBar = view.findViewById(R.id.tune_progress);
+        mScanningMessage = view.findViewById(R.id.tune_description);
+        ListView channelList = view.findViewById(R.id.channel_list);
         channelList.setAdapter(mAdapter);
         channelList.setOnItemClickListener(null);
-        ViewGroup progressHolder = (ViewGroup) view.findViewById(R.id.progress_holder);
+        ViewGroup progressHolder = view.findViewById(R.id.progress_holder);
         LayoutTransition transition = new LayoutTransition();
         transition.enableTransitionType(LayoutTransition.CHANGING);
         progressHolder.setLayoutTransition(transition);
         mChannelHolder = view.findViewById(R.id.channel_holder);
-        mCancelButton = (Button) view.findViewById(R.id.tune_cancel);
+        mCancelButton = view.findViewById(R.id.tune_cancel);
         mCancelButton.setOnClickListener(
                 v -> finishScan(false));
         Bundle args = getArguments();
         int tunerType = (args == null ? 0 : args.getInt(BaseTunerSetupActivity.KEY_TUNER_TYPE, 0));
-        TextView scanTitleView = (TextView) view.findViewById(R.id.tune_title);
+        TextView scanTitleView = view.findViewById(R.id.tune_title);
         switch (tunerType) {
             case Tuner.TUNER_TYPE_USB:
                 scanTitleView.setText(R.string.ut_channel_scan);
@@ -253,10 +252,10 @@ public class ScanFragment extends SetupFragment {
                 convertView = inflater.inflate(R.layout.ut_channel_list, parent, false);
             }
 
-            TextView channelNum = (TextView) convertView.findViewById(R.id.channel_num);
+            TextView channelNum = convertView.findViewById(R.id.channel_num);
             channelNum.setText(mChannels.get(position).getDisplayNumber());
 
-            TextView channelName = (TextView) convertView.findViewById(R.id.channel_name);
+            TextView channelName = convertView.findViewById(R.id.channel_name);
             channelName.setText(mChannels.get(position).getName());
             return convertView;
         }

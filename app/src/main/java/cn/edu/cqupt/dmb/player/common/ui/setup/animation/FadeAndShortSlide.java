@@ -87,6 +87,7 @@ public class FadeAndShortSlide extends Visibility {
     private CalculateSlide mSlideCalculator = sCalculateEnd;
     private Visibility mFade = new Fade();
     private int mDistance = DEFAULT_DISTANCE;
+
     public FadeAndShortSlide() {
         this(Gravity.START);
     }

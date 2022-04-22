@@ -113,6 +113,7 @@ public class MpegTsDefaultAudioTrackRenderer extends TrackRenderer implements Me
     private boolean mEnabled = true;
     private boolean mIsMuted;
     private boolean mUseFrameworkDecoder;
+
     public MpegTsDefaultAudioTrackRenderer(
             SampleSource source,
             MediaCodecSelector selector,

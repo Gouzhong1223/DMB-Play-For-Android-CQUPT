@@ -85,6 +85,7 @@ public class CustomizationManager {
     private boolean mInitialized;
 
     private String mPartnerRowTitle;
+
     public CustomizationManager(Context context) {
         mContext = context;
         mInitialized = false;

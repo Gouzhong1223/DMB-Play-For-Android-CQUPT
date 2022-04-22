@@ -163,6 +163,7 @@ public class TunerRecordingSessionWorkerExoV2
     private PsipData.EitItem mCurrenProgram;
     private List<AtscCaptionTrack> mCaptionTracks;
     private DvrStorageManager mDvrStorageManager;
+
     @AutoFactory(implementing = Factory.class)
     public TunerRecordingSessionWorkerExoV2(
             Context context,

@@ -103,7 +103,7 @@ public abstract class SetupGuidedStepFragment extends GuidedStepFragment {
         // Needed for the shared element transition.
         // content_frame is defined in leanback.
         ViewGroup group =
-                (ViewGroup) view.findViewById(androidx.leanback.R.id.content_frame);
+                view.findViewById(androidx.leanback.R.id.content_frame);
         group.setClipChildren(false);
         group.setClipToPadding(false);
         return view;

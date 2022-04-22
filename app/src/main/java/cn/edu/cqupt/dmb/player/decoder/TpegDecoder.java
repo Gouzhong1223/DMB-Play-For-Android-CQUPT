@@ -4,7 +4,6 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
 import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;

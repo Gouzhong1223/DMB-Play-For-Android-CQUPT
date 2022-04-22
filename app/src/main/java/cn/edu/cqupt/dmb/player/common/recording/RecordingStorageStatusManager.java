@@ -79,6 +79,7 @@ public class RecordingStorageStatusManager {
             new CopyOnWriteArraySet<>();
     private MountedStorageStatus mMountedStorageStatus;
     private boolean mStorageValid;
+
     /**
      * Creates RecordingStorageStatusManager.
      *

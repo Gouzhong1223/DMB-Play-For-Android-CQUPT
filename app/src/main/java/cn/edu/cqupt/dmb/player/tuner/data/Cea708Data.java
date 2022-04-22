@@ -107,6 +107,7 @@ public class Cea708Data {
     public static final int CODE_C1_DF5 = 0x9d;
     public static final int CODE_C1_DF6 = 0x9e;
     public static final int CODE_C1_DF7 = 0x9f;
+
     private Cea708Data() {
     }
 

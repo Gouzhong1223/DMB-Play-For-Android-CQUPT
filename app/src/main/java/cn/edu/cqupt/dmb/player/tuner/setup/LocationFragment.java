@@ -84,19 +84,7 @@ public class LocationFragment extends SetupMultiPaneFragment {
             String title = getString(R.string.location_guidance_title);
             String description = getString(R.string.location_guidance_description);
             return new Guidance(title, description, getString(R.string.ut_setup_breadcrumb), null);
-        }        private final Runnable mTimeoutRunnable =
-                () -> {
-                    synchronized (mPostalCodeLock) {
-                        if (DEBUG) {
-                            Log.d(TAG, "get location timeout. mPostalCode=" + mPostalCode);
-                        }
-                        if (mPostalCode == null) {
-                            // timeout. setup activity will get null postal code
-                            LocationUtils.removeOnUpdateAddressListener(this);
-                            passPostalCode();
-                        }
-                    }
-                };
+        }
 
         @Override
         public void onCreateActions(
@@ -122,7 +110,19 @@ public class LocationFragment extends SetupMultiPaneFragment {
                             .title(getString(R.string.location_choices_getting_location))
                             .focusable(false)
                             .build());
-        }
+        }        private final Runnable mTimeoutRunnable =
+                () -> {
+                    synchronized (mPostalCodeLock) {
+                        if (DEBUG) {
+                            Log.d(TAG, "get location timeout. mPostalCode=" + mPostalCode);
+                        }
+                        if (mPostalCode == null) {
+                            // timeout. setup activity will get null postal code
+                            LocationUtils.removeOnUpdateAddressListener(this);
+                            passPostalCode();
+                        }
+                    }
+                };
 
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
@@ -230,6 +230,8 @@ public class LocationFragment extends SetupMultiPaneFragment {
                         this, ACTION_CATEGORY, ACTION_ALLOW_PERMISSION, params);
             }
         }
+
+
 
 
     }

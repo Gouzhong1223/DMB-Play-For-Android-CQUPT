@@ -39,15 +39,10 @@ import cn.edu.cqupt.dmb.player.tuner.ts.TsParser;
 
 public class MainActivity2 extends Activity {
 
-    private static final String TAG = "MainActivity2";
-
-    private VideoPlayerFrame videoPlayerFrame = null;
-
-    private static final boolean DEBUG = false;
     public static final int ALL_PROGRAM_NUMBERS = -1;
-    private TsParser mTsParser;
+    private static final String TAG = "MainActivity2";
+    private static final boolean DEBUG = false;
     private final Set<Integer> mPidSet = new HashSet<>();
-
     // To prevent channel duplication
     private final Set<Integer> mVctProgramNumberSet = new HashSet<>();
     private final Set<Integer> mSdtProgramNumberSet = new HashSet<>();
@@ -55,107 +50,14 @@ public class MainActivity2 extends Activity {
     private final SparseBooleanArray mVctCaptionTracksFound = new SparseBooleanArray();
     private final SparseBooleanArray mEitCaptionTracksFound = new SparseBooleanArray();
     private final List<EventListener> mEventListeners = new ArrayList<>();
-    private DeliverySystemType mDeliverySystemType = DeliverySystemType.DELIVERY_SYSTEM_UNDEFINED;
-    private int mProgramNumber = ALL_PROGRAM_NUMBERS;
+    private VideoPlayerFrame videoPlayerFrame = null;
+    private TsParser mTsParser;
+    private final DeliverySystemType mDeliverySystemType = DeliverySystemType.DELIVERY_SYSTEM_UNDEFINED;
+    private final int mProgramNumber = ALL_PROGRAM_NUMBERS;
 
     private Tuner mTunerHal;
     private int mFrequency;
     private String mModulation;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // 强制全屏,全的不能再全的那种了
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_main2);
-        videoPlayerFrame = findViewById(R.id.main_2);
-        videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
-
-        init();
-    }
-
-    private void init() {
-        SimpleExoPlayer simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this);
-        PipedInputStream pipedInputStream = new PipedInputStream(188 * 10);
-        PipedOutputStream pipedOutputStream = new PipedOutputStream();
-        try {
-            pipedOutputStream.connect(pipedInputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        BufferedInputStream bufferedInputStream = new BufferedInputStream(pipedInputStream);
-        new Thread(() -> {
-            try {
-                @SuppressLint("SdCardPath") FileInputStream fileInputStream = new FileInputStream("/sdcard/video/霍元甲_720P_60P_H265-encode.ts");
-                byte[] bytes = new byte[188 * 10];
-
-                Log.i(TAG, "init: 开始从 USB中读取数据");
-                TsParser tsParser = getTsParser();
-                ArrayList<byte[]> arrayList = new ArrayList<>();
-                int cnt = 0;
-                while (fileInputStream.read(bytes) > 0) {
-//                    if (cnt == 1) {
-//                        for (int i = 0; i < cnt; i++) {
-//                            pipedOutputStream.write(arrayList.get(i));
-//                        }
-//                        pipedOutputStream.flush();
-//                        cnt = 0;
-//                        arrayList.clear();
-//                    }
-//                    cnt++;
-//                    arrayList.add(bytes);
-                    pipedOutputStream.write(bytes);
-                    pipedOutputStream.flush();
-//                    tsParser.feedTSData(bytes, 0, bytes.length);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        Log.i(TAG, "init: 设置自定义数据源");
-        videoPlayerFrame.setDataSource(new DmbMediaDataSource(bufferedInputStream));
-        try {
-            Log.i(TAG, "init: 加载数据源");
-            videoPlayerFrame.load();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private TsParser getTsParser() {
-        return new TsParser(mTsOutputListener, true);
-    }
-
-
-    /**
-     * Listener for detecting ATSC TV channels and receiving EPG data.
-     */
-    public interface EventListener extends ChannelScanListener {
-
-        /**
-         * Fired when new program events of an ATSC TV channel arrived.
-         *
-         * @param channel an ATSC TV channel
-         * @param items   a list of EIT items that were received
-         */
-        void onEventDetected(TunerChannel channel, List<EitItem> items);
-
-        /**
-         * Fired when information of all detectable ATSC TV channels in current frequency arrived.
-         */
-        void onChannelScanDone();
-    }
-
-    private void startListening(int pid) {
-        if (mPidSet.contains(pid)) {
-            return;
-        }
-        mPidSet.add(pid);
-        mTunerHal.addPidFilter(pid, Tuner.FILTER_TYPE_OTHER);
-    }
-
     private final TsParser.TsOutputListener mTsOutputListener =
             new TsParser.TsOutputListener() {
                 @Override
@@ -326,5 +228,98 @@ public class MainActivity2 extends Activity {
                     }
                 }
             };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // 强制全屏,全的不能再全的那种了
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(R.layout.activity_main2);
+        videoPlayerFrame = findViewById(R.id.main_2);
+        videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
+
+        init();
+    }
+
+    private void init() {
+        SimpleExoPlayer simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(this);
+        PipedInputStream pipedInputStream = new PipedInputStream(188 * 10);
+        PipedOutputStream pipedOutputStream = new PipedOutputStream();
+        try {
+            pipedOutputStream.connect(pipedInputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(pipedInputStream);
+        new Thread(() -> {
+            try {
+                @SuppressLint("SdCardPath") FileInputStream fileInputStream = new FileInputStream("/sdcard/video/霍元甲_720P_60P_H265-encode.ts");
+                byte[] bytes = new byte[188 * 10];
+
+                Log.i(TAG, "init: 开始从 USB中读取数据");
+                TsParser tsParser = getTsParser();
+                ArrayList<byte[]> arrayList = new ArrayList<>();
+                int cnt = 0;
+                while (fileInputStream.read(bytes) > 0) {
+//                    if (cnt == 1) {
+//                        for (int i = 0; i < cnt; i++) {
+//                            pipedOutputStream.write(arrayList.get(i));
+//                        }
+//                        pipedOutputStream.flush();
+//                        cnt = 0;
+//                        arrayList.clear();
+//                    }
+//                    cnt++;
+//                    arrayList.add(bytes);
+                    pipedOutputStream.write(bytes);
+                    pipedOutputStream.flush();
+//                    tsParser.feedTSData(bytes, 0, bytes.length);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+        Log.i(TAG, "init: 设置自定义数据源");
+        videoPlayerFrame.setDataSource(new DmbMediaDataSource(bufferedInputStream));
+        try {
+            Log.i(TAG, "init: 加载数据源");
+            videoPlayerFrame.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private TsParser getTsParser() {
+        return new TsParser(mTsOutputListener, true);
+    }
+
+    private void startListening(int pid) {
+        if (mPidSet.contains(pid)) {
+            return;
+        }
+        mPidSet.add(pid);
+        mTunerHal.addPidFilter(pid, Tuner.FILTER_TYPE_OTHER);
+    }
+
+    /**
+     * Listener for detecting ATSC TV channels and receiving EPG data.
+     */
+    public interface EventListener extends ChannelScanListener {
+
+        /**
+         * Fired when new program events of an ATSC TV channel arrived.
+         *
+         * @param channel an ATSC TV channel
+         * @param items   a list of EIT items that were received
+         */
+        void onEventDetected(TunerChannel channel, List<EitItem> items);
+
+        /**
+         * Fired when information of all detectable ATSC TV channels in current frequency arrived.
+         */
+        void onChannelScanDone();
+    }
 
 }

@@ -16,7 +16,6 @@
 
 package cn.edu.cqupt.dmb.player.tuner.features;
 
-import static cn.edu.cqupt.dmb.player.common.feature.FeatureUtils.OFF;
 import static cn.edu.cqupt.dmb.player.common.feature.FeatureUtils.ON;
 
 import cn.edu.cqupt.dmb.player.common.feature.CommonFeatures;

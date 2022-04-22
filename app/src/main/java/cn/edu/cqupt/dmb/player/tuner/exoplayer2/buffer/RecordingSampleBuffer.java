@@ -96,6 +96,7 @@ public class RecordingSampleBuffer
                 }
             };
     private SampleChunkIoHelper mSampleChunkIoHelper;
+
     /**
      * Creates {@link BufferManager.SampleBuffer} with cached I/O backed by physical storage (e.g.
      * trickplay,recording,recorded-playback).
