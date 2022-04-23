@@ -63,10 +63,15 @@ public class MainActivity extends Activity {
         // 初始化组件
         initView();
         // 初始化 DMB 的常量,设备号还有频点
-        initDmbConstants();
+        initDefaultFrequencyModule();
         firstInitMainActivity(this);
     }
 
+    /**
+     * 尝试初始化 USB 设备
+     *
+     * @param context ctx
+     */
     private void firstInitMainActivity(Context context) {
         new Thread(() -> {
             // 如果已经注册过一遍 USB 广播接收器就直接跳过了
@@ -86,11 +91,11 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * 初始化 DMB 的一些常量
+     * 初始化默认的使用场景
      */
-    private void initDmbConstants() {
+    private void initDefaultFrequencyModule() {
         // 从sharedPreferences中获取默认模块的序号,序号的范围是 1-9
-        int serialNumber = DmbUtil.getInt(this, "defaultFrequencyModule", 20);
+        int serialNumber = DmbUtil.getInt(this, DmbPlayerConstant.DEFAULT_FREQUENCY_MODULE_KEY.getDmbConstantName(), 20);
         if (serialNumber == 20) {
             // 如果获取到的序号是 20,说明没有设置默认模块
             Intent intent = new Intent();
