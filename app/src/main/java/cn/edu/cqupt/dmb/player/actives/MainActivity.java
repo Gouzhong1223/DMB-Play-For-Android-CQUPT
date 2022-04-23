@@ -64,7 +64,9 @@ public class MainActivity extends Activity {
         initView();
         // 初始化 DMB 的常量,设备号还有频点
         initDefaultFrequencyModule();
-        firstInitMainActivity(this);
+        MainHandler mainHandler = new MainHandler(Looper.getMainLooper());
+        // 之所以在这里传进去是因为尽量吧跳转 Activity 的工作留在主线程
+        firstInitMainActivity(this, mainHandler);
     }
 
     /**
@@ -72,7 +74,7 @@ public class MainActivity extends Activity {
      *
      * @param context ctx
      */
-    private void firstInitMainActivity(Context context) {
+    private void firstInitMainActivity(Context context, Handler handler) {
         new Thread(() -> {
             // 如果已经注册过一遍 USB 广播接收器就直接跳过了
             if (!DataReadWriteUtil.isFirstInitMainActivity) {
@@ -81,7 +83,7 @@ public class MainActivity extends Activity {
             // 初始化USB设备过滤器
             IntentFilter intentFilter = initIntentFilter();
             // 注册广播
-            dmbBroadcastReceiver = DmbBroadcastReceiver.getInstance(context, new MainHandler(Looper.getMainLooper()));
+            dmbBroadcastReceiver = DmbBroadcastReceiver.getInstance(context, handler);
             registerReceiver(dmbBroadcastReceiver, intentFilter);
             if (!DataReadWriteUtil.USB_READY) {
                 dmbBroadcastReceiver.tryConnectUsbDeviceAndLoadUsbData();
