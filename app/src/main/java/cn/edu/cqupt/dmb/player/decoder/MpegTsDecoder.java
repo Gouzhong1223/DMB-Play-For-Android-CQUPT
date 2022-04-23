@@ -7,13 +7,11 @@ import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.decoder.interleaver.InterleaverDecoder;
-import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.listener.DmbMpegListener;
+import cn.edu.cqupt.dmb.player.utils.ConvertUtils;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
@@ -29,13 +27,12 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  */
 public class MpegTsDecoder extends AbstractDmbDecoder {
 
-    private static final Integer tsBuf_204 = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_ENCODE.getDmbConstantValue();
-    private static final Integer tsBuf_188 = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_DECODE.getDmbConstantValue();
-    private static final String TAG = "MpegTsDecoder";
     /**
-     * 解码器监听器
+     * 一个标准 MPEG-TS 包的的大小
      */
-    private final DmbMpegListener dmbListener;
+    private static final Integer TS_PACKET_188_SIZE = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_DECODE.getDmbConstantValue();
+    private static final String TAG = "MpegTsDecoder";
+    private static final boolean DEBUG = true;
 
     public MpegTsDecoder(DmbListener dmbListener) throws Exception {
         super(dmbListener);
@@ -43,11 +40,12 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
             // 如果监听器类型不对就直接抛异常!
             throw new Exception("错误的监听器类型!MPEG解码器构造只能接收DmbMpegListener类型的监听器!");
         }
-        this.dmbListener = (DmbMpegListener) dmbListener;
     }
 
     /**
-     * 从输入流中读取固定长度的数据,一次性读取204字节的数据
+     * 从输入流中读取固定长度的数据,一次性读取204字节的数据<br/>
+     * 20220422更新,由于现在的 DMB 发射机发射的视频是标准的 TS 流,所以现在不需要进行解交织,也不需要进行解 RS<br/>
+     * 现在的策略就是直接从 Buffer 里面读 188 字节的 MPEG-TS 包
      *
      * @param inputStream 输入流
      * @param bytes       接收数组
@@ -74,8 +72,8 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
             if (nRead <= 0) {
                 return false;
             }
-            /* 读取固定长度的字节 */
-            int nLeft = 200;
+            /* 读取固定长度的字节 -> 188*/
+            int nLeft = 184;
             int pos = 4;
             while (nLeft > 0) {
                 if ((nRead = inputStream.read(bytes, pos, nLeft)) <= 0) {
@@ -91,16 +89,9 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
         return true;
     }
 
-    public static PipedInputStream getPipedInputStream() {
-        Log.i(TAG, Thread.currentThread().getName() + "线程正在获取MPEG的PipedInputStream");
-        return pipedInputStream;
-    }
-
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     public void run() {
-//        new TsParser()
-        InterleaverDecoder interleaverDecoder = new InterleaverDecoder();
         while (true) {
             if (!DataReadWriteUtil.USB_READY) {
                 // 如果当前 USB 没有就绪,就直接结束当前线程
@@ -110,16 +101,13 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
                 // 如果目前还没有接收到 DMB 类型的数据,继续执行下一次任务
                 continue;
             }
-            byte[] enMpegTsPacket = new byte[tsBuf_204];
-            byte[] deMpegTsPacket = new byte[tsBuf_188];
-            if (readMpegTsPacket(bufferedInputStream, enMpegTsPacket)) {
-                // 读取到一个 MPEG-TS 包
-                byte[] deInterleaverBytes = new byte[tsBuf_204];
-                // 解交织
-                interleaverDecoder.deinterleaver(enMpegTsPacket, deInterleaverBytes);
-                // 对已经解交织的包进行 RS 解码
-                NativeMethod.mpegRsDecode(deInterleaverBytes, deMpegTsPacket);
-
+            byte[] mpegTsPacket = new byte[TS_PACKET_188_SIZE];
+            if (readMpegTsPacket(bufferedInputStream, mpegTsPacket)) {
+                // 读取成功之后直接调用监听器的 success 方法
+                if (DEBUG) {
+                    Log.i(TAG, "run: 接收到一个 MPEG-TS 包" + ConvertUtils.bytes2hex(mpegTsPacket));
+                }
+                dmbListener.onSuccess(null, mpegTsPacket, mpegTsPacket.length);
             }
         }
 
