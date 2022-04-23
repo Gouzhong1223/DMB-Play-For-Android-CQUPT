@@ -33,6 +33,7 @@ public enum DmbPlayerConstant {
     DEFAULT_MPEG_TS_PACKET_SIZE_ENCODE("DEFAULT_MPEG_TS_PACKET_SIZE_ENCODE", 204, "一个已解码的MPEG-TS包的大小"),
     DEFAULT_MPEG_TS_STREAM_SIZE_TIMES("DEFAULT_MPEG_TS_STREAM_SIZE_TIMES", 500, "MPEG-TS输出流的计量倍数"),
     MESSAGE_JUMP_DEFAULT_ACTIVITY("MESSAGE_JUMP_DEFAULT_ACTIVITY", 0x104, "跳转到默认场景的消息"),
+    DEFAULT_FREQUENCY_MODULE_KEY("defaultFrequencyModule", null, "默认的使用场景在本地存储中的 KEY"),
     ;
 
     private final String dmbConstantName;
