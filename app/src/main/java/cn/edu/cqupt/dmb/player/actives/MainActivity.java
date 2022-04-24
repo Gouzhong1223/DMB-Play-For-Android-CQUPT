@@ -37,6 +37,30 @@ public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private static final int WRITE_STORAGE_REQUEST_CODE = 100;
     /**
+     * 课表按钮布局组件
+     */
+    private FrameLayout curriculumFrameLayout;
+    /**
+     * 宿舍按钮布局组件
+     */
+    private FrameLayout dormitoryFrameLayout;
+    /**
+     * 视频按钮布局组件
+     */
+    private FrameLayout videoFrameLayout;
+    /**
+     * 轮播图按钮布局组件
+     */
+    private FrameLayout carouselFrameLayout;
+    /**
+     * 音频按钮布局组件
+     */
+    private FrameLayout audioFrameLayout;
+    /**
+     * 设置按钮布局组件
+     */
+    private FrameLayout settingFrameLayout;
+    /**
      * 跳转到默认场景的消息
      */
     private static final int MESSAGE_JUMP_DEFAULT_ACTIVITY = DmbPlayerConstant.MESSAGE_JUMP_DEFAULT_ACTIVITY.getDmbConstantValue();
@@ -144,12 +168,12 @@ public class MainActivity extends Activity {
                 view.setScaleY(1.0f);
             }
         };
-        FrameLayout curriculumFrameLayout = findViewById(R.id.curriculum);
-        FrameLayout dormitoryFrameLayout = findViewById(R.id.dormitory);
-        FrameLayout carouselFrameLayout = findViewById(R.id.carousel);
-        FrameLayout videoFrameLayout = findViewById(R.id.video);
-        FrameLayout audioFrameLayout = findViewById(R.id.audio);
-        FrameLayout settingFrameLayout = findViewById(R.id.setting);
+        curriculumFrameLayout = findViewById(R.id.curriculum);
+        dormitoryFrameLayout = findViewById(R.id.dormitory);
+        carouselFrameLayout = findViewById(R.id.carousel);
+        videoFrameLayout = findViewById(R.id.video);
+        audioFrameLayout = findViewById(R.id.audio);
+        settingFrameLayout = findViewById(R.id.setting);
         curriculumFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
         dormitoryFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
         carouselFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
