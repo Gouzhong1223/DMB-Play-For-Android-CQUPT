@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,6 +42,34 @@ public class DialogUtil {
             positiveButtons.forEach(e -> builder.setPositiveButton(e.getBtnText(), e.getListener()));
         }
         return builder;
+    }
+
+    public static AlertDialog.Builder generateDialog(Context context,
+                                                     String title,
+                                                     String message,
+                                                     PositiveButton... positiveButtons) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message);
+        if (positiveButtons.length != 0) {
+            for (PositiveButton positiveButton : positiveButtons) {
+                builder.setPositiveButton(positiveButton.getBtnText(), positiveButton.getListener());
+            }
+        }
+        return builder;
+    }
+
+    /**
+     * 获取按钮列表
+     *
+     * @param positiveButtons 按钮,可变数组
+     * @return List<PositiveButton>
+     */
+    public static List<PositiveButton> getPositiveButtonList(PositiveButton... positiveButtons) {
+        if (positiveButtons.length != 0) {
+            return new ArrayList<>(Arrays.asList(positiveButtons));
+        }
+        return null;
     }
 
     /**
