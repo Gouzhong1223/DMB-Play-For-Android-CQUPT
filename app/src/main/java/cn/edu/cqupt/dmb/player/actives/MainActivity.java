@@ -26,12 +26,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
+import cn.edu.cqupt.dmb.player.utils.DialogUtil;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
 public class MainActivity extends Activity {
@@ -42,7 +44,7 @@ public class MainActivity extends Activity {
     /**
      * 装载 FrameLayout 的容器
      */
-    private ArrayList<FrameLayout> frameLayouts = new ArrayList<>();
+    private final ArrayList<FrameLayout> frameLayouts = new ArrayList<>();
     /**
      * 跳转到默认场景的消息
      */
@@ -151,7 +153,7 @@ public class MainActivity extends Activity {
         // 屏幕密度DPI（120 / 160 / 240）
         int densityDpi = metric.densityDpi;
 
-        frameLayouts.forEach(e->{
+        frameLayouts.forEach(e -> {
 
         });
 
@@ -206,51 +208,40 @@ public class MainActivity extends Activity {
     @RequiresApi(api = Build.VERSION_CODES.R)
     @SuppressLint("NonConstantResourceId")
     public void onclick(View view) {
+        Intent intent = new Intent();
+        List<DialogUtil.PositiveButton> settingPositiveButtons = DialogUtil.getPositiveButtonList(
+                new DialogUtil.PositiveButton(null, "确定"),
+                new DialogUtil.PositiveButton((dialogInterface, i) -> {
+                    intent.setClass(MainActivity.this, SettingActivity.class);
+                    startActivity(intent);
+                }, "设置"));
         // 设置按钮不收到 USB 影响
         if (!DataReadWriteUtil.USB_READY && view.getId() != R.id.setting) {
             // 如果当前USB设备没有准备好是不允许点击按钮的
-            new AlertDialog.Builder(
-                    this)
-                    .setTitle("缺少DMB设备")
-                    .setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!")
-                    .setPositiveButton("确定", null)
+            DialogUtil.generateDialog(this,
+                            "缺少DMB设备",
+                            "当前没有读取到任何的DMB设备信息,请插上DMB设备!",
+                            new DialogUtil.PositiveButton(null, "确定"))
                     .show();
             return;
         }
         if (DataReadWriteUtil.getDefaultFrequencyModule(this) == null && view.getId() != R.id.setting) {
             // 如果当前还没有设置默认的工作模块,就提醒用户进行设置
-            new AlertDialog.Builder(
-                    this)
-                    .setTitle("缺少默认工作场景设置!")
-                    .setMessage("您还没有设置默认的工作场景,点击右下角设置按钮进行使用场景的设置," +
-                            "设置完成之后您可以进入任意一个场景,默认的工作场景设置完成之后," +
-                            "并不会影响您进入其他场景,之后每次启动 APP 都会进入默认的工作场景.")
-                    .setPositiveButton("确定", null)
-                    // 这个按钮是让用户跳转到设置的
-                    .setPositiveButton("设置", (dialogInterface, i) -> {
-                        Intent intent = new Intent();
-                        intent.setClass(MainActivity.this, SettingActivity.class);
-                        startActivity(intent);
-                    })
-                    .show();
+            DialogUtil.generateDialog(this, "缺少默认工作场景设置!", "您还没有设置默认的工作场景,点击右下角设置按钮进行使用场景的设置," +
+                    "设置完成之后您可以进入任意一个场景,默认的工作场景设置完成之后," +
+                    "并不会影响您进入其他场景,之后每次启动 APP 都会进入默认的工作场景.", settingPositiveButtons).show();
         }
-        Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.curriculum:
                 FrequencyModule activeFrequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
                 // 判断当前默认的设置是不是课表
                 if (!activeFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
-                    new AlertDialog.Builder(
-                            this)
-                            .setTitle("设置冲突!")
-                            .setMessage("当前设置的使用场景不是课表,我不知道您想显示哪一个教学楼的课表,如果您想显示课表,请在设置中设置课表并选择教学楼")
-                            .setPositiveButton("确定", null)
-                            // 这个按钮是让用户跳转到设置的
-                            .setPositiveButton("设置", (dialogInterface, i) -> {
-                                intent.setClass(MainActivity.this, SettingActivity.class);
-                                startActivity(intent);
-                            })
-                            .show();
+                    DialogUtil.generateDialog(this,
+                            "设置冲突",
+                            "当前设置的使用场景不是课表," +
+                                    "我不知道您想显示哪一个教学楼的课表,如果您想显示课表," +
+                                    "请在设置中设置课表并选择教学楼",
+                            settingPositiveButtons).show();
                     return;
                 }
                 intent.setClass(this, CurriculumActivity.class);
