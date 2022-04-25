@@ -75,7 +75,7 @@ public class CurriculumActivity extends Activity {
         UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
         dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()));
         // 构造TPEG解码器
-        TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListener);
+        TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListener, this);
         executorService.submit(tpegDecoder);
     }
 

@@ -1,5 +1,6 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
+import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
@@ -34,8 +35,8 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
     private static final String TAG = "MpegTsDecoder";
     private static final boolean DEBUG = true;
 
-    public MpegTsDecoder(DmbListener dmbListener) throws Exception {
-        super(dmbListener);
+    public MpegTsDecoder(DmbListener dmbListener, Context context) throws Exception {
+        super(dmbListener, context);
         if (!(dmbListener instanceof DmbMpegListener)) {
             // 如果监听器类型不对就直接抛异常!
             throw new Exception("错误的监听器类型!MPEG解码器构造只能接收DmbMpegListener类型的监听器!");

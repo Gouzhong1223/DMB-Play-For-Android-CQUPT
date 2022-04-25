@@ -1,5 +1,6 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
@@ -35,8 +36,8 @@ public class TpegDecoder extends AbstractDmbDecoder {
     private static final int LAST_FRAME = 3;
     private static final String TAG = "TpegDecoder";
 
-    public TpegDecoder(DmbListener listener) {
-        super(listener);
+    public TpegDecoder(DmbListener listener, Context context) {
+        super(listener, context);
     }
 
     @Override

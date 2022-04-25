@@ -139,7 +139,7 @@ public class VideoActivity extends Activity {
         // 构造视频监听器,传入视频输出流以及回调类
         DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), pipedOutputStream);
         // 构造解码器
-        MpegTsDecoder mpegTsDecoder = new MpegTsDecoder(videoPlayerListener);
+        MpegTsDecoder mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this);
         // 开始解码
         executorService.submit(mpegTsDecoder);
     }

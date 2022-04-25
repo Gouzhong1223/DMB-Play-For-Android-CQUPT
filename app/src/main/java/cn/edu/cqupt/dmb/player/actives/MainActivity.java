@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -23,6 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import java.util.ArrayList;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
@@ -37,29 +40,9 @@ public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private static final int WRITE_STORAGE_REQUEST_CODE = 100;
     /**
-     * 课表按钮布局组件
+     * 装载 FrameLayout 的容器
      */
-    private FrameLayout curriculumFrameLayout;
-    /**
-     * 宿舍按钮布局组件
-     */
-    private FrameLayout dormitoryFrameLayout;
-    /**
-     * 视频按钮布局组件
-     */
-    private FrameLayout videoFrameLayout;
-    /**
-     * 轮播图按钮布局组件
-     */
-    private FrameLayout carouselFrameLayout;
-    /**
-     * 音频按钮布局组件
-     */
-    private FrameLayout audioFrameLayout;
-    /**
-     * 设置按钮布局组件
-     */
-    private FrameLayout settingFrameLayout;
+    private ArrayList<FrameLayout> frameLayouts = new ArrayList<>();
     /**
      * 跳转到默认场景的消息
      */
@@ -154,6 +137,27 @@ public class MainActivity extends Activity {
     }
 
     /**
+     * 动态设置 UI 布局
+     */
+    private void dynamicLayout() {
+        DisplayMetrics metric = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metric);
+        // 屏幕宽度（像素）
+        int width = metric.widthPixels;
+        // 屏幕高度（像素）
+        int height = metric.heightPixels;
+        // 屏幕密度（0.75 / 1.0 / 1.5）
+        float density = metric.density;
+        // 屏幕密度DPI（120 / 160 / 240）
+        int densityDpi = metric.densityDpi;
+
+        frameLayouts.forEach(e->{
+
+        });
+
+    }
+
+    /**
      * 初始化View
      */
     private void initView() {
@@ -168,18 +172,22 @@ public class MainActivity extends Activity {
                 view.setScaleY(1.0f);
             }
         };
-        curriculumFrameLayout = findViewById(R.id.curriculum);
-        dormitoryFrameLayout = findViewById(R.id.dormitory);
-        carouselFrameLayout = findViewById(R.id.carousel);
-        videoFrameLayout = findViewById(R.id.video);
-        audioFrameLayout = findViewById(R.id.audio);
-        settingFrameLayout = findViewById(R.id.setting);
-        curriculumFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
-        dormitoryFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
-        carouselFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
-        videoFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
-        audioFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
-        settingFrameLayout.setOnFocusChangeListener(onFocusChangeListener);
+        FrameLayout curriculumFrameLayout = findViewById(R.id.curriculum);
+        FrameLayout dormitoryFrameLayout = findViewById(R.id.dormitory);
+        FrameLayout carouselFrameLayout = findViewById(R.id.carousel);
+        FrameLayout videoFrameLayout = findViewById(R.id.video);
+        FrameLayout audioFrameLayout = findViewById(R.id.audio);
+        FrameLayout settingFrameLayout = findViewById(R.id.setting);
+
+        // 装载 FrameLayout
+        frameLayouts.add(curriculumFrameLayout);
+        frameLayouts.add(dormitoryFrameLayout);
+        frameLayouts.add(carouselFrameLayout);
+        frameLayouts.add(videoFrameLayout);
+        frameLayouts.add(audioFrameLayout);
+        frameLayouts.add(settingFrameLayout);
+        // 绑定 FrameLayout 的监听器
+        frameLayouts.forEach(e -> e.setOnFocusChangeListener(onFocusChangeListener));
     }
 
     @Override
@@ -199,16 +207,16 @@ public class MainActivity extends Activity {
     @SuppressLint("NonConstantResourceId")
     public void onclick(View view) {
         // 设置按钮不收到 USB 影响
-//        if (!DataReadWriteUtil.USB_READY && view.getId() != R.id.setting) {
-//            // 如果当前USB设备没有准备好是不允许点击按钮的
-//            new AlertDialog.Builder(
-//                    this)
-//                    .setTitle("缺少DMB设备")
-//                    .setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!")
-//                    .setPositiveButton("确定", null)
-//                    .show();
-//            return;
-//        }
+        if (!DataReadWriteUtil.USB_READY && view.getId() != R.id.setting) {
+            // 如果当前USB设备没有准备好是不允许点击按钮的
+            new AlertDialog.Builder(
+                    this)
+                    .setTitle("缺少DMB设备")
+                    .setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!")
+                    .setPositiveButton("确定", null)
+                    .show();
+            return;
+        }
         if (DataReadWriteUtil.getDefaultFrequencyModule(this) == null && view.getId() != R.id.setting) {
             // 如果当前还没有设置默认的工作模块,就提醒用户进行设置
             new AlertDialog.Builder(

@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
+import android.content.Context;
+
 import java.io.BufferedInputStream;
 import java.io.PipedInputStream;
 
@@ -33,8 +35,14 @@ public abstract class AbstractDmbDecoder implements Runnable {
      */
     protected final DmbListener dmbListener;
 
-    public AbstractDmbDecoder(DmbListener dmbListener) {
+    /**
+     * 初始化解码器的 context
+     */
+    protected final Context context;
+
+    public AbstractDmbDecoder(DmbListener dmbListener, Context context) {
         this.dmbListener = dmbListener;
+        this.context = context;
     }
 
     /**
