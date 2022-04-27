@@ -22,7 +22,6 @@ public class DmbMediaDataSource implements IMediaDataSource {
 
     private static final String TAG = "DmbMediaDataSource";
 
-    private final Integer cnt = 0;
     /**
      * MPEG-TS视频数据源输入缓冲流
      */
@@ -40,10 +39,7 @@ public class DmbMediaDataSource implements IMediaDataSource {
             // You can handle it now, or ignore it, and handle new position at next readAt() call.
             return 0;
         }
-//        Log.i(TAG, "自定义数据源缓冲现在还有" + bufferedInputStream.available());
-        int read = bufferedInputStream.read(buffer, offset, size);
-//        Log.i(TAG, BaseConversionUtil.bytes2hex(buffer));
-        return read;
+        return bufferedInputStream.read(buffer, offset, size);
     }
 
     @Override
