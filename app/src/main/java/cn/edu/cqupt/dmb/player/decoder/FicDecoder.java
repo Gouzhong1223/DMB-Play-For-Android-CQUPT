@@ -123,9 +123,10 @@ public class FicDecoder {
     private int ficCh = 0xFF;
     private int ficDataLen;
     /**
-     * 从 Fic 中解码出来的所有频道
+     * 从 Fic 中解码出来的所有频道<br/>
+     * 必须是线程可见的
      */
-    private ChannelInfo[] channelInfos;
+    private volatile ChannelInfo[] channelInfos;
 
     /**
      * FicDecoder 构造器
@@ -190,9 +191,11 @@ public class FicDecoder {
     }
 
     /**
-     * 重置ChannelInfos
+     * 重置ChannelInfos<><br/>
+     * 这里锁的是 this 对象
+     * 如果不加锁,就会出现正在设置ChannelInfo的时候,ChannelInfo又被重置了
      */
-    public void resetChannelInfos() {
+    public synchronized void resetChannelInfos() {
         Log.i(TAG, Thread.currentThread().getName() + "线程重置了一下ChannelInfos");
         channelInfos = new ChannelInfo[CHANNEL_SIZE];
         for (int i = 0; i < CHANNEL_SIZE; i++) {
@@ -272,7 +275,7 @@ public class FicDecoder {
      * | ------ | ------ | -------- | --------- | ------ | ---------- | -------- |
      * | Type   | Length | Group Id | Extension | SbChId | Group Flag | Id       |
      */
-    private void selectSubCh() {
+    private synchronized void selectSubCh() {
 //        Log.i(TAG, "现在正在选择子频道，Fib 是: " + BaseConversionUtil.bytes2hex(fib));
         int index = figHeader + 1;
         int groupId = (fib[index] & 0xE0) >>> 5;
@@ -296,7 +299,7 @@ public class FicDecoder {
         }
     }
 
-    public ChannelInfo getSelectChannelInfo() {
+    public synchronized ChannelInfo getSelectChannelInfo() {
         for (int i = 0; i < CHANNEL_SIZE; i++) {
             if (channelInfos[i].isSelect) {
                 if (channelInfos[i].subChOrganization[6] > 0) {
@@ -331,7 +334,7 @@ public class FicDecoder {
         ficDataLen = total;
     }
 
-    private void decodeLabel() {
+    private synchronized void decodeLabel() {
         int index = figHeader + 1;
         int oe = fib[index] & 0x08; /* char set is same */
         int extensionType = fib[index] & 0x07;
@@ -399,7 +402,7 @@ public class FicDecoder {
     }
 
     /* decode service id according to standard page 45 */
-    private void decodeServiceId() {
+    private synchronized void decodeServiceId() {
         int header = ((fib[figHeader + 1] >>> 5) & 0x0001);
         int index = figHeader + 2;
         int number, serviceId;
@@ -424,7 +427,7 @@ public class FicDecoder {
     }
 
     /* standard page 41 */
-    private void decodeSubChannel() {
+    private synchronized void decodeSubChannel() {
         int index = figHeader + 2;
         int form;
         int subChId;
