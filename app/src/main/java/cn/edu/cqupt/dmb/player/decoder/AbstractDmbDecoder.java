@@ -6,6 +6,7 @@ import java.io.BufferedInputStream;
 import java.io.PipedInputStream;
 
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
  * @Author : Gouzhong
@@ -21,16 +22,27 @@ import cn.edu.cqupt.dmb.player.listener.DmbListener;
 public abstract class AbstractDmbDecoder implements Runnable {
 
     protected static final boolean DEBUG = false;
-
     /**
      * TS 视频流的输入流
      */
-    protected static final PipedInputStream pipedInputStream = new PipedInputStream(1024 * 1024 * 20);
-
+    protected static final PipedInputStream pipedInputStream;
     /**
      * TS 视频的缓冲流
      */
-    protected static final BufferedInputStream bufferedInputStream = new BufferedInputStream(pipedInputStream);
+    protected static final BufferedInputStream bufferedInputStream;
+    /**
+     * 单例 DataReadWriteUtil 对象
+     */
+    private static final DataReadWriteUtil dataReadWriteUtil;
+
+    static {
+        // 获取 DataReadWriteUtil 单例对象
+        dataReadWriteUtil = DataReadWriteUtil.getInstance();
+        // 获取 PIP 输入流
+        pipedInputStream = dataReadWriteUtil.getPipedInputStream();
+        // 获取输入缓冲流
+        bufferedInputStream = dataReadWriteUtil.getBufferedInputStream();
+    }
 
     /**
      * 解码器的监听器
