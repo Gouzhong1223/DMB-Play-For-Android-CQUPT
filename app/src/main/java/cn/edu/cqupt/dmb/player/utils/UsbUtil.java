@@ -11,12 +11,6 @@ import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
@@ -64,20 +58,6 @@ public class UsbUtil {
      */
     public static UsbDeviceConnection usbDeviceConnection;
     private static Dangle dangle;
-    /**
-     * 定时任务线程池
-     */
-    private static ScheduledExecutorService scheduledExecutorService;
-    private static ExecutorService executorService;
-
-    static {
-        // JVM启动的时候初始化线程池,由于只有一个任务,所以核心线程就只设置一个
-        // 这个线程池是专门用来定时执行接收USB数据任务的
-        scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
-        // 这个线程池是用于执行普通的读写线程的线程池
-        executorService = new ThreadPoolExecutor(5, 10,
-                60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
-    }
 
     /**
      * 重置一些 dangle,主要是清除设置,重新设置频点为默认场景的频点,清理一下ChannelInfo<br/>
@@ -117,18 +97,6 @@ public class UsbUtil {
         DataReadWriteUtil.inMainActivity = true;
     }
 
-    public static ScheduledExecutorService getScheduledExecutorService() {
-        return scheduledExecutorService;
-    }
-
-    public static void setScheduledExecutorService(ScheduledExecutorService scheduledExecutorService) {
-        UsbUtil.scheduledExecutorService = scheduledExecutorService;
-    }
-
-    public static ExecutorService getExecutorService() {
-        return executorService;
-    }
-
     /**
      * 初始化USB设备并且定时从USB中读取数据
      *
@@ -162,16 +130,6 @@ public class UsbUtil {
             if (activeFrequencyModule != null) {
                 // 活跃模块不为空的时候,设置 Dangle 的频点
                 dangle.setFrequency(activeFrequencyModule.getFrequency());
-            }
-            // 完成上述任务之后才可以开始定时从USB中读取数据
-            // 交给定时任务线程池去做,延迟一秒之后,每三秒从USB读取一次数据
-            if (UsbUtil.getScheduledExecutorService().isShutdown()) {
-                // 关闭线程池之后重启创建一个线程池再提交一次任务
-                UsbUtil.setScheduledExecutorService(new ScheduledThreadPoolExecutor(1));
-            }
-            if (UsbUtil.getExecutorService().isShutdown()) {
-                executorService = new ThreadPoolExecutor(5, 10,
-                        60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(5));
             }
             // 如果没有Shutdown就直接提交任务
             // 新开一个线程去接收 Dangle 接收器发过来的数据

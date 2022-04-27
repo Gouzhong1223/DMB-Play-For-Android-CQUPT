@@ -65,10 +65,7 @@ public class Mp2Decoder extends AbstractDmbDecoder {
     }
 
     private boolean isMp2Head(byte[] bytes) {
-        if (bytes[0] == 0xFF) {
-            return true;
-        }
-        return false;
+        return bytes[0] == 0xFF;
 //        return (bytes[0] == 0xFF && bytes[1] == 0xFC) || (bytes[0] == 0xFF && bytes[1] == 0xF4);
     }
 

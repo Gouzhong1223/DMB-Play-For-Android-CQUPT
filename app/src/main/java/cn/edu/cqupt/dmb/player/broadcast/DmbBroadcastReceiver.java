@@ -191,10 +191,6 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * 拔出USB设备之后执行的方法
      */
     private void closeDevice() {
-        // 关闭线程池,停止从USB中读取数据
-        // 注意,这里是立马关闭线程!而不是简单的让线程池暂停接受任务,如果是暂停接受任务,里面已经接收的任务会继续执行!
-        UsbUtil.getScheduledExecutorService().shutdownNow();
-        UsbUtil.getExecutorService().shutdownNow();
         new AlertDialog.Builder(
                 context)
                 .setTitle("DMB设备异常")

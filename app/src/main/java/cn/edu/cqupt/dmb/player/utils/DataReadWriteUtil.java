@@ -35,7 +35,7 @@ public class DataReadWriteUtil {
     /**
      * 是否在主页
      */
-    public static boolean inMainActivity = true;
+    public static volatile boolean inMainActivity = true;
 
     /**
      * 当前活跃(选中的模块)

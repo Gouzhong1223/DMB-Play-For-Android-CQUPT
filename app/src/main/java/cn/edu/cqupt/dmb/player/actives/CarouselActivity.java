@@ -75,7 +75,7 @@ public class CarouselActivity extends FragmentActivity {
         UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
         // 开始执行 TPEG 解码的任务
         // 构造TPEG解码器
-        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper())),this);
+        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper())), this);
         executorService.submit(tpegDecoder);
     }
 

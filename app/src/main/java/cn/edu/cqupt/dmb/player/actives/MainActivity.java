@@ -42,10 +42,6 @@ public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private static final int WRITE_STORAGE_REQUEST_CODE = 100;
     /**
-     * 装载 FrameLayout 的容器
-     */
-    private final ArrayList<FrameLayout> frameLayouts = new ArrayList<>();
-    /**
      * 跳转到默认场景的消息
      */
     private static final int MESSAGE_JUMP_DEFAULT_ACTIVITY = DmbPlayerConstant.MESSAGE_JUMP_DEFAULT_ACTIVITY.getDmbConstantValue();
@@ -53,6 +49,10 @@ public class MainActivity extends Activity {
      * 设备的 ID 号
      */
     public static volatile int id;
+    /**
+     * 装载 FrameLayout 的容器
+     */
+    private final ArrayList<FrameLayout> frameLayouts = new ArrayList<>();
     /**
      * USB广播接收器
      */
@@ -260,7 +260,7 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 break;
             case R.id.video:
-                intent.setClass(this, MainActivity2.class);
+                intent.setClass(this, VideoActivity.class);
                 startActivity(intent);
                 break;
         }

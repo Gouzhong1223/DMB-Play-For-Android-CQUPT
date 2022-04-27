@@ -33,7 +33,6 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
      */
     private static final Integer TS_PACKET_188_SIZE = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_DECODE.getDmbConstantValue();
     private static final String TAG = "MpegTsDecoder";
-    private static final boolean DEBUG = true;
 
     public MpegTsDecoder(DmbListener dmbListener, Context context) throws Exception {
         super(dmbListener, context);
@@ -84,6 +83,7 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
                 pos += nRead;
             }
         } catch (IOException e) {
+            Log.e(TAG, "readMpegTsPacket: 从 buffer 中读取 MPEG-TS 包出错啦!");
             e.printStackTrace();
             return false;
         }

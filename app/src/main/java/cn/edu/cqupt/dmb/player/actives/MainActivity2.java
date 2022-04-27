@@ -50,11 +50,10 @@ public class MainActivity2 extends Activity {
     private final SparseBooleanArray mVctCaptionTracksFound = new SparseBooleanArray();
     private final SparseBooleanArray mEitCaptionTracksFound = new SparseBooleanArray();
     private final List<EventListener> mEventListeners = new ArrayList<>();
-    private VideoPlayerFrame videoPlayerFrame = null;
-    private TsParser mTsParser;
     private final DeliverySystemType mDeliverySystemType = DeliverySystemType.DELIVERY_SYSTEM_UNDEFINED;
     private final int mProgramNumber = ALL_PROGRAM_NUMBERS;
-
+    private VideoPlayerFrame videoPlayerFrame = null;
+    private TsParser mTsParser;
     private Tuner mTunerHal;
     private int mFrequency;
     private String mModulation;

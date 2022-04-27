@@ -110,19 +110,7 @@ public class LocationFragment extends SetupMultiPaneFragment {
                             .title(getString(R.string.location_choices_getting_location))
                             .focusable(false)
                             .build());
-        }        private final Runnable mTimeoutRunnable =
-                () -> {
-                    synchronized (mPostalCodeLock) {
-                        if (DEBUG) {
-                            Log.d(TAG, "get location timeout. mPostalCode=" + mPostalCode);
-                        }
-                        if (mPostalCode == null) {
-                            // timeout. setup activity will get null postal code
-                            LocationUtils.removeOnUpdateAddressListener(this);
-                            passPostalCode();
-                        }
-                    }
-                };
+        }
 
         @Override
         public void onGuidedActionClicked(GuidedAction action) {
@@ -138,7 +126,19 @@ public class LocationFragment extends SetupMultiPaneFragment {
             } else {
                 super.onGuidedActionClicked(action);
             }
-        }
+        }        private final Runnable mTimeoutRunnable =
+                () -> {
+                    synchronized (mPostalCodeLock) {
+                        if (DEBUG) {
+                            Log.d(TAG, "get location timeout. mPostalCode=" + mPostalCode);
+                        }
+                        if (mPostalCode == null) {
+                            // timeout. setup activity will get null postal code
+                            LocationUtils.removeOnUpdateAddressListener(this);
+                            passPostalCode();
+                        }
+                    }
+                };
 
         @Override
         protected String getActionCategory() {

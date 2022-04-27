@@ -20,6 +20,8 @@ import cn.edu.cqupt.dmb.player.listener.DmbListener;
  */
 public abstract class AbstractDmbDecoder implements Runnable {
 
+    protected static final boolean DEBUG = false;
+
     /**
      * TS 视频流的输入流
      */
