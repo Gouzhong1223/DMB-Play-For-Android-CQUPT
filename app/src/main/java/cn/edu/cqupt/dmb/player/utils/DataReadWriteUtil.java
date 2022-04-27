@@ -2,6 +2,9 @@ package cn.edu.cqupt.dmb.player.utils;
 
 import android.content.Context;
 
+import java.io.BufferedInputStream;
+import java.io.PipedInputStream;
+
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 
 /**
@@ -21,26 +24,60 @@ public class DataReadWriteUtil {
      * 是否已经进行了 USB 的第一次初始化
      */
     public static volatile boolean isFirstInitMainActivity = true;
-
     /**
      * USB 设备是否就绪
      */
     public volatile static boolean USB_READY = false;
-
     /**
      * 现在是否已经接收到了 DMB 类型的数据
      */
     public static volatile boolean initFlag = false;
-
     /**
      * 是否在主页
      */
     public static volatile boolean inMainActivity = true;
-
+    /**
+     * DataReadWriteUtil 单例对象
+     */
+    private static volatile DataReadWriteUtil dataReadWriteUtil;
     /**
      * 当前活跃(选中的模块)
      */
     private static volatile FrequencyModule activeFrequencyModule;
+    /**
+     * USB 数据的 PIP 输入流
+     */
+    private final PipedInputStream pipedInputStream;
+    /**
+     * USB 数据的输入缓冲流
+     */
+    private final BufferedInputStream bufferedInputStream;
+
+    /**
+     * 构造方法
+     *
+     * @param pipedInputStream pip 输入流
+     */
+    public DataReadWriteUtil(PipedInputStream pipedInputStream) {
+        this.pipedInputStream = pipedInputStream;
+        this.bufferedInputStream = new BufferedInputStream(pipedInputStream);
+    }
+
+    /**
+     * 获取 DataReadWriteUtil 的单例对象
+     *
+     * @return DataReadWriteUtil 单例对象
+     */
+    public static DataReadWriteUtil getInstance() {
+        if (dataReadWriteUtil == null) {
+            synchronized (DataReadWriteUtil.class) {
+                if (dataReadWriteUtil == null) {
+                    dataReadWriteUtil = new DataReadWriteUtil(new PipedInputStream(1024 * 20));
+                }
+            }
+        }
+        return dataReadWriteUtil;
+    }
 
     public static FrequencyModule getActiveFrequencyModule() {
         return activeFrequencyModule;
@@ -61,5 +98,13 @@ public class DataReadWriteUtil {
         int serialNumber = DmbUtil.getInt(context, "defaultFrequencyModule", 20);
         // 根据序号获取模块信息
         return FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
+    }
+
+    public PipedInputStream getPipedInputStream() {
+        return pipedInputStream;
+    }
+
+    public BufferedInputStream getBufferedInputStream() {
+        return bufferedInputStream;
     }
 }
