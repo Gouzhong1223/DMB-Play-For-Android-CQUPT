@@ -102,6 +102,10 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
                 // 如果目前还没有接收到 DMB 类型的数据,继续执行下一次任务
                 continue;
             }
+            if (DataReadWriteUtil.inMainActivity) {
+                // 如果现在在主页就直接结束当前解码线程
+                return;
+            }
             byte[] mpegTsPacket = new byte[TS_PACKET_188_SIZE];
             if (readMpegTsPacket(bufferedInputStream, mpegTsPacket)) {
                 // 读取成功之后直接调用监听器的 success 方法
