@@ -41,6 +41,9 @@ public class MainActivity extends Activity {
     private static final String ACTION_USB_PERMISSION = DmbPlayerConstant.ACTION_USB_PERMISSION.getDmbConstantDescribe();
     private static final String TAG = "MainActivity";
     private static final int WRITE_STORAGE_REQUEST_CODE = 100;
+
+    private static final String DEFAULT_ID_KEY = "id_key";
+    private static final String DEFAULT_FREQUENCY_KEY = "frequency_key";
     /**
      * 跳转到默认场景的消息
      */
@@ -49,6 +52,7 @@ public class MainActivity extends Activity {
      * 设备的 ID 号
      */
     public static volatile int id;
+    public static volatile int frequency;
     /**
      * 装载 FrameLayout 的容器
      */
@@ -57,10 +61,6 @@ public class MainActivity extends Activity {
      * USB广播接收器
      */
     private DmbBroadcastReceiver dmbBroadcastReceiver;
-    /**
-     * 默认的工作场景
-     */
-    private FrequencyModule defaultFrequencyModule;
 
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
@@ -105,23 +105,15 @@ public class MainActivity extends Activity {
      * 初始化默认的使用场景
      */
     private void initDefaultFrequencyModule() {
-        // 从sharedPreferences中获取默认模块的序号,序号的范围是 1-9
-        int serialNumber = DmbUtil.getInt(this, DmbPlayerConstant.DEFAULT_FREQUENCY_MODULE_KEY.getDmbConstantName(), 20);
-        if (serialNumber == 20) {
-            // 如果获取到的序号是 20,说明没有设置默认模块
+        int defaultId = DmbUtil.getInt(this, DEFAULT_ID_KEY, 9999);
+        int defaultFrequency = DmbUtil.getInt(this, DEFAULT_FREQUENCY_KEY, 9999);
+        if (defaultId == 9999 || defaultFrequency == 9999) {
             Intent intent = new Intent();
-            intent.setClass(MainActivity.this, SettingActivity.class);
-            // 转到设置页面
+            intent.setClass(this, SetUpActivity.class);
             startActivity(intent);
-            return;
         }
-        // 根据序号获取模块信息
-        defaultFrequencyModule = FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
-        assert defaultFrequencyModule != null;
-        // 设置 ID
-        id = defaultFrequencyModule.getDeviceID();
-        // 设置活跃的模块
-        DataReadWriteUtil.setActiveFrequencyModule(defaultFrequencyModule);
+        id = defaultId;
+        frequency = defaultFrequency;
     }
 
     /**
@@ -174,19 +166,11 @@ public class MainActivity extends Activity {
                 view.setScaleY(1.0f);
             }
         };
-        FrameLayout curriculumFrameLayout = findViewById(R.id.curriculum);
-        FrameLayout dormitoryFrameLayout = findViewById(R.id.dormitory);
         FrameLayout carouselFrameLayout = findViewById(R.id.carousel);
-        FrameLayout videoFrameLayout = findViewById(R.id.video);
-        FrameLayout audioFrameLayout = findViewById(R.id.audio);
         FrameLayout settingFrameLayout = findViewById(R.id.setting);
 
         // 装载 FrameLayout
-        frameLayouts.add(curriculumFrameLayout);
-        frameLayouts.add(dormitoryFrameLayout);
         frameLayouts.add(carouselFrameLayout);
-        frameLayouts.add(videoFrameLayout);
-        frameLayouts.add(audioFrameLayout);
         frameLayouts.add(settingFrameLayout);
         // 绑定 FrameLayout 的监听器
         frameLayouts.forEach(e -> e.setOnFocusChangeListener(onFocusChangeListener));
@@ -232,35 +216,12 @@ public class MainActivity extends Activity {
                     "并不会影响您进入其他场景,之后每次启动 APP 都会进入默认的工作场景.", settingPositiveButtons).show();
         }
         switch (view.getId()) {
-            case R.id.curriculum:
-                FrequencyModule activeFrequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
-                // 判断当前默认的设置是不是课表
-                if (!activeFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
-                    DialogUtil.generateDialog(this,
-                            "设置冲突",
-                            "当前设置的使用场景不是课表," +
-                                    "我不知道您想显示哪一个教学楼的课表,如果您想显示课表," +
-                                    "请在设置中设置课表并选择教学楼",
-                            settingPositiveButtons).show();
-                    return;
-                }
-                intent.setClass(this, CurriculumActivity.class);
-                startActivity(intent);
-                break;
             case R.id.setting:
-                intent.setClass(this, SettingActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.dormitory:
-                intent.setClass(this, DormitorySafetyActivity.class);
+                intent.setClass(this, SetUpActivity.class);
                 startActivity(intent);
                 break;
             case R.id.carousel:
                 intent.setClass(this, CarouselActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.video:
-                intent.setClass(this, VideoActivity.class);
                 startActivity(intent);
                 break;
         }
@@ -331,10 +292,6 @@ public class MainActivity extends Activity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MESSAGE_JUMP_DEFAULT_ACTIVITY) {
-                if (defaultFrequencyModule == null) {
-                    // 没有的话,就直接返回了
-                    return;
-                }
                 // 双重检查USB是否连接
                 if (!DataReadWriteUtil.USB_READY) {
                     new AlertDialog.Builder(
@@ -347,7 +304,7 @@ public class MainActivity extends Activity {
                 }
                 Intent intent = new Intent();
                 // 获取对应的工作场景
-                intent.setClass(MainActivity.this, getActivityByDefaultFrequencyModule(defaultFrequencyModule));
+                intent.setClass(MainActivity.this, SetUpActivity.class);
                 // 跳转
                 startActivity(intent);
             }

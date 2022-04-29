@@ -126,6 +126,11 @@ public class LocationFragment extends SetupMultiPaneFragment {
             } else {
                 super.onGuidedActionClicked(action);
             }
+        }
+
+        @Override
+        protected String getActionCategory() {
+            return ACTION_CATEGORY;
         }        private final Runnable mTimeoutRunnable =
                 () -> {
                     synchronized (mPostalCodeLock) {
@@ -139,11 +144,6 @@ public class LocationFragment extends SetupMultiPaneFragment {
                         }
                     }
                 };
-
-        @Override
-        protected String getActionCategory() {
-            return ACTION_CATEGORY;
-        }
 
         @Override
         public void onRequestPermissionsResult(

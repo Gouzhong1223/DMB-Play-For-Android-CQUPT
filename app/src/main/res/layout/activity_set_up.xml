@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        tools:context=".actives.SetUpActivity">
+
+    <TextView
+            android:text="@string/setting_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textSize="50sp"
+            android:textColor="#F1B502"
+            tools:ignore="MissingConstraints"
+            android:id="@+id/setUpTextView" />
+
+    <LinearLayout
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="50sp"
+            tools:ignore="MissingConstraints"
+            android:orientation="horizontal"
+            tools:layout_editor_absoluteX="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/setUpTextView"
+            android:id="@+id/setUpLinearLayout2"
+            android:layout_marginTop="72dp">
+
+        <TextView
+                android:text="@string/pleaseEditId"
+                android:textAlignment="center"
+                android:textSize="25sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        <EditText
+                android:id="@+id/setUpEditId"
+                android:layout_width="100sp"
+                android:hint="1"
+                android:layout_height="wrap_content"
+                android:autofillHints="设备工作频点"
+                android:inputType="number"
+                tools:ignore="LabelFor" />
+    </LinearLayout>
+
+    <LinearLayout
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="50sp"
+            tools:ignore="MissingConstraints"
+            android:orientation="horizontal"
+            tools:layout_editor_absoluteX="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/setUpTextView"
+            android:id="@+id/setUpLinearLayout1"
+            android:layout_marginTop="192dp">
+
+        <TextView
+                android:text="@string/pleaseEditFrequency"
+                android:textAlignment="center"
+                android:textSize="25sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        <EditText
+                android:id="@+id/setUpEditFrequency"
+                android:hint="220352"
+                android:layout_width="100sp"
+                android:layout_height="wrap_content"
+                android:autofillHints="ID 号码"
+                android:inputType="number"
+                tools:ignore="LabelFor" />
+    </LinearLayout>
+
+    <Button
+            android:id="@+id/setUpSure"
+            android:onClick="onClick"
+            android:text="@string/sure"
+            android:textSize="50sp"
+            android:layout_width="230dp"
+            android:layout_height="80dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="40dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

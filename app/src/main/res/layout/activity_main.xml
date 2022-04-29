@@ -7,65 +7,66 @@
         tools:context=".actives.MainActivity"
         android:background="#8500FFF8">
 
+<!--    <FrameLayout-->
+<!--            android:onClick="onclick"-->
+<!--            android:id="@+id/curriculum"-->
+<!--            android:layout_width="150dp"-->
+<!--            android:layout_height="190dp"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            android:layout_marginTop="65dp"-->
+<!--            android:layout_marginStart="100dp">-->
+
+<!--        <ImageView-->
+<!--                android:background="@drawable/curriculum"-->
+<!--                android:layout_width="150dp"-->
+<!--                android:layout_height="150dp"-->
+<!--                android:contentDescription="@string/dormitoryImageDesc" />-->
+
+<!--        <TextView-->
+<!--                android:text="@string/curriculum"-->
+<!--                android:textSize="30sp"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_marginTop="150dp"-->
+<!--                android:layout_width="150dp"-->
+<!--                android:layout_height="40dp" />-->
+
+<!--    </FrameLayout>-->
+
+<!--    <FrameLayout-->
+<!--            android:id="@+id/dormitory"-->
+<!--            android:layout_width="150dp"-->
+<!--            android:layout_height="190dp"-->
+<!--            android:onClick="onclick"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            android:layout_marginTop="65dp">-->
+
+<!--&lt;!&ndash;        <ImageView&ndash;&gt;-->
+<!--&lt;!&ndash;                android:background="@drawable/dormitory"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="150dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="150dp" />&ndash;&gt;-->
+
+<!--        <TextView-->
+<!--                android:text="@string/dormitory"-->
+<!--                android:textSize="30sp"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_marginTop="150dp"-->
+<!--                android:layout_width="150dp"-->
+<!--                android:layout_height="40dp" />-->
+<!--    </FrameLayout>-->
+
     <FrameLayout
             android:onClick="onclick"
-            android:id="@+id/curriculum"
             android:layout_width="150dp"
             android:layout_height="190dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="65dp"
-            android:layout_marginStart="100dp">
-
-        <ImageView
-                android:background="@drawable/curriculum"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:contentDescription="@string/dormitoryImageDesc" />
-
-        <TextView
-                android:text="@string/curriculum"
-                android:textSize="30sp"
-                android:gravity="center"
-                android:layout_marginTop="150dp"
-                android:layout_width="150dp"
-                android:layout_height="40dp" />
-
-    </FrameLayout>
-
-    <FrameLayout
-            android:id="@+id/dormitory"
-            android:layout_width="150dp"
-            android:layout_height="190dp"
-            android:onClick="onclick"
+            android:id="@+id/carousel"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="65dp">
-
-        <ImageView
-                android:background="@drawable/dormitory"
-                android:layout_width="150dp"
-                android:layout_height="150dp" />
-
-        <TextView
-                android:text="@string/dormitory"
-                android:textSize="30sp"
-                android:gravity="center"
-                android:layout_marginTop="150dp"
-                android:layout_width="150dp"
-                android:layout_height="40dp" />
-    </FrameLayout>
-
-    <FrameLayout
-            android:onClick="onclick"
-            android:layout_width="150dp"
-            android:layout_height="190dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="65dp"
-            android:layout_marginEnd="100dp"
-            android:id="@+id/carousel">
+            app:layout_constraintHorizontal_bias="0.3">
 
         <ImageView
                 android:background="@drawable/carousel"
@@ -81,53 +82,53 @@
                 android:layout_height="40dp" />
     </FrameLayout>
 
-    <FrameLayout
-            android:onClick="onclick"
-            android:layout_width="150dp"
-            android:layout_height="190dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            android:layout_marginStart="100dp"
-            android:layout_marginBottom="65dp"
-            android:id="@+id/video">
+<!--    <FrameLayout-->
+<!--            android:onClick="onclick"-->
+<!--            android:layout_width="150dp"-->
+<!--            android:layout_height="190dp"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            android:layout_marginStart="100dp"-->
+<!--            android:layout_marginBottom="65dp"-->
+<!--            android:id="@+id/video">-->
 
-        <ImageView
-                android:background="@drawable/video"
-                android:layout_width="150dp"
-                android:layout_height="150dp" />
+<!--&lt;!&ndash;        <ImageView&ndash;&gt;-->
+<!--&lt;!&ndash;                android:background="@drawable/video"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="150dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="150dp" />&ndash;&gt;-->
 
-        <TextView
-                android:text="@string/video"
-                android:textSize="30sp"
-                android:gravity="center"
-                android:layout_marginTop="150dp"
-                android:layout_width="150dp"
-                android:layout_height="40dp" />
-    </FrameLayout>
+<!--        <TextView-->
+<!--                android:text="@string/video"-->
+<!--                android:textSize="30sp"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_marginTop="150dp"-->
+<!--                android:layout_width="150dp"-->
+<!--                android:layout_height="40dp" />-->
+<!--    </FrameLayout>-->
 
-    <FrameLayout
-            android:id="@+id/audio"
-            android:onClick="onclick"
-            android:layout_width="150dp"
-            android:layout_height="190dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="65dp">
+<!--    <FrameLayout-->
+<!--            android:id="@+id/audio"-->
+<!--            android:onClick="onclick"-->
+<!--            android:layout_width="150dp"-->
+<!--            android:layout_height="190dp"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            android:layout_marginBottom="65dp">-->
 
-        <ImageView
-                android:background="@drawable/audio"
-                android:layout_width="150dp"
-                android:layout_height="150dp" />
+<!--&lt;!&ndash;        <ImageView&ndash;&gt;-->
+<!--&lt;!&ndash;                android:background="@drawable/audio"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_width="150dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                android:layout_height="150dp" />&ndash;&gt;-->
 
-        <TextView
-                android:text="@string/audio"
-                android:textSize="30sp"
-                android:gravity="center"
-                android:layout_marginTop="150dp"
-                android:layout_width="150dp"
-                android:layout_height="40dp" />
-    </FrameLayout>
+<!--        <TextView-->
+<!--                android:text="@string/audio"-->
+<!--                android:textSize="30sp"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_marginTop="150dp"-->
+<!--                android:layout_width="150dp"-->
+<!--                android:layout_height="40dp" />-->
+<!--    </FrameLayout>-->
 
     <FrameLayout
             android:id="@+id/setting"
@@ -135,14 +136,16 @@
             android:layout_width="150dp"
             android:layout_height="190dp"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginEnd="100dp"
-            android:layout_marginBottom="65dp">
+            app:layout_constraintHorizontal_bias="0.7">
 
         <ImageView
                 android:background="@drawable/setting"
                 android:layout_width="150dp"
-                android:layout_height="150dp" />
+                android:layout_height="154dp" />
+
         <TextView
                 android:text="@string/curriculum"
                 android:textSize="30sp"

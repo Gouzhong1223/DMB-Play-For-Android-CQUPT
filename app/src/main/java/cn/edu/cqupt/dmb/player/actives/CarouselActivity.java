@@ -21,7 +21,6 @@ import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.listener.DmbCarouselListener;
@@ -60,17 +59,12 @@ public class CarouselActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_carousel);
-        // 进入到轮播图组件之后,首先将活跃的工作模块设置成轮播图
-        DataReadWriteUtil.setActiveFrequencyModule(FrequencyModule.OUTDOOR_SCREEN_TPEG);
-        DataReadWriteUtil.inMainActivity = false;
         initView();
         // 开始执行轮播图解码
         startDecodeTpeg();
     }
 
     private void startDecodeTpeg() {
-        // 重新设置一下MainActivity.id的 ID,方便 FicDecoder 解码
-        MainActivity.id = DataReadWriteUtil.getActiveFrequencyModule().getDeviceID();
         // 先重置一下 Dangle
         UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
         // 开始执行 TPEG 解码的任务
@@ -103,7 +97,6 @@ public class CarouselActivity extends FragmentActivity {
     protected void onDestroy() {
         banner.stop();
         executorService.shutdown();
-        UsbUtil.dangleDestroy(this);
         super.onDestroy();
     }
 

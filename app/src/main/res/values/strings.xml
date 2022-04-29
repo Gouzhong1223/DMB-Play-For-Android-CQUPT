@@ -247,4 +247,6 @@
     <string name="location_choices_enter_zip_code">Enter Zip Code</string>
     <!-- Message to show users when getting location information -->
     <string name="location_choices_getting_location">Getting Location</string>
+    <string name="pleaseEditId">请输入设备 ID</string>
+    <string name="pleaseEditFrequency">请输入设备工作频点</string>
 </resources>
