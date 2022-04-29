@@ -137,27 +137,6 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * 动态设置 UI 布局
-     */
-    private void dynamicLayout() {
-        DisplayMetrics metric = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metric);
-        // 屏幕宽度（像素）
-        int width = metric.widthPixels;
-        // 屏幕高度（像素）
-        int height = metric.heightPixels;
-        // 屏幕密度（0.75 / 1.0 / 1.5）
-        float density = metric.density;
-        // 屏幕密度DPI（120 / 160 / 240）
-        int densityDpi = metric.densityDpi;
-
-        frameLayouts.forEach(e -> {
-
-        });
-
-    }
-
-    /**
      * 初始化View
      */
     private void initView() {
@@ -179,7 +158,9 @@ public class MainActivity extends Activity {
         frameLayouts.add(carouselFrameLayout);
         frameLayouts.add(settingFrameLayout);
         // 绑定 FrameLayout 的监听器
-        frameLayouts.forEach(e -> e.setOnFocusChangeListener(onFocusChangeListener));
+        for (FrameLayout frameLayout : frameLayouts) {
+            frameLayout.setOnFocusChangeListener(onFocusChangeListener);
+        }
     }
 
     @Override
@@ -278,9 +259,6 @@ public class MainActivity extends Activity {
         }
         if (defaultFrequencyModule.getModuleName().equals("OUTDOOR_SCREEN_TPEG")) {
             return CarouselActivity.class;
-        }
-        if (defaultFrequencyModule.getModuleName().equals("OUTDOOR_SCREEN_VIDEO")) {
-            return VideoActivity.class;
         }
         if (defaultFrequencyModule.getModuleName().equals("DORMITORY_SAFETY")) {
             return DormitorySafetyActivity.class;

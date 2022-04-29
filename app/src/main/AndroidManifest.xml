@@ -37,16 +37,10 @@
                 android:name=".actives.SetUpActivity"
                 android:exported="false" />
         <activity
-                android:name=".actives.MainActivity2"
-                android:exported="false" />
-        <activity
                 android:name=".actives.SettingActivity"
                 android:exported="false" />
         <activity
                 android:name=".actives.CurriculumActivity"
-                android:exported="false" />
-        <activity
-                android:name=".actives.VideoActivity"
                 android:exported="false" />
         <activity
                 android:name=".actives.DormitorySafetyActivity"

@@ -3,6 +3,7 @@ package cn.edu.cqupt.dmb.player.utils;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +40,13 @@ public class DialogUtil {
                 .setTitle(title)
                 .setMessage(message);
         if (positiveButtons != null && Objects.requireNonNull(positiveButtons).size() != 0) {
-            positiveButtons.forEach(e -> builder.setPositiveButton(e.getBtnText(), e.getListener()));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                positiveButtons.forEach(e -> builder.setPositiveButton(e.getBtnText(), e.getListener()));
+            } else {
+                for (PositiveButton positiveButton : positiveButtons) {
+                    builder.setPositiveButton(positiveButton.getBtnText(), positiveButton.getListener());
+                }
+            }
         }
         return builder;
     }
