@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -155,8 +156,12 @@ public class MainActivity extends Activity {
         frameLayouts.add(carouselFrameLayout);
         frameLayouts.add(settingFrameLayout);
         // 绑定 FrameLayout 的监听器
-        for (FrameLayout frameLayout : frameLayouts) {
-            frameLayout.setOnFocusChangeListener(onFocusChangeListener);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            frameLayouts.forEach(e -> e.setOnFocusChangeListener(onFocusChangeListener));
+        } else {
+            for (FrameLayout frameLayout : frameLayouts) {
+                frameLayout.setOnFocusChangeListener(onFocusChangeListener);
+            }
         }
     }
 
