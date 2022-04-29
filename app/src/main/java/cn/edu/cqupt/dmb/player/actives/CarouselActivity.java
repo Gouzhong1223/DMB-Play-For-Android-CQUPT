@@ -6,6 +6,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -58,15 +60,20 @@ public class CarouselActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 强制全屏,全的不能再全的那种了
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_carousel);
         initView();
+        DataReadWriteUtil.inMainActivity = false;
         // 开始执行轮播图解码
         startDecodeTpeg();
     }
 
     private void startDecodeTpeg() {
         // 先重置一下 Dangle
-        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
+        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), MainActivity.frequency);
         // 开始执行 TPEG 解码的任务
         // 构造TPEG解码器
         TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper())), this);
@@ -96,7 +103,7 @@ public class CarouselActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         banner.stop();
-        executorService.shutdown();
+        DataReadWriteUtil.inMainActivity = true;
         super.onDestroy();
     }
 

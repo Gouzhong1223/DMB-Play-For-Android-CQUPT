@@ -6,6 +6,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -18,6 +19,8 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -51,8 +54,8 @@ public class MainActivity extends Activity {
     /**
      * 设备的 ID 号
      */
-    public static volatile int id;
-    public static volatile int frequency;
+    public static volatile int id = 0;
+    public static volatile int frequency = 0;
     /**
      * 装载 FrameLayout 的容器
      */
@@ -62,10 +65,13 @@ public class MainActivity extends Activity {
      */
     private DmbBroadcastReceiver dmbBroadcastReceiver;
 
-    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 强制全屏,全的不能再全的那种了
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         // 请求存储设备的读写权限
         requestPermissions(this);
@@ -189,16 +195,9 @@ public class MainActivity extends Activity {
      *
      * @param view 切换模式的按钮
      */
-    @RequiresApi(api = Build.VERSION_CODES.R)
     @SuppressLint("NonConstantResourceId")
     public void onclick(View view) {
         Intent intent = new Intent();
-        List<DialogUtil.PositiveButton> settingPositiveButtons = DialogUtil.getPositiveButtonList(
-                new DialogUtil.PositiveButton(null, "确定"),
-                new DialogUtil.PositiveButton((dialogInterface, i) -> {
-                    intent.setClass(MainActivity.this, SettingActivity.class);
-                    startActivity(intent);
-                }, "设置"));
         // 设置按钮不收到 USB 影响
         if (!DataReadWriteUtil.USB_READY && view.getId() != R.id.setting) {
             // 如果当前USB设备没有准备好是不允许点击按钮的
@@ -209,18 +208,26 @@ public class MainActivity extends Activity {
                     .show();
             return;
         }
-        if (DataReadWriteUtil.getDefaultFrequencyModule(this) == null && view.getId() != R.id.setting) {
-            // 如果当前还没有设置默认的工作模块,就提醒用户进行设置
-            DialogUtil.generateDialog(this, "缺少默认工作场景设置!", "您还没有设置默认的工作场景,点击右下角设置按钮进行使用场景的设置," +
-                    "设置完成之后您可以进入任意一个场景,默认的工作场景设置完成之后," +
-                    "并不会影响您进入其他场景,之后每次启动 APP 都会进入默认的工作场景.", settingPositiveButtons).show();
-        }
         switch (view.getId()) {
             case R.id.setting:
                 intent.setClass(this, SetUpActivity.class);
                 startActivity(intent);
                 break;
             case R.id.carousel:
+                if (id == 0 || frequency == 0) {
+                    List<DialogUtil.PositiveButton> positiveButtons = DialogUtil.getPositiveButtonList(new DialogUtil.PositiveButton(new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            intent.setClass(MainActivity.this, SetUpActivity.class);
+                            startActivity(intent);
+                        }
+                    }, "设置"), new DialogUtil.PositiveButton(null, "确定"));
+                    DialogUtil.generateDialog(this,
+                                    "缺少设置项",
+                                    "请先设置设备 ID 以及工作频点",
+                                    positiveButtons)
+                            .show();
+                }
                 intent.setClass(this, CarouselActivity.class);
                 startActivity(intent);
                 break;
@@ -265,7 +272,6 @@ public class MainActivity extends Activity {
      * @param defaultFrequencyModule 工作场景(默认的)
      * @return 对应的 Activity
      */
-    @RequiresApi(api = Build.VERSION_CODES.R)
     private Class<?> getActivityByDefaultFrequencyModule(FrequencyModule defaultFrequencyModule) {
         if (defaultFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
             return CurriculumActivity.class;
@@ -288,7 +294,6 @@ public class MainActivity extends Activity {
             super(looper);
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.R)
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MESSAGE_JUMP_DEFAULT_ACTIVITY) {
@@ -303,8 +308,12 @@ public class MainActivity extends Activity {
                     return;
                 }
                 Intent intent = new Intent();
-                // 获取对应的工作场景
-                intent.setClass(MainActivity.this, SetUpActivity.class);
+                if (MainActivity.id == 9999 || MainActivity.frequency == 9999) {
+                    intent.setClass(MainActivity.this, SetUpActivity.class);
+                } else {
+                    // 获取对应的工作场景
+                    intent.setClass(MainActivity.this, CarouselActivity.class);
+                }
                 // 跳转
                 startActivity(intent);
             }

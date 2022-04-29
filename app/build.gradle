@@ -1,18 +1,17 @@
 plugins {
     id 'com.android.application'
-    id "com.google.protobuf"
 }
 
 android {
-    compileSdk 32
+    compileSdk 29
     aaptOptions.cruncherEnabled = false
 
     aaptOptions.useNewCruncher = false
 
     defaultConfig {
         applicationId "cn.edu.cqupt.dmb.player"
-        minSdk 29
-        targetSdk 32
+        minSdk 26
+        targetSdk 29
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -33,7 +32,7 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -44,16 +43,18 @@ android {
         }
     }
 
-    sourceSets {
-        main {
-            // 在CMakeList.txt中有 add library时在这里就不用再添加了，没有就需要添加(如使用链接命令的方式)
-//            jniLibs.srcDirs = ['src/main/ffmpeg/libs']
-            proto {
-                srcDir 'proto'
-            }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    allprojects {
+        configurations.all {
+            resolutionStrategy.force 'org.objenesis:objenesis:2.6'
         }
     }
-    ndkVersion '25.0.8151533 rc1'
+    ndkVersion '21.4.7075529'
+    buildToolsVersion '29.0.2'
 }
 
 dependencies {
@@ -131,19 +132,4 @@ dependencies {
     //noinspection GradleDependency
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.10.1'
 
-}
-
-protobuf {
-    protoc {
-        artifact = 'com.google.protobuf:protoc:3.11.0'
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
 }

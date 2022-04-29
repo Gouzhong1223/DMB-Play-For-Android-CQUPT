@@ -1,5 +1,5 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">DMB Player For Android</string>
+    <string name="app_name">DMB PIC</string>
     <string name="zhanshi">切换到图片展示页面</string>
     <string name="sushe">切换到宿舍安全教育页面</string>
     <string name="setting_title">DMB 播放器设置</string>

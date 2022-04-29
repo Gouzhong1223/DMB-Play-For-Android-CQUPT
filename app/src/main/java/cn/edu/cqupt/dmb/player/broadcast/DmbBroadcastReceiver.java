@@ -13,6 +13,9 @@ import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
@@ -36,16 +39,17 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * 跳转到默认场景的消息
      */
     private static final int MESSAGE_JUMP_DEFAULT_ACTIVITY = DmbPlayerConstant.MESSAGE_JUMP_DEFAULT_ACTIVITY.getDmbConstantValue();
-    /**
-     * 设备的厂商 ID
-     */
-    private static final int VID = DmbPlayerConstant.DMB_V_ID.getDmbConstantValue();
-    /**
-     * 设备的产品 ID
-     */
-    private static final int PID = DmbPlayerConstant.DMB_P_ID.getDmbConstantValue();
+
+    private static final ArrayList<DmbUsbDevice> DMB_USB_DEVICES = new ArrayList<>();
     @SuppressLint("StaticFieldLeak")
     private static volatile DmbBroadcastReceiver dmbBroadcastReceiver;
+
+    static {
+        DMB_USB_DEVICES.add(new DmbUsbDevice(1155, 22336));
+        DMB_USB_DEVICES.add(new DmbUsbDevice(1003, 24868));
+        DMB_USB_DEVICES.add(new DmbUsbDevice(1046, 20497));
+    }
+
     private final Context context;
     /**
      * 主页面的回调处理器
@@ -57,7 +61,6 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         this.handler = handler;
         this.context = context;
     }
-
 
     /**
      * 获取 DmbBroadcastReceiver 实例
@@ -111,7 +114,8 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
             // 2.用户之前授予过USB权限,做了一次插拔动作,这是授予权限之后拔出之后再插入的分支
             UsbDevice usbDevice = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             assert usbDevice != null;
-            if (VID == usbDevice.getVendorId() && PID == usbDevice.getProductId()) {
+            DmbUsbDevice dmbUsbDevice = new DmbUsbDevice(usbDevice.getVendorId(), usbDevice.getProductId());
+            if (checkUsbDevice(dmbUsbDevice)) {
                 // 所以在这里要多做一步判断,就是如果用户已经授予权限,那就直接打开USB设备
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                     DataReadWriteUtil.USB_READY = false;
@@ -130,7 +134,8 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
             // 这个广播是用户拔出USB的通知
             UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
             assert device != null;
-            if (VID == device.getVendorId() && PID == device.getProductId()) {
+            DmbUsbDevice dmbUsbDevice = new DmbUsbDevice(device.getVendorId(), device.getProductId());
+            if (checkUsbDevice(dmbUsbDevice)) {
                 DataReadWriteUtil.USB_READY = false;
                 FicDataProcessor.isSelectId = false;
                 DataReadWriteUtil.initFlag = false;
@@ -154,7 +159,8 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         }
         for (UsbDevice device : usbManager.getDeviceList().values()) {
             // 如果有就开始再设备列表里面查找DMB接收机
-            if (device.getVendorId() == VID && device.getProductId() == PID) {
+            DmbUsbDevice dmbUsbDevice = new DmbUsbDevice(device.getVendorId(), device.getProductId());
+            if (checkUsbDevice(dmbUsbDevice)) {
                 // 发送自定义广播也就是发起权限请求的广播
                 Intent intent = new Intent(ACTION_USB_PERMISSION);
                 @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent =
@@ -176,7 +182,8 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         }
         for (UsbDevice device : usbManager.getDeviceList().values()) {
             // 判断USB设备是否合法
-            if (device.getVendorId() == VID && device.getProductId() == PID) {
+            DmbUsbDevice dmbUsbDevice = new DmbUsbDevice(device.getVendorId(), device.getProductId());
+            if (checkUsbDevice(dmbUsbDevice)) {
                 // 发送自定义广播
                 Intent intent = new Intent(ACTION_USB_PERMISSION);
                 @SuppressLint("UnspecifiedImmutableFlag") PendingIntent pendingIntent =
@@ -206,5 +213,45 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         UsbUtil usbUtil = new UsbUtil();
         // 开始从USB中读取数据
         usbUtil.initUsb(usbManager);
+    }
+
+    private boolean checkUsbDevice(DmbUsbDevice dmbUsbDevice) {
+        for (DmbUsbDevice usbDevice : DMB_USB_DEVICES) {
+            boolean compare = usbDevice.compare(dmbUsbDevice);
+            if (compare) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static class DmbUsbDevice {
+        private Integer VID;
+        private Integer PID;
+
+        public DmbUsbDevice(Integer VID, Integer pId) {
+            this.VID = VID;
+            this.PID = pId;
+        }
+
+        public Integer getVID() {
+            return VID;
+        }
+
+        public void setVID(Integer VID) {
+            this.VID = VID;
+        }
+
+        public Integer getPID() {
+            return PID;
+        }
+
+        public void setPID(Integer PID) {
+            this.PID = PID;
+        }
+
+        private boolean compare(DmbUsbDevice dmbUsbDevice) {
+            return Objects.equals(PID, dmbUsbDevice.getPID()) && Objects.equals(VID, dmbUsbDevice.getVID());
+        }
     }
 }

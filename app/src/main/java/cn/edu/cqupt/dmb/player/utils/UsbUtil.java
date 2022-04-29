@@ -80,6 +80,24 @@ public class UsbUtil {
     }
 
     /**
+     * 重置一些 dangle,主要是清除设置,重新设置频点为默认场景的频点,清理一下ChannelInfo<br/>
+     * 然后把 FicDataProcessor.isSelectId 设置为 false
+     *
+     * @param ficDecoder ficDecoder
+     * @param frequency  频点
+     */
+    public static void restDangle(FicDecoder ficDecoder, int frequency) {
+        // 先清除 dangle 的设置
+        dangle.clearRegister();
+        // 重新设置 dangle 的工作频点
+        Log.i(TAG, "重置的频点是:" + frequency);
+        dangle.setFrequency(frequency);
+        // 清空 ficDecoder 的ChannelInfo
+        ficDecoder.resetChannelInfos();
+        FicDataProcessor.isSelectId = false;
+    }
+
+    /**
      * 自定义的 dangle 销毁方法<br/>
      * 主要是把默认的工作场景切换为默认的工作场景,然后MainActivity.id设置为默认的 ID<br/>
      * DataReadWriteUtil.inMainActivity设置为 true

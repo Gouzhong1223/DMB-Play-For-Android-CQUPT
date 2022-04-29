@@ -60,6 +60,7 @@ public class DmbCarouselListener implements DmbListener {
         BannerBitmapDataBean bannerBitmapDataBean = new BannerBitmapDataBean(bitmap, fileName, 1);
         if (bitmap != null) {
             // 添加到有界队列中
+            Log.i(TAG, "onSuccess: 放了一张 bitmap 到缓存里面去");
             CarouselBannerImageBitmapCache.putBitMap(bannerBitmapDataBean);
             // 添加一张轮播图之后,发送一次更新轮播图的消息
             handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);

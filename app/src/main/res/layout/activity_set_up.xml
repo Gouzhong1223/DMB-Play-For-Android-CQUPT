@@ -37,8 +37,8 @@
 
         <EditText
                 android:id="@+id/setUpEditId"
-                android:layout_width="100sp"
-                android:hint="1"
+                android:layout_width="200sp"
+                android:hint="请输入设备的 ID 号码"
                 android:layout_height="wrap_content"
                 android:autofillHints="设备工作频点"
                 android:inputType="number"
@@ -65,8 +65,8 @@
 
         <EditText
                 android:id="@+id/setUpEditFrequency"
-                android:hint="220352"
-                android:layout_width="100sp"
+                android:hint="请输入设备的工作频点"
+                android:layout_width="200sp"
                 android:layout_height="wrap_content"
                 android:autofillHints="ID 号码"
                 android:inputType="number"
