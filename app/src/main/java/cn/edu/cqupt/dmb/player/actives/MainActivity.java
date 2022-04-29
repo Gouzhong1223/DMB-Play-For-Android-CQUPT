@@ -249,25 +249,6 @@ public class MainActivity extends Activity {
         }
     }
 
-    /**
-     * 根据默认的工作场景获取对应的 Activity
-     *
-     * @param defaultFrequencyModule 工作场景(默认的)
-     * @return 对应的 Activity
-     */
-    private Class<?> getActivityByDefaultFrequencyModule(FrequencyModule defaultFrequencyModule) {
-        if (defaultFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
-            return CurriculumActivity.class;
-        }
-        if (defaultFrequencyModule.getModuleName().equals("OUTDOOR_SCREEN_TPEG")) {
-            return CarouselActivity.class;
-        }
-        if (defaultFrequencyModule.getModuleName().equals("DORMITORY_SAFETY")) {
-            return DormitorySafetyActivity.class;
-        }
-        return null;
-    }
-
     private class MainHandler extends Handler {
 
         public MainHandler(@NonNull Looper looper) {
