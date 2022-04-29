@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
@@ -100,7 +99,6 @@ public class TpegDecoder extends AbstractDmbDecoder {
                     }
                     break;
                 case LAST_FRAME:
-                    Log.i(TAG, "现在接收到" + fileName + "的尾帧");
                     if (isReceiveFirstFrame && total + tpegInfo[1] < FILE_BUFFER_SIZE) {
                         System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
                         total += tpegInfo[1];
@@ -121,7 +119,7 @@ public class TpegDecoder extends AbstractDmbDecoder {
     private boolean readTpegFrame(byte[] bytes) {
         int nRead;
         try {
-            while ((nRead = ((InputStream) TpegDecoder.bufferedInputStream).read(bytes, 3, 1)) > 0) {
+            while ((nRead = bufferedInputStream.read(bytes, 3, 1)) > 0) {
                 if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
                     break;
                 }
@@ -135,7 +133,7 @@ public class TpegDecoder extends AbstractDmbDecoder {
             int nLeft = 108;
             int pos = 4;
             while (nLeft > 0) {
-                if ((nRead = ((InputStream) TpegDecoder.bufferedInputStream).read(bytes, pos, nLeft)) <= 0) {
+                if ((nRead = bufferedInputStream.read(bytes, pos, nLeft)) <= 0) {
                     return false;
                 }
                 nLeft -= nRead;
