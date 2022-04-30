@@ -40,9 +40,14 @@ public class DmbDataProcessor implements DataProcessing {
     }
 
     @Override
-    public void processData(byte[] usbData) {
+    public void processData(byte[] usbData, Integer dangleType) {
 //        Log.i(TAG, "现在接收到的数据是 DMB 类型!");
-        int dataLength = (((int) usbData[7]) & 0x0FF);
+        int dataLength;
+        if (dangleType == 2) {
+            dataLength = (((int) usbData[7]) & 0x0FF);
+        } else {
+            dataLength = (((int) usbData[6] & 0x0FF) << 8) | (((int) usbData[7]) & 0x0FF);
+        }
         try {
             pipedOutputStream.write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
             if (!DataReadWriteUtil.initFlag) {

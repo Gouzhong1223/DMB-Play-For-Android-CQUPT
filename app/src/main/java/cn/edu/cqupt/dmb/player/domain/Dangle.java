@@ -113,10 +113,10 @@ public class Dangle {
             e.printStackTrace();
         }
         if (ret1 && ret2 && ret3 && ret4) {
-            Log.i(TAG, "Clear register success");
+            Log.i(TAG, "清除 Dangle 设置成功!");
             return;
         }
-        Log.i(TAG, "Clear register fail");
+        Log.i(TAG, "清除 Dangle 设置失败!");
     }
 
     /**
@@ -244,9 +244,11 @@ public class Dangle {
             e.printStackTrace();
         }
         if (ret1 && ret2) {
+            Log.i(TAG, "SetChannel: 设置子频道成功");
+            Log.i(TAG, "SetChannel: " + channelInfo);
             return true;
         }
-        Log.e(TAG, "set channel fail");
+        Log.e(TAG, "设置子频道失败!");
         return false;
     }
 
@@ -273,10 +275,10 @@ public class Dangle {
         cmd[15] = (byte) ((frequency) & 0xff);
         int ret = write(cmd);
         if (ret != cmd.length) {
-            Log.e(TAG, "set frequency fail");
+            Log.e(TAG, "设置频点失败!");
             return;
         }
-        Log.i(TAG, "set frequency success!");
+        Log.i(TAG, "设置频点成功!");
     }
 
     public int write(byte[] bytes) {

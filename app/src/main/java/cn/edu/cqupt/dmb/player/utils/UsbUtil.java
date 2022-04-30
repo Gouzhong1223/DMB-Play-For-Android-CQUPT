@@ -58,6 +58,11 @@ public class UsbUtil {
      */
     public static UsbDeviceConnection usbDeviceConnection;
     private static Dangle dangle;
+    private final Integer dangleType;
+
+    public UsbUtil(Integer dangleType) {
+        this.dangleType = dangleType;
+    }
 
     /**
      * 重置一些 dangle,主要是清除设置,重新设置频点为默认场景的频点,清理一下ChannelInfo<br/>
@@ -152,7 +157,7 @@ public class UsbUtil {
             // 如果没有Shutdown就直接提交任务
             // 新开一个线程去接收 Dangle 接收器发过来的数据
             new Thread(new ReceiveUsbDataTask(bytes, usbEndpointIn,
-                    usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue())).start();
+                    usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType)).start();
         }
     }
 

@@ -55,6 +55,10 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * 主页面的回调处理器
      */
     private final Handler handler;
+    /**
+     * Dangle类型
+     */
+    private volatile Integer dangleType;
     private UsbManager usbManager;
 
     private DmbBroadcastReceiver(Context context, Handler handler) {
@@ -102,7 +106,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
                         // 发送跳转到默认场景的消息
                         handler.sendEmptyMessage(MESSAGE_JUMP_DEFAULT_ACTIVITY);
                         // 打开USB设备并开始读取数据
-                        openDevice();
+                        openDevice(dangleType);
                     }
                 } else {
                     Log.e(TAG, System.currentTimeMillis() + "---USB权限已被拒绝，Permission denied for device" + usbDevice);
@@ -209,8 +213,8 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
     /**
      * 插入USB设备并且通过权限申请之后执行的方法
      */
-    private void openDevice() {
-        UsbUtil usbUtil = new UsbUtil();
+    private void openDevice(Integer dangelType) {
+        UsbUtil usbUtil = new UsbUtil(dangelType);
         // 开始从USB中读取数据
         usbUtil.initUsb(usbManager);
     }
@@ -219,6 +223,11 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         for (DmbUsbDevice usbDevice : DMB_USB_DEVICES) {
             boolean compare = usbDevice.compare(dmbUsbDevice);
             if (compare) {
+                if (usbDevice.VID == 1155) {
+                    dangleType = 2;
+                } else {
+                    dangleType = 1;
+                }
                 return true;
             }
         }

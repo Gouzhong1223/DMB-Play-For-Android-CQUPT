@@ -18,6 +18,6 @@ public interface DataProcessing {
      *
      * @param usbData 从 USB 中读取到的一段 DMB 数据
      */
-    void processData(byte[] usbData);
+    void processData(byte[] usbData, Integer dangleType);
 
 }

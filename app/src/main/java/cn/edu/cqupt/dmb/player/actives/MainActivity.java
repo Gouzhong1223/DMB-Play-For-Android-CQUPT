@@ -32,7 +32,6 @@ import java.util.List;
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.DialogUtil;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;

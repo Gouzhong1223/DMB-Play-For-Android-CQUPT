@@ -123,8 +123,9 @@ public class CarouselActivity extends FragmentActivity {
             if (msg.what == MESSAGE_UPDATE_CAROUSEL) {
                 cnt++;
                 // 收到三次消息之后才更新一次轮播图,避免性能消耗
-                if (cnt == 3) {
+                if (cnt == 2) {
                     banner.stop();
+                    Log.i(TAG, "handleMessage: 重新设置了轮播图的数据源");
                     banner.setDatas(BannerBitmapDataBean.getListBitMapData());
                     banner.start();
                     // 更新之后重置计数器
