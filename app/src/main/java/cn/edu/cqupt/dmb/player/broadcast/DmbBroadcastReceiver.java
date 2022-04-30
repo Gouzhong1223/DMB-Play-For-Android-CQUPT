@@ -33,14 +33,22 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
  * @Version : 1.0.0
  */
 public class DmbBroadcastReceiver extends BroadcastReceiver {
-
+    /**
+     * 自定义的 USB 权限
+     */
     private static final String ACTION_USB_PERMISSION = DmbPlayerConstant.ACTION_USB_PERMISSION.getDmbConstantDescribe();
     /**
      * 跳转到默认场景的消息
      */
     private static final int MESSAGE_JUMP_DEFAULT_ACTIVITY = DmbPlayerConstant.MESSAGE_JUMP_DEFAULT_ACTIVITY.getDmbConstantValue();
 
+    /**
+     * 装载现有的三款 Dangle 设备信息
+     */
     private static final ArrayList<DmbUsbDevice> DMB_USB_DEVICES = new ArrayList<>();
+    /**
+     * DMB USB 广播
+     */
     @SuppressLint("StaticFieldLeak")
     private static volatile DmbBroadcastReceiver dmbBroadcastReceiver;
 
@@ -50,6 +58,9 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         DMB_USB_DEVICES.add(new DmbUsbDevice(1046, 20497));
     }
 
+    /**
+     * 创建广播的 Context
+     */
     private final Context context;
     /**
      * 主页面的回调处理器
@@ -59,6 +70,9 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * Dangle类型
      */
     private volatile Integer dangleType;
+    /**
+     * Android 系统中的 USB 设备管理器
+     */
     private UsbManager usbManager;
 
     private DmbBroadcastReceiver(Context context, Handler handler) {
@@ -122,9 +136,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
             if (checkUsbDevice(dmbUsbDevice)) {
                 // 所以在这里要多做一步判断,就是如果用户已经授予权限,那就直接打开USB设备
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                    DataReadWriteUtil.USB_READY = false;
-                    FicDataProcessor.isSelectId = false;
-                    DataReadWriteUtil.initFlag = false;
+                    usbDetached();
                     // 关闭USB设备
                     closeDevice();
                 } else {
@@ -140,9 +152,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
             assert device != null;
             DmbUsbDevice dmbUsbDevice = new DmbUsbDevice(device.getVendorId(), device.getProductId());
             if (checkUsbDevice(dmbUsbDevice)) {
-                DataReadWriteUtil.USB_READY = false;
-                FicDataProcessor.isSelectId = false;
-                DataReadWriteUtil.initFlag = false;
+                usbDetached();
                 // 由于是直接拔出,所以直接执行关闭USB的后置方法
                 Log.e(TAG, System.currentTimeMillis() + "---USB 设备已被拔出!");
                 closeDevice();
@@ -219,6 +229,12 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         usbUtil.initUsb(usbManager);
     }
 
+    /**
+     * 校验当前插入设备的 USB 是否是合法的 Dangle 设备
+     *
+     * @param dmbUsbDevice Dangle
+     * @return 合法->true
+     */
     private boolean checkUsbDevice(DmbUsbDevice dmbUsbDevice) {
         for (DmbUsbDevice usbDevice : DMB_USB_DEVICES) {
             boolean compare = usbDevice.compare(dmbUsbDevice);
@@ -234,9 +250,27 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         return false;
     }
 
+    /**
+     * USB设备拔出操作
+     */
+    private void usbDetached() {
+        DataReadWriteUtil.USB_READY = false;
+        FicDataProcessor.isSelectId = false;
+        DataReadWriteUtil.initFlag = false;
+    }
+
+    /**
+     * 自定义装载 Dangle VID 和 PID 的类
+     */
     static class DmbUsbDevice {
-        private Integer VID;
-        private Integer PID;
+        /**
+         * 厂商 ID
+         */
+        private final Integer VID;
+        /**
+         * 设备 ID
+         */
+        private final Integer PID;
 
         public DmbUsbDevice(Integer VID, Integer pId) {
             this.VID = VID;
@@ -247,18 +281,16 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
             return VID;
         }
 
-        public void setVID(Integer VID) {
-            this.VID = VID;
-        }
-
         public Integer getPID() {
             return PID;
         }
 
-        public void setPID(Integer PID) {
-            this.PID = PID;
-        }
-
+        /**
+         * 比较两个 Dangle 设备是否是同一类
+         *
+         * @param dmbUsbDevice Dangle 设备
+         * @return 同一类->true
+         */
         private boolean compare(DmbUsbDevice dmbUsbDevice) {
             return Objects.equals(PID, dmbUsbDevice.getPID()) && Objects.equals(VID, dmbUsbDevice.getVID());
         }
