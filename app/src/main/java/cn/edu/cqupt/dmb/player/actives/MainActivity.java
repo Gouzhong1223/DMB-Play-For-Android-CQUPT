@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -197,12 +196,9 @@ public class MainActivity extends Activity {
                 break;
             case R.id.carousel:
                 if (id == 0 || frequency == 0) {
-                    List<DialogUtil.PositiveButton> positiveButtons = DialogUtil.getPositiveButtonList(new DialogUtil.PositiveButton(new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            intent.setClass(MainActivity.this, SetUpActivity.class);
-                            startActivity(intent);
-                        }
+                    List<DialogUtil.PositiveButton> positiveButtons = DialogUtil.getPositiveButtonList(new DialogUtil.PositiveButton((dialogInterface, i) -> {
+                        intent.setClass(MainActivity.this, SetUpActivity.class);
+                        startActivity(intent);
                     }, "设置"), new DialogUtil.PositiveButton(null, "确定"));
                     DialogUtil.generateDialog(this,
                                     "缺少设置项",
