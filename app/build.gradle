@@ -48,8 +48,20 @@ android {
         }
         gradlePluginPortal()
         google()
+        //noinspection JcenterRepositoryObsolete
         jcenter()
         mavenCentral()
+    }
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                outputFileName = "DMB Player-" +
+                        defaultConfig.versionName + "-" +
+                        output.baseName + ".apk"
+            }
+        }
     }
 //    compileOptions {
 //        sourceCompatibility JavaVersion.VERSION_1_8
