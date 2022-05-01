@@ -1,5 +1,6 @@
 package cn.edu.cqupt.dmb.player.processor.dmb;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 /**
@@ -17,6 +18,7 @@ public class FrequencySetSuccessProcessor implements DataProcessing {
 
     private static final String TAG = "FrequencySetSuccessProcessor";
 
+    @SuppressLint("LongLogTag")
     @Override
     public void processData(byte[] usbData, Integer dangleType) {
         Log.i(TAG, "现在接收到的是0x09,类型为频点设置成功返回信息");
