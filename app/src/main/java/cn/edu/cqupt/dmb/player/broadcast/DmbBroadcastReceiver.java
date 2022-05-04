@@ -13,6 +13,9 @@ import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
@@ -52,6 +55,11 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      */
     private final Handler handler;
     private UsbManager usbManager;
+
+    private static ArrayList<DmbUsbDevice> DMB_USB_DEVICES = new ArrayList<>();
+    static {
+//        DMB_USB_DEVICES.add(new DmbUsbDevice())
+    }
 
     private DmbBroadcastReceiver(Context context, Handler handler) {
         this.handler = handler;
@@ -206,5 +214,71 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         UsbUtil usbUtil = new UsbUtil();
         // 开始从USB中读取数据
         usbUtil.initUsb(usbManager);
+    }
+    /**
+     * 校验当前插入设备的 USB 是否是合法的 Dangle 设备
+     *
+     * @param dmbUsbDevice Dangle
+     * @return 合法->true
+     */
+//    private boolean checkUsbDevice(DmbUsbDevice dmbUsbDevice) {
+//        for (DmbUsbDevice usbDevice : DMB_USB_DEVICES) {
+//            boolean compare = usbDevice.compare(dmbUsbDevice);
+//            if (compare) {
+//                if (usbDevice.VID == 1155) {
+//                    dangleType = 2;
+//                } else {
+//                    dangleType = 1;
+//                }
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
+    /**
+     * USB设备拔出操作
+     */
+    private void usbDetached() {
+        DataReadWriteUtil.USB_READY = false;
+        FicDataProcessor.isSelectId = false;
+        DataReadWriteUtil.initFlag = false;
+    }
+
+    /**
+     * 自定义装载 Dangle VID 和 PID 的类
+     */
+    static class DmbUsbDevice {
+        /**
+         * 厂商 ID
+         */
+        private final Integer VID;
+        /**
+         * 设备 ID
+         */
+        private final Integer PID;
+
+        public DmbUsbDevice(Integer VID, Integer pId) {
+            this.VID = VID;
+            this.PID = pId;
+        }
+
+        public Integer getVID() {
+            return VID;
+        }
+
+        public Integer getPID() {
+            return PID;
+        }
+
+        /**
+         * 比较两个 Dangle 设备是否是同一类
+         *
+         * @param dmbUsbDevice Dangle 设备
+         * @return 同一类->true
+         */
+        private boolean compare(DmbUsbDevice dmbUsbDevice) {
+            return Objects.equals(PID, dmbUsbDevice.getPID()) && Objects.equals(VID, dmbUsbDevice.getVID());
+        }
     }
 }
