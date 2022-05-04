@@ -153,9 +153,15 @@ public class MainActivity extends Activity {
         // 屏幕密度DPI（120 / 160 / 240）
         int densityDpi = metric.densityDpi;
 
-        frameLayouts.forEach(e -> {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            frameLayouts.forEach(e -> {
 
-        });
+            });
+        } else {
+            for (FrameLayout frameLayout : frameLayouts) {
+
+            }
+        }
 
     }
 
