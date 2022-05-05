@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
@@ -69,6 +70,7 @@ public class CarouselActivity extends FragmentActivity {
         DataReadWriteUtil.inMainActivity = false;
         // 开始执行轮播图解码
         startDecodeTpeg();
+        Toast.makeText(this, "正在接收图片", Toast.LENGTH_SHORT).show();
     }
 
     private void startDecodeTpeg() {
@@ -148,6 +150,8 @@ public class CarouselActivity extends FragmentActivity {
                 } else if (ber >= 0) {
                     signalImageView.setImageResource(R.drawable.singlemark5);
                 }
+            } else if (msg.what == 0x88) {
+                Toast.makeText(CarouselActivity.this, "不兼容的图片类型!,请更换标准 JPG 图片", Toast.LENGTH_SHORT).show();
             }
         }
     }

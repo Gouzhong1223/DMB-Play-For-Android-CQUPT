@@ -1,5 +1,6 @@
 package cn.edu.cqupt.dmb.player.listener;
 
+import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
@@ -33,7 +34,7 @@ public class DmbCurriculumListener implements DmbListener {
     }
 
     @Override
-    public void onSuccess(String fileName, byte[] bytes, int length) {
+    public void onSuccess(String fileName, byte[] bytes, int length, Context context) {
         FrequencyModule frequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
         if (frequencyModule == null) {
             Log.e(TAG, "出错啦!现在没有设置活跃的组件,所以这里的回调方法就直接抛弃!");

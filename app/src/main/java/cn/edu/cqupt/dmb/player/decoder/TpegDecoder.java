@@ -103,7 +103,7 @@ public class TpegDecoder extends AbstractDmbDecoder {
                         System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
                         total += tpegInfo[1];
                         if (dmbListener != null) {
-                            dmbListener.onSuccess(fileName, fileBuffer, total);
+                            dmbListener.onSuccess(fileName, fileBuffer, total, context);
                         }
                         isReceiveFirstFrame = false;
                         fileName = null;

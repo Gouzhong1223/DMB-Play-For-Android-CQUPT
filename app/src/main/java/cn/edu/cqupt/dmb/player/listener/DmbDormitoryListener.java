@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.listener;
 
+import android.content.Context;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -13,7 +15,7 @@ package cn.edu.cqupt.dmb.player.listener;
  */
 public class DmbDormitoryListener implements DmbListener {
     @Override
-    public void onSuccess(String fileName, byte[] bytes, int length) {
+    public void onSuccess(String fileName, byte[] bytes, int length, Context context) {
 
     }
 

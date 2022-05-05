@@ -1,5 +1,6 @@
 package cn.edu.cqupt.dmb.player.listener;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
@@ -54,7 +55,7 @@ public class DmbCarouselListener implements DmbListener {
 
     @Override
 
-    public void onSuccess(String fileName, byte[] bytes, int length) {
+    public void onSuccess(String fileName, byte[] bytes, int length, Context context) {
         cnt++;
         // 生成轮播图的文件名
         fileName = DmbUtil.CACHE_DIRECTORY + fileName;
@@ -69,7 +70,12 @@ public class DmbCarouselListener implements DmbListener {
             CarouselBannerImageBitmapCache.putBitMap(bannerBitmapDataBean);
             // 添加一张轮播图之后,发送一次更新轮播图的消息
             handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
+//            Toast.makeText(context, "解码图片成功", Toast.LENGTH_SHORT).show();
         } else {
+//            Toast.makeText(context, "解码图片失败,不兼容的图片类型", Toast.LENGTH_SHORT).show();
+//            DialogUtil.generateDialog(context, "图片不兼容", "发送的图片不兼容,请更换为标准的 JPG 格式图片!",
+//                    DialogUtil.getPositiveButtonList(new DialogUtil.PositiveButton(null, "确定"))).show();
+            Log.e(TAG, "onSuccess: 不兼容的图片!");
             Log.e(TAG, Thread.currentThread().getName() + "线程生成 bitmap 错误啦!");
             YuvImage yuvimage = new YuvImage(fileBuffer, ImageFormat.NV21, 20, 20, null);//20、20分别是图的宽度与高度
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -79,11 +85,13 @@ public class DmbCarouselListener implements DmbListener {
             if (bitmap == null) {
                 Log.e(TAG, "onSuccess: 生成 bitmap 还是失败了");
             } else {
+                Log.i(TAG, "onSuccess: " + bitmap.getByteCount());
                 // 添加到有界队列中
                 Log.i(TAG, "onSuccess: 放了一张 bitmap 到缓存里面去");
                 CarouselBannerImageBitmapCache.putBitMap(bannerBitmapDataBean);
                 // 添加一张轮播图之后,发送一次更新轮播图的消息
                 handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
+                handler.sendEmptyMessage(0x88);
             }
         }
         if (cnt == 5) {

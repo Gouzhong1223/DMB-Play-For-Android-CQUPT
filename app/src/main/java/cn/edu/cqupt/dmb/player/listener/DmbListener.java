@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.listener;
 
+import android.content.Context;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -19,7 +21,7 @@ public interface DmbListener {
      * @param bytes    文件数组
      * @param length   文件长度
      */
-    void onSuccess(String fileName, byte[] bytes, int length);
+    void onSuccess(String fileName, byte[] bytes, int length, Context context);
 
     void onReceiveMessage(String msg);
 }
