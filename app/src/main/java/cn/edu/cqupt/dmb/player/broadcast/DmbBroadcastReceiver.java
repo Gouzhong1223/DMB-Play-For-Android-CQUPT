@@ -69,7 +69,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
     /**
      * Dangle类型
      */
-    private volatile Integer dangleType;
+    private volatile static Integer dangleType;
     /**
      * Android 系统中的 USB 设备管理器
      */
@@ -235,7 +235,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * @param dmbUsbDevice Dangle
      * @return 合法->true
      */
-    private boolean checkUsbDevice(DmbUsbDevice dmbUsbDevice) {
+    public static boolean checkUsbDevice(DmbUsbDevice dmbUsbDevice) {
         for (DmbUsbDevice usbDevice : DMB_USB_DEVICES) {
             boolean compare = usbDevice.compare(dmbUsbDevice);
             if (compare) {
@@ -262,7 +262,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
     /**
      * 自定义装载 Dangle VID 和 PID 的类
      */
-    static class DmbUsbDevice {
+    public static class DmbUsbDevice {
         /**
          * 厂商 ID
          */
