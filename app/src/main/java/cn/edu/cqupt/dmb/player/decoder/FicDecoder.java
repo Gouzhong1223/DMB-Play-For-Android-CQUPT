@@ -301,7 +301,7 @@ public class FicDecoder {
 
     public synchronized ChannelInfo getSelectChannelInfo() {
         for (int i = 0; i < CHANNEL_SIZE; i++) {
-            if (channelInfos[i].isSelect) {
+            if (channelInfos[i].isSelect && channelInfos[i].type == 3) {
                 if (channelInfos[i].subChOrganization[6] > 0) {
                     return channelInfos[i];
                 } else {

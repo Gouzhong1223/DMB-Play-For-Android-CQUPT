@@ -57,7 +57,7 @@ public class FicDataProcessor implements DataProcessing {
                 }
             }
         } else {
-            for (int i = 0; i < DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(); i++) {
+            for (int i = 0; i < 12; i++) {
                 System.arraycopy(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue() + i * DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue(), ficBuf, 0, DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue());
                 // 我们的 ID 是可变的,但是这个ficDecoder是单例生成的,所以这里,重新设置一下 ID,ficDecoder搞成单例的意义我也不知道是为什么,现在不想改了
                 ficDecoder.setId(MainActivity.id);

@@ -40,8 +40,10 @@ public class UsbUtil {
      * 缓存从USB读取到的数据,2048是一个待定值
      * TODO 后续根据测试情况修改大小
      */
-    private static final byte[] bytes = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
+    private static final byte[] STM32_bytes = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
             * DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()];
+
+    private static final byte[] NUC_bytes = new byte[776];
     /**
      * 用于缓存USB设备的Map
      */
@@ -161,8 +163,13 @@ public class UsbUtil {
             }
             // 如果没有Shutdown就直接提交任务
             // 新开一个线程去接收 Dangle 接收器发过来的数据
-            new Thread(new ReceiveUsbDataTask(bytes, usbEndpointIn,
-                    usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType)).start();
+            if (dangleType == 2) {
+                new Thread(new ReceiveUsbDataTask(STM32_bytes, usbEndpointIn,
+                        usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType)).start();
+            } else {
+                new Thread(new ReceiveUsbDataTask(NUC_bytes, usbEndpointIn,
+                        usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType)).start();
+            }
         }
     }
 
