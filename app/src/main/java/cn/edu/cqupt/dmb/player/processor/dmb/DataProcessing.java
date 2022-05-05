@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.processor.dmb;
 
+import cn.edu.cqupt.dmb.player.common.DangleType;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -16,8 +18,8 @@ public interface DataProcessing {
     /**
      * 处理 DMB 数据
      *
-     * @param usbData 从 USB 中读取到的一段 DMB 数据
+     * @param usbData    从 USB 中读取到的一段 DMB 数据
+     * @param dangleType Dangel 类型
      */
-    void processData(byte[] usbData);
-
+    void processData(byte[] usbData, DangleType dangleType);
 }

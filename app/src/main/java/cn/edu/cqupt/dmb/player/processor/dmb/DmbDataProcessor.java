@@ -5,6 +5,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.PipedOutputStream;
 
+import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.decoder.AbstractDmbDecoder;
@@ -41,9 +42,14 @@ public class DmbDataProcessor implements DataProcessing {
     }
 
     @Override
-    public void processData(byte[] usbData) {
+    public void processData(byte[] usbData, DangleType dangleType) {
 //        Log.i(TAG, "现在接收到的数据是 DMB 类型!");
-        int dataLength = (((int) usbData[7]) & 0x0FF);
+        int dataLength;
+        if (dangleType == DangleType.STM32) {
+            dataLength = (((int) usbData[7]) & 0x0FF);
+        } else {
+            dataLength = (((int) usbData[6] & 0x0FF) << 8) | (((int) usbData[7]) & 0x0FF);
+        }
         PipedOutputStream activeModulePip = getActiveModulePip();
         try {
             if (activeModulePip == null) {

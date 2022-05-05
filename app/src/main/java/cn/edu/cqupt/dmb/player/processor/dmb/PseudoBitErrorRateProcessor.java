@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.processor.dmb;
 
+import cn.edu.cqupt.dmb.player.common.DangleType;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -19,7 +21,7 @@ public class PseudoBitErrorRateProcessor implements DataProcessing {
     private volatile int bitRate;
 
     @Override
-    public void processData(byte[] usbData) {
+    public void processData(byte[] usbData, DangleType dangleType) {
 //        Log.i(TAG, "现在收到的的数据是伪误码率");
         if (usbData[6] == 0) {
             bbReg0 = ((((int) usbData[8]) & 0x00ff) << 8) + ((int) usbData[9] & 0x00ff);

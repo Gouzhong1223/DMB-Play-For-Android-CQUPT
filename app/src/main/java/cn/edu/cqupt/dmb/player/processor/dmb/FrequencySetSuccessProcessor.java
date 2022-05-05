@@ -2,6 +2,8 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import android.util.Log;
 
+import cn.edu.cqupt.dmb.player.common.DangleType;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -18,7 +20,7 @@ public class FrequencySetSuccessProcessor implements DataProcessing {
     private static final String TAG = "FrequencySetSuccessProcessor";
 
     @Override
-    public void processData(byte[] usbData) {
+    public void processData(byte[] usbData, DangleType dangleType) {
         Log.i(TAG, "现在接收到的是0x09,类型为频点设置成功返回信息");
     }
 }

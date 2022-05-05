@@ -2,6 +2,8 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import android.util.Log;
 
+import cn.edu.cqupt.dmb.player.common.DangleType;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -18,7 +20,7 @@ public class DefaultDataProcessor implements DataProcessing {
     private static final String TAG = "DefaultDataProcessor";
 
     @Override
-    public void processData(byte[] usbData) {
+    public void processData(byte[] usbData, DangleType dangleType) {
         Log.e(TAG, "接收到类型未知的数据,无法处理!");
     }
 }
