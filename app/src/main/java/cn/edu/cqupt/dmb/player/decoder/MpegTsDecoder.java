@@ -93,7 +93,8 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     public void run() {
-        while (true) {
+        // 20220505 更新,这里的循环条件改成是否在主页好一点,如果强行中断线程会 pip 有可能会报错
+        while (!DataReadWriteUtil.inMainActivity) {
             if (!DataReadWriteUtil.USB_READY) {
                 // 如果当前 USB 没有就绪,就直接结束当前线程
                 return;
@@ -101,10 +102,6 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
             if (!DataReadWriteUtil.initFlag) {
                 // 如果目前还没有接收到 DMB 类型的数据,继续执行下一次任务
                 continue;
-            }
-            if (DataReadWriteUtil.inMainActivity) {
-                // 如果现在在主页就直接结束当前解码线程
-                return;
             }
             byte[] mpegTsPacket = new byte[TS_PACKET_188_SIZE];
             if (readMpegTsPacket(bufferedInputStream, mpegTsPacket)) {

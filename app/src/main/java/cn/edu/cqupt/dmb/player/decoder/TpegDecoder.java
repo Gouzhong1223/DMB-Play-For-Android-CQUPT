@@ -50,7 +50,7 @@ public class TpegDecoder extends AbstractDmbDecoder {
         String fileName = null;
         Log.i(TAG, Thread.currentThread().getName() + "线程开始了 TPEG 的解码");
         NativeMethod.tpegInit();
-        while (true) {
+        while (!DataReadWriteUtil.inMainActivity) {
             if (!DataReadWriteUtil.USB_READY) {
                 // 如果当前 USB 没有就绪,就直接结束当前线程
                 // Log.e(TAG, "现在 USB 还没有就绪!");
