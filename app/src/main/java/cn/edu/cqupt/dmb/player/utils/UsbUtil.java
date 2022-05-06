@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
+import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
 import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.common.FrequencyModule;
@@ -115,6 +116,10 @@ public class UsbUtil {
         deviceHashMap = manager.getDeviceList();
         for (Map.Entry<String, UsbDevice> stringUsbDeviceEntry : deviceHashMap.entrySet()) {
             UsbDevice usbDevice = stringUsbDeviceEntry.getValue();
+            DmbBroadcastReceiver.DmbUsbDevice dmbUsbDevice = new DmbBroadcastReceiver.DmbUsbDevice(usbDevice.getVendorId(), usbDevice.getProductId());
+            if (!DmbBroadcastReceiver.checkUsbDevice(dmbUsbDevice)) {
+                continue;
+            }
             UsbInterface usbInterface = usbDevice.getInterface(1);
             // 获取接口所有的Endpoint
             for (int i = 0; i < usbInterface.getEndpointCount(); i++) {
