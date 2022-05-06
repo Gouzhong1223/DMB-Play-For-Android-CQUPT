@@ -22,7 +22,9 @@ import java.util.concurrent.Executors;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
+import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
+import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
@@ -98,7 +100,8 @@ public class CarouselActivity extends FragmentActivity {
     public void useBanner() {
         //添加生命周期观察者
         banner.addBannerLifecycleObserver(this)
-                .setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()))
+                .setAdapter(new ImageAdapter(BannerDataBean.getHelloViewData()))
+//                .setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()))
                 .setIndicator(new CircleIndicator(this)).start();
     }
 
@@ -114,6 +117,7 @@ public class CarouselActivity extends FragmentActivity {
          * 计数器
          */
         private int cnt = 0;
+        private boolean init = false;
 
         public CarouselHandler(@NonNull Looper looper) {
             super(looper);
@@ -127,6 +131,10 @@ public class CarouselActivity extends FragmentActivity {
                 // 收到三次消息之后才更新一次轮播图,避免性能消耗
                 if (cnt == 1) {
                     banner.stop();
+                    if (!init) {
+                        banner.setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()));
+                        init = true;
+                    }
                     Log.i(TAG, "handleMessage: 重新设置了轮播图的数据源");
                     banner.setDatas(BannerBitmapDataBean.getListBitMapData());
                     banner.start();

@@ -235,7 +235,7 @@ public class FicDecoder {
         short preferenceCrc = (short) ((fib[30] << 8) | fib[31] & 0x00ff);
         if (dataCrc != preferenceCrc) {
             // 校验不通过的直接返回，丢弃当前包
-//            Log.e(TAG, "FIC CRC 校验不通过");
+            Log.e(TAG, "FIC CRC 校验不通过");
             return;
         }
         // 如果 Fic 包是加密的,应该先进行解密,解密策略就是在密码表上进行异或
@@ -277,18 +277,18 @@ public class FicDecoder {
      */
     private synchronized void selectSubCh() {
 //        Log.i(TAG, "现在正在选择子频道，Fib 是: " + BaseConversionUtil.bytes2hex(fib));
-        int currentFigByte = figHeader + 1;
-        int groupId = (byte) (fib[currentFigByte] & 0xE0) >>> 5;
-        int groupFlag = (byte) fib[currentFigByte + 1] & 0x03;
-        int subChId = fib[currentFigByte + 1] >>> 2;
+        int index = figHeader + 1;
+        int groupId = (fib[index] & 0xE0) >>> 5;
+        int groupFlag = fib[index + 1] & 0x03;
+        int subChId = fib[index + 1] >>> 2;
         int groupIndex = (id - 1) / 200;
         int byteIndex = (((id - 1) % 200) >>> 3);
         int bitIndex = ((id - 1) % 200) & 0x07;
         int bitMask = 0x80 >>> bitIndex;
-        if (currentFigByte + 2 + byteIndex > 31) {
+        if (index + 2 + byteIndex > 31) {
             return;
         }
-        if (groupId == groupIndex && (fib[currentFigByte + 2 + byteIndex] & bitMask) != 0) {
+        if (groupId == groupIndex && (fib[index + 2 + byteIndex] & bitMask) != 0) {
             if (groupFlag == 0x01 && channelInfos[subChId].label != null
                     && channelInfos[subChId].subChOrganization[6] != 0) { /* msc id */
                 channelInfos[subChId].isSelect = true;
