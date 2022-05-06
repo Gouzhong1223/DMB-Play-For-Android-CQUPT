@@ -76,11 +76,12 @@ public class CarouselActivity extends FragmentActivity {
     }
 
     private void startDecodeTpeg() {
+        CarouselHandler carouselHandler = new CarouselHandler(Looper.getMainLooper());
         // 先重置一下 Dangle
-        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), MainActivity.frequency);
+        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true, carouselHandler), MainActivity.frequency);
         // 开始执行 TPEG 解码的任务
         // 构造TPEG解码器
-        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper())), this);
+        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(carouselHandler), this);
         executorService.submit(tpegDecoder);
     }
 
@@ -159,7 +160,12 @@ public class CarouselActivity extends FragmentActivity {
                     signalImageView.setImageResource(R.drawable.singlemark5);
                 }
             } else if (msg.what == 0x88) {
-                Toast.makeText(CarouselActivity.this, "不兼容的图片类型!,请更换标准 JPG 图片", Toast.LENGTH_SHORT).show();
+                runOnUiThread(() -> Toast.makeText(CarouselActivity.this, "不兼容的图片类型!,请更换标准 JPG 图片", Toast.LENGTH_SHORT).show());
+            } else if (msg.what == 0x55) {
+                if (msg.getData() != null) {
+                    String channel = msg.getData().getString("channel");
+                    runOnUiThread(() -> Toast.makeText(CarouselActivity.this, channel, Toast.LENGTH_SHORT).show());
+                }
             }
         }
     }

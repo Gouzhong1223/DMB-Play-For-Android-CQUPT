@@ -51,6 +51,10 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      */
     @SuppressLint("StaticFieldLeak")
     private static volatile DmbBroadcastReceiver dmbBroadcastReceiver;
+    /**
+     * Dangle类型
+     */
+    private volatile static Integer dangleType;
 
     static {
         DMB_USB_DEVICES.add(new DmbUsbDevice(1155, 22336));
@@ -66,10 +70,6 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * 主页面的回调处理器
      */
     private final Handler handler;
-    /**
-     * Dangle类型
-     */
-    private volatile static Integer dangleType;
     /**
      * Android 系统中的 USB 设备管理器
      */
@@ -95,6 +95,27 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
             }
         }
         return dmbBroadcastReceiver;
+    }
+
+    /**
+     * 校验当前插入设备的 USB 是否是合法的 Dangle 设备
+     *
+     * @param dmbUsbDevice Dangle
+     * @return 合法->true
+     */
+    public static boolean checkUsbDevice(DmbUsbDevice dmbUsbDevice) {
+        for (DmbUsbDevice usbDevice : DMB_USB_DEVICES) {
+            boolean compare = usbDevice.compare(dmbUsbDevice);
+            if (compare) {
+                if (usbDevice.VID == 1155) {
+                    dangleType = 2;
+                } else {
+                    dangleType = 1;
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -227,27 +248,6 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         UsbUtil usbUtil = new UsbUtil(dangelType);
         // 开始从USB中读取数据
         usbUtil.initUsb(usbManager);
-    }
-
-    /**
-     * 校验当前插入设备的 USB 是否是合法的 Dangle 设备
-     *
-     * @param dmbUsbDevice Dangle
-     * @return 合法->true
-     */
-    public static boolean checkUsbDevice(DmbUsbDevice dmbUsbDevice) {
-        for (DmbUsbDevice usbDevice : DMB_USB_DEVICES) {
-            boolean compare = usbDevice.compare(dmbUsbDevice);
-            if (compare) {
-                if (usbDevice.VID == 1155) {
-                    dangleType = 2;
-                } else {
-                    dangleType = 1;
-                }
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

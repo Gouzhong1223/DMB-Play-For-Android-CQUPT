@@ -1,6 +1,9 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
 
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
@@ -108,6 +111,7 @@ public class FicDecoder {
             {416, 408, 916, 7854, 119, 384}
     };
     public int year, month, day, hour, minute, second;
+    private volatile Handler handler;
     /**
      * 设备的 ID 号
      */
@@ -134,9 +138,10 @@ public class FicDecoder {
      * @param id          终端设备 ID
      * @param isEncrypted 是否加密
      */
-    private FicDecoder(int id, boolean isEncrypted) {
+    private FicDecoder(int id, boolean isEncrypted, Handler handler) {
         this.id = id;
         this.isEncrypted = isEncrypted;
+        this.handler = handler;
         fib = new byte[32];
         channelInfos = new ChannelInfo[CHANNEL_SIZE];
         for (int i = 0; i < CHANNEL_SIZE; i++) {
@@ -153,16 +158,19 @@ public class FicDecoder {
      * @param isEncrypted 是否加密
      * @return FicDecoder 单例对象
      */
-    public static FicDecoder getInstance(int id, boolean isEncrypted) {
+    public static FicDecoder getInstance(int id, boolean isEncrypted, Handler handler) {
         if (ficDecoder == null) {
             synchronized (FicDecoder.class) {
                 if (ficDecoder == null) {
-                    ficDecoder = new FicDecoder(id, isEncrypted);
+                    ficDecoder = new FicDecoder(id, isEncrypted, handler);
                 }
             }
         }
         Log.i(TAG, "FicDecoder 的 ID 被重新设置成了:" + id);
         ficDecoder.setId(id);
+        if (handler != null) {
+            ficDecoder.setHandler(handler);
+        }
         return ficDecoder;
     }
 
@@ -188,6 +196,10 @@ public class FicDecoder {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setHandler(Handler handler) {
+        this.handler = handler;
     }
 
     /**
@@ -282,9 +294,9 @@ public class FicDecoder {
         int groupFlag = fib[index + 1] & 0x03;
         int subChId = fib[index + 1] >>> 2;
         int groupIndex = (id - 1) / 200;
-        int byteIndex = (((id - 1) % 200) >>> 3);
+        int byteIndex = ((id - 1) % 200) / 8;
         int bitIndex = ((id - 1) % 200) & 0x07;
-        int bitMask = 0x80 >>> bitIndex;
+        byte bitMask = (byte) (0x80 >>> bitIndex);
         if (index + 2 + byteIndex > 31) {
             return;
         }
@@ -301,8 +313,14 @@ public class FicDecoder {
 
     public synchronized ChannelInfo getSelectChannelInfo() {
         for (int i = 0; i < CHANNEL_SIZE; i++) {
-            if (channelInfos[i].isSelect && channelInfos[i].type == 3) {
+            if (channelInfos[i].isSelect) {
                 if (channelInfos[i].subChOrganization[6] > 0) {
+                    Message message = new Message();
+                    message.what = 0x55;
+                    Bundle bundle = new Bundle();
+                    bundle.putString("channel", channelInfos[i].toString());
+                    message.setData(bundle);
+                    handler.handleMessage(message);
                     return channelInfos[i];
                 } else {
                     return null;

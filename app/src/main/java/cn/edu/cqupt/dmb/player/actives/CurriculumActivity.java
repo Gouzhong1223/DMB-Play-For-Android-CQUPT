@@ -72,7 +72,7 @@ public class CurriculumActivity extends Activity {
         // 重新设置一下MainActivity.id的 ID,方便 FicDecoder 解码
         MainActivity.id = DataReadWriteUtil.getActiveFrequencyModule().getDeviceID();
         // 先重置一下 Dangle
-        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
+        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true, null), DataReadWriteUtil.getActiveFrequencyModule());
         dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()));
         // 构造TPEG解码器
         TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListener, this);

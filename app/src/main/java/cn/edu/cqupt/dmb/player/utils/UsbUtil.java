@@ -119,7 +119,7 @@ public class UsbUtil {
         // 结束之后将 ID 设置成默认的场景 ID
         MainActivity.id = defaultFrequencyModule.getDeviceID();
         // 再重置一下 Dangle
-        restDangle(FicDecoder.getInstance(MainActivity.id, true), defaultFrequencyModule);
+        restDangle(FicDecoder.getInstance(MainActivity.id, true, null), defaultFrequencyModule);
         DataReadWriteUtil.inMainActivity = true;
     }
 
