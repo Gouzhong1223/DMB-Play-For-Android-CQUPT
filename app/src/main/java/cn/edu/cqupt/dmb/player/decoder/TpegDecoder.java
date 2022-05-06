@@ -26,7 +26,7 @@ public class TpegDecoder extends AbstractDmbDecoder {
 
 
     /* file size should not be greater than 2M */
-    private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 2;
+    private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 10;
     private static final int TPEG_SIZE = 112;
     private static final int DATA_SIZE = 80;
     private static final int TPEG_INFO_SIZE = 3;
