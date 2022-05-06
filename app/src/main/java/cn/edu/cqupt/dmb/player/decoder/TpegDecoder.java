@@ -26,7 +26,7 @@ public class TpegDecoder extends AbstractDmbDecoder {
 
 
     /* file size should not be greater than 2M */
-    private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 2;
+    private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 10;
     private static final int TPEG_SIZE = 112;
     private static final int DATA_SIZE = 80;
     private static final int TPEG_INFO_SIZE = 3;
@@ -34,6 +34,7 @@ public class TpegDecoder extends AbstractDmbDecoder {
     private static final int MIDDLE_FRAME = 1;
     private static final int LAST_FRAME = 3;
     private static final String TAG = "TpegDecoder";
+    private int cnt = 0;
 
     public TpegDecoder(DmbListener listener, Context context) {
         super(listener, context);
@@ -75,6 +76,8 @@ public class TpegDecoder extends AbstractDmbDecoder {
             switch (tpegInfo[0]) {
                 case FIRST_FRAME:
                     Log.i(TAG, "现在接收到了头帧");
+                    cnt = 0;
+                    cnt++;
                     isReceiveFirstFrame = true;
                     System.arraycopy(tpegData, 0, fileBuffer, 0, tpegInfo[1]);
                     total = tpegInfo[1] - 35;
@@ -91,6 +94,8 @@ public class TpegDecoder extends AbstractDmbDecoder {
                     }
                     break;
                 case MIDDLE_FRAME:
+                    cnt++;
+                    Log.i(TAG, "现在接收到了中间帧");
                     if (total + tpegInfo[1] >= FILE_BUFFER_SIZE) {
                         total = 0;
                     } else {
@@ -99,6 +104,9 @@ public class TpegDecoder extends AbstractDmbDecoder {
                     }
                     break;
                 case LAST_FRAME:
+                    Log.e(TAG, "run: 中间帧为:" + cnt);
+                    cnt = 0;
+                    Log.i(TAG, "现在接收到了尾帧");
                     if (isReceiveFirstFrame && total + tpegInfo[1] < FILE_BUFFER_SIZE) {
                         System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
                         total += tpegInfo[1];
@@ -110,6 +118,8 @@ public class TpegDecoder extends AbstractDmbDecoder {
                     }
                     break;
                 default:
+                    Log.e(TAG, "run: 中间帧为:" + cnt);
+                    cnt = 0;
                     Log.e(TAG, "未知的 TPEG 类型");
                     break;
             }

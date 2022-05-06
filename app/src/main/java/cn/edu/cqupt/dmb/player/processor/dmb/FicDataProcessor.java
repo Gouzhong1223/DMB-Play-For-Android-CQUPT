@@ -51,7 +51,10 @@ public class FicDataProcessor implements DataProcessing {
                 // 这里需要获取重新设置pseudoBitErrorRateProcessor中的BitRate方便展示信号
                 pseudoBitErrorRateProcessor.setBitRate(channelInfo.subChOrganization[6]);
                 // 提取出来之后再写回到USB中,也就是设置ChannelInfo
-                new Thread(() -> isSelectId = dangle.SetChannel(channelInfo)).start();
+                if (isSelectId) {
+                    return;
+                }
+                isSelectId = dangle.SetChannel(channelInfo);
                 if (!isSelectId) {
                     Log.e(TAG, "设置channelInfo失败!这是往 USB 中设置的时候出错啦!" + channelInfo);
                 }

@@ -77,8 +77,11 @@ public class CarouselActivity extends FragmentActivity {
 
     private void startDecodeTpeg() {
         CarouselHandler carouselHandler = new CarouselHandler(Looper.getMainLooper());
-        // 先重置一下 Dangle
-        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true, carouselHandler), MainActivity.frequency);
+        if (!DataReadWriteUtil.init) {
+            // 先重置一下 Dangle
+            UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true, carouselHandler), MainActivity.frequency);
+            DataReadWriteUtil.init = true;
+        }
         // 开始执行 TPEG 解码的任务
         // 构造TPEG解码器
         TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(carouselHandler), this);
@@ -166,6 +169,8 @@ public class CarouselActivity extends FragmentActivity {
                     String channel = msg.getData().getString("channel");
                     runOnUiThread(() -> Toast.makeText(CarouselActivity.this, channel, Toast.LENGTH_SHORT).show());
                 }
+            } else if (msg.what == 0x56) {
+                runOnUiThread(() -> Toast.makeText(CarouselActivity.this, "接收到一张新的图片", Toast.LENGTH_SHORT).show());
             }
         }
     }

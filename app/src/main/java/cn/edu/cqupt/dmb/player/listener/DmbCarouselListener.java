@@ -33,7 +33,7 @@ public class DmbCarouselListener implements DmbListener {
     /**
      * 轮播图图片字节流
      */
-    private final byte[] fileBuffer = new byte[1024 * 1024 * 2];
+    private final byte[] fileBuffer = new byte[1024 * 1024 * 15];
 
     private final Handler handler;
     /**
@@ -70,6 +70,7 @@ public class DmbCarouselListener implements DmbListener {
             CarouselBannerImageBitmapCache.putBitMap(bannerBitmapDataBean);
             // 添加一张轮播图之后,发送一次更新轮播图的消息
             handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
+            handler.sendEmptyMessage(0x56);
 //            Toast.makeText(context, "解码图片成功", Toast.LENGTH_SHORT).show();
         } else {
 //            Toast.makeText(context, "解码图片失败,不兼容的图片类型", Toast.LENGTH_SHORT).show();

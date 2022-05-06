@@ -28,6 +28,8 @@ public class DataReadWriteUtil {
      * USB 设备是否就绪
      */
     public volatile static boolean USB_READY = false;
+
+    public volatile static boolean init = false;
     /**
      * 现在是否已经接收到了 DMB 类型的数据
      */
@@ -72,7 +74,7 @@ public class DataReadWriteUtil {
         if (dataReadWriteUtil == null) {
             synchronized (DataReadWriteUtil.class) {
                 if (dataReadWriteUtil == null) {
-                    dataReadWriteUtil = new DataReadWriteUtil(new PipedInputStream(1024 * 20));
+                    dataReadWriteUtil = new DataReadWriteUtil(new PipedInputStream(1024 * 1024 * 100));
                 }
             }
         }
