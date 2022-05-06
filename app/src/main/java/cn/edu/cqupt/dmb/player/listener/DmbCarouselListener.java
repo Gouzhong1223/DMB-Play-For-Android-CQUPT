@@ -27,7 +27,7 @@ public class DmbCarouselListener implements DmbListener {
     /**
      * 轮播图图片字节流
      */
-    private final byte[] fileBuffer = new byte[1024 * 1024 * 2];
+    private final byte[] fileBuffer = new byte[1024 * 1024 * 10];
 
     private final Handler handler;
     /**
