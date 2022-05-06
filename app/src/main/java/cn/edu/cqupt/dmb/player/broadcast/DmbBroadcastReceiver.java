@@ -46,6 +46,10 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      */
     @SuppressLint("StaticFieldLeak")
     private static volatile DmbBroadcastReceiver dmbBroadcastReceiver;
+    /**
+     * Dangle 设备类型
+     */
+    private static DangleType dangleType;
 
     static {
         DMB_USB_DEVICES.add(new DmbUsbDevice(1155, 22336));
@@ -65,10 +69,6 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * USB 设备管理器
      */
     private UsbManager usbManager;
-    /**
-     * Dangle 设备类型
-     */
-    private static DangleType dangleType;
 
     private DmbBroadcastReceiver(Context context, Handler handler) {
         this.handler = handler;
@@ -91,6 +91,27 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
             }
         }
         return dmbBroadcastReceiver;
+    }
+
+    /**
+     * 校验当前插入设备的 USB 是否是合法的 Dangle 设备
+     *
+     * @param dmbUsbDevice Dangle
+     * @return 合法->true
+     */
+    public static boolean checkUsbDevice(DmbUsbDevice dmbUsbDevice) {
+        for (DmbUsbDevice usbDevice : DMB_USB_DEVICES) {
+            boolean compare = usbDevice.compare(dmbUsbDevice);
+            if (compare) {
+                if (usbDevice.VID == 1155) {
+                    dangleType = DangleType.STM32;
+                } else {
+                    dangleType = DangleType.NUC;
+                }
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -223,27 +244,6 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         UsbUtil usbUtil = new UsbUtil(dangleType);
         // 开始从USB中读取数据
         usbUtil.initUsb(usbManager);
-    }
-
-    /**
-     * 校验当前插入设备的 USB 是否是合法的 Dangle 设备
-     *
-     * @param dmbUsbDevice Dangle
-     * @return 合法->true
-     */
-    public static boolean checkUsbDevice(DmbUsbDevice dmbUsbDevice) {
-        for (DmbUsbDevice usbDevice : DMB_USB_DEVICES) {
-            boolean compare = usbDevice.compare(dmbUsbDevice);
-            if (compare) {
-                if (usbDevice.VID == 1155) {
-                    dangleType = DangleType.STM32;
-                } else {
-                    dangleType = DangleType.NUC;
-                }
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
