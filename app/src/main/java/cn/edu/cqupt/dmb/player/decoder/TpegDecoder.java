@@ -25,7 +25,7 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 public class TpegDecoder extends AbstractDmbDecoder {
 
 
-    /* file size should not be greater than 2M */
+    /* file size should not be greater than 20M */
     private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 10;
     private static final int TPEG_SIZE = 112;
     private static final int DATA_SIZE = 80;
