@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
+import java.util.HashSet;
 
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.CarouselBannerImageBitmapCache;
@@ -34,7 +35,6 @@ public class DmbCarouselListener implements DmbListener {
      * 轮播图图片字节流
      */
     private final byte[] fileBuffer = new byte[1024 * 1024 * 15];
-
     /**
      * 回调处理器
      */
@@ -47,6 +47,7 @@ public class DmbCarouselListener implements DmbListener {
      * 监听信号更新的 message 类型
      */
     private final int MESSAGE_UPDATE_SIGNAL = DmbPlayerConstant.MESSAGE_UPDATE_SIGNAL.getDmbConstantValue();
+    private final HashSet<String> loadImage = new HashSet<>();
     /**
      * 发送更新信号消息的计数器,cnt==5 的时候发送一次更新信号消息,发送之后清零
      */
@@ -70,10 +71,13 @@ public class DmbCarouselListener implements DmbListener {
         if (bitmap != null) {
             // 添加到有界队列中
             Log.i(TAG, "onSuccess: 放了一张 bitmap 到缓存里面去");
-            CarouselBannerImageBitmapCache.putBitMap(bannerBitmapDataBean);
-            // 添加一张轮播图之后,发送一次更新轮播图的消息
-            handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
-            handler.sendEmptyMessage(0x56);
+            if (!loadImage.contains(bannerBitmapDataBean.getTitle())) {
+                CarouselBannerImageBitmapCache.putBitMap(bannerBitmapDataBean);
+                loadImage.add(bannerBitmapDataBean.getTitle());
+                // 添加一张轮播图之后,发送一次更新轮播图的消息
+                handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
+                handler.sendEmptyMessage(0x56);
+            }
         } else {
             Log.e(TAG, "onSuccess: 不兼容的图片!");
             Log.e(TAG, Thread.currentThread().getName() + "线程生成 bitmap 错误啦!");
@@ -98,6 +102,8 @@ public class DmbCarouselListener implements DmbListener {
             // 如果现在计数器已经到 5 了,就发送一次更新信号的消息
             Log.i(TAG, Thread.currentThread().getName() + "线程发送了一次更新信号的消息");
             handler.sendEmptyMessage(MESSAGE_UPDATE_SIGNAL);
+            // 清空缓存
+            loadImage.clear();
             // 发送之后重置计数器
             cnt = 0;
         }

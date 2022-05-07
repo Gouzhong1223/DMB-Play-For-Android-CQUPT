@@ -17,9 +17,6 @@ import androidx.fragment.app.FragmentActivity;
 import com.youth.banner.Banner;
 import com.youth.banner.indicator.CircleIndicator;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
@@ -45,11 +42,6 @@ public class CarouselActivity extends FragmentActivity {
      * 监听信号更新的 message 类型
      */
     private final int MESSAGE_UPDATE_SIGNAL = DmbPlayerConstant.MESSAGE_UPDATE_SIGNAL.getDmbConstantValue();
-
-    /**
-     * 单例线程池,运行MPEG解码线程的
-     */
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /**
      * 轮播图组件
@@ -85,7 +77,7 @@ public class CarouselActivity extends FragmentActivity {
         // 开始执行 TPEG 解码的任务
         // 构造TPEG解码器
         TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(carouselHandler), this);
-        executorService.submit(tpegDecoder);
+        new Thread(tpegDecoder).start();
     }
 
     private void initView() {
@@ -93,9 +85,6 @@ public class CarouselActivity extends FragmentActivity {
         useBanner();
         // 初始化轮播图中的信号显示组件
         signalImageView = findViewById(R.id.carousel_signal);
-        if (executorService.isShutdown()) {
-            executorService = Executors.newSingleThreadExecutor();
-        }
     }
 
     /**
@@ -133,7 +122,7 @@ public class CarouselActivity extends FragmentActivity {
             if (msg.what == MESSAGE_UPDATE_CAROUSEL) {
                 cnt++;
                 // 收到三次消息之后才更新一次轮播图,避免性能消耗
-                if (cnt == 1) {
+                if (cnt == 2) {
                     banner.stop();
                     if (!init) {
                         banner.setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()));
@@ -164,13 +153,6 @@ public class CarouselActivity extends FragmentActivity {
                 }
             } else if (msg.what == 0x88) {
                 runOnUiThread(() -> Toast.makeText(CarouselActivity.this, "不兼容的图片类型!,请更换标准 JPG 图片", Toast.LENGTH_SHORT).show());
-            } else if (msg.what == 0x55) {
-                if (msg.getData() != null) {
-                    String channel = msg.getData().getString("channel");
-                    runOnUiThread(() -> Toast.makeText(CarouselActivity.this, channel, Toast.LENGTH_SHORT).show());
-                }
-            } else if (msg.what == 0x56) {
-                runOnUiThread(() -> Toast.makeText(CarouselActivity.this, "接收到一张新的图片", Toast.LENGTH_SHORT).show());
             }
         }
     }

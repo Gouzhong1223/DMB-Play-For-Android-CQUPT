@@ -74,7 +74,7 @@ public class DataReadWriteUtil {
         if (dataReadWriteUtil == null) {
             synchronized (DataReadWriteUtil.class) {
                 if (dataReadWriteUtil == null) {
-                    dataReadWriteUtil = new DataReadWriteUtil(new PipedInputStream(1024 * 1024 * 100));
+                    dataReadWriteUtil = new DataReadWriteUtil(new PipedInputStream(1024 * 1024 * 30));
                 }
             }
         }

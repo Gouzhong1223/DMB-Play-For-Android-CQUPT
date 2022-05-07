@@ -63,7 +63,7 @@ public class FicDataProcessor implements DataProcessing {
                 if (isSelectId) {
                     return;
                 }
-                isSelectId = dangle.SetChannel(channelInfo);
+                new Thread(() -> isSelectId = dangle.SetChannel(channelInfo)).start();
                 if (!isSelectId) {
                     Log.e(TAG, "设置channelInfo失败!这是往 USB 中设置的时候出错啦!" + channelInfo);
                 }

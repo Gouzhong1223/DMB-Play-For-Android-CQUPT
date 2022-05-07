@@ -5,6 +5,8 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.util.Log;
 
+import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -126,6 +128,9 @@ public class Dangle {
      * @return isSelectId  如果设置成功,就直接返回true,反之就返回false
      */
     public boolean SetChannel(ChannelInfo channelInfo) {
+        if (FicDataProcessor.isSelectId) {
+            return true;
+        }
         byte[] mcu_cmd = new byte[48];
         byte[] bb_cmd = new byte[48];
         byte temp;
