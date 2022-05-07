@@ -23,6 +23,9 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 public class FicDataProcessor implements DataProcessing {
 
     private static final String TAG = "FicDataProcessor";
+    /**
+     * 是否已经进行了选台
+     */
     public static volatile boolean isSelectId = false;
     /**
      * 初始化Fic解码器
@@ -32,7 +35,13 @@ public class FicDataProcessor implements DataProcessing {
      * 接收单个Fic
      */
     private final byte[] ficBuf = new byte[DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue()];
+    /**
+     * 子信道信息
+     */
     ChannelInfo channelInfo;
+    /**
+     * Dangle 实例
+     */
     Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
 
     @Override
