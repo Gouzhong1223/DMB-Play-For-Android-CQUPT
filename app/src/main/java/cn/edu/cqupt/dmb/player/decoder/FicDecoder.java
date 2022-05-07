@@ -291,6 +291,9 @@ public class FicDecoder {
 //        Log.i(TAG, "现在正在选择子频道，Fib 是: " + BaseConversionUtil.bytes2hex(fib));
         int currentFigByte = figHeader + 1;
         int groupId = (byte) (fib[currentFigByte] & 0xE0) >>> 5;
+        if (groupId > 4) {
+            groupId = (fib[currentFigByte] & 0xE0) >>> 5;
+        }
         int groupFlag = (byte) fib[currentFigByte + 1] & 0x03;
         int subChId = fib[currentFigByte + 1] >>> 2;
         int groupIndex = (id - 1) / 200;
