@@ -45,6 +45,10 @@ public class DataReadWriteUtil {
      */
     private static volatile FrequencyModule activeFrequencyModule;
     /**
+     * 上一次使用到的场景
+     */
+    private static volatile FrequencyModule preFrequencyModule;
+    /**
      * USB 数据的 PIP 输入流
      */
     private final PipedInputStream pipedInputStream;
@@ -106,5 +110,13 @@ public class DataReadWriteUtil {
 
     public BufferedInputStream getBufferedInputStream() {
         return bufferedInputStream;
+    }
+
+    public static FrequencyModule getPreFrequencyModule() {
+        return preFrequencyModule;
+    }
+
+    public static void setPreFrequencyModule(FrequencyModule preFrequencyModule) {
+        DataReadWriteUtil.preFrequencyModule = preFrequencyModule;
     }
 }

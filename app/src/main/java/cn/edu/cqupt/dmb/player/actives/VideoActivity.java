@@ -173,9 +173,7 @@ public class VideoActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        // 结束
-        // 直接中断 TS 解码器
-//        executorService.shutdown();
+
         // 关闭线程池中的任务
         videoPlayerFrame.release();
         closeStream();

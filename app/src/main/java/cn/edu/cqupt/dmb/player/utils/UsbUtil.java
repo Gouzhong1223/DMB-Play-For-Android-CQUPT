@@ -86,6 +86,12 @@ public class UsbUtil {
         dangle.setFrequency(frequencyModule.getFrequency());
         // 清空 ficDecoder 的ChannelInfo
         ficDecoder.resetChannelInfos();
+        try {
+            // 重置子信道数据之后等 300 毫秒
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         FicDataProcessor.isSelectId = false;
     }
 

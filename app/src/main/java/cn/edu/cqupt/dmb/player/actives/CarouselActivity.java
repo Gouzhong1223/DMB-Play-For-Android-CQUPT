@@ -107,6 +107,9 @@ public class CarouselActivity extends FragmentActivity {
         super.onDestroy();
     }
 
+    /**
+     * 自定义回调器
+     */
     private class CarouselHandler extends Handler {
         /**
          * 计数器
