@@ -18,6 +18,8 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
@@ -38,8 +40,14 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
 public class MainActivity extends Activity {
 
+    /**
+     * 自定义USB权限
+     */
     private static final String ACTION_USB_PERMISSION = DmbPlayerConstant.ACTION_USB_PERMISSION.getDmbConstantDescribe();
     private static final String TAG = "MainActivity";
+    /**
+     * 设备存储权限
+     */
     private static final int WRITE_STORAGE_REQUEST_CODE = 100;
     /**
      * 跳转到默认场景的消息
@@ -66,6 +74,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 强制全屏,全的不能再全的那种了
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         // 请求存储设备的读写权限
         requestPermissions(this);
@@ -73,8 +85,9 @@ public class MainActivity extends Activity {
         initView();
         // 初始化 DMB 的常量,设备号还有频点
         initDefaultFrequencyModule();
+        // 构造Handler
         MainHandler mainHandler = new MainHandler(Looper.getMainLooper());
-        // 之所以在这里传进去是因为尽量吧跳转 Activity 的工作留在主线程
+        // 之所以在这里传进去是因为尽量把跳转 Activity 的工作留在主线程
         firstInitMainActivity(this, mainHandler);
     }
 
