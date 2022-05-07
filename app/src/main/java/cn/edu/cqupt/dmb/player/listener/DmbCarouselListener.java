@@ -35,6 +35,9 @@ public class DmbCarouselListener implements DmbListener {
      */
     private final byte[] fileBuffer = new byte[1024 * 1024 * 15];
 
+    /**
+     * 回调处理器
+     */
     private final Handler handler;
     /**
      * 处理更新轮播图的消息类型
@@ -71,11 +74,7 @@ public class DmbCarouselListener implements DmbListener {
             // 添加一张轮播图之后,发送一次更新轮播图的消息
             handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
             handler.sendEmptyMessage(0x56);
-//            Toast.makeText(context, "解码图片成功", Toast.LENGTH_SHORT).show();
         } else {
-//            Toast.makeText(context, "解码图片失败,不兼容的图片类型", Toast.LENGTH_SHORT).show();
-//            DialogUtil.generateDialog(context, "图片不兼容", "发送的图片不兼容,请更换为标准的 JPG 格式图片!",
-//                    DialogUtil.getPositiveButtonList(new DialogUtil.PositiveButton(null, "确定"))).show();
             Log.e(TAG, "onSuccess: 不兼容的图片!");
             Log.e(TAG, Thread.currentThread().getName() + "线程生成 bitmap 错误啦!");
             YuvImage yuvimage = new YuvImage(fileBuffer, ImageFormat.NV21, 20, 20, null);//20、20分别是图的宽度与高度
