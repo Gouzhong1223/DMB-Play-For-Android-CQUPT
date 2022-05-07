@@ -44,11 +44,14 @@ public class DmbDataProcessor implements DataProcessing {
 //        Log.i(TAG, "现在接收到的数据是 DMB 类型!");
         int dataLength;
         if (dangleType == 2) {
+            // STM32 Dangle 数据长度获取
             dataLength = (((int) usbData[7]) & 0x0FF);
         } else {
+            // AT 还有 NUC Dangle 数据长度获取
             dataLength = (((int) usbData[6] & 0x0FF) << 8) | (((int) usbData[7]) & 0x0FF);
         }
         try {
+            // 把数据写到 PIP 流里面去
             pipedOutputStream.write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
             if (!DataReadWriteUtil.initFlag) {
                 DataReadWriteUtil.initFlag = true;
