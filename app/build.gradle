@@ -13,7 +13,7 @@ android {
         minSdk 19
         targetSdk 32
         versionCode 1
-        versionName "1.0.6"
+        versionName "1.0.7"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -102,4 +102,6 @@ dependencies {
     testImplementation 'androidx.test:core:1.4.0'
     // Optional -- Mockito framework
     testImplementation 'org.mockito:mockito-core:1.10.19'
+
+    implementation 'com.aliyun.openservices:aliyun-log-android-sdk:2.6.2'
 }
