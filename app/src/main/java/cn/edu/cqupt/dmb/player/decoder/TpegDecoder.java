@@ -6,6 +6,7 @@ import android.util.Log;
 import java.io.IOException;
 import java.util.Arrays;
 
+import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
@@ -26,10 +27,10 @@ public class TpegDecoder extends AbstractDmbDecoder {
 
 
     /* file size should not be greater than 20M */
-    private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 10;
-    private static final int TPEG_SIZE = 112;
-    private static final int DATA_SIZE = 80;
-    private static final int TPEG_INFO_SIZE = 3;
+    private static final int FILE_BUFFER_SIZE = DmbPlayerConstant.DEFAULT_TPEG_FILE_BUFFER_SIZE.getDmbConstantValue();
+    private static final int TPEG_SIZE = DmbPlayerConstant.DEFAULT_TPEG_SIZE.getDmbConstantValue();
+    private static final int DATA_SIZE = DmbPlayerConstant.DEFAULT_TPEG_DATA_SIZE.getDmbConstantValue();
+    private static final int TPEG_INFO_SIZE = DmbPlayerConstant.DEFAULT_TPEG_TPEG_INFO_SIZE.getDmbConstantValue();
     private static final int FIRST_FRAME = 2;
     private static final int MIDDLE_FRAME = 1;
     private static final int LAST_FRAME = 3;

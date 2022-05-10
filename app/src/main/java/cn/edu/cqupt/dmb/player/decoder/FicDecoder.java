@@ -294,7 +294,7 @@ public class FicDecoder {
         if (groupId > 4) {
             groupId = (fib[currentFigByte] & 0xE0) >>> 5;
         }
-        int groupFlag = (byte) fib[currentFigByte + 1] & 0x03;
+        int groupFlag = fib[currentFigByte + 1] & 0x03;
         int subChId = fib[currentFigByte + 1] >>> 2;
         int groupIndex = (id - 1) / 200;
         int byteIndex = (((id - 1) % 200) >>> 3);
