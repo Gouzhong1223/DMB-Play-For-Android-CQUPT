@@ -94,7 +94,6 @@ public class CarouselActivity extends FragmentActivity {
         //添加生命周期观察者
         banner.addBannerLifecycleObserver(this)
                 .setAdapter(new ImageAdapter(BannerDataBean.getHelloViewData()))
-//                .setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()))
                 .setIndicator(new CircleIndicator(this)).start();
     }
 
