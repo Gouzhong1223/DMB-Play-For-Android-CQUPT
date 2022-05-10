@@ -52,8 +52,11 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
     private static DangleType dangleType;
 
     static {
+        // STM32 型号 Dangle
         DMB_USB_DEVICES.add(new DmbUsbDevice(1155, 22336));
+        // NUC 型号 Dangle
         DMB_USB_DEVICES.add(new DmbUsbDevice(1003, 24868));
+        // AT 型号 Dangle
         DMB_USB_DEVICES.add(new DmbUsbDevice(1046, 20497));
     }
 
