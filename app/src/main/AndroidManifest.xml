@@ -34,6 +34,9 @@
             android:supportsRtl="true"
             android:theme="@style/DMB_Player_Android">
         <activity
+                android:name=".actives.SetupActivity"
+                android:exported="false" />
+        <activity
                 android:name=".actives.SettingActivity"
                 android:exported="false" />
         <activity

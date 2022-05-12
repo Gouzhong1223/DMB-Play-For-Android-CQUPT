@@ -267,7 +267,7 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 break;
             case R.id.setting:
-                intent.setClass(this, SettingActivity.class);
+                intent.setClass(this, SetupActivity.class);
                 startActivity(intent);
                 break;
             case R.id.dormitory:
