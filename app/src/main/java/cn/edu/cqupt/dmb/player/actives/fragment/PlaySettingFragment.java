@@ -167,28 +167,34 @@ public class PlaySettingFragment extends Fragment {
         }
         // 设置轮播图下拉框的数据源
         carouselNumSpinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, carouselNum));
+        // 查询现有的轮播图数量设置
         CustomSetting carouselCustomSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.DEFAULT_CAROUSEL_NUM.getKey());
         if (carouselCustomSetting != null) {
             for (int i = 0; i < carouselNum.length; i++) {
                 Integer carouseN = carouselNum[i];
                 Long settingValue = carouselCustomSetting.getSettingValue();
                 if (Objects.equals(Long.valueOf(carouseN), settingValue)) {
+                    // 绑定编号
                     carouselNumSpinner.setSelection(i);
                 }
             }
         }
+        // 设置轮播图数量下拉框的选择监听器
         carouselNumSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                // 查询现有的轮播图数量设置
                 CustomSetting carouselNumSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.DEFAULT_CAROUSEL_NUM.getKey());
                 Integer carouselN = carouselNum[i];
                 if (carouselNumSetting == null) {
                     carouselNumSetting = new CustomSetting();
                     carouselNumSetting.setSettingKey(CustomSettingByKey.DEFAULT_CAROUSEL_NUM.getKey());
                     carouselNumSetting.setSettingValue(Long.valueOf(carouselN));
+                    // 插入设置
                     customSettingMapper.insertCustomSetting(carouselNumSetting);
                 } else {
                     carouselNumSetting.setSettingValue(Long.valueOf(carouselN));
+                    // 更新设置
                     customSettingMapper.updateCustomSetting(carouselNumSetting);
                 }
             }
@@ -222,11 +228,13 @@ public class PlaySettingFragment extends Fragment {
                     customSetting = new CustomSetting();
                     customSetting.setSettingKey(CustomSettingByKey.DEFAULT_SENSE.getKey());
                     customSetting.setSettingValue(sceneIdMap.get(sceneNames.get(i)));
+                    // 插入设置
                     customSettingMapper.insertCustomSetting(customSetting);
                 } else {
                     Long sceneId = customSetting.getSettingValue();
                     if (!Objects.equals(sceneIdMap.get(sceneNames.get(i)), sceneId)) {
                         customSetting.setSettingValue(sceneIdMap.get(sceneNames.get(i)));
+                        // 更新设置
                         customSettingMapper.updateCustomSetting(customSetting);
                     }
                 }
@@ -237,13 +245,16 @@ public class PlaySettingFragment extends Fragment {
                 Log.i(TAG, "onNothingSelected: ");
             }
         });
-        CustomSetting setting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.OPEN_SIGNAL.getKey());
-        if (setting == null) {
+        // 查询默认的信号显示设置
+        CustomSetting defaultSignalSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.OPEN_SIGNAL.getKey());
+        if (defaultSignalSetting == null) {
             showSignalSwitch.setChecked(false);
         } else {
-            boolean flag = setting.getSettingValue() == 1;
+            boolean flag = defaultSignalSetting.getSettingValue() == 1;
+            // 如果有信号显示设置,就初始化一下开关
             showSignalSwitch.setChecked(flag);
         }
+        // 给信号显示开关设置开关监听器
         showSignalSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
             Log.i(TAG, "onCheckedChanged: 现在的设置是:" + b);
             CustomSetting customSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.OPEN_SIGNAL.getKey());
@@ -251,9 +262,11 @@ public class PlaySettingFragment extends Fragment {
                 CustomSetting customSettingRecord = new CustomSetting();
                 customSettingRecord.setSettingKey(CustomSettingByKey.OPEN_SIGNAL.getKey());
                 customSettingRecord.setSettingValue((long) (b ? 1 : 0));
+                // 插入信号显示设置
                 customSettingMapper.insertCustomSetting(customSettingRecord);
             } else {
                 customSetting.setSettingValue((long) (b ? 1 : 0));
+                // 更新信号显示设置
                 customSettingMapper.updateCustomSetting(customSetting);
             }
         });
