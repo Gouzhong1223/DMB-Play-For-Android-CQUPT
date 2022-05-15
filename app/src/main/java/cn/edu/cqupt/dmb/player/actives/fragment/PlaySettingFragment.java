@@ -31,6 +31,9 @@ import cn.edu.cqupt.dmb.player.domain.CustomSetting;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 
 
+/**
+ * @author qingsong
+ */
 public class PlaySettingFragment extends Fragment {
 
     private final String TAG = "PlaySettingFragment";
@@ -96,10 +99,12 @@ public class PlaySettingFragment extends Fragment {
      * 初始化数据库
      */
     private void initDataBase() {
-        sceneMapper = Room.databaseBuilder(context, SceneDatabase.class, "scene_database") //new a database
+        //new a database
+        sceneMapper = Room.databaseBuilder(context, SceneDatabase.class, "scene_database")
                 .allowMainThreadQueries().build().getSceneMapper();
 
-        customSettingMapper = Room.databaseBuilder(context, CustomSettingDatabase.class, "custom_setting_database") //new a database
+        //new a database
+        customSettingMapper = Room.databaseBuilder(context, CustomSettingDatabase.class, "custom_setting_database")
                 .allowMainThreadQueries().build().getCustomSettingMapper();
     }
 
@@ -129,10 +134,10 @@ public class PlaySettingFragment extends Fragment {
     }
 
     /**
-     * 配置View
+     * 设置 View 的焦点监听器
      */
     @SuppressLint("UseCompatLoadingForDrawables")
-    private void configView() {
+    private void configViewOnFocusChangeListener() {
         // 给View设置背景
         for (View view : viewList) {
             view.setFocusable(true);
@@ -157,6 +162,14 @@ public class PlaySettingFragment extends Fragment {
                 }
             });
         }
+    }
+
+    /**
+     * 配置View
+     */
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void configView() {
+        configViewOnFocusChangeListener();
         // 装载使用场景名字的List
         List<String> sceneNames = new ArrayList<>();
 
@@ -165,6 +178,18 @@ public class PlaySettingFragment extends Fragment {
             sceneNames.add(selectAllScene.getSceneName());
             sceneIdMap.put(selectAllScene.getSceneName(), Long.valueOf(selectAllScene.getSceneId()));
         }
+        // 装配轮播图数量下拉框组件
+        configCarouselNumSpinner();
+        // 装配默认使用场景下拉框组件
+        configDefaultSceneSpinner(sceneNames);
+        // 装配信号显示开关组件
+        configSwitch();
+    }
+
+    /**
+     * 装配轮播图数量下拉框组件
+     */
+    private void configCarouselNumSpinner() {
         // 设置轮播图下拉框的数据源
         carouselNumSpinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, carouselNum));
         // 查询现有的轮播图数量设置
@@ -204,6 +229,14 @@ public class PlaySettingFragment extends Fragment {
                 Log.i(TAG, "onNothingSelected: ");
             }
         });
+    }
+
+    /**
+     * 装配默认使用场景的下拉框
+     *
+     * @param sceneNames 场景预设
+     */
+    private void configDefaultSceneSpinner(List<String> sceneNames) {
         // 设置默认使用场景下拉框的数据源
         defaultSceneSpinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sceneNames));
         defaultSceneSpinner.setFocusable(true);
@@ -245,6 +278,12 @@ public class PlaySettingFragment extends Fragment {
                 Log.i(TAG, "onNothingSelected: ");
             }
         });
+    }
+
+    /**
+     * 装配开关组件
+     */
+    private void configSwitch() {
         // 查询默认的信号显示设置
         CustomSetting defaultSignalSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.OPEN_SIGNAL.getKey());
         if (defaultSignalSetting == null) {
@@ -270,6 +309,5 @@ public class PlaySettingFragment extends Fragment {
                 customSettingMapper.updateCustomSetting(customSetting);
             }
         });
-
     }
 }
