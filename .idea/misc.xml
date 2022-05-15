@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="../../../../../../Library/Gradle/gradle-2.1/caches/transforms-3/d7593dfd24beebee3ec0322c0332700b/transformed/leanback-1.0.0/res/layout/lb_image_card_view.xml" value="0.1" />
         <entry key="../../../../../../layout/custom_preview.xml" value="0.34148550724637683" />
         <entry key="../../../../Library/Android/sdk/platforms/android-32/data/res/layout/activity_list_item.xml" value="0.2927689594356261" />
         <entry key="../../../../Library/Android/sdk/platforms/android-32/data/res/layout/simple_list_item_activated_1.xml" value="0.2808641975308642" />
@@ -66,6 +67,9 @@
         <entry key="app/src/main/res/drawable/white.xml" value="0.1525" />
         <entry key="app/src/main/res/layout/activity_carousel.xml" value="0.20364583333333333" />
         <entry key="app/src/main/res/layout/activity_curriculum.xml" value="0.17039106145251395" />
+        <entry key="app/src/main/res/layout/activity_details.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_details2.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_lean_back.xml" value="0.2239858906525573" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25308641975308643" />
         <entry key="app/src/main/res/layout/activity_main2.xml" value="0.22134038800705466" />
         <entry key="app/src/main/res/layout/activity_mpeg_ts.xml" value="0.22134038800705466" />
@@ -75,8 +79,14 @@
         <entry key="app/src/main/res/layout/activity_sushe.xml" value="0.22134038800705466" />
         <entry key="app/src/main/res/layout/activity_video.xml" value="0.14270833333333333" />
         <entry key="app/src/main/res/layout/content_mpeg_ts.xml" value="0.22134038800705466" />
+        <entry key="app/src/main/res/layout/dmb_list_item.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_play_setting.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_preset.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_scene_management.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_setup_multi_pane.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_signal_settings.xml" value="0.1" />
         <entry key="app/src/main/res/layout/guided_action_editable.xml" value="0.22134038800705466" />
+        <entry key="app/src/main/res/layout/lb_image_card_view.xml" value="0.1" />
         <entry key="app/src/main/res/layout/settings_activity.xml" value="0.19114583333333332" />
         <entry key="app/src/main/res/layout/ut_channel_list.xml" value="0.22134038800705466" />
         <entry key="app/src/main/res/layout/ut_channel_scan.xml" value="0.22134038800705466" />
