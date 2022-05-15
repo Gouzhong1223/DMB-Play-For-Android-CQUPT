@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".actives.fragment.PlaySettingFragment">
+
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:ignore="UselessParent">
+
+        <TextView
+                android:layout_marginTop="20dp"
+                android:focusable="false"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:textSize="35sp"
+                android:text="播放设置"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        <RelativeLayout
+                android:id="@+id/playSettingRelativeLayout1"
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                tools:ignore="UselessParent">
+
+            <com.xuexiang.xui.widget.alpha.XUIAlphaTextView
+                    android:text="是否显示信号"
+                    android:textSize="20sp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/SwitchCompat"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+        <RelativeLayout
+                android:id="@+id/playSettingRelativeLayout2"
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                tools:ignore="UselessParent">
+
+            <com.xuexiang.xui.widget.alpha.XUIAlphaTextView
+                    android:text="APP启动默认载入场景"
+                    android:textSize="20sp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            <Spinner
+                    android:id="@+id/default_sense_spinner"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_centerInParent="true" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+                android:id="@+id/playSettingRelativeLayout3"
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                tools:ignore="UselessParent">
+
+            <com.xuexiang.xui.widget.alpha.XUIAlphaTextView
+                    android:text="轮播图容器数量"
+                    android:textSize="20sp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            <Spinner
+                    android:id="@+id/carousel_num_spinner"
+                    style="@style/XUITheme.Tablet.Big"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_centerInParent="true" />
+        </RelativeLayout>
+
+        <RelativeLayout
+                android:layout_marginTop="50dp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                tools:ignore="UselessParent">
+
+            <com.xuexiang.xui.widget.layout.XUIButton
+                    android:text="保存"
+                    android:layout_width="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+    </LinearLayout>
+</FrameLayout>

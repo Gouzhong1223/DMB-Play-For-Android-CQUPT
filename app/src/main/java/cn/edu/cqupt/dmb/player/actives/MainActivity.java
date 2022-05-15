@@ -15,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -27,8 +26,11 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
@@ -76,8 +78,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         // 强制全屏,全的不能再全的那种了
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         // 请求存储设备的读写权限
         requestPermissions(this);
@@ -152,33 +153,6 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * 动态设置 UI 布局
-     */
-    private void dynamicLayout() {
-        DisplayMetrics metric = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(metric);
-        // 屏幕宽度（像素）
-        int width = metric.widthPixels;
-        // 屏幕高度（像素）
-        int height = metric.heightPixels;
-        // 屏幕密度（0.75 / 1.0 / 1.5）
-        float density = metric.density;
-        // 屏幕密度DPI（120 / 160 / 240）
-        int densityDpi = metric.densityDpi;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            frameLayouts.forEach(e -> {
-
-            });
-        } else {
-            for (FrameLayout frameLayout : frameLayouts) {
-
-            }
-        }
-
-    }
-
-    /**
      * 初始化View
      */
     private void initView() {
@@ -228,39 +202,37 @@ public class MainActivity extends Activity {
     @SuppressLint("NonConstantResourceId")
     public void onclick(View view) {
         Intent intent = new Intent();
-        List<DialogUtil.PositiveButton> settingPositiveButtons = DialogUtil.getPositiveButtonList(
-                new DialogUtil.PositiveButton(null, "确定"),
-                new DialogUtil.PositiveButton((dialogInterface, i) -> {
-                    intent.setClass(MainActivity.this, SettingActivity.class);
-                    startActivity(intent);
-                }, "设置"));
+        List<DialogUtil.PositiveButton> settingPositiveButtons = DialogUtil.getPositiveButtonList(new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定"), new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.NEUTRAL, (dialogInterface, i) -> {
+            intent.setClass(MainActivity.this, SettingActivity.class);
+            startActivity(intent);
+        }, "设置"));
         // 设置按钮不收到 USB 影响
         if (!DataReadWriteUtil.USB_READY && view.getId() != R.id.setting) {
             // 如果当前USB设备没有准备好是不允许点击按钮的
-            DialogUtil.generateDialog(this,
-                            "缺少DMB设备",
-                            "当前没有读取到任何的DMB设备信息,请插上DMB设备!",
-                            new DialogUtil.PositiveButton(null, "确定"))
-                    .show();
+            MaterialDialog materialDialog = DialogUtil.generateDialog(this, "缺少DMB设备", "当前没有读取到任何的DMB设备信息,请插上DMB设备!", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).build();
+            materialDialog.show();
+            new Thread(() -> {
+                try {
+                    TimeUnit.SECONDS.sleep(5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (materialDialog.isShowing()) {
+                    materialDialog.cancel();
+                }
+            }).start();
             return;
         }
         if (DataReadWriteUtil.getDefaultFrequencyModule(this) == null && view.getId() != R.id.setting) {
             // 如果当前还没有设置默认的工作模块,就提醒用户进行设置
-            DialogUtil.generateDialog(this, "缺少默认工作场景设置!", "您还没有设置默认的工作场景,点击右下角设置按钮进行使用场景的设置," +
-                    "设置完成之后您可以进入任意一个场景,默认的工作场景设置完成之后," +
-                    "并不会影响您进入其他场景,之后每次启动 APP 都会进入默认的工作场景.", settingPositiveButtons).show();
+            DialogUtil.generateDialog(this, "缺少默认工作场景设置!", "您还没有设置默认的工作场景,点击右下角设置按钮进行使用场景的设置," + "设置完成之后您可以进入任意一个场景,默认的工作场景设置完成之后," + "并不会影响您进入其他场景,之后每次启动 APP 都会进入默认的工作场景.", settingPositiveButtons).show();
         }
         switch (view.getId()) {
             case R.id.curriculum:
                 FrequencyModule activeFrequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
                 // 判断当前默认的设置是不是课表
                 if (!activeFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
-                    DialogUtil.generateDialog(this,
-                            "设置冲突",
-                            "当前设置的使用场景不是课表," +
-                                    "我不知道您想显示哪一个教学楼的课表,如果您想显示课表," +
-                                    "请在设置中设置课表并选择教学楼",
-                            settingPositiveButtons).show();
+                    DialogUtil.generateDialog(this, "设置冲突", "当前设置的使用场景不是课表," + "我不知道您想显示哪一个教学楼的课表,如果您想显示课表," + "请在设置中设置课表并选择教学楼", settingPositiveButtons).show();
                     return;
                 }
                 intent.setClass(this, CurriculumActivity.class);
@@ -293,12 +265,9 @@ public class MainActivity extends Activity {
      * @param context Context
      */
     private void requestPermissions(@NonNull Context context) {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, "没有授权，申请权限");
-            ActivityCompat.requestPermissions(this, new String[]{
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE}, WRITE_STORAGE_REQUEST_CODE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, WRITE_STORAGE_REQUEST_CODE);
         } else {
             Log.i(TAG, "有权限，打开文件");
         }
@@ -308,8 +277,7 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == WRITE_STORAGE_REQUEST_CODE) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                    ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 Log.i(TAG, "申请权限成功，打开");
             } else {
                 Log.i(TAG, "申请权限失败");
@@ -356,12 +324,7 @@ public class MainActivity extends Activity {
                 }
                 // 双重检查USB是否连接
                 if (!DataReadWriteUtil.USB_READY) {
-                    new AlertDialog.Builder(
-                            MainActivity.this)
-                            .setTitle("缺少DMB设备")
-                            .setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!")
-                            .setPositiveButton("确定", null)
-                            .show();
+                    new AlertDialog.Builder(MainActivity.this).setTitle("缺少DMB设备").setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!").setPositiveButton("确定", null).show();
                     return;
                 }
                 Intent intent = new Intent();

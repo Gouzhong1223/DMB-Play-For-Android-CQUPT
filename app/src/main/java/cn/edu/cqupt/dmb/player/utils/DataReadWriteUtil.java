@@ -104,19 +104,19 @@ public class DataReadWriteUtil {
         return FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
     }
 
-    public PipedInputStream getPipedInputStream() {
-        return pipedInputStream;
-    }
-
-    public BufferedInputStream getBufferedInputStream() {
-        return bufferedInputStream;
-    }
-
     public static FrequencyModule getPreFrequencyModule() {
         return preFrequencyModule;
     }
 
     public static void setPreFrequencyModule(FrequencyModule preFrequencyModule) {
         DataReadWriteUtil.preFrequencyModule = preFrequencyModule;
+    }
+
+    public PipedInputStream getPipedInputStream() {
+        return pipedInputStream;
+    }
+
+    public BufferedInputStream getBufferedInputStream() {
+        return bufferedInputStream;
     }
 }

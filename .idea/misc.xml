@@ -11,6 +11,50 @@
         <entry key="../../../../Library/Android/sdk/platforms/android-32/data/res/layout/simple_spinner_item.xml" value="0.2927689594356261" />
         <entry key="..\:/Projects/Android/2022-03/DMB Player For Android/app/src/main/res/layout/activity_carousel.xml" value="0.23859191655801826" />
         <entry key="..\:/Projects/Android/2022-03/DMB Player For Android/app/src/main/res/layout/activity_main.xml" value="0.33818342151675485" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/drawable/background.xml" value="0.354" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/drawable/green.xml" value="0.354" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout-v28/fragment_play_setting.xml" value="0.3854166666666667" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/activity_carousel.xml" value="0.1732158988256549" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/activity_curriculum.xml" value="0.1732158988256549" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/activity_main.xml" value="0.1732158988256549" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/activity_main2.xml" value="0.1732158988256549" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/activity_setting_main.xml" value="0.1732158988256549" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/activity_setup.xml" value="0.3262786596119929" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/activity_setup2.xml" value="0.1732158988256549" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/activity_sushe.xml" value="0.16711833785004518" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/dmb_list_item.xml" value="0.16666666666666666" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/fragment_blank.xml" value="0.264" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/fragment_blank2.xml" value="0.14329805996472664" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/fragment_play_setting.xml" value="0.16799999999999998" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/fragment_preset.xml" value="0.176" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/fragment_scene_management.xml" value="0.1732158988256549" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/fragment_signal_settings.xml" value="0.1" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/ut_channel_list.xml" value="0.16711833785004518" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/ut_channel_scan.xml" value="0.16711833785004518" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/layout/ut_overlay_view.xml" value="0.16711833785004518" />
+        <entry key="..\:/Projects/Android/2022-03/DMB_Player_For_Android/app/src/main/res/xml/root_preferences.xml" value="0.33818342151675485" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable-v17/xui_config_list_item_selector.xml" value="0.346" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/ms_background_selector.xml" value="0.346" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/tcv_right_option.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/tcv_right_option_selected.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/vcet_shape_bg_focus.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xtoast_ic_error_outline_white_24dp.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xtoast_ic_info_outline_white_24dp.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_config_bg_blue_btn.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_config_bg_button_corner_black.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_config_bg_edittext.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_config_bg_primary_btn.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_config_bg_spinner.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_config_bg_splash.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_ic_action_navigation_arrow_back.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_ic_action_navigation_clear.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_ic_action_voice_search.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_ic_expand_arrow_down.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/drawable/xui_ic_suggestion.xml" value="0.3435" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/layout/ms_layout_list_item.xml" value="0.16711833785004518" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/layout/xui_adapter_listview_simple_item.xml" value="0.1" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/layout/xui_layout_common_list_item.xml" value="0.16711833785004518" />
+        <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/layout/xui_layout_edit_spinner.xml" value="0.16711833785004518" />
         <entry key="app/src/main/res/drawable-xhdpi/ut_scan_progress.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/background.xml" value="0.1525" />
         <entry key="app/src/main/res/drawable/default_selecter.xml" value="0.1525" />
