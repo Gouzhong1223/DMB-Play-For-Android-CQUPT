@@ -46,7 +46,7 @@ public class PlaySettingFragment extends Fragment {
     /**
      * 轮播图数量
      */
-    private final Integer[] carouselNum = new Integer[]{3, 4, 5, 6, 7, 8};
+    private final Integer[] carouselNum = new Integer[]{5, 6, 7, 8, 9, 10};
     /**
      * 预设名称和ID的Map
      */
@@ -167,10 +167,52 @@ public class PlaySettingFragment extends Fragment {
         }
         // 设置轮播图下拉框的数据源
         carouselNumSpinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, carouselNum));
+        CustomSetting carouselCustomSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.DEFAULT_CAROUSEL_NUM.getKey());
+        if (carouselCustomSetting != null) {
+            for (int i = 0; i < carouselNum.length; i++) {
+                Integer carouseN = carouselNum[i];
+                Long settingValue = carouselCustomSetting.getSettingValue();
+                if (Objects.equals(Long.valueOf(carouseN), settingValue)) {
+                    carouselNumSpinner.setSelection(i);
+                }
+            }
+        }
+        carouselNumSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                CustomSetting carouselNumSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.DEFAULT_CAROUSEL_NUM.getKey());
+                Integer carouselN = carouselNum[i];
+                if (carouselNumSetting == null) {
+                    carouselNumSetting = new CustomSetting();
+                    carouselNumSetting.setSettingKey(CustomSettingByKey.DEFAULT_CAROUSEL_NUM.getKey());
+                    carouselNumSetting.setSettingValue(Long.valueOf(carouselN));
+                    customSettingMapper.insertCustomSetting(carouselNumSetting);
+                } else {
+                    carouselNumSetting.setSettingValue(Long.valueOf(carouselN));
+                    customSettingMapper.updateCustomSetting(carouselNumSetting);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                Log.i(TAG, "onNothingSelected: ");
+            }
+        });
         // 设置默认使用场景下拉框的数据源
         defaultSceneSpinner.setAdapter(new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, sceneNames));
         defaultSceneSpinner.setFocusable(true);
         defaultSceneSpinner.setClickable(true);
+        // 查询数据库中已有的默认使用场景设置
+        CustomSetting defaultSceneSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.DEFAULT_SENSE.getKey());
+        if (defaultSceneSetting != null) {
+            // 如果默认使用场景的设置不为空
+            for (int i = 0; i < sceneNames.size(); i++) {
+                // 在列表中对比,寻找出sceneNames中对应的索引
+                if (Objects.equals(defaultSceneSetting.getSettingValue(), sceneIdMap.get(sceneNames.get(i)))) {
+                    defaultSceneSpinner.setSelection(i);
+                }
+            }
+        }
         // 设置默认使用场景下拉框的选择监听器
         defaultSceneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -184,7 +226,7 @@ public class PlaySettingFragment extends Fragment {
                 } else {
                     Long sceneId = customSetting.getSettingValue();
                     if (!Objects.equals(sceneIdMap.get(sceneNames.get(i)), sceneId)) {
-                        customSetting.setSettingValue(sceneId);
+                        customSetting.setSettingValue(sceneIdMap.get(sceneNames.get(i)));
                         customSettingMapper.updateCustomSetting(customSetting);
                     }
                 }
