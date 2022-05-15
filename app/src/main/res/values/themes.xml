@@ -1,4 +1,16 @@
 <resources>
 
     <style name="DMB_Player_Android" parent="@style/XUITheme.Tablet.Big" />
+
+    <style name="DMB_Player_Android.Fullscreen" parent="DMB_Player_Android">
+        <item name="android:actionBarStyle">@style/Widget.DMB_Player_Android.ActionBar.Fullscreen
+        </item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@null</item>
+    </style>
+
+    <style name="ThemeOverlay.DMBPlayerForAndroid.FullscreenContainer" parent="">
+        <item name="fullscreenBackgroundColor">@color/light_blue_600</item>
+        <item name="fullscreenTextColor">@color/light_blue_A200</item>
+    </style>
 </resources>
