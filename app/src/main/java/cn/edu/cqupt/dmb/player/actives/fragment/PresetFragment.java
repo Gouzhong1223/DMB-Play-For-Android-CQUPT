@@ -32,10 +32,14 @@ import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 import cn.edu.cqupt.dmb.player.utils.DialogUtil;
 
 
+/**
+ * @author qingsong
+ */
 @SuppressLint("ValidFragment")
 public class PresetFragment extends Fragment {
 
     private static final String TAG = "PresetFragment";
+    private static final String CURRICULUM_SCENE_NAME = "课表";
     /**
      * 教学楼数据源
      */
@@ -119,9 +123,11 @@ public class PresetFragment extends Fragment {
      * 初始化数据库
      */
     private void initDataBase() {
-        sceneMapper = Room.databaseBuilder(context, SceneDatabase.class, "scene_database") //new a database
+        //new a database
+        sceneMapper = Room.databaseBuilder(context, SceneDatabase.class, "scene_database")
                 .allowMainThreadQueries().build().getSceneMapper();
-        customSettingMapper = Room.databaseBuilder(context, CustomSettingDatabase.class, "custom_setting_database") //new a database
+        //new a database
+        customSettingMapper = Room.databaseBuilder(context, CustomSettingDatabase.class, "custom_setting_database")
                 .allowMainThreadQueries().build().getCustomSettingMapper();
     }
 
@@ -194,7 +200,7 @@ public class PresetFragment extends Fragment {
         playTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if (playType[i].equals("课表")) {
+                if (playType[i].equals(CURRICULUM_SCENE_NAME)) {
                     // 如果选择的是课表，就把buildingRelativeLayout设置为可见
                     buildingRelativeLayout.setVisibility(View.VISIBLE);
                 } else {
@@ -230,7 +236,7 @@ public class PresetFragment extends Fragment {
             sceneInfo.setFrequency(Integer.parseInt(frequency));
             sceneInfo.setSceneId(Integer.parseInt(id));
             sceneInfo.setSceneType(getSceneTypeBySceneStr(playType));
-            if (playType.equals("课表")) {
+            if (playType.equals(CURRICULUM_SCENE_NAME)) {
                 // 获取输入的教学楼
                 building = buildingSpinner.getSelectedItem().toString();
                 sceneInfo.setBuilding(getBuildingNumByBuildingStr(building));
@@ -299,7 +305,7 @@ public class PresetFragment extends Fragment {
      * @return true->校验通过
      */
     private boolean validationParameters(String sceneName, String frequency, String id) {
-        if (sceneName.equals("")) {
+        if ("".equals(sceneName)) {
             DialogUtil.generateDialog(context, "预设名字还没填呢！", "快去给你的自定义预设取个名字吧！", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
             return false;
         }
@@ -311,11 +317,11 @@ public class PresetFragment extends Fragment {
             DialogUtil.generateDialog(context, "预设名字重复啦！", "这个预设名字已经被占用啦！重新给预设取个名字吧！", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
             return false;
         }
-        if (frequency.equals("")) {
+        if ("".equals(frequency)) {
             DialogUtil.generateDialog(context, "工作频点名字还没填呢!", "快去填一下工作频点吧！", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
             return false;
         }
-        if (id.equals("")) {
+        if ("".equals(id)) {
             DialogUtil.generateDialog(context, "终端编号还没填呢！", "快去填一下终端编号吧！", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
             return false;
         }
