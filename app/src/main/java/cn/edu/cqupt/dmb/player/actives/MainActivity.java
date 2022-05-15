@@ -40,6 +40,9 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.DialogUtil;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
+/**
+ * @author qingsong
+ */
 public class MainActivity extends Activity {
 
     /**
@@ -254,6 +257,7 @@ public class MainActivity extends Activity {
                 intent.setClass(this, VideoActivity.class);
                 startActivity(intent);
                 break;
+            default:
         }
     }
 
@@ -296,13 +300,13 @@ public class MainActivity extends Activity {
         if (defaultFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
             return CurriculumActivity.class;
         }
-        if (defaultFrequencyModule.getModuleName().equals("OUTDOOR_SCREEN_TPEG")) {
+        if ("OUTDOOR_SCREEN_TPEG".equals(defaultFrequencyModule.getModuleName())) {
             return CarouselActivity.class;
         }
-        if (defaultFrequencyModule.getModuleName().equals("OUTDOOR_SCREEN_VIDEO")) {
+        if ("OUTDOOR_SCREEN_VIDEO".equals(defaultFrequencyModule.getModuleName())) {
             return VideoActivity.class;
         }
-        if (defaultFrequencyModule.getModuleName().equals("DORMITORY_SAFETY")) {
+        if ("DORMITORY_SAFETY".equals(defaultFrequencyModule.getModuleName())) {
             return DormitorySafetyActivity.class;
         }
         return null;
