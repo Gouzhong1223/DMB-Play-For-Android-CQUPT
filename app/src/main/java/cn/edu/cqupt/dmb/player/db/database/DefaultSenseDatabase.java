@@ -19,5 +19,10 @@ import cn.edu.cqupt.dmb.player.domain.DefaultSense;
  */
 @Database(entities = {DefaultSense.class}, version = 1, exportSchema = false)
 public abstract class DefaultSenseDatabase extends RoomDatabase {
+    /**
+     * 获取 DefaultSenseMapper
+     *
+     * @return DefaultSenseMapper
+     */
     public abstract DefaultSenseMapper getDefaultSenseMapper();
 }

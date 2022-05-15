@@ -19,5 +19,10 @@ import cn.edu.cqupt.dmb.player.domain.SceneInfo;
  */
 @Database(entities = {SceneInfo.class}, version = 1, exportSchema = false)
 public abstract class SceneDatabase extends RoomDatabase {
+    /**
+     * 获取操作预设场景的 Mapper
+     *
+     * @return SceneMapper
+     */
     public abstract SceneMapper getSceneMapper();
 }

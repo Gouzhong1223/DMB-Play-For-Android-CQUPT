@@ -19,5 +19,10 @@ import cn.edu.cqupt.dmb.player.domain.CustomSetting;
  */
 @Database(entities = {CustomSetting.class}, version = 1, exportSchema = false)
 public abstract class CustomSettingDatabase extends RoomDatabase {
+    /**
+     * 获取自定义设置的操作 Mapper
+     *
+     * @return CustomSettingMapper
+     */
     public abstract CustomSettingMapper getCustomSettingMapper();
 }
