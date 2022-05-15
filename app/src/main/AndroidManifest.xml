@@ -35,6 +35,28 @@
             android:supportsRtl="true"
             android:theme="@style/DMB_Player_Android">
         <activity
+                android:name=".actives.leanback.MainActivity"
+                android:banner="@drawable/app_icon_your_company"
+                android:exported="true"
+                android:icon="@drawable/app_icon_your_company"
+                android:label="@string/title_activity_main"
+                android:logo="@drawable/app_icon_your_company"
+                android:theme="@style/Theme.Leanback"
+                android:screenOrientation="landscape">
+        </activity>
+        <activity
+                android:name=".actives.leanback.DetailsActivity"
+                android:theme="@style/Theme.Leanback"
+                android:exported="false" />
+        <activity
+                android:name=".actives.leanback.PlaybackActivity"
+                android:theme="@style/Theme.Leanback"
+                android:exported="false" />
+        <activity
+                android:name=".actives.leanback.BrowseErrorActivity"
+                android:theme="@style/Theme.Leanback"
+                android:exported="false" />
+        <activity
                 android:name=".actives.SetupActivity"
                 android:exported="false" />
         <activity
