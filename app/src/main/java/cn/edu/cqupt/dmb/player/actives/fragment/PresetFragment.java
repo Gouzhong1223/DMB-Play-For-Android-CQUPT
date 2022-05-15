@@ -39,6 +39,9 @@ import cn.edu.cqupt.dmb.player.utils.DialogUtil;
 public class PresetFragment extends Fragment {
 
     private static final String TAG = "PresetFragment";
+    /**
+     * 课表的场景名字常量
+     */
     private static final String CURRICULUM_SCENE_NAME = "课表";
     /**
      * 教学楼数据源
