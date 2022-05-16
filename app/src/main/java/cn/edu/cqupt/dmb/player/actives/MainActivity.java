@@ -242,7 +242,7 @@ public class MainActivity extends Activity {
                 startActivity(intent);
                 break;
             case R.id.setting:
-                intent.setClass(this, SetupActivity.class);
+                intent.setClass(this, cn.edu.cqupt.dmb.player.actives.leanback.MainActivity.class);
                 startActivity(intent);
                 break;
             case R.id.dormitory:

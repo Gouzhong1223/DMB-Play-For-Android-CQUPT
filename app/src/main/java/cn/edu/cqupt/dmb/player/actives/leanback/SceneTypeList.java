@@ -3,27 +3,25 @@ package cn.edu.cqupt.dmb.player.actives.leanback;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class MovieList {
-    public static final String[] MOVIE_CATEGORY = {
-            "Category Zero",
-            "Category One",
-            "Category Two",
-            "Category Three",
-            "Category Four",
-            "Category Five",
+/**
+ * @author qingsong
+ */
+public final class SceneTypeList {
+    public static final String[] SCENE_TYPE_CATEGORY = {
+            "视频", "轮播图", "音频", "安全信息", "课表"
     };
 
-    private static List<Movie> list;
+    private static List<SceneVO> list;
     private static long count = 0;
 
-    public static List<Movie> getList() {
+    public static List<SceneVO> getList() {
         if (list == null) {
-            list = setupMovies();
+//            list = setupMovies();
         }
-        return list;
+        return new ArrayList<>();
     }
 
-    public static List<Movie> setupMovies() {
+    public static List<SceneVO> setupMovies() {
         list = new ArrayList<>();
         String[] title = {
                 "Zeitgeist 2010_ Year in Review",
@@ -78,21 +76,19 @@ public final class MovieList {
         return list;
     }
 
-    private static Movie buildMovieInfo(
+    private static SceneVO buildMovieInfo(
             String title,
             String description,
             String studio,
             String videoUrl,
             String cardImageUrl,
             String backgroundImageUrl) {
-        Movie movie = new Movie();
-        movie.setId(count++);
-        movie.setTitle(title);
-        movie.setDescription(description);
-        movie.setStudio(studio);
-        movie.setCardImageUrl(cardImageUrl);
-        movie.setBackgroundImageUrl(backgroundImageUrl);
-        movie.setVideoUrl(videoUrl);
-        return movie;
+        SceneVO sceneVO = new SceneVO();
+        sceneVO.setId(count++);
+        sceneVO.setTitle(title);
+        sceneVO.setDescription(description);
+        sceneVO.setSubTitle(studio);
+        sceneVO.setVideoUrl(videoUrl);
+        return sceneVO;
     }
 }

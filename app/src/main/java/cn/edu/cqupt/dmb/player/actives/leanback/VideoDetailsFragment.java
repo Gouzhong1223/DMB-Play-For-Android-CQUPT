@@ -1,5 +1,6 @@
 package cn.edu.cqupt.dmb.player.actives.leanback;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -24,24 +25,27 @@ import androidx.leanback.widget.HeaderItem;
 import androidx.leanback.widget.ImageCardView;
 import androidx.leanback.widget.ListRow;
 import androidx.leanback.widget.ListRowPresenter;
-import androidx.leanback.widget.OnActionClickedListener;
 import androidx.leanback.widget.OnItemViewClickedListener;
 import androidx.leanback.widget.Presenter;
 import androidx.leanback.widget.Row;
 import androidx.leanback.widget.RowPresenter;
+import androidx.room.Room;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.db.database.SceneDatabase;
+import cn.edu.cqupt.dmb.player.db.mapper.SceneMapper;
+import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 
-/*
- * LeanbackDetailsFragment extends DetailsFragment, a Wrapper fragment for leanback details screens.
- * It shows a detailed view of video and its meta plus related videos.
+/**
+ * @author qingsong
  */
 public class VideoDetailsFragment extends DetailsSupportFragment {
     private static final String TAG = "VideoDetailsFragment";
@@ -55,7 +59,9 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
 
     private static final int NUM_COLS = 10;
 
-    private Movie mSelectedMovie;
+    private SceneVO mSelectedSceneVO;
+
+    private SceneMapper sceneMapper;
 
     private ArrayObjectAdapter mAdapter;
     private ClassPresenterSelector mPresenterSelector;
@@ -66,19 +72,20 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate DetailsFragment");
         super.onCreate(savedInstanceState);
+        initDataBase();
 
         mDetailsBackground = new DetailsSupportFragmentBackgroundController(this);
 
-        mSelectedMovie =
-                (Movie) getActivity().getIntent().getSerializableExtra(DetailsActivity.MOVIE);
-        if (mSelectedMovie != null) {
+        mSelectedSceneVO =
+                (SceneVO) requireActivity().getIntent().getSerializableExtra(DetailsActivity.MOVIE);
+        if (mSelectedSceneVO != null) {
             mPresenterSelector = new ClassPresenterSelector();
             mAdapter = new ArrayObjectAdapter(mPresenterSelector);
             setupDetailsOverviewRow();
             setupDetailsOverviewRowPresenter();
             setupRelatedMovieListRow();
             setAdapter(mAdapter);
-            initializeBackground(mSelectedMovie);
+            initializeBackground(mSelectedSceneVO);
             setOnItemViewClickedListener(new ItemViewClickedListener());
         } else {
             Intent intent = new Intent(getActivity(), MainActivity.class);
@@ -86,13 +93,22 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
         }
     }
 
-    private void initializeBackground(Movie data) {
+    /**
+     * 初始化数据库
+     */
+    private void initDataBase() {
+        //new a database
+        sceneMapper = Room.databaseBuilder(requireContext(), SceneDatabase.class, "scene_database")
+                .allowMainThreadQueries().build().getSceneMapper();
+    }
+
+    private void initializeBackground(SceneVO data) {
         mDetailsBackground.enableParallax();
-        Glide.with(getActivity())
+        Glide.with(requireActivity())
                 .asBitmap()
                 .centerCrop()
                 .error(R.drawable.default_background)
-                .load(data.getBackgroundImageUrl())
+                .load(data.getBackgroundDrawableId())
                 .into(new SimpleTarget<Bitmap>() {
                     @Override
                     public void onResourceReady(@NonNull Bitmap bitmap,
@@ -104,14 +120,14 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
     }
 
     private void setupDetailsOverviewRow() {
-        Log.d(TAG, "doInBackground: " + mSelectedMovie.toString());
-        final DetailsOverviewRow row = new DetailsOverviewRow(mSelectedMovie);
+        Log.d(TAG, "doInBackground: " + mSelectedSceneVO.toString());
+        final DetailsOverviewRow row = new DetailsOverviewRow(mSelectedSceneVO);
         row.setImageDrawable(
-                ContextCompat.getDrawable(getContext(), R.drawable.default_background));
-        int width = convertDpToPixel(getActivity().getApplicationContext(), DETAIL_THUMB_WIDTH);
-        int height = convertDpToPixel(getActivity().getApplicationContext(), DETAIL_THUMB_HEIGHT);
-        Glide.with(getActivity())
-                .load(mSelectedMovie.getCardImageUrl())
+                ContextCompat.getDrawable(requireContext(), R.drawable.default_background));
+        int width = convertDpToPixel(requireActivity().getApplicationContext(), DETAIL_THUMB_WIDTH);
+        int height = convertDpToPixel(requireActivity().getApplicationContext(), DETAIL_THUMB_HEIGHT);
+        Glide.with(requireActivity())
+                .load(mSelectedSceneVO.getCardDrawableId())
                 .centerCrop()
                 .error(R.drawable.default_background)
                 .into(new SimpleTarget<Drawable>(width, height) {
@@ -151,7 +167,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
         FullWidthDetailsOverviewRowPresenter detailsPresenter =
                 new FullWidthDetailsOverviewRowPresenter(new DetailsDescriptionPresenter());
         detailsPresenter.setBackgroundColor(
-                ContextCompat.getColor(getContext(), R.color.selected_background));
+                ContextCompat.getColor(requireContext(), R.color.selected_background));
 
         // Hook up transition element.
         FullWidthDetailsOverviewSharedElementHelper sharedElementHelper =
@@ -161,16 +177,13 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
         detailsPresenter.setListener(sharedElementHelper);
         detailsPresenter.setParticipatingEntranceTransition(true);
 
-        detailsPresenter.setOnActionClickedListener(new OnActionClickedListener() {
-            @Override
-            public void onActionClicked(Action action) {
-                if (action.getId() == ACTION_WATCH_TRAILER) {
-                    Intent intent = new Intent(getActivity(), PlaybackActivity.class);
-                    intent.putExtra(DetailsActivity.MOVIE, mSelectedMovie);
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
-                }
+        detailsPresenter.setOnActionClickedListener(action -> {
+            if (action.getId() == ACTION_WATCH_TRAILER) {
+                Intent intent = new Intent(getActivity(), PlaybackActivity.class);
+                intent.putExtra(DetailsActivity.MOVIE, mSelectedSceneVO);
+                startActivity(intent);
+            } else {
+                Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
             }
         });
         mPresenterSelector.addClassPresenter(DetailsOverviewRow.class, detailsPresenter);
@@ -178,8 +191,9 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
 
     private void setupRelatedMovieListRow() {
         String[] subcategories = {getString(R.string.related_movies)};
-        List<Movie> list = MovieList.getList();
-
+        List<SceneInfo> sceneInfos = sceneMapper.selectAllScenes();
+        ArrayList<SceneVO> list = new ArrayList<>();
+        generateSceneVoList(sceneInfos, list);
         Collections.shuffle(list);
         ArrayObjectAdapter listRowAdapter = new ArrayObjectAdapter(new CardPresenter());
         for (int j = 0; j < NUM_COLS; j++) {
@@ -189,6 +203,70 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
         HeaderItem header = new HeaderItem(0, subcategories[0]);
         mAdapter.add(new ListRow(header, listRowAdapter));
         mPresenterSelector.addClassPresenter(ListRow.class, new ListRowPresenter());
+    }
+
+    private void generateSceneVoList(List<SceneInfo> sceneInfos, ArrayList<SceneVO> sceneVoList) {
+        for (SceneInfo sceneInfo : sceneInfos) {
+            SceneVO sceneVO = getSceneVO(sceneInfo);
+            sceneVoList.add(sceneVO);
+        }
+    }
+
+    @NonNull
+    private SceneVO getSceneVO(SceneInfo sceneInfo) {
+        SceneVO sceneVO = new SceneVO();
+        sceneVO.setId(Long.valueOf(sceneInfo.getId()));
+        sceneVO.setBuilding(sceneInfo.getBuilding());
+        sceneVO.setDeviceId(sceneInfo.getSceneId());
+        sceneVO.setTitle(sceneInfo.getSceneName());
+        sceneVO.setFrequency(sceneInfo.getFrequency());
+        sceneVO.setSceneType(sceneInfo.getSceneType());
+        configSceneDrawable(sceneVO);
+        sceneVO.setSubTitle(sceneInfo.getFrequency() + ":" + sceneInfo.getSceneId());
+        sceneVO.setVideoUrl("https://commondatastorage.googleapis.com/android-tv/Sample%20videos/Zeitgeist/Zeitgeist%202010_%20Year%20in%20Review.mp4");
+        return sceneVO;
+    }
+
+    /**
+     * 配置Scene的图片,包括背景图还有预览图
+     *
+     * @param sceneVO sceneVO
+     */
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void configSceneDrawable(SceneVO sceneVO) {
+        switch (sceneVO.getSceneType()) {
+            case 0: {
+                sceneVO.setCardDrawableId(R.drawable.video);
+                sceneVO.setBackgroundDrawableId(R.drawable.video);
+                sceneVO.setDescription("实时视频描述");
+                break;
+            }
+            case 1: {
+                sceneVO.setCardDrawableId(R.drawable.carousel);
+                sceneVO.setBackgroundDrawableId(R.drawable.carousel);
+                sceneVO.setDescription("轮播图描述");
+                break;
+            }
+            case 2: {
+                sceneVO.setCardDrawableId(R.drawable.audio);
+                sceneVO.setBackgroundDrawableId(R.drawable.audio);
+                sceneVO.setDescription("实时音频描述");
+                break;
+            }
+            case 3: {
+                sceneVO.setCardDrawableId(R.drawable.dormitory);
+                sceneVO.setBackgroundDrawableId(R.drawable.dormitory);
+                sceneVO.setDescription("宿舍安全信息描述");
+                break;
+            }
+            case 4: {
+                sceneVO.setCardDrawableId(R.drawable.curriculum);
+                sceneVO.setBackgroundDrawableId(R.drawable.curriculum);
+                sceneVO.setDescription("教学楼课表显示描述");
+                break;
+            }
+            default:
+        }
     }
 
     private int convertDpToPixel(Context context, int dp) {
@@ -204,18 +282,18 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
                 RowPresenter.ViewHolder rowViewHolder,
                 Row row) {
 
-            if (item instanceof Movie) {
+            if (item instanceof SceneVO) {
                 Log.d(TAG, "Item: " + item);
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra(getResources().getString(R.string.movie), mSelectedMovie);
+                intent.putExtra(getResources().getString(R.string.movie), mSelectedSceneVO);
 
                 Bundle bundle =
                         ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                        getActivity(),
+                                        requireActivity(),
                                         ((ImageCardView) itemViewHolder.view).getMainImageView(),
                                         DetailsActivity.SHARED_ELEMENT_NAME)
                                 .toBundle();
-                getActivity().startActivity(intent, bundle);
+                requireActivity().startActivity(intent, bundle);
             }
         }
     }

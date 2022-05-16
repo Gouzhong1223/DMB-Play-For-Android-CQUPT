@@ -22,6 +22,7 @@ import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 /**
  * 这是设置页面的 Activity
  */
+@Deprecated
 public class SettingActivity extends Activity {
 
     private static final String TAG = "SettingActivity";

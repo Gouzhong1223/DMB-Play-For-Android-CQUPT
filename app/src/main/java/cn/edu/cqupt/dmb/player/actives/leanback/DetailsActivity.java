@@ -6,12 +6,12 @@ import androidx.fragment.app.FragmentActivity;
 
 import cn.edu.cqupt.dmb.player.R;
 
-/*
- * Details activity class that loads LeanbackDetailsFragment class
+/**
+ * @author qingsong
  */
 public class DetailsActivity extends FragmentActivity {
     public static final String SHARED_ELEMENT_NAME = "hero";
-    public static final String MOVIE = "Movie";
+    public static final String MOVIE = "SceneVO";
 
     /**
      * Called when the activity is first created.

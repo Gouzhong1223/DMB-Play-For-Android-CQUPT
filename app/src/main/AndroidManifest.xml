@@ -36,13 +36,20 @@
             android:theme="@style/DMB_Player_Android">
         <activity
                 android:name=".actives.leanback.MainActivity"
-                android:banner="@drawable/app_icon_your_company"
+                android:banner="@mipmap/ic_launcher"
                 android:exported="true"
-                android:icon="@drawable/app_icon_your_company"
+                android:icon="@mipmap/ic_launcher"
                 android:label="@string/title_activity_main"
-                android:logo="@drawable/app_icon_your_company"
+                android:logo="@mipmap/ic_launcher"
                 android:theme="@style/Theme.Leanback"
                 android:screenOrientation="landscape">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
                 android:name=".actives.leanback.DetailsActivity"
@@ -77,12 +84,6 @@
         <activity
                 android:name=".actives.MainActivity"
                 android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
 
             <meta-data
                     android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
