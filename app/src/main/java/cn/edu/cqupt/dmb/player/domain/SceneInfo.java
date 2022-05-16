@@ -24,7 +24,7 @@ public class SceneInfo {
     @ColumnInfo(name = "sceneName")
     private String sceneName;
     @ColumnInfo(name = "sceneId")
-    private Integer sceneId;
+    private Integer deviceId;
     @ColumnInfo(name = "frequency")
     private Integer frequency;
     @ColumnInfo(name = "sceneType")
@@ -48,12 +48,12 @@ public class SceneInfo {
         this.sceneName = sceneName;
     }
 
-    public Integer getSceneId() {
-        return sceneId;
+    public Integer getDeviceId() {
+        return deviceId;
     }
 
-    public void setSceneId(Integer sceneId) {
-        this.sceneId = sceneId;
+    public void setDeviceId(Integer deviceId) {
+        this.deviceId = deviceId;
     }
 
     public Integer getFrequency() {
@@ -83,6 +83,6 @@ public class SceneInfo {
     @NonNull
     @Override
     public String toString() {
-        return "预设名称:" + sceneName + '\n' + "终端ID:" + sceneId + '\n' + "工作频点:" + frequency + '\n' + "播放类型:" + sceneType + '\n' + "教学楼:" + building;
+        return "预设名称:" + sceneName + '\n' + "终端ID:" + deviceId + '\n' + "工作频点:" + frequency + '\n' + "播放类型:" + sceneType + '\n' + "教学楼:" + building;
     }
 }

@@ -176,7 +176,7 @@ public class PlaySettingFragment extends Fragment {
         // 查询使用场景并将使用场景的名字和ID装配到sceneIdMap中
         for (SceneInfo selectAllScene : sceneMapper.selectAllScenes()) {
             sceneNames.add(selectAllScene.getSceneName());
-            sceneIdMap.put(selectAllScene.getSceneName(), Long.valueOf(selectAllScene.getSceneId()));
+            sceneIdMap.put(selectAllScene.getSceneName(), Long.valueOf(selectAllScene.getId()));
         }
         // 装配轮播图数量下拉框组件
         configCarouselNumSpinner();
@@ -264,6 +264,7 @@ public class PlaySettingFragment extends Fragment {
                     // 插入设置
                     customSettingMapper.insertCustomSetting(customSetting);
                 } else {
+                    // 获取主键
                     Long sceneId = customSetting.getSettingValue();
                     if (!Objects.equals(sceneIdMap.get(sceneNames.get(i)), sceneId)) {
                         customSetting.setSettingValue(sceneIdMap.get(sceneNames.get(i)));

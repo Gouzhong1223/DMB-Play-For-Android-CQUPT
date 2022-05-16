@@ -1,9 +1,6 @@
 package cn.edu.cqupt.dmb.player.actives;
 
-
 import android.Manifest;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -16,34 +13,34 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import androidx.fragment.app.FragmentActivity;
+import androidx.room.Room;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.actives.fragment.MainFragment;
 import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
+import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.common.FrequencyModule;
+import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
+import cn.edu.cqupt.dmb.player.db.database.SceneDatabase;
+import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
+import cn.edu.cqupt.dmb.player.db.mapper.SceneMapper;
+import cn.edu.cqupt.dmb.player.domain.CustomSetting;
+import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
-import cn.edu.cqupt.dmb.player.utils.DialogUtil;
-import cn.edu.cqupt.dmb.player.utils.DmbUtil;
+
 
 /**
  * @author qingsong
  */
-public class MainActivity extends Activity {
+public class MainActivity extends FragmentActivity {
 
     /**
      * 自定义USB权限
@@ -62,37 +59,63 @@ public class MainActivity extends Activity {
      * 设备的 ID 号
      */
     public static volatile int id;
-    /**
-     * 装载 FrameLayout 的容器
-     */
-    private final ArrayList<FrameLayout> frameLayouts = new ArrayList<>();
+
     /**
      * USB广播接收器
      */
     private DmbBroadcastReceiver dmbBroadcastReceiver;
-    /**
-     * 默认的工作场景
-     */
-    private FrequencyModule defaultFrequencyModule;
 
-    @RequiresApi(api = Build.VERSION_CODES.R)
+    /**
+     * 操作 CustomSettingMapper 的 Mapper
+     */
+    private CustomSettingMapper customSettingMapper;
+
+    /**
+     * 默认的启动场景
+     */
+    private SceneInfo defaultScene;
+
+    /**
+     * 操作 SceneMapper 的 Mapper
+     */
+    private SceneMapper sceneMapper;
+
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 强制全屏,全的不能再全的那种了
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main2);
+        // 初始化数据库
+        initDataBase();
+        initDefaultScene();
+        runOnUiThread(() -> {
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.main_browse_fragment, new MainFragment())
+                        .commitNow();
+            }
+        });
         // 请求存储设备的读写权限
         requestPermissions(this);
-        // 初始化组件
-        initView();
-        // 初始化 DMB 的常量,设备号还有频点
-        initDefaultFrequencyModule();
         // 构造Handler
         MainHandler mainHandler = new MainHandler(Looper.getMainLooper());
-        // 之所以在这里传进去是因为尽量把跳转 Activity 的工作留在主线程
-        firstInitMainActivity(this, mainHandler);
+        // 尝试打开 USB
+        firstInitMainActivity(MainActivity.this, mainHandler);
+    }
+
+    /**
+     * 初始化数据库
+     */
+    private void initDataBase() {
+        //new a database
+        customSettingMapper = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
+                .allowMainThreadQueries().build().getCustomSettingMapper();
+        //new a database
+        sceneMapper = Room.databaseBuilder(this, SceneDatabase.class, "scene_database")
+                .allowMainThreadQueries().build().getSceneMapper();
     }
 
     /**
@@ -119,26 +142,14 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * 初始化默认的使用场景
+     * 加载默认的使用场景
      */
-    private void initDefaultFrequencyModule() {
-        // 从sharedPreferences中获取默认模块的序号,序号的范围是 1-9
-        int serialNumber = DmbUtil.getInt(this, DmbPlayerConstant.DEFAULT_FREQUENCY_MODULE_KEY.getDmbConstantName(), 20);
-        if (serialNumber == 20) {
-            // 如果获取到的序号是 20,说明没有设置默认模块
-            Intent intent = new Intent();
-            intent.setClass(MainActivity.this, SettingActivity.class);
-            // 转到设置页面
-            startActivity(intent);
-            return;
+    private void initDefaultScene() {
+        // 默认的使用场景
+        CustomSetting defaultSceneSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.DEFAULT_SENSE.getKey());
+        if (defaultSceneSetting != null) {
+            defaultScene = sceneMapper.selectSceneById(Math.toIntExact(defaultSceneSetting.getSettingValue()));
         }
-        // 根据序号获取模块信息
-        defaultFrequencyModule = FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
-        assert defaultFrequencyModule != null;
-        // 设置 ID
-        id = defaultFrequencyModule.getDeviceID();
-        // 设置活跃的模块
-        DataReadWriteUtil.setActiveFrequencyModule(defaultFrequencyModule);
     }
 
     /**
@@ -153,112 +164,6 @@ public class MainActivity extends Activity {
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         return filter;
-    }
-
-    /**
-     * 初始化View
-     */
-    private void initView() {
-        View.OnFocusChangeListener onFocusChangeListener = (view, b) -> {
-            if (b) {
-                view.setScaleX(1.4f);
-                view.setScaleY(1.4f);
-                // 此属性是将view添加到最上层
-                view.bringToFront();
-            } else {
-                view.setScaleX(1.0f);
-                view.setScaleY(1.0f);
-            }
-        };
-        FrameLayout curriculumFrameLayout = findViewById(R.id.curriculum);
-        FrameLayout dormitoryFrameLayout = findViewById(R.id.dormitory);
-        FrameLayout carouselFrameLayout = findViewById(R.id.carousel);
-        FrameLayout videoFrameLayout = findViewById(R.id.video);
-        FrameLayout audioFrameLayout = findViewById(R.id.audio);
-        FrameLayout settingFrameLayout = findViewById(R.id.setting);
-
-        // 装载 FrameLayout
-        frameLayouts.add(curriculumFrameLayout);
-        frameLayouts.add(dormitoryFrameLayout);
-        frameLayouts.add(carouselFrameLayout);
-        frameLayouts.add(videoFrameLayout);
-        frameLayouts.add(audioFrameLayout);
-        frameLayouts.add(settingFrameLayout);
-        // 绑定 FrameLayout 的监听器
-        frameLayouts.forEach(e -> e.setOnFocusChangeListener(onFocusChangeListener));
-    }
-
-    @Override
-    protected void onDestroy() {
-        DataReadWriteUtil.USB_READY = false;
-        super.onDestroy();
-        // 解注册
-        unregisterReceiver(dmbBroadcastReceiver);
-    }
-
-    /**
-     * 组件的点击绑定事件,主要作用在主页的两个切换模式的按钮上面
-     *
-     * @param view 切换模式的按钮
-     */
-    @RequiresApi(api = Build.VERSION_CODES.R)
-    @SuppressLint("NonConstantResourceId")
-    public void onclick(View view) {
-        Intent intent = new Intent();
-        List<DialogUtil.DialogButton> settingDialogButtons = DialogUtil.getPositiveButtonList(new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定"), new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.NEUTRAL, (dialogInterface, i) -> {
-            intent.setClass(MainActivity.this, SettingActivity.class);
-            startActivity(intent);
-        }, "设置"));
-        // 设置按钮不收到 USB 影响
-        if (!DataReadWriteUtil.USB_READY && view.getId() != R.id.setting) {
-            // 如果当前USB设备没有准备好是不允许点击按钮的
-            MaterialDialog materialDialog = DialogUtil.generateDialog(this, "缺少DMB设备", "当前没有读取到任何的DMB设备信息,请插上DMB设备!", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).build();
-            materialDialog.show();
-            new Thread(() -> {
-                try {
-                    TimeUnit.SECONDS.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if (materialDialog.isShowing()) {
-                    materialDialog.cancel();
-                }
-            }).start();
-            return;
-        }
-        if (DataReadWriteUtil.getDefaultFrequencyModule(this) == null && view.getId() != R.id.setting) {
-            // 如果当前还没有设置默认的工作模块,就提醒用户进行设置
-            DialogUtil.generateDialog(this, "缺少默认工作场景设置!", "您还没有设置默认的工作场景,点击右下角设置按钮进行使用场景的设置," + "设置完成之后您可以进入任意一个场景,默认的工作场景设置完成之后," + "并不会影响您进入其他场景,之后每次启动 APP 都会进入默认的工作场景.", settingDialogButtons).show();
-        }
-        switch (view.getId()) {
-            case R.id.curriculum:
-                FrequencyModule activeFrequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
-                // 判断当前默认的设置是不是课表
-                if (!activeFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
-                    DialogUtil.generateDialog(this, "设置冲突", "当前设置的使用场景不是课表," + "我不知道您想显示哪一个教学楼的课表,如果您想显示课表," + "请在设置中设置课表并选择教学楼", settingDialogButtons).show();
-                    return;
-                }
-                intent.setClass(this, CurriculumActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.setting:
-                intent.setClass(this, cn.edu.cqupt.dmb.player.actives.leanback.MainActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.dormitory:
-                intent.setClass(this, DormitorySafetyActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.carousel:
-                intent.setClass(this, CarouselActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.video:
-                intent.setClass(this, VideoActivity.class);
-                startActivity(intent);
-                break;
-            default:
-        }
     }
 
     /**
@@ -290,24 +195,31 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * 根据默认的工作场景获取对应的 Activity
+     * 根据预设场景类型获取对应的 Activity
+     * {"视频", "轮播图", "音频", "安全信息", "课表"}
      *
-     * @param defaultFrequencyModule 工作场景(默认的)
-     * @return 对应的 Activity
+     * @param sceneInfo 预设场景信息
+     * @return Activity
      */
     @RequiresApi(api = Build.VERSION_CODES.R)
-    private Class<?> getActivityByDefaultFrequencyModule(FrequencyModule defaultFrequencyModule) {
-        if (defaultFrequencyModule.getModuleName().startsWith("CURRICULUM")) {
-            return CurriculumActivity.class;
-        }
-        if ("OUTDOOR_SCREEN_TPEG".equals(defaultFrequencyModule.getModuleName())) {
-            return CarouselActivity.class;
-        }
-        if ("OUTDOOR_SCREEN_VIDEO".equals(defaultFrequencyModule.getModuleName())) {
-            return VideoActivity.class;
-        }
-        if ("DORMITORY_SAFETY".equals(defaultFrequencyModule.getModuleName())) {
-            return DormitorySafetyActivity.class;
+    private Class<?> getActivityBySceneType(SceneInfo sceneInfo) {
+        switch (sceneInfo.getSceneType()) {
+            case 0: {
+                return VideoActivity.class;
+            }
+            case 1: {
+                return CarouselActivity.class;
+            }
+            case 2: {
+                return null;
+            }
+            case 3: {
+                return DormitorySafetyActivity.class;
+            }
+            case 4: {
+                return CurriculumActivity.class;
+            }
+            default:
         }
         return null;
     }
@@ -322,18 +234,21 @@ public class MainActivity extends Activity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MESSAGE_JUMP_DEFAULT_ACTIVITY) {
-                if (defaultFrequencyModule == null) {
-                    // 没有的话,就直接返回了
-                    return;
-                }
                 // 双重检查USB是否连接
                 if (!DataReadWriteUtil.USB_READY) {
-                    new AlertDialog.Builder(MainActivity.this).setTitle("缺少DMB设备").setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!").setPositiveButton("确定", null).show();
+                    new AlertDialog.Builder(MainActivity.this,
+                            com.xuexiang.xui.R.style.Base_Theme_MaterialComponents_Light_Dialog_MinWidth)
+                            .setTitle("缺少DMB设备")
+                            .setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!")
+                            .setPositiveButton("确定", null).show();
+                    return;
+                }
+                if (defaultScene == null) {
                     return;
                 }
                 Intent intent = new Intent();
                 // 获取对应的工作场景
-                intent.setClass(MainActivity.this, getActivityByDefaultFrequencyModule(defaultFrequencyModule));
+                intent.setClass(MainActivity.this, getActivityBySceneType(defaultScene));
                 // 跳转
                 startActivity(intent);
             }

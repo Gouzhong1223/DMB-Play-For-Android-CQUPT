@@ -44,6 +44,8 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
  * 表现出来的异常就是,会唤起两次播放视频的Bug<br/>
  * 然后后播放的视频在视觉上会覆盖第一个播放的视频,但是声音不会,有重音,就像混响一样<br/>
  * 没办法最后我只能在下面加一个初始化判断<br/>
+ *
+ * @author qingsong
  */
 @RequiresApi(api = Build.VERSION_CODES.R)
 public class VideoActivity extends Activity {

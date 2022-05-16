@@ -9,7 +9,7 @@ import androidx.leanback.media.MediaPlayerAdapter;
 import androidx.leanback.media.PlaybackTransportControlGlue;
 import androidx.leanback.widget.PlaybackControlsRow;
 
-import cn.edu.cqupt.dmb.player.actives.leanback.DetailsActivity;
+import cn.edu.cqupt.dmb.player.actives.DetailsActivity;
 import cn.edu.cqupt.dmb.player.domain.SceneVO;
 
 /**

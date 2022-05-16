@@ -35,7 +35,7 @@
             android:supportsRtl="true"
             android:theme="@style/DMB_Player_Android">
         <activity
-                android:name=".actives.leanback.MainActivity"
+                android:name=".actives.MainActivity"
                 android:banner="@mipmap/ic_launcher"
                 android:exported="true"
                 android:icon="@mipmap/ic_launcher"
@@ -52,15 +52,15 @@
             </intent-filter>
         </activity>
         <activity
-                android:name=".actives.leanback.DetailsActivity"
+                android:name=".actives.DetailsActivity"
                 android:theme="@style/Theme.Leanback"
                 android:exported="false" />
         <activity
-                android:name=".actives.leanback.PlaybackActivity"
+                android:name=".actives.PlaybackActivity"
                 android:theme="@style/Theme.Leanback"
                 android:exported="false" />
         <activity
-                android:name=".actives.leanback.BrowseErrorActivity"
+                android:name=".actives.BrowseErrorActivity"
                 android:theme="@style/Theme.Leanback"
                 android:exported="false" />
         <activity
@@ -81,14 +81,6 @@
         <activity
                 android:name=".actives.CarouselActivity"
                 android:exported="false" />
-        <activity
-                android:name=".actives.MainActivity"
-                android:exported="true">
-
-            <meta-data
-                    android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                    android:resource="@xml/device_filter" />
-        </activity>
     </application>
 
 </manifest>

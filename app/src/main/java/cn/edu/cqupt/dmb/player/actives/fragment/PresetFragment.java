@@ -237,7 +237,7 @@ public class PresetFragment extends Fragment {
             SceneInfo sceneInfo = new SceneInfo();
             sceneInfo.setSceneName(sceneName);
             sceneInfo.setFrequency(Integer.parseInt(frequency));
-            sceneInfo.setSceneId(Integer.parseInt(id));
+            sceneInfo.setDeviceId(Integer.parseInt(id));
             sceneInfo.setSceneType(getSceneTypeBySceneStr(playType));
             if (playType.equals(CURRICULUM_SCENE_NAME)) {
                 // 获取输入的教学楼

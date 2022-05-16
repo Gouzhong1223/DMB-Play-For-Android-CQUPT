@@ -42,10 +42,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.actives.BrowseErrorActivity;
+import cn.edu.cqupt.dmb.player.actives.DetailsActivity;
 import cn.edu.cqupt.dmb.player.actives.SetupActivity;
-import cn.edu.cqupt.dmb.player.actives.leanback.BrowseErrorActivity;
 import cn.edu.cqupt.dmb.player.actives.leanback.CardPresenter;
-import cn.edu.cqupt.dmb.player.actives.leanback.DetailsActivity;
 import cn.edu.cqupt.dmb.player.db.database.SceneDatabase;
 import cn.edu.cqupt.dmb.player.db.mapper.SceneMapper;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
@@ -179,12 +179,12 @@ public class MainFragment extends BrowseSupportFragment {
         SceneVO sceneVO = new SceneVO();
         sceneVO.setId(Long.valueOf(sceneInfo.getId()));
         sceneVO.setBuilding(sceneInfo.getBuilding());
-        sceneVO.setDeviceId(sceneInfo.getSceneId());
+        sceneVO.setDeviceId(sceneInfo.getDeviceId());
         sceneVO.setTitle(sceneInfo.getSceneName());
         sceneVO.setFrequency(sceneInfo.getFrequency());
         sceneVO.setSceneType(sceneInfo.getSceneType());
         configSceneDrawable(sceneVO);
-        sceneVO.setSubTitle(sceneInfo.getFrequency() + ":" + sceneInfo.getSceneId());
+        sceneVO.setSubTitle(sceneInfo.getFrequency() + ":" + sceneInfo.getDeviceId());
         sceneVO.setVideoUrl("https://commondatastorage.googleapis.com/android-tv/Sample%20videos/Zeitgeist/Zeitgeist%202010_%20Year%20in%20Review.mp4");
         return sceneVO;
     }
