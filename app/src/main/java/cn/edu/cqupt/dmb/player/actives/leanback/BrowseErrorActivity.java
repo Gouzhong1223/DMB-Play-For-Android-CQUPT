@@ -10,13 +10,14 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import cn.edu.cqupt.dmb.player.R;
 
-/*
- * BrowseErrorActivity shows how to use ErrorFragment
+/**
+ * @author qingsong
  */
 public class BrowseErrorActivity extends FragmentActivity {
     private static final int TIMER_DELAY = 3000;
@@ -55,22 +56,20 @@ public class BrowseErrorActivity extends FragmentActivity {
                 .commit();
 
         final Handler handler = new Handler(Looper.myLooper());
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .remove(mSpinnerFragment)
-                        .commit();
-                mErrorFragment.setErrorContent();
-            }
+        handler.postDelayed(() -> {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .remove(mSpinnerFragment)
+                    .commit();
+            mErrorFragment.setErrorContent();
         }, TIMER_DELAY);
     }
 
     public static class SpinnerFragment extends Fragment {
         @Override
         public View onCreateView(
-                LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+                @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            assert container != null;
             ProgressBar progressBar = new ProgressBar(container.getContext());
             if (container instanceof FrameLayout) {
                 FrameLayout.LayoutParams layoutParams =
