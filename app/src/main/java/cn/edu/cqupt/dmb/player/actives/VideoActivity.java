@@ -25,9 +25,9 @@ import java.util.concurrent.Executors;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
+import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.frame.DmbMediaDataSource;
 import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
@@ -83,6 +83,10 @@ public class VideoActivity extends Activity {
      * 已经解码的MPEG-TS视频输出流
      */
     private PipedOutputStream pipedOutputStream;
+    /**
+     * 当前选择打开视频的场景设置
+     */
+    private SceneVO selectedSceneVO;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +96,8 @@ public class VideoActivity extends Activity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_video);
+        // 获取父传递过来的参数
+        selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
         // 初始化View
         initView();
         // 开始MPEG-TS解码
@@ -111,14 +117,12 @@ public class VideoActivity extends Activity {
         }
         videoPlayerFrame = findViewById(R.id.video_surface);
         videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
-        // 重新设置设备的ID
-        MainActivity.id = FrequencyModule.OUTDOOR_SCREEN_VIDEO.getDeviceID();
         // 标识当前不在主页
         DataReadWriteUtil.inMainActivity = false;
         // 获取Fic解码器
-        FicDecoder ficDecoder = FicDecoder.getInstance(MainActivity.id, true);
+        FicDecoder ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
         // 重置一下Dangle
-        UsbUtil.restDangle(ficDecoder, FrequencyModule.OUTDOOR_SCREEN_VIDEO);
+        UsbUtil.restDangle(ficDecoder, selectedSceneVO);
     }
 
     /**
@@ -179,8 +183,7 @@ public class VideoActivity extends Activity {
         // 关闭线程池中的任务
         videoPlayerFrame.release();
         closeStream();
-        // 重置Dangle
-        UsbUtil.dangleDestroy(this);
+        DataReadWriteUtil.inMainActivity = true;
         super.onDestroy();
     }
 

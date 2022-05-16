@@ -59,7 +59,12 @@ public class SetupActivity extends Activity {
                         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                         fragmentTransaction.replace(R.id.frameLayout, new PlaySettingFragment());
                         fragmentTransaction.commit();
+                        break;
                     }
+                    case 3: {
+                        break;
+                    }
+                    default:
                 }
             }
 
@@ -88,6 +93,7 @@ public class SetupActivity extends Activity {
                     fragmentTransaction.commit();
                     break;
                 }
+                default:
             }
         });
     }

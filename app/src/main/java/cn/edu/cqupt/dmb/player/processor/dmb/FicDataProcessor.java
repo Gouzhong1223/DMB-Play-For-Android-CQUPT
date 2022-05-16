@@ -2,7 +2,6 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
@@ -31,7 +30,7 @@ public class FicDataProcessor implements DataProcessing {
     /**
      * 初始化Fic解码器
      */
-    private final FicDecoder ficDecoder = FicDecoder.getInstance(MainActivity.id, true);
+    private final FicDecoder ficDecoder = FicDecoder.getInstance(-1, true);
     /**
      * 接收单个Fic
      */
@@ -51,8 +50,6 @@ public class FicDataProcessor implements DataProcessing {
         // 从接收到的数据中的第八位开始拷贝fic数据,长度为32
         if (dangleType == DangleType.STM32) {
             System.arraycopy(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), ficBuf, 0, DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue());
-            // 我们的 ID 是可变的,但是这个ficDecoder是单例生成的,所以这里,重新设置一下 ID,ficDecoder搞成单例的意义我也不知道是为什么,现在不想改了
-            ficDecoder.setId(MainActivity.id);
             // 调用ficDecoder解码器解码fic数据
             ficDecoder.decode(ficBuf);
             // 如果现在的isSelectId为false,那就从fic数据中将ChannelInfo解码提取出来
@@ -71,8 +68,6 @@ public class FicDataProcessor implements DataProcessing {
             // 大概是 i*32+8->i*32+40的区间一个包(i在[0,12]区间)
             for (int i = 0; i < DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(); i++) {
                 System.arraycopy(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue() + i * DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue(), ficBuf, 0, DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue());
-                // 我们的 ID 是可变的,但是这个ficDecoder是单例生成的,所以这里,重新设置一下 ID,ficDecoder搞成单例的意义我也不知道是为什么,现在不想改了
-                ficDecoder.setId(MainActivity.id);
                 // 调用ficDecoder解码器解码fic数据
                 ficDecoder.decode(ficBuf);
                 // 如果现在的isSelectId为false,那就从fic数据中将ChannelInfo解码提取出来

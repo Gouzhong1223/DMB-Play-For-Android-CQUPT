@@ -20,6 +20,7 @@ import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
+import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.listener.DmbCurriculumListener;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
@@ -42,12 +43,15 @@ public class CurriculumActivity extends Activity {
     private ImageView imageView;
 
     private DmbCurriculumListener dmbCurriculumListener;
+    private SceneVO selectedSceneVO;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_curriculum);
+        // 获取父传递过来的参数
+        selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
         DataReadWriteUtil.inMainActivity = false;
         initView();
         // 开始解码 TPEG 生成 TPEG
@@ -69,11 +73,9 @@ public class CurriculumActivity extends Activity {
      * 开始执行解码线程
      */
     private void startDecodeCurriculum() {
-        // 重新设置一下MainActivity.id的 ID,方便 FicDecoder 解码
-        MainActivity.id = DataReadWriteUtil.getActiveFrequencyModule().getDeviceID();
         // 先重置一下 Dangle
-        UsbUtil.restDangle(FicDecoder.getInstance(MainActivity.id, true), DataReadWriteUtil.getActiveFrequencyModule());
-        dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()));
+        UsbUtil.restDangle(FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true), selectedSceneVO);
+        dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()), selectedSceneVO);
         // 构造TPEG解码器
         TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListener, this);
         executorService.submit(tpegDecoder);
@@ -83,8 +85,7 @@ public class CurriculumActivity extends Activity {
     protected void onDestroy() {
         // 中断解码线程
         executorService.shutdown();
-        // 销毁一下 dangle 的设置
-        UsbUtil.dangleDestroy(this);
+        DataReadWriteUtil.inMainActivity = true;
         super.onDestroy();
     }
 

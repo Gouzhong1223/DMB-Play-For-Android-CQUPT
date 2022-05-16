@@ -1,11 +1,7 @@
 package cn.edu.cqupt.dmb.player.utils;
 
-import android.content.Context;
-
 import java.io.BufferedInputStream;
 import java.io.PipedInputStream;
-
-import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 
 /**
  * @Author : Gouzhong
@@ -41,14 +37,6 @@ public class DataReadWriteUtil {
      */
     private static volatile DataReadWriteUtil dataReadWriteUtil;
     /**
-     * 当前活跃(选中的模块)
-     */
-    private static volatile FrequencyModule activeFrequencyModule;
-    /**
-     * 上一次使用到的场景
-     */
-    private static volatile FrequencyModule preFrequencyModule;
-    /**
      * USB 数据的 PIP 输入流
      */
     private final PipedInputStream pipedInputStream;
@@ -81,35 +69,6 @@ public class DataReadWriteUtil {
             }
         }
         return dataReadWriteUtil;
-    }
-
-    public static FrequencyModule getActiveFrequencyModule() {
-        return activeFrequencyModule;
-    }
-
-    public static void setActiveFrequencyModule(FrequencyModule activeFrequencyModule) {
-        DataReadWriteUtil.activeFrequencyModule = activeFrequencyModule;
-    }
-
-    /**
-     * 获取当前系统的默认工作场景
-     *
-     * @param context 当前 context
-     * @return 频点模块
-     */
-    public static FrequencyModule getDefaultFrequencyModule(Context context) {
-        // 从sharedPreferences中获取默认模块的序号,序号的范围是 1-9
-        int serialNumber = DmbUtil.getInt(context, "defaultFrequencyModule", 20);
-        // 根据序号获取模块信息
-        return FrequencyModule.getFrequencyModuleBySerialNumber(serialNumber);
-    }
-
-    public static FrequencyModule getPreFrequencyModule() {
-        return preFrequencyModule;
-    }
-
-    public static void setPreFrequencyModule(FrequencyModule preFrequencyModule) {
-        DataReadWriteUtil.preFrequencyModule = preFrequencyModule;
     }
 
     public PipedInputStream getPipedInputStream() {

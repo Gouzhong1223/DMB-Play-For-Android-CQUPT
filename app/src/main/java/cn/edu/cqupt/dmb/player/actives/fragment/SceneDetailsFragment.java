@@ -5,12 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
 import androidx.leanback.app.DetailsSupportFragment;
@@ -42,7 +44,6 @@ import java.util.List;
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.actives.DetailsActivity;
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
-import cn.edu.cqupt.dmb.player.actives.PlaybackActivity;
 import cn.edu.cqupt.dmb.player.actives.leanback.CardPresenter;
 import cn.edu.cqupt.dmb.player.actives.leanback.DetailsDescriptionPresenter;
 import cn.edu.cqupt.dmb.player.db.database.SceneDatabase;
@@ -186,6 +187,7 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     private void setupDetailsOverviewRowPresenter() {
         // Set detail background.
         FullWidthDetailsOverviewRowPresenter detailsPresenter =
@@ -212,7 +214,7 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
                                     null, "确定")).show();
                     return;
                 }
-                Intent intent = new Intent(getActivity(), PlaybackActivity.class);
+                Intent intent = new Intent(getActivity(), MainActivity.getActivityBySceneType(selectedSceneVO.getSceneType()));
                 intent.putExtra(DetailsActivity.SCENE_VO, selectedSceneVO);
                 startActivity(intent);
             } else {

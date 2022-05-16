@@ -1,6 +1,5 @@
 package cn.edu.cqupt.dmb.player.utils;
 
-import android.content.Context;
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
@@ -12,13 +11,12 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-import cn.edu.cqupt.dmb.player.actives.MainActivity;
 import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
 import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.common.FrequencyModule;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
+import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
 
@@ -74,16 +72,14 @@ public class UsbUtil {
      * 然后把 FicDataProcessor.isSelectId 设置为 false
      *
      * @param ficDecoder      ficDecoder
-     * @param frequencyModule 默认的工作场景
+     * @param selectedSceneVO 工作场景
      */
-    public static void restDangle(FicDecoder ficDecoder, FrequencyModule frequencyModule) {
+    public static void restDangle(FicDecoder ficDecoder, SceneVO selectedSceneVO) {
         // 先清除 dangle 的设置
         dangle.clearRegister();
         // 重新设置 dangle 的工作频点
-        Log.i(TAG, "重置的频点是:" + frequencyModule.getFrequency());
-        // 重置 dangle 的时候将活跃场景设置为参数传入的 FrequencyModule
-        DataReadWriteUtil.setActiveFrequencyModule(frequencyModule);
-        dangle.setFrequency(frequencyModule.getFrequency());
+        Log.i(TAG, "重置的频点是:" + selectedSceneVO.getFrequency());
+        dangle.setFrequency(selectedSceneVO.getFrequency());
         // 清空 ficDecoder 的ChannelInfo
         ficDecoder.resetChannelInfos();
         try {
@@ -93,24 +89,6 @@ public class UsbUtil {
             e.printStackTrace();
         }
         FicDataProcessor.isSelectId = false;
-    }
-
-    /**
-     * 自定义的 dangle 销毁方法<br/>
-     * 主要是把默认的工作场景切换为默认的工作场景,然后MainActivity.id设置为默认的 ID<br/>
-     * DataReadWriteUtil.inMainActivity设置为 true
-     *
-     * @param context 当前context
-     */
-    public static void dangleDestroy(Context context) {
-        FrequencyModule defaultFrequencyModule = DataReadWriteUtil.getDefaultFrequencyModule(context);
-        // 结束之后设置活跃场景为默认场景
-        DataReadWriteUtil.setActiveFrequencyModule(defaultFrequencyModule);
-        // 结束之后将 ID 设置成默认的场景 ID
-        MainActivity.id = defaultFrequencyModule.getDeviceID();
-        // 再重置一下 Dangle
-        restDangle(FicDecoder.getInstance(MainActivity.id, true), defaultFrequencyModule);
-        DataReadWriteUtil.inMainActivity = true;
     }
 
     /**
@@ -145,12 +123,7 @@ public class UsbUtil {
             dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
             // 先清除Dangle的设置
             dangle.clearRegister();
-            // 获取当前系统的活跃模块
-            FrequencyModule activeFrequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
-            if (activeFrequencyModule != null) {
-                // 活跃模块不为空的时候,设置 Dangle 的频点
-                dangle.setFrequency(activeFrequencyModule.getFrequency());
-            }
+//            dangle.setFrequency(activeFrequencyModule.getFrequency());
             // 如果没有Shutdown就直接提交任务
             // 新开一个线程去接收 Dangle 接收器发过来的数据
             new Thread(new ReceiveUsbDataTask(bytes, usbEndpointIn,

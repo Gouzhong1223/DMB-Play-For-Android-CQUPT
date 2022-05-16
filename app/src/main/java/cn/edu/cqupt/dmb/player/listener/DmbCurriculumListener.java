@@ -1,10 +1,8 @@
 package cn.edu.cqupt.dmb.player.listener;
 
 import android.os.Handler;
-import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.common.FrequencyModule;
-import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
+import cn.edu.cqupt.dmb.player.domain.SceneVO;
 
 /**
  * @Author : Gouzhong
@@ -22,36 +20,57 @@ public class DmbCurriculumListener implements DmbListener {
     public static final int MESSAGE_UPDATE_PICTURE = 0x100;
     private static final String TAG = "DmbCurriculumListener";
     private final Handler handler;
+    private final SceneVO selectedSceneVO;
+    /**
+     * 教学楼数据源
+     */
+    private final String[] building = new String[]{"二教", "三教", "四教", "五教", "八教"};
     /**
      * 文件缓冲区
      */
     private final byte[] fileBuffer = new byte[1024 * 1024 * 2];
     private Integer length;
 
-    public DmbCurriculumListener(Handler handler) {
+    public DmbCurriculumListener(Handler handler, SceneVO selectedSceneVO) {
         this.handler = handler;
+        this.selectedSceneVO = selectedSceneVO;
     }
 
     @Override
     public void onSuccess(String fileName, byte[] bytes, int length) {
-        FrequencyModule frequencyModule = DataReadWriteUtil.getActiveFrequencyModule();
-        if (frequencyModule == null) {
-            Log.e(TAG, "出错啦!现在没有设置活跃的组件,所以这里的回调方法就直接抛弃!");
+        Integer building = getBuilding(selectedSceneVO.getBuilding());
+        if (building == -1) {
             return;
         }
-        if (!frequencyModule.getModuleName().startsWith("CURRICULUM")) {
-            // 活跃组件不是课表,直接返回
-            Log.e(TAG, "当前活跃的组件不是课表");
-            return;
-        }
-        String needBuilding = frequencyModule.getModuleName().split("-")[1];
-        if (!fileName.contains(needBuilding)) {
+        if (!fileName.contains(building.toString())) {
             // 如果不是需要的课表,就直接返回
             return;
         }
         this.length = length;
         System.arraycopy(bytes, 0, fileBuffer, 0, length);
         handler.sendEmptyMessage(MESSAGE_UPDATE_PICTURE);
+    }
+
+    private Integer getBuilding(Integer build) {
+        switch (build) {
+            case 0: {
+                return 64;
+            }
+            case 1: {
+                return 32;
+            }
+            case 2: {
+                return 16;
+            }
+            case 3: {
+                return 8;
+            }
+            case 4: {
+                return 4;
+            }
+            default:
+        }
+        return -1;
     }
 
     @Override

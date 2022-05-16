@@ -10,7 +10,6 @@ import com.youth.banner.indicator.CircleIndicator;
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
-import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 public class DormitorySafetyActivity extends FragmentActivity {
 
@@ -40,7 +39,6 @@ public class DormitorySafetyActivity extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
-        DataReadWriteUtil.setActiveFrequencyModule(null);
         super.onDestroy();
     }
 }

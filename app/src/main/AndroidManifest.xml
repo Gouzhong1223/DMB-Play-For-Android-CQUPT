@@ -67,9 +67,6 @@
                 android:name=".actives.SetupActivity"
                 android:exported="false" />
         <activity
-                android:name=".actives.SettingActivity"
-                android:exported="false" />
-        <activity
                 android:name=".actives.CurriculumActivity"
                 android:exported="false" />
         <activity

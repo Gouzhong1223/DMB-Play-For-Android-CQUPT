@@ -55,10 +55,7 @@ public class MainActivity extends FragmentActivity {
      * 跳转到默认场景的消息
      */
     private static final int MESSAGE_JUMP_DEFAULT_ACTIVITY = DmbPlayerConstant.MESSAGE_JUMP_DEFAULT_ACTIVITY.getDmbConstantValue();
-    /**
-     * 设备的 ID 号
-     */
-    public static volatile int id;
+
 
     /**
      * USB广播接收器
@@ -80,6 +77,35 @@ public class MainActivity extends FragmentActivity {
      */
     private SceneMapper sceneMapper;
 
+    /**
+     * 根据预设场景类型获取对应的 Activity
+     * {"视频", "轮播图", "音频", "安全信息", "课表"}
+     *
+     * @param sceneType 预设场景类型
+     * @return Activity
+     */
+    @RequiresApi(api = Build.VERSION_CODES.R)
+    public static Class<?> getActivityBySceneType(Integer sceneType) {
+        switch (sceneType) {
+            case 0: {
+                return VideoActivity.class;
+            }
+            case 1: {
+                return CarouselActivity.class;
+            }
+            case 2: {
+                return null;
+            }
+            case 3: {
+                return DormitorySafetyActivity.class;
+            }
+            case 4: {
+                return CurriculumActivity.class;
+            }
+            default:
+        }
+        return null;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -192,36 +218,6 @@ public class MainActivity extends FragmentActivity {
                 Log.i(TAG, "申请权限失败");
             }
         }
-    }
-
-    /**
-     * 根据预设场景类型获取对应的 Activity
-     * {"视频", "轮播图", "音频", "安全信息", "课表"}
-     *
-     * @param sceneType 预设场景类型
-     * @return Activity
-     */
-    @RequiresApi(api = Build.VERSION_CODES.R)
-    private Class<?> getActivityBySceneType(Integer sceneType) {
-        switch (sceneType) {
-            case 0: {
-                return VideoActivity.class;
-            }
-            case 1: {
-                return CarouselActivity.class;
-            }
-            case 2: {
-                return null;
-            }
-            case 3: {
-                return DormitorySafetyActivity.class;
-            }
-            case 4: {
-                return CurriculumActivity.class;
-            }
-            default:
-        }
-        return null;
     }
 
     private class MainHandler extends Handler {
