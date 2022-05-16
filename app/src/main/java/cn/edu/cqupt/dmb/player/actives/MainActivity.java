@@ -158,7 +158,7 @@ public class MainActivity extends FragmentActivity {
             // 初始化USB设备过滤器
             IntentFilter intentFilter = initIntentFilter();
             // 注册广播
-            dmbBroadcastReceiver = DmbBroadcastReceiver.getInstance(context, handler);
+            dmbBroadcastReceiver = DmbBroadcastReceiver.getInstance(context, handler, defaultScene);
             registerReceiver(dmbBroadcastReceiver, intentFilter);
             if (!DataReadWriteUtil.USB_READY) {
                 dmbBroadcastReceiver.tryConnectUsbDeviceAndLoadUsbData();

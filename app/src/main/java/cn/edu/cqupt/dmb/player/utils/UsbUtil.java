@@ -16,6 +16,7 @@ import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.domain.Dangle;
+import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.task.ReceiveUsbDataTask;
@@ -37,9 +38,8 @@ public class UsbUtil {
     private static final String TAG = "UsbUtil";
     /**
      * 缓存从USB读取到的数据,2048是一个待定值
-     * TODO 后续根据测试情况修改大小
      */
-    private static final byte[] bytes = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
+    private static final byte[] BYTES = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
             * DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()];
     /**
      * 用于缓存USB设备的Map
@@ -96,7 +96,7 @@ public class UsbUtil {
      *
      * @param manager 用于管理USB的UsbManager
      */
-    public void initUsb(UsbManager manager) {
+    public void initUsb(UsbManager manager, SceneInfo defaultSceneInfo) {
         deviceHashMap = manager.getDeviceList();
         for (Map.Entry<String, UsbDevice> stringUsbDeviceEntry : deviceHashMap.entrySet()) {
             UsbDevice usbDevice = stringUsbDeviceEntry.getValue();
@@ -123,10 +123,12 @@ public class UsbUtil {
             dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
             // 先清除Dangle的设置
             dangle.clearRegister();
-//            dangle.setFrequency(activeFrequencyModule.getFrequency());
+            if (defaultSceneInfo != null) {
+                dangle.setFrequency(defaultSceneInfo.getFrequency());
+            }
             // 如果没有Shutdown就直接提交任务
             // 新开一个线程去接收 Dangle 接收器发过来的数据
-            new Thread(new ReceiveUsbDataTask(bytes, usbEndpointIn,
+            new Thread(new ReceiveUsbDataTask(BYTES, usbEndpointIn,
                     usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType)).start();
         }
     }

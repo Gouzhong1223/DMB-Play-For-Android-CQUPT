@@ -18,6 +18,7 @@ import java.util.Objects;
 
 import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
@@ -73,9 +74,15 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      */
     private UsbManager usbManager;
 
-    private DmbBroadcastReceiver(Context context, Handler handler) {
+    /**
+     * 默认的使用场景
+     */
+    private final SceneInfo defaultSceneInfo;
+
+    private DmbBroadcastReceiver(Context context, Handler handler, SceneInfo defaultSceneInfo) {
         this.handler = handler;
         this.context = context;
+        this.defaultSceneInfo = defaultSceneInfo;
     }
 
 
@@ -85,11 +92,11 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * @param context context
      * @return 单例模式下创建的 DmbBroadcastReceiver
      */
-    public static DmbBroadcastReceiver getInstance(Context context, Handler handler) {
+    public static DmbBroadcastReceiver getInstance(Context context, Handler handler, SceneInfo defaultSceneInfo) {
         if (dmbBroadcastReceiver == null) {
             synchronized (DmbBroadcastReceiver.class) {
                 if (dmbBroadcastReceiver == null) {
-                    dmbBroadcastReceiver = new DmbBroadcastReceiver(context, handler);
+                    dmbBroadcastReceiver = new DmbBroadcastReceiver(context, handler, defaultSceneInfo);
                 }
             }
         }
@@ -246,7 +253,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
     private void openDevice() {
         UsbUtil usbUtil = new UsbUtil(dangleType);
         // 开始从USB中读取数据
-        usbUtil.initUsb(usbManager);
+        usbUtil.initUsb(usbManager, defaultSceneInfo);
     }
 
     /**
