@@ -83,7 +83,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
             mAdapter = new ArrayObjectAdapter(mPresenterSelector);
             setupDetailsOverviewRow();
             setupDetailsOverviewRowPresenter();
-            setupRelatedMovieListRow();
+            setupRelatedSceneListRow();
             setAdapter(mAdapter);
             initializeBackground(mSelectedSceneVO);
             setOnItemViewClickedListener(new ItemViewClickedListener());
@@ -189,7 +189,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
         mPresenterSelector.addClassPresenter(DetailsOverviewRow.class, detailsPresenter);
     }
 
-    private void setupRelatedMovieListRow() {
+    private void setupRelatedSceneListRow() {
         String[] subcategories = {getString(R.string.related_movies)};
         List<SceneInfo> sceneInfos = sceneMapper.selectAllScenes();
         ArrayList<SceneVO> list = new ArrayList<>();
