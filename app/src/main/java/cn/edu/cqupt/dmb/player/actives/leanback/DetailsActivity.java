@@ -11,7 +11,7 @@ import cn.edu.cqupt.dmb.player.R;
  */
 public class DetailsActivity extends FragmentActivity {
     public static final String SHARED_ELEMENT_NAME = "hero";
-    public static final String MOVIE = "SceneVO";
+    public static final String SCENE_VO = "SceneVO";
 
     /**
      * Called when the activity is first created.

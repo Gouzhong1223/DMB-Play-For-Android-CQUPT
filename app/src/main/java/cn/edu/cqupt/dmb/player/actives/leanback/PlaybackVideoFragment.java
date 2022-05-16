@@ -23,7 +23,7 @@ public class PlaybackVideoFragment extends VideoSupportFragment {
         super.onCreate(savedInstanceState);
 
         final SceneVO sceneVO =
-                (SceneVO) requireActivity().getIntent().getSerializableExtra(DetailsActivity.MOVIE);
+                (SceneVO) requireActivity().getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
 
         VideoSupportFragmentGlueHost glueHost =
                 new VideoSupportFragmentGlueHost(PlaybackVideoFragment.this);

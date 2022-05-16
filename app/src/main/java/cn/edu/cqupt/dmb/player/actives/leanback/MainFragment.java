@@ -316,7 +316,7 @@ public class MainFragment extends BrowseSupportFragment {
                 SceneVO sceneVO = (SceneVO) item;
                 Log.d(TAG, "Item: " + item);
                 Intent intent = new Intent(getActivity(), DetailsActivity.class);
-                intent.putExtra(DetailsActivity.MOVIE, sceneVO);
+                intent.putExtra(DetailsActivity.SCENE_VO, sceneVO);
 
                 Bundle bundle = ActivityOptionsCompat.makeSceneTransitionAnimation(
                                 requireActivity(),

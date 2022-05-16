@@ -77,7 +77,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
         mDetailsBackground = new DetailsSupportFragmentBackgroundController(this);
 
         mSelectedSceneVO =
-                (SceneVO) requireActivity().getIntent().getSerializableExtra(DetailsActivity.MOVIE);
+                (SceneVO) requireActivity().getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
         if (mSelectedSceneVO != null) {
             mPresenterSelector = new ClassPresenterSelector();
             mAdapter = new ArrayObjectAdapter(mPresenterSelector);
@@ -180,7 +180,7 @@ public class VideoDetailsFragment extends DetailsSupportFragment {
         detailsPresenter.setOnActionClickedListener(action -> {
             if (action.getId() == ACTION_WATCH_TRAILER) {
                 Intent intent = new Intent(getActivity(), PlaybackActivity.class);
-                intent.putExtra(DetailsActivity.MOVIE, mSelectedSceneVO);
+                intent.putExtra(DetailsActivity.SCENE_VO, mSelectedSceneVO);
                 startActivity(intent);
             } else {
                 Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
