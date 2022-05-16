@@ -1,4 +1,4 @@
-package cn.edu.cqupt.dmb.player.actives.leanback;
+package cn.edu.cqupt.dmb.player.domain;
 
 /**
  * @author qingsong

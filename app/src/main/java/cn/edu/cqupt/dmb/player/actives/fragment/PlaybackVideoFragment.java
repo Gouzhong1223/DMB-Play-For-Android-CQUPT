@@ -1,4 +1,4 @@
-package cn.edu.cqupt.dmb.player.actives.leanback;
+package cn.edu.cqupt.dmb.player.actives.fragment;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,6 +8,9 @@ import androidx.leanback.app.VideoSupportFragmentGlueHost;
 import androidx.leanback.media.MediaPlayerAdapter;
 import androidx.leanback.media.PlaybackTransportControlGlue;
 import androidx.leanback.widget.PlaybackControlsRow;
+
+import cn.edu.cqupt.dmb.player.actives.leanback.DetailsActivity;
+import cn.edu.cqupt.dmb.player.domain.SceneVO;
 
 /**
  * Handles video playback with media controls.

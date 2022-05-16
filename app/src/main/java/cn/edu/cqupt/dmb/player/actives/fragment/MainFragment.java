@@ -1,4 +1,4 @@
-package cn.edu.cqupt.dmb.player.actives.leanback;
+package cn.edu.cqupt.dmb.player.actives.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -43,9 +43,14 @@ import java.util.TimerTask;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.actives.SetupActivity;
+import cn.edu.cqupt.dmb.player.actives.leanback.BrowseErrorActivity;
+import cn.edu.cqupt.dmb.player.actives.leanback.CardPresenter;
+import cn.edu.cqupt.dmb.player.actives.leanback.DetailsActivity;
 import cn.edu.cqupt.dmb.player.db.database.SceneDatabase;
 import cn.edu.cqupt.dmb.player.db.mapper.SceneMapper;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
+import cn.edu.cqupt.dmb.player.domain.SceneTypeList;
+import cn.edu.cqupt.dmb.player.domain.SceneVO;
 
 /**
  * @author qingsong

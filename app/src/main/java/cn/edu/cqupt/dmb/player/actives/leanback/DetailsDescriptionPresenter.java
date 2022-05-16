@@ -2,6 +2,11 @@ package cn.edu.cqupt.dmb.player.actives.leanback;
 
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 
+import cn.edu.cqupt.dmb.player.domain.SceneVO;
+
+/**
+ * @author qingsong
+ */
 public class DetailsDescriptionPresenter extends AbstractDetailsDescriptionPresenter {
 
     @Override

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.fragment.app.FragmentActivity;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.actives.fragment.SceneDetailsFragment;
 
 /**
  * @author qingsong
@@ -22,7 +23,7 @@ public class DetailsActivity extends FragmentActivity {
         setContentView(R.layout.activity_details);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.details_fragment, new VideoDetailsFragment())
+                    .replace(R.id.details_fragment, new SceneDetailsFragment())
                     .commitNow();
         }
     }

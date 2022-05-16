@@ -4,8 +4,12 @@ import android.os.Bundle;
 
 import androidx.fragment.app.FragmentActivity;
 
+import cn.edu.cqupt.dmb.player.actives.fragment.PlaybackVideoFragment;
+
 /**
  * Loads {@link PlaybackVideoFragment}.
+ *
+ * @author qingsong
  */
 public class PlaybackActivity extends FragmentActivity {
 

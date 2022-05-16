@@ -64,7 +64,7 @@ public class SceneManagementFragment extends Fragment {
     private void configView() {
         List<String> sceneInfos = sceneMapper.selectAllSceneNames();
         sceneListView.setOnItemLongClickListener((adapterView, view, i, l) -> {
-            DialogUtil.generateDialog(context, "删除场景设置", "是否要删除名为:" + sceneInfos.get(i) + "的预设？", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.NEGATIVE, (dialog, which) -> dialog.cancel(), "取消"), new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, which) -> {
+            DialogUtil.generateDialog(context, "删除场景设置", "是否要删除名为:" + sceneInfos.get(i) + "的预设？", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.NEGATIVE, (dialog, which) -> dialog.cancel(), "取消"), new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, which) -> {
                 sceneMapper.deleteSceneBySceneName(sceneInfos.get(i));
                 sceneInfos.remove(i);
                 sceneListView.setAdapter(new ArrayAdapter<>(context, R.layout.dmb_list_item, sceneInfos));
@@ -74,7 +74,7 @@ public class SceneManagementFragment extends Fragment {
         });
         sceneListView.setOnItemClickListener((adapterView, view, i, l) -> {
             SceneInfo sceneInfo = sceneMapper.selectSceneByScreenName(sceneInfos.get(i));
-            DialogUtil.generateDialog(context, "场景信息", sceneInfo.toString(), new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, which) -> dialog.cancel(), "确定")).show();
+            DialogUtil.generateDialog(context, "场景信息", sceneInfo.toString(), new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, which) -> dialog.cancel(), "确定")).show();
         });
         sceneListView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

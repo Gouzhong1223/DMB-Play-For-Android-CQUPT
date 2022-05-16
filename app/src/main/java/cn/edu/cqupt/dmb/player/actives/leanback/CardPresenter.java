@@ -11,6 +11,7 @@ import androidx.leanback.widget.Presenter;
 import com.bumptech.glide.Glide;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.domain.SceneVO;
 
 /**
  * @author qingsong
@@ -68,7 +69,7 @@ public class CardPresenter extends Presenter {
         ImageCardView cardView = (ImageCardView) viewHolder.view;
 
         Log.d(TAG, "onBindViewHolder");
-        if (sceneVO.getCardDrawableId() != null && sceneVO.getCardDrawableId() != 0) {
+        if (sceneVO.getCardDrawableId() != null && sceneVO.getCardDrawableId() != null) {
             cardView.setTitleText(sceneVO.getTitle());
             cardView.setContentText(sceneVO.getSubTitle());
             cardView.setMainImageDimensions(CARD_WIDTH, CARD_HEIGHT);

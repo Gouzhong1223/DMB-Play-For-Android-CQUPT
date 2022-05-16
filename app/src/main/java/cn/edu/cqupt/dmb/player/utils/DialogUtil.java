@@ -1,6 +1,9 @@
 package cn.edu.cqupt.dmb.player.utils;
 
 import android.content.Context;
+import android.content.DialogInterface;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog;
 import com.xuexiang.xui.widget.dialog.materialdialog.MaterialDialog.SingleButtonCallback;
@@ -26,16 +29,16 @@ public class DialogUtil {
     /**
      * 生成一个对话康
      *
-     * @param context         调用方法的 context
-     * @param title           对话标题
-     * @param message         对话消息
-     * @param positiveButtons 按钮数组
+     * @param context       调用方法的 context
+     * @param title         对话标题
+     * @param message       对话消息
+     * @param dialogButtons 按钮数组
      * @return QMUIDialog.MessageDialogBuilder
      */
-    public static MaterialDialog.Builder generateDialog(Context context, String title, String message, List<PositiveButton> positiveButtons) {
+    public static MaterialDialog.Builder generateDialog(Context context, String title, String message, List<DialogButton> dialogButtons) {
         MaterialDialog.Builder builder = new MaterialDialog.Builder(context).title(title).content(message);
-        if (positiveButtons != null && Objects.requireNonNull(positiveButtons).size() != 0) {
-            positiveButtons.forEach(e -> {
+        if (dialogButtons != null && Objects.requireNonNull(dialogButtons).size() != 0) {
+            dialogButtons.forEach(e -> {
                 if (e.getButtonEnum() == DialogButtonEnum.POSITIVE) {
                     builder.onPositive(e.getListener());
                     builder.positiveText(e.getBtnText());
@@ -54,16 +57,16 @@ public class DialogUtil {
     /**
      * 生成对话框
      *
-     * @param context         调用方法的 context
-     * @param title           对话框标题
-     * @param message         对话框消息
-     * @param positiveButtons 可变数组,传的是按钮
+     * @param context       调用方法的 context
+     * @param title         对话框标题
+     * @param message       对话框消息
+     * @param dialogButtons 可变数组,传的是按钮
      * @return MaterialDialog.Builder
      */
-    public static MaterialDialog.Builder generateDialog(Context context, String title, String message, PositiveButton... positiveButtons) {
+    public static MaterialDialog.Builder generateDialog(Context context, String title, String message, DialogButton... dialogButtons) {
         MaterialDialog.Builder builder = new MaterialDialog.Builder(context).title(title).content(message);
-        if (positiveButtons.length != 0) {
-            for (PositiveButton e : positiveButtons) {
+        if (dialogButtons.length != 0) {
+            for (DialogButton e : dialogButtons) {
                 if (e.getButtonEnum() == DialogButtonEnum.POSITIVE) {
                     builder.onPositive(e.getListener());
                     builder.positiveText(e.getBtnText());
@@ -79,27 +82,101 @@ public class DialogUtil {
         return builder;
     }
 
+
+    /**
+     * 生成对话框
+     *
+     * @param context       调用方法的 context
+     * @param title         对话框标题
+     * @param message       对话框消息
+     * @param dialogButtons 可变数组,传的是按钮
+     * @return MaterialDialog.Builder
+     */
+    public static AlertDialog.Builder generateDialog(Context context, int themeResId, String title, String message, AlertDialogButton... dialogButtons) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, themeResId).setTitle(title).setMessage(message);
+        if (dialogButtons.length != 0) {
+            for (AlertDialogButton e : dialogButtons) {
+                if (e.getButtonEnum() == DialogButtonEnum.POSITIVE) {
+                    builder.setPositiveButton(e.getBtnText(), e.getListener());
+                } else if (e.getButtonEnum() == DialogButtonEnum.NEGATIVE) {
+                    builder.setNegativeButton(e.getBtnText(), e.getListener());
+                } else {
+                    builder.setNeutralButton(e.getBtnText(), e.getListener());
+                }
+            }
+        }
+        return builder;
+    }
+
     /**
      * 获取按钮列表
      *
-     * @param positiveButtons 按钮,可变数组
-     * @return List<PositiveButton>
+     * @param dialogButtons 按钮,可变数组
+     * @return List<DialogButton>
      */
-    public static List<PositiveButton> getPositiveButtonList(PositiveButton... positiveButtons) {
-        if (positiveButtons.length != 0) {
-            return new ArrayList<>(Arrays.asList(positiveButtons));
+    public static List<DialogButton> getPositiveButtonList(DialogButton... dialogButtons) {
+        if (dialogButtons.length != 0) {
+            return new ArrayList<>(Arrays.asList(dialogButtons));
         }
         return null;
     }
 
     public enum DialogButtonEnum {
-        POSITIVE, NEGATIVE, NEUTRAL
+        /**
+         * 确定按钮
+         */
+        POSITIVE,
+        /**
+         * 取消按钮
+         */
+        NEGATIVE,
+        /**
+         * 中性按钮
+         */
+        NEUTRAL
+    }
+
+    /**
+     * 普通 Dialog 对话框的按钮
+     */
+    public static class AlertDialogButton {
+        /**
+         * 按钮的类型
+         */
+        private final DialogButtonEnum buttonEnum;
+
+        /**
+         * 按钮的监听器
+         */
+        private final DialogInterface.OnClickListener listener;
+        /**
+         * 按钮文本
+         */
+        private final String btnText;
+
+        public AlertDialogButton(DialogButtonEnum buttonEnum, DialogInterface.OnClickListener listener, String btnText) {
+            this.buttonEnum = buttonEnum;
+            this.listener = listener;
+            this.btnText = btnText;
+        }
+
+        public DialogButtonEnum getButtonEnum() {
+            return buttonEnum;
+        }
+
+        public DialogInterface.OnClickListener getListener() {
+            return listener;
+        }
+
+        public String getBtnText() {
+            return btnText;
+        }
     }
 
     /**
      * 装载按钮以及监听器
      */
-    public static class PositiveButton {
+    public static class DialogButton {
 
         /**
          * 按钮的类型
@@ -115,7 +192,7 @@ public class DialogUtil {
          */
         private final String btnText;
 
-        public PositiveButton(DialogButtonEnum buttonEnum, SingleButtonCallback listener, String btnText) {
+        public DialogButton(DialogButtonEnum buttonEnum, SingleButtonCallback listener, String btnText) {
             this.buttonEnum = buttonEnum;
             this.listener = listener;
             this.btnText = btnText;

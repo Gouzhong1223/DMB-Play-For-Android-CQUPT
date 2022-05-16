@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.actives.fragment.ErrorFragment;
+import cn.edu.cqupt.dmb.player.actives.fragment.MainFragment;
 
 /**
  * @author qingsong

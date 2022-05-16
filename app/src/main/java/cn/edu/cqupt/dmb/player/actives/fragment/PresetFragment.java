@@ -247,13 +247,13 @@ public class PresetFragment extends Fragment {
             // 在数据库中插入预设
             sceneMapper.insertScene(sceneInfo);
             // 弹出对话框提示成功
-            DialogUtil.generateDialog(context, "保存成功！", "预设已经成功保存啦！添加成功的预设都会在主页面显示哦！同时还可以设置一个默认的预设作为APP启动时载入的场景！", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, which) -> {
+            DialogUtil.generateDialog(context, "保存成功！", "预设已经成功保存啦！添加成功的预设都会在主页面显示哦！同时还可以设置一个默认的预设作为APP启动时载入的场景！", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, which) -> {
                 dialog.cancel();
                 // 查询现有的默认使用场景
                 CustomSetting customSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.DEFAULT_SENSE.getKey());
                 if (customSetting == null) {
                     // 如果没有默认的使用场景就提示:是否将当前的预设信息设置为默认的使用场景
-                    DialogUtil.generateDialog(context, "设置自启动场景", "检测到您还没有设置默认的使用场景,是否将" + sceneName + "设置为APP默认的使用场景?", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.NEGATIVE, (dialog1, which1) -> dialog1.cancel(), "取消"), new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog12, which12) -> {
+                    DialogUtil.generateDialog(context, "设置自启动场景", "检测到您还没有设置默认的使用场景,是否将" + sceneName + "设置为APP默认的使用场景?", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.NEGATIVE, (dialog1, which1) -> dialog1.cancel(), "取消"), new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog12, which12) -> {
                         // 构造一个关于默认使用场景的自定义设置实体
                         CustomSetting customSettingRecord = new CustomSetting();
                         SceneInfo sceneInfoRecord = sceneMapper.selectSceneByScreenName(sceneName);
@@ -309,7 +309,7 @@ public class PresetFragment extends Fragment {
      */
     private boolean validationParameters(String sceneName, String frequency, String id) {
         if ("".equals(sceneName)) {
-            DialogUtil.generateDialog(context, "预设名字还没填呢！", "快去给你的自定义预设取个名字吧！", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
+            DialogUtil.generateDialog(context, "预设名字还没填呢！", "快去给你的自定义预设取个名字吧！", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
             return false;
         }
 
@@ -317,15 +317,15 @@ public class PresetFragment extends Fragment {
         SceneInfo sceneInfo = sceneMapper.selectSceneByScreenName(sceneName);
         if (sceneInfo != null) {
             // 如果场景信息不为空提示预设名称重复
-            DialogUtil.generateDialog(context, "预设名字重复啦！", "这个预设名字已经被占用啦！重新给预设取个名字吧！", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
+            DialogUtil.generateDialog(context, "预设名字重复啦！", "这个预设名字已经被占用啦！重新给预设取个名字吧！", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
             return false;
         }
         if ("".equals(frequency)) {
-            DialogUtil.generateDialog(context, "工作频点名字还没填呢!", "快去填一下工作频点吧！", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
+            DialogUtil.generateDialog(context, "工作频点名字还没填呢!", "快去填一下工作频点吧！", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
             return false;
         }
         if ("".equals(id)) {
-            DialogUtil.generateDialog(context, "终端编号还没填呢！", "快去填一下终端编号吧！", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
+            DialogUtil.generateDialog(context, "终端编号还没填呢！", "快去填一下终端编号吧！", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
             return false;
         }
 
@@ -333,7 +333,7 @@ public class PresetFragment extends Fragment {
         SceneInfo sceneInfo1 = sceneMapper.selectSceneBySceneIdAndFrequency(Integer.parseInt(id), Integer.parseInt(frequency));
         if (sceneInfo1 != null) {
             // 如果已经有相同的组合则提示预设信息重复
-            DialogUtil.generateDialog(context, "这个预设已经有啦！", "有一个叫：" + sceneInfo1.getSceneName() + "的预设里面的终端编号和工作频点和你现在的设置是一样的，不用重复提交啦！", new DialogUtil.PositiveButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
+            DialogUtil.generateDialog(context, "这个预设已经有啦！", "有一个叫：" + sceneInfo1.getSceneName() + "的预设里面的终端编号和工作频点和你现在的设置是一样的，不用重复提交啦！", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
             return false;
         }
         return true;
