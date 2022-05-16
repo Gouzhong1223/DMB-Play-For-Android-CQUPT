@@ -11,6 +11,9 @@ import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 
+/**
+ * @author qingsong
+ */
 public class DormitorySafetyActivity extends FragmentActivity {
 
     private Banner banner;
