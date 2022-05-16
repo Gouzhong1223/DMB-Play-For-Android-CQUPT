@@ -91,6 +91,7 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
      */
     private DetailsSupportFragmentBackgroundController detailsBackground;
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate DetailsFragment");
