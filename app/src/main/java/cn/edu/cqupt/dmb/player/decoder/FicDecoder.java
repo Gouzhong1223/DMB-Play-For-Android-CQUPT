@@ -162,6 +162,7 @@ public class FicDecoder {
             }
         }
         Log.i(TAG, "FicDecoder 的 ID 被重新设置成了:" + id);
+        Log.i(TAG, "getInstance,现在的 FIC 解码器 ID 被设置成了:" + id);
         ficDecoder.setId(id);
         return ficDecoder;
     }
@@ -347,8 +348,9 @@ public class FicDecoder {
                 serviceId = (((int) fib[index + 1]) << 8) + fib[index + 2];
                 index += 3;
             } else { /* long format */
-                if (index + 4 >= 32)
+                if (index + 4 >= 32) {
                     return;
+                }
                 serviceId = (((int) fib[index + 1]) << 24) + (((int) fib[index + 2]) << 16) +
                         (((int) fib[index + 3]) << 8) + (((int) fib[index + 4]));
                 index += 5;

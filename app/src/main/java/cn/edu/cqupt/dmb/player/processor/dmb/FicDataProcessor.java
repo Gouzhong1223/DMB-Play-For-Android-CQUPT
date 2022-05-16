@@ -81,7 +81,6 @@ public class FicDataProcessor implements DataProcessing {
                     }
                     // 老 Dangle 最好不要用多线程的方式设置子信道
                     isSelectId = dangle.SetChannel(channelInfo);
-//                    new Thread(() -> isSelectId = dangle.SetChannel(channelInfo)).start();
                     if (!isSelectId) {
                         Log.e(TAG, "设置channelInfo失败!这是往 USB 中设置的时候出错啦!" + channelInfo);
                     }
