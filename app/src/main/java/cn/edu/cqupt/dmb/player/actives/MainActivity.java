@@ -198,12 +198,12 @@ public class MainActivity extends FragmentActivity {
      * 根据预设场景类型获取对应的 Activity
      * {"视频", "轮播图", "音频", "安全信息", "课表"}
      *
-     * @param sceneInfo 预设场景信息
+     * @param sceneType 预设场景类型
      * @return Activity
      */
     @RequiresApi(api = Build.VERSION_CODES.R)
-    private Class<?> getActivityBySceneType(SceneInfo sceneInfo) {
-        switch (sceneInfo.getSceneType()) {
+    private Class<?> getActivityBySceneType(Integer sceneType) {
+        switch (sceneType) {
             case 0: {
                 return VideoActivity.class;
             }
@@ -248,7 +248,7 @@ public class MainActivity extends FragmentActivity {
                 }
                 Intent intent = new Intent();
                 // 获取对应的工作场景
-                intent.setClass(MainActivity.this, getActivityBySceneType(defaultScene));
+                intent.setClass(MainActivity.this, getActivityBySceneType(defaultScene.getSceneType()));
                 // 跳转
                 startActivity(intent);
             }
