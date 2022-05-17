@@ -19,29 +19,29 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.4
  */
-public abstract class AbstractDmbDecoder implements Runnable {
+public abstract class AbstractDmbDecoder extends Thread {
 
     protected static final boolean DEBUG = false;
     /**
      * TS 视频流的输入流
      */
-    protected static final PipedInputStream pipedInputStream;
+    protected static final PipedInputStream PIPED_INPUT_STREAM;
     /**
      * TS 视频的缓冲流
      */
-    protected static final BufferedInputStream bufferedInputStream;
+    protected static final BufferedInputStream BUFFERED_INPUT_STREAM;
     /**
      * 单例 DataReadWriteUtil 对象
      */
-    private static final DataReadWriteUtil dataReadWriteUtil;
+    private static final DataReadWriteUtil DATA_READ_WRITE_UTIL;
 
     static {
         // 获取 DataReadWriteUtil 单例对象
-        dataReadWriteUtil = DataReadWriteUtil.getInstance();
+        DATA_READ_WRITE_UTIL = DataReadWriteUtil.getInstance();
         // 获取 PIP 输入流
-        pipedInputStream = dataReadWriteUtil.getPipedInputStream();
+        PIPED_INPUT_STREAM = DATA_READ_WRITE_UTIL.getPipedInputStream();
         // 获取输入缓冲流
-        bufferedInputStream = dataReadWriteUtil.getBufferedInputStream();
+        BUFFERED_INPUT_STREAM = DATA_READ_WRITE_UTIL.getBufferedInputStream();
     }
 
     /**
@@ -65,6 +65,6 @@ public abstract class AbstractDmbDecoder implements Runnable {
      * @return PipedInputStream
      */
     public static PipedInputStream getPipedInputStream() {
-        return pipedInputStream;
+        return PIPED_INPUT_STREAM;
     }
 }

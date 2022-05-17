@@ -29,12 +29,12 @@ public class DmbDataProcessor implements DataProcessing {
     /**
      * USB 数据输出流
      */
-    private static final PipedOutputStream pipedOutputStream = new PipedOutputStream();
+    private static final PipedOutputStream PIPED_OUTPUT_STREAM = new PipedOutputStream();
 
     static {
         try {
             // 直接获取抽象解码器的 pip 输出流
-            pipedOutputStream.connect(AbstractDmbDecoder.getPipedInputStream());
+            PIPED_OUTPUT_STREAM.connect(AbstractDmbDecoder.getPipedInputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,12 +53,12 @@ public class DmbDataProcessor implements DataProcessing {
                 // 如果现在没有活跃的使用场景,就直接抛弃当前接收到的数据并返回
                 return;
             }
-            pipedOutputStream.write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
+            PIPED_OUTPUT_STREAM.write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
             if (!DataReadWriteUtil.initFlag) {
                 DataReadWriteUtil.initFlag = true;
             }
             // 写完 flush 一下
-            pipedOutputStream.flush();
+            PIPED_OUTPUT_STREAM.flush();
         } catch (IOException e) {
             Log.e(TAG, "处理 DMB 数据出错啦!---" + e);
             e.printStackTrace();

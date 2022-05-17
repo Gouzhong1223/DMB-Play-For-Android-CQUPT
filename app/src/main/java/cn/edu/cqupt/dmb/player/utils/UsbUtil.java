@@ -39,7 +39,13 @@ public class UsbUtil {
     /**
      * 缓存从USB读取到的数据,2048是一个待定值
      */
-    private static final byte[] BYTES = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
+    private static final byte[] BYTES_STM32 = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
+            * DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()];
+
+    /**
+     * 缓存从USB读取到的数据,2048是一个待定值
+     */
+    private static final byte[] BYTES_NUC = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
             * DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()];
     /**
      * 用于缓存USB设备的Map
@@ -57,14 +63,17 @@ public class UsbUtil {
      * 已经打开的USB连接
      */
     public static UsbDeviceConnection usbDeviceConnection;
+    /**
+     * Dangle 实例
+     */
     private static Dangle dangle;
     /**
      * Dangel 类型
      */
-    private final DangleType dangleType;
+    private static DangleType dangleType;
 
     public UsbUtil(DangleType dangleType) {
-        this.dangleType = dangleType;
+        UsbUtil.dangleType = dangleType;
     }
 
     /**
@@ -75,16 +84,20 @@ public class UsbUtil {
      * @param selectedSceneVO 工作场景
      */
     public static void restDangle(FicDecoder ficDecoder, SceneVO selectedSceneVO) {
-        // 先清除 dangle 的设置
-        dangle.clearRegister();
-        // 重新设置 dangle 的工作频点
-        Log.i(TAG, "重置的频点是:" + selectedSceneVO.getFrequency());
-        dangle.setFrequency(selectedSceneVO.getFrequency());
+        for (int i = 0; i < 3; i++) {
+            // 先清除 dangle 的设置
+            dangle.clearRegister();
+        }
+        for (int i = 0; i < 3; i++) {
+            // 重新设置 dangle 的工作频点
+            Log.i(TAG, "重置的频点是:" + selectedSceneVO.getFrequency());
+            dangle.setFrequency(selectedSceneVO.getFrequency());
+        }
         // 清空 ficDecoder 的ChannelInfo
         ficDecoder.resetChannelInfos();
         try {
             // 重置子信道数据之后等 300 毫秒
-            Thread.sleep(300);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -126,11 +139,19 @@ public class UsbUtil {
             if (defaultSceneInfo != null) {
                 dangle.setFrequency(defaultSceneInfo.getFrequency());
             }
-            // 如果没有Shutdown就直接提交任务
-            // 新开一个线程去接收 Dangle 接收器发过来的数据
-            new Thread(new ReceiveUsbDataTask(BYTES, usbEndpointIn,
-                    usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType)).start();
         }
     }
 
+    /**
+     * 开始接收 DMB 数据
+     */
+    public static void startReceiveDmbData() {
+        // 设置为非主页
+        DataReadWriteUtil.inMainActivity = false;
+        // 新开一个线程去接收 Dangle 接收器发过来的数据
+        // 开始前根据 Dangle 的类型,选择数据接收容器
+        new Thread(new ReceiveUsbDataTask(dangleType == DangleType.STM32 ? BYTES_STM32 : BYTES_NUC, usbEndpointIn,
+                usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType)).start();
+        Log.i(TAG, "startReceiveDmbData: 开始从 USB 中接收数据");
+    }
 }

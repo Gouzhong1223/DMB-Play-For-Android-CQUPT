@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.util.Log;
 
+import java.util.Queue;
+
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.CarouselBannerImageBitmapCache;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
@@ -43,8 +45,14 @@ public class DmbCarouselListener implements DmbListener {
      */
     private int cnt = 0;
 
-    public DmbCarouselListener(Handler handler) {
+    /**
+     * 轮播图 FIFO 队列
+     */
+    private final Queue<BannerBitmapDataBean> bannerCache;
+
+    public DmbCarouselListener(Handler handler, Queue<BannerBitmapDataBean> bannerCache) {
         this.handler = handler;
+        this.bannerCache = bannerCache;
     }
 
     @Override
@@ -60,7 +68,7 @@ public class DmbCarouselListener implements DmbListener {
         BannerBitmapDataBean bannerBitmapDataBean = new BannerBitmapDataBean(bitmap, fileName, 1);
         if (bitmap != null) {
             // 添加到有界队列中
-            CarouselBannerImageBitmapCache.putBitMap(bannerBitmapDataBean);
+            bannerCache.add(bannerBitmapDataBean);
             // 添加一张轮播图之后,发送一次更新轮播图的消息
             handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
         } else {

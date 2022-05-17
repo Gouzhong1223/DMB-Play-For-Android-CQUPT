@@ -2,6 +2,8 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import android.util.Log;
 
+import java.util.concurrent.TimeUnit;
+
 import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
@@ -30,7 +32,7 @@ public class FicDataProcessor implements DataProcessing {
     /**
      * 初始化Fic解码器
      */
-    private final FicDecoder ficDecoder = FicDecoder.getInstance(220352, true);
+    private static FicDecoder ficDecoder = FicDecoder.getInstance();
     /**
      * 接收单个Fic
      */
@@ -44,9 +46,27 @@ public class FicDataProcessor implements DataProcessing {
      */
     Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
 
+    static {
+        int cnt = 10;
+        while (cnt-- > 0) {
+            // 尝试获取 Fic 解码器实例
+            ficDecoder = FicDecoder.getInstance();
+            if (ficDecoder != null) {
+                // 不为空直接返回
+                break;
+            } else {
+                // 如果为空就睡一秒,总共尝试十次
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     @Override
     public void processData(byte[] usbData, DangleType dangleType) {
-//        Log.i(TAG, "现在接收到的数据是 FIC 类型!");
         // 从接收到的数据中的第八位开始拷贝fic数据,长度为32
         if (dangleType == DangleType.STM32) {
             System.arraycopy(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), ficBuf, 0, DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue());

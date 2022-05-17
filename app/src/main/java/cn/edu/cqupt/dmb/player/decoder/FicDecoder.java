@@ -162,8 +162,24 @@ public class FicDecoder {
             }
         }
         Log.i(TAG, "FicDecoder 的 ID 被重新设置成了:" + id);
-        Log.i(TAG, "getInstance,现在的 FIC 解码器 ID 被设置成了:" + id);
         ficDecoder.setId(id);
+        return ficDecoder;
+    }
+
+
+    /**
+     * 获取 FicDecoder 单例对象
+     *
+     * @return FicDecoder 单例对象
+     */
+    public static FicDecoder getInstance() {
+        if (ficDecoder == null) {
+            synchronized (FicDecoder.class) {
+                if (ficDecoder == null) {
+                    return null;
+                }
+            }
+        }
         return ficDecoder;
     }
 

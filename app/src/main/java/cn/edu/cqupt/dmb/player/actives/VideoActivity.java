@@ -20,8 +20,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
@@ -68,10 +66,6 @@ public class VideoActivity extends Activity {
      */
     private VideoPlayerFrame videoPlayerFrame = null;
     /**
-     * 单例线程池,运行MPEG解码线程的
-     */
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    /**
      * 已经解码的MPEG-TS视频缓冲流
      */
     private BufferedInputStream bufferedInputStream;
@@ -100,6 +94,8 @@ public class VideoActivity extends Activity {
         selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
         // 初始化View
         initView();
+        // 开始接收 DMB 数据
+        UsbUtil.startReceiveDmbData();
         // 开始MPEG-TS解码
         try {
             startMpegTsCodec();
@@ -112,13 +108,8 @@ public class VideoActivity extends Activity {
      * 初始化组件
      */
     private void initView() {
-        if (executorService.isShutdown()) {
-            executorService = Executors.newSingleThreadExecutor();
-        }
         videoPlayerFrame = findViewById(R.id.video_surface);
         videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
-        // 标识当前不在主页
-        DataReadWriteUtil.inMainActivity = false;
         // 获取Fic解码器
         FicDecoder ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
         // 重置一下Dangle
@@ -146,8 +137,7 @@ public class VideoActivity extends Activity {
         DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), pipedOutputStream);
         // 构造解码器
         MpegTsDecoder mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this);
-        // 开始解码
-        executorService.submit(mpegTsDecoder);
+        mpegTsDecoder.start();
     }
 
     /**
@@ -179,7 +169,6 @@ public class VideoActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-
         // 关闭线程池中的任务
         videoPlayerFrame.release();
         closeStream();

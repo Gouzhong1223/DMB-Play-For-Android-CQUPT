@@ -104,7 +104,7 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
                 continue;
             }
             byte[] mpegTsPacket = new byte[TS_PACKET_188_SIZE];
-            if (readMpegTsPacket(bufferedInputStream, mpegTsPacket)) {
+            if (readMpegTsPacket(BUFFERED_INPUT_STREAM, mpegTsPacket)) {
                 // 读取成功之后直接调用监听器的 success 方法
                 if (DEBUG) {
                     Log.i(TAG, "run: 接收到一个 MPEG-TS 包" + ConvertUtils.bytes2hex(mpegTsPacket));

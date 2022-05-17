@@ -15,9 +15,6 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
@@ -36,17 +33,19 @@ public class CurriculumActivity extends Activity {
 
     public static final int MESSAGE_UPDATE_CURRICULUM = DmbPlayerConstant.MESSAGE_UPDATE_CURRICULUM.getDmbConstantValue();
     private static final String TAG = "CurriculumActivity";
-    /**
-     * 单例线程池,运行TPEG解码线程的
-     */
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /**
      * 显示课表的组件
      */
     private ImageView imageView;
 
+    /**
+     * 课表更新监听器
+     */
     private DmbCurriculumListener dmbCurriculumListener;
+    /**
+     * 选中的使用场景配置
+     */
     private SceneVO selectedSceneVO;
 
 
@@ -59,8 +58,10 @@ public class CurriculumActivity extends Activity {
         setContentView(R.layout.activity_curriculum);
         // 获取父传递过来的参数
         selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
-        DataReadWriteUtil.inMainActivity = false;
+        // 初始化组件
         initView();
+        // 开始接收 DMB 数据
+        UsbUtil.startReceiveDmbData();
         // 开始解码 TPEG 生成 TPEG
         startDecodeCurriculum();
     }
@@ -71,9 +72,6 @@ public class CurriculumActivity extends Activity {
     private void initView() {
         Log.i(TAG, "正在初始化课表显示组件");
         imageView = findViewById(R.id.curriculum_image_view);
-        if (executorService.isShutdown()) {
-            executorService = Executors.newSingleThreadExecutor();
-        }
     }
 
     /**
@@ -85,13 +83,11 @@ public class CurriculumActivity extends Activity {
         dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()), selectedSceneVO);
         // 构造TPEG解码器
         TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListener, this);
-        executorService.submit(tpegDecoder);
+        tpegDecoder.start();
     }
 
     @Override
     protected void onDestroy() {
-        // 中断解码线程
-        executorService.shutdown();
         DataReadWriteUtil.inMainActivity = true;
         super.onDestroy();
     }

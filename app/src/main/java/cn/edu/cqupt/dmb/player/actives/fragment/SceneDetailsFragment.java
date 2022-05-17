@@ -277,25 +277,25 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
             }
             case 1: {
                 sceneVO.setCardDrawableId(R.drawable.carousel);
-                sceneVO.setBackgroundDrawableId(R.drawable.carousel);
+                sceneVO.setBackgroundDrawableId(R.drawable.carousel_bg);
                 sceneVO.setDescription("轮播图描述");
                 break;
             }
             case 2: {
                 sceneVO.setCardDrawableId(R.drawable.audio);
-                sceneVO.setBackgroundDrawableId(R.drawable.audio);
+                sceneVO.setBackgroundDrawableId(R.drawable.audio_bg);
                 sceneVO.setDescription("实时音频描述");
                 break;
             }
             case 3: {
                 sceneVO.setCardDrawableId(R.drawable.dormitory);
-                sceneVO.setBackgroundDrawableId(R.drawable.dormitory);
+                sceneVO.setBackgroundDrawableId(R.drawable.dormitory_bg);
                 sceneVO.setDescription("宿舍安全信息描述");
                 break;
             }
             case 4: {
                 sceneVO.setCardDrawableId(R.drawable.curriculum);
-                sceneVO.setBackgroundDrawableId(R.drawable.curriculum);
+                sceneVO.setBackgroundDrawableId(R.drawable.curriculum_bg);
                 sceneVO.setDescription("教学楼课表显示描述");
                 break;
             }
