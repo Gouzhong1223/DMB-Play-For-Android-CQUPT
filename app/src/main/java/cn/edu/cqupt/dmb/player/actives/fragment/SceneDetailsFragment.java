@@ -271,7 +271,7 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
         switch (sceneVO.getSceneType()) {
             case 0: {
                 sceneVO.setCardDrawableId(R.drawable.video);
-                sceneVO.setBackgroundDrawableId(R.drawable.video);
+                sceneVO.setBackgroundDrawableId(R.drawable.video_bg);
                 sceneVO.setDescription("实时视频描述");
                 break;
             }

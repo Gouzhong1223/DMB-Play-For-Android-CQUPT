@@ -70,14 +70,13 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      */
     private final Handler handler;
     /**
-     * USB 设备管理器
-     */
-    private UsbManager usbManager;
-
-    /**
      * 默认的使用场景
      */
     private final SceneInfo defaultSceneInfo;
+    /**
+     * USB 设备管理器
+     */
+    private UsbManager usbManager;
 
     private DmbBroadcastReceiver(Context context, Handler handler, SceneInfo defaultSceneInfo) {
         this.handler = handler;

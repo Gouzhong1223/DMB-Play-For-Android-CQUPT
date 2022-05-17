@@ -199,7 +199,7 @@ public class MainFragment extends BrowseSupportFragment {
         switch (sceneVO.getSceneType()) {
             case 0: {
                 sceneVO.setCardDrawableId(R.drawable.video);
-                sceneVO.setBackgroundDrawableId(R.drawable.video);
+                sceneVO.setBackgroundDrawableId(R.drawable.video_bg);
                 sceneVO.setDescription("实时视频描述");
                 break;
             }
@@ -337,8 +337,9 @@ public class MainFragment extends BrowseSupportFragment {
                 } else if (item.equals(getString(R.string.personal_settings))) {
                     Intent intent = new Intent(getActivity(), SetupActivity.class);
                     startActivity(intent);
-                } else {
-                    Toast.makeText(getActivity(), ((String) item), Toast.LENGTH_SHORT).show();
+                } else if (item.equals(getString(R.string.grid_view))) {
+                    loadRows();
+                    Toast.makeText(getActivity(), "刷新成功", Toast.LENGTH_SHORT).show();
                 }
             }
         }
