@@ -15,6 +15,9 @@ import cn.edu.cqupt.dmb.player.actives.fragment.PlaySettingFragment;
 import cn.edu.cqupt.dmb.player.actives.fragment.PresetFragment;
 import cn.edu.cqupt.dmb.player.actives.fragment.SceneManagementFragment;
 
+/**
+ * @author qingsong
+ */
 public class SetupActivity extends Activity {
 
     private final String[] sensesList = new String[]{"添加场景", "场景管理", "播放设置", "帮助及反馈"};
