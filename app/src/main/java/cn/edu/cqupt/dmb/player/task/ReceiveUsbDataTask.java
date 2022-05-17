@@ -39,7 +39,10 @@ public class ReceiveUsbDataTask implements Runnable {
      */
     private final UsbDeviceConnection usbDeviceConnection;
 
-    private final Integer READ_TIME;
+    /**
+     * STM32型号 Dangle 单次 IO 从 USB 中读取数据的次数
+     */
+    private final Integer readTime;
 
     /**
      * Dangle 类型
@@ -59,7 +62,7 @@ public class ReceiveUsbDataTask implements Runnable {
         this.bytes = bytes;
         this.usbEndpointIn = usbEndpointIn;
         this.usbDeviceConnection = usbDeviceConnection;
-        this.READ_TIME = readTime;
+        this.readTime = readTime;
         this.dangleType = dangleType;
     }
 
@@ -84,7 +87,7 @@ public class ReceiveUsbDataTask implements Runnable {
                 byte[] packetBuf = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()];
                 // 由于 bytes 中包含 DmbPlayerConstant.DMB_READ_TIME 个 DMB 数据包,所以这里采用一个循环的方式分包,分成 DmbPlayerConstant.DMB_READ_TIME 个
                 // 20220324更新,这里从 USB 中读取的次数现在依赖于成员变量 READ_TIME
-                for (int i = 0; i < READ_TIME; i++) {
+                for (int i = 0; i < readTime; i++) {
                     // 分包
                     System.arraycopy(bytes, i * DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
                             , packetBuf, 0, DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue());

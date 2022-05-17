@@ -87,7 +87,7 @@ public class FicDataProcessor implements DataProcessing {
         } else {
             // 这里接收到的 Fic 是 32*12 属于是一次性发完的,所以这里采用循环分包的方式处理
             // 大概是 i*32+8->i*32+40的区间一个包(i在[0,12]区间)
-            for (int i = 0; i < DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(); i++) {
+            for (int i = 0; i < usbData.length / 64; i++) {
                 System.arraycopy(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue() + i * DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue(), ficBuf, 0, DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue());
                 // 调用ficDecoder解码器解码fic数据
                 ficDecoder.decode(ficBuf);
