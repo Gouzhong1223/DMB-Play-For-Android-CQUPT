@@ -64,6 +64,7 @@
                 android:exported="false" />
         <activity
                 android:name=".actives.SetupActivity"
+                android:screenOrientation="landscape"
                 android:exported="false" />
         <activity
                 android:name=".actives.CurriculumActivity"
