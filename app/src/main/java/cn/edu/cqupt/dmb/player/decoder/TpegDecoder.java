@@ -120,9 +120,16 @@ public class TpegDecoder extends AbstractDmbDecoder {
         Arrays.fill(fileBuffer, (byte) 0);
     }
 
+    /**
+     * 从 PIP 输入流中读取一个 TPEG 数据包
+     *
+     * @param bytes 承载 TPEG 数据包的容器
+     * @return true->读取成功
+     */
     private boolean readTpegFrame(byte[] bytes) {
         int nRead;
         try {
+            // 寻找 TPEG 数据包同步字节
             while ((nRead = BUFFERED_INPUT_STREAM.read(bytes, 3, 1)) > 0) {
                 if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
                     break;
