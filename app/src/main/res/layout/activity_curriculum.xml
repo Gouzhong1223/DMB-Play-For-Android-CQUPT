@@ -7,6 +7,13 @@
         tools:context=".actives.CurriculumActivity">
 
     <ImageView
+            android:id="@+id/curriculum_signal"
+            android:layout_width="135dp"
+            android:layout_height="50dp"
+            tools:ignore="MissingConstraints"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    <ImageView
             android:id="@+id/curriculum_image_view"
             android:background="@drawable/bacg2k"
             android:layout_width="match_parent"
