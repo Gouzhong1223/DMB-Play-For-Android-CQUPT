@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -27,6 +29,8 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
  * 这个是显示课表的 Activity
+ *
+ * @author qingsong
  */
 public class CurriculumActivity extends Activity {
 
@@ -49,6 +53,9 @@ public class CurriculumActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 强制全屏,全的不能再全的那种了
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_curriculum);
         // 获取父传递过来的参数
         selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);

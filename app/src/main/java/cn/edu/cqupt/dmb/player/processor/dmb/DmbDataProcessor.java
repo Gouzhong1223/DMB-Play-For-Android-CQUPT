@@ -42,7 +42,6 @@ public class DmbDataProcessor implements DataProcessing {
 
     @Override
     public void processData(byte[] usbData, DangleType dangleType) {
-//        Log.i(TAG, "现在接收到的数据是 DMB 类型!");
         int dataLength;
         if (dangleType == DangleType.STM32) {
             dataLength = (((int) usbData[7]) & 0x0FF);

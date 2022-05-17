@@ -34,6 +34,7 @@ import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
 import cn.edu.cqupt.dmb.player.db.mapper.SceneMapper;
 import cn.edu.cqupt.dmb.player.domain.CustomSetting;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
+import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 
@@ -226,6 +227,25 @@ public class MainActivity extends FragmentActivity {
         unregisterReceiver(dmbBroadcastReceiver);
     }
 
+    /**
+     * 根据 SceneInfo生成 SceneVO
+     *
+     * @param sceneInfo 数据库原始的SceneInfo
+     * @return SceneVO
+     */
+    @NonNull
+    private SceneVO getSceneVO(SceneInfo sceneInfo) {
+        SceneVO sceneVO = new SceneVO();
+        sceneVO.setId(Long.valueOf(sceneInfo.getId()));
+        sceneVO.setBuilding(sceneInfo.getBuilding());
+        sceneVO.setDeviceId(sceneInfo.getDeviceId());
+        sceneVO.setTitle(sceneInfo.getSceneName());
+        sceneVO.setFrequency(sceneInfo.getFrequency());
+        sceneVO.setSceneType(sceneInfo.getSceneType());
+        sceneVO.setSubTitle(sceneInfo.getFrequency() + ":" + sceneInfo.getDeviceId());
+        return sceneVO;
+    }
+
     private class MainHandler extends Handler {
 
         public MainHandler(@NonNull Looper looper) {
@@ -249,6 +269,7 @@ public class MainActivity extends FragmentActivity {
                     return;
                 }
                 Intent intent = new Intent();
+                intent.putExtra(DetailsActivity.SCENE_VO, getSceneVO(defaultScene));
                 // 获取对应的工作场景
                 intent.setClass(MainActivity.this, getActivityBySceneType(defaultScene.getSceneType()));
                 // 跳转
