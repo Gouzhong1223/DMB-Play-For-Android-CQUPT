@@ -45,8 +45,7 @@ public class UsbUtil {
     /**
      * 缓存从USB读取到的数据,2048是一个待定值
      */
-    private static final byte[] BYTES_NUC = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()
-            * DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue()];
+    private static final byte[] BYTES_NUC = new byte[776];
     /**
      * 用于缓存USB设备的Map
      */
