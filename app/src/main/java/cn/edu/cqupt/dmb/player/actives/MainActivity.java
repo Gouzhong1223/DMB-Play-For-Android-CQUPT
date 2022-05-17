@@ -220,6 +220,12 @@ public class MainActivity extends FragmentActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(dmbBroadcastReceiver);
+    }
+
     private class MainHandler extends Handler {
 
         public MainHandler(@NonNull Looper looper) {
