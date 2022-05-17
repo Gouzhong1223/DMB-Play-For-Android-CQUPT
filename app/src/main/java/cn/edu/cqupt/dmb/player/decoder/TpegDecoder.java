@@ -114,6 +114,10 @@ public class TpegDecoder extends AbstractDmbDecoder {
                     break;
             }
         }
+        Arrays.fill(tpegBuffer, (byte) 0);
+        Arrays.fill(tpegData, (byte) 0);
+        Arrays.fill(tpegInfo, (byte) 0);
+        Arrays.fill(fileBuffer, (byte) 0);
     }
 
     private boolean readTpegFrame(byte[] bytes) {
