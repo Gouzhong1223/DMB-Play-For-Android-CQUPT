@@ -3,8 +3,16 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         tools:context=".actives.VideoActivity">
 
+    <ImageView
+            android:id="@+id/video_signal"
+            android:layout_width="135dp"
+            android:layout_height="50dp"
+            tools:ignore="MissingConstraints"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     <cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame
             android:id="@+id/video_surface"
             android:layout_width="match_parent"

@@ -9,12 +9,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.room.Room;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -22,15 +25,21 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
+import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
+import cn.edu.cqupt.dmb.player.domain.CustomSetting;
 import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.frame.DmbMediaDataSource;
 import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.listener.DmbMpegListener;
 import cn.edu.cqupt.dmb.player.listener.VideoPlayerListenerImpl;
+import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
+import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
@@ -52,6 +61,10 @@ public class VideoActivity extends Activity {
      * 视频播放回调消息
      */
     public static final int MESSAGE_START_PLAY_VIDEO = DmbPlayerConstant.MESSAGE_START_PLAY_VIDEO.getDmbConstantValue();
+    /**
+     * 监听信号更新的 message 类型
+     */
+    private final int MESSAGE_UPDATE_SIGNAL = DmbPlayerConstant.MESSAGE_UPDATE_SIGNAL.getDmbConstantValue();
     private static final String TAG = "VideoActivity";
     /**
      * 解码后一个MPEG-TS包的大小
@@ -65,6 +78,10 @@ public class VideoActivity extends Activity {
      * 自定义的视频播放组件
      */
     private VideoPlayerFrame videoPlayerFrame = null;
+    /**
+     * 信号显示组件
+     */
+    private ImageView signalImageView;
     /**
      * 已经解码的MPEG-TS视频缓冲流
      */
@@ -82,6 +99,16 @@ public class VideoActivity extends Activity {
      */
     private SceneVO selectedSceneVO;
 
+    /**
+     * 操作自定义设置的 Mapper
+     */
+    private CustomSettingMapper customSettingMapper;
+
+    /**
+     * 是否显示信号的设置
+     */
+    private CustomSetting defaultSignalShowSetting;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +119,10 @@ public class VideoActivity extends Activity {
         setContentView(R.layout.activity_video);
         // 获取父传递过来的参数
         selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
+        // 初始化数据库 Mapper
+        initDataBase();
+        // 加载自定义设置
+        loadCustomSetting();
         // 初始化View
         initView();
         // 开始接收 DMB 数据
@@ -105,11 +136,33 @@ public class VideoActivity extends Activity {
     }
 
     /**
+     * 初始化数据库
+     */
+    private void initDataBase() {
+        //new a database
+        customSettingMapper = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
+                .allowMainThreadQueries().build().getCustomSettingMapper();
+    }
+
+    /**
+     * 加载自定义设置
+     */
+    private void loadCustomSetting() {
+        // 查询信号显示设置
+        defaultSignalShowSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.OPEN_SIGNAL.getKey());
+    }
+
+    /**
      * 初始化组件
      */
     private void initView() {
         videoPlayerFrame = findViewById(R.id.video_surface);
         videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
+        signalImageView = findViewById(R.id.video_signal);
+        if (defaultSignalShowSetting != null) {
+            int showSignal = Math.toIntExact(defaultSignalShowSetting.getSettingValue());
+            signalImageView.setVisibility(showSignal == 0 ? View.INVISIBLE : View.VISIBLE);
+        }
         // 获取Fic解码器
         FicDecoder ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
         // 重置一下Dangle
@@ -200,6 +253,27 @@ public class VideoActivity extends Activity {
             if (msg.what == MESSAGE_START_PLAY_VIDEO) {
                 // 缓冲流里面已经有东西啦!开始播放视频!
                 playVideo();
+            } else if (msg.what == MESSAGE_UPDATE_SIGNAL) {
+                // 如果没有进行信号显示设置或者关闭信号显示就直接跳过广播处理
+                if (defaultSignalShowSetting == null || defaultSignalShowSetting.getSettingValue() == 0L) {
+                    return;
+                }
+                PseudoBitErrorRateProcessor pseudoBitErrorRateProcessor = (PseudoBitErrorRateProcessor) DataProcessingFactory.getDataProcessor(0x00);
+                // 这里为什么能直接获取ber,因为是从静态工厂里面去出来的,静态工厂里面的都是单例创建的对象,在系统初始化的时候就已经load了,然后就是ber是一个volatile变量
+                // 不懂volatile是什么的可以搜一下Java多线程中的工作内存和主内存的区别,看他们是如何消除内存屏障的
+                int ber = pseudoBitErrorRateProcessor.getBer();
+                Log.i(TAG, "ber = " + ber);
+                if (ber > 200) {
+                    signalImageView.setImageResource(R.drawable.singlemark1);
+                } else if (ber > 100) {
+                    signalImageView.setImageResource(R.drawable.singlemark2);
+                } else if (ber > 50) {
+                    signalImageView.setImageResource(R.drawable.singlemark3);
+                } else if (ber > 10) {
+                    signalImageView.setImageResource(R.drawable.singlemark4);
+                } else if (ber >= 0) {
+                    signalImageView.setImageResource(R.drawable.singlemark5);
+                }
             }
         }
     }
