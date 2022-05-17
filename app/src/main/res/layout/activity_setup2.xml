@@ -20,15 +20,19 @@
                 android:listSelector="@android:drawable/list_selector_background"
                 android:layout_width="match_parent"
                 android:layout_gravity="center"
-                android:layout_height="wrap_content">
-        </ListView>
+                android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <FrameLayout
-            android:id="@+id/frameLayout"
+    <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-    </FrameLayout>
+        <FrameLayout
+                android:id="@+id/frameLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+        </FrameLayout>
+    </ScrollView>
 
 </LinearLayout>
