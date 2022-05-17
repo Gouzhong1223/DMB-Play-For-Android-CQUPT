@@ -39,7 +39,6 @@
                 android:banner="@mipmap/ic_launcher"
                 android:exported="true"
                 android:icon="@mipmap/ic_launcher"
-                android:label="@string/title_activity_main"
                 android:logo="@mipmap/ic_launcher"
                 android:theme="@style/Theme.Leanback"
                 android:screenOrientation="landscape">
