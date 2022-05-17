@@ -1,7 +1,5 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
-import static java.lang.Thread.sleep;
-
 import android.content.Context;
 import android.media.AudioFormat;
 import android.media.AudioTrack;

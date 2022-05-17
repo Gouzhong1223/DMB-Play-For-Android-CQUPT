@@ -19,11 +19,14 @@ import com.google.common.collect.EvictingQueue;
 import com.youth.banner.Banner;
 import com.youth.banner.indicator.CircleIndicator;
 
+import java.util.ArrayList;
 import java.util.Queue;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
+import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
+import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
@@ -52,7 +55,10 @@ public class CarouselActivity extends FragmentActivity {
      * 监听信号更新的 message 类型
      */
     private final int MESSAGE_UPDATE_SIGNAL = DmbPlayerConstant.MESSAGE_UPDATE_SIGNAL.getDmbConstantValue();
-
+    /**
+     * 轮播图缓存
+     */
+    Queue<BannerBitmapDataBean> bannerCache;
     /**
      * 轮播图组件
      */
@@ -69,12 +75,10 @@ public class CarouselActivity extends FragmentActivity {
      * 操作自定义设置的 Mapper
      */
     private CustomSettingMapper customSettingMapper;
-
     /**
      * 自定义的轮播图数量设置
      */
     private CustomSetting defaultCarouselNumSetting;
-
     /**
      * 是否显示信号的设置
      */
@@ -130,7 +134,7 @@ public class CarouselActivity extends FragmentActivity {
      */
     private void startDecodeTpeg() {
         // 构造轮播图缓存
-        Queue<BannerBitmapDataBean> bannerCache = EvictingQueue.create(Math.toIntExact(defaultCarouselNumSetting.getSettingValue()));
+        bannerCache = EvictingQueue.create(Math.toIntExact(defaultCarouselNumSetting.getSettingValue()));
         // 先重置一下 Dangle
         UsbUtil.restDangle(FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true), selectedSceneVO);
         // 开始执行 TPEG 解码的任务
@@ -159,8 +163,8 @@ public class CarouselActivity extends FragmentActivity {
     public void useBanner() {
         //添加生命周期观察者
         banner.addBannerLifecycleObserver(this)
-                .setAdapter(new BitmapAdapter(BannerBitmapDataBean.getListBitMapData()))
-                .setIndicator(new CircleIndicator(this)).start();
+                .setAdapter(new ImageAdapter(BannerDataBean.getHelloViewData()))
+                .setIndicator(new CircleIndicator(this));
     }
 
     @Override
@@ -191,7 +195,9 @@ public class CarouselActivity extends FragmentActivity {
                 // 收到三次消息之后才更新一次轮播图,避免性能消耗
                 if (cnt == 3) {
                     banner.stop();
-                    banner.setDatas(BannerBitmapDataBean.getListBitMapData());
+                    banner.addBannerLifecycleObserver(CarouselActivity.this)
+                            .setAdapter(new BitmapAdapter(new ArrayList<>(bannerCache)))
+                            .setIndicator(new CircleIndicator(CarouselActivity.this)).start();
                     banner.start();
                     // 更新之后重置计数器
                     cnt = 0;

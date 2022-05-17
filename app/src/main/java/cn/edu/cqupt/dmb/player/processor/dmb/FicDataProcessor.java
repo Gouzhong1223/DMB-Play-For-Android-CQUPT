@@ -33,18 +33,6 @@ public class FicDataProcessor implements DataProcessing {
      * 初始化Fic解码器
      */
     private static FicDecoder ficDecoder = FicDecoder.getInstance();
-    /**
-     * 接收单个Fic
-     */
-    private final byte[] ficBuf = new byte[DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue()];
-    /**
-     * 子信道
-     */
-    ChannelInfo channelInfo;
-    /**
-     * Dangle 实例
-     */
-    Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
 
     static {
         int cnt = 10;
@@ -64,6 +52,19 @@ public class FicDataProcessor implements DataProcessing {
             }
         }
     }
+
+    /**
+     * 接收单个Fic
+     */
+    private final byte[] ficBuf = new byte[DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue()];
+    /**
+     * 子信道
+     */
+    ChannelInfo channelInfo;
+    /**
+     * Dangle 实例
+     */
+    Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
 
     @Override
     public void processData(byte[] usbData, DangleType dangleType) {

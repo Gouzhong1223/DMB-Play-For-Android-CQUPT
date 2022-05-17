@@ -8,7 +8,6 @@ import android.util.Log;
 import java.util.Queue;
 
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
-import cn.edu.cqupt.dmb.player.banner.bean.CarouselBannerImageBitmapCache;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
@@ -41,14 +40,13 @@ public class DmbCarouselListener implements DmbListener {
      */
     private final int MESSAGE_UPDATE_SIGNAL = DmbPlayerConstant.MESSAGE_UPDATE_SIGNAL.getDmbConstantValue();
     /**
-     * 发送更新信号消息的计数器,cnt==5 的时候发送一次更新信号消息,发送之后清零
-     */
-    private int cnt = 0;
-
-    /**
      * 轮播图 FIFO 队列
      */
     private final Queue<BannerBitmapDataBean> bannerCache;
+    /**
+     * 发送更新信号消息的计数器,cnt==5 的时候发送一次更新信号消息,发送之后清零
+     */
+    private int cnt = 0;
 
     public DmbCarouselListener(Handler handler, Queue<BannerBitmapDataBean> bannerCache) {
         this.handler = handler;

@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -28,10 +27,6 @@ public class BannerBitmapDataBean {
         this.imageRes = imageRes;
         this.title = title;
         this.viewType = viewType;
-    }
-
-    public static ArrayList<BannerBitmapDataBean> getListBitMapData() {
-        return new ArrayList<>(CarouselBannerImageBitmapCache.getBannerCache());
     }
 
     public Bitmap getImageRes() {

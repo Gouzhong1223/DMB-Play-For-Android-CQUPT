@@ -105,6 +105,19 @@ public class UsbUtil {
     }
 
     /**
+     * 开始接收 DMB 数据
+     */
+    public static void startReceiveDmbData() {
+        // 设置为非主页
+        DataReadWriteUtil.inMainActivity = false;
+        // 新开一个线程去接收 Dangle 接收器发过来的数据
+        // 开始前根据 Dangle 的类型,选择数据接收容器
+        new Thread(new ReceiveUsbDataTask(dangleType == DangleType.STM32 ? BYTES_STM32 : BYTES_NUC, usbEndpointIn,
+                usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType)).start();
+        Log.i(TAG, "startReceiveDmbData: 开始从 USB 中接收数据");
+    }
+
+    /**
      * 初始化USB设备并且定时从USB中读取数据
      *
      * @param manager 用于管理USB的UsbManager
@@ -140,18 +153,5 @@ public class UsbUtil {
                 dangle.setFrequency(defaultSceneInfo.getFrequency());
             }
         }
-    }
-
-    /**
-     * 开始接收 DMB 数据
-     */
-    public static void startReceiveDmbData() {
-        // 设置为非主页
-        DataReadWriteUtil.inMainActivity = false;
-        // 新开一个线程去接收 Dangle 接收器发过来的数据
-        // 开始前根据 Dangle 的类型,选择数据接收容器
-        new Thread(new ReceiveUsbDataTask(dangleType == DangleType.STM32 ? BYTES_STM32 : BYTES_NUC, usbEndpointIn,
-                usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType)).start();
-        Log.i(TAG, "startReceiveDmbData: 开始从 USB 中接收数据");
     }
 }
