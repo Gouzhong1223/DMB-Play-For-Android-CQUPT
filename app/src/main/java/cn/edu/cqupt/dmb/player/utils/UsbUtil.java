@@ -84,15 +84,11 @@ public class UsbUtil {
      * @param selectedSceneVO 工作场景
      */
     public static void restDangle(FicDecoder ficDecoder, SceneVO selectedSceneVO) {
-        for (int i = 0; i < 3; i++) {
-            // 先清除 dangle 的设置
-            dangle.clearRegister();
-        }
-        for (int i = 0; i < 3; i++) {
-            // 重新设置 dangle 的工作频点
-            Log.i(TAG, "重置的频点是:" + selectedSceneVO.getFrequency());
-            dangle.setFrequency(selectedSceneVO.getFrequency());
-        }
+        // 先清除 dangle 的设置
+        dangle.clearRegister();
+        // 重新设置 dangle 的工作频点
+        Log.i(TAG, "重置的频点是:" + selectedSceneVO.getFrequency());
+        dangle.setFrequency(selectedSceneVO.getFrequency());
         // 清空 ficDecoder 的ChannelInfo
         ficDecoder.resetChannelInfos();
         try {
