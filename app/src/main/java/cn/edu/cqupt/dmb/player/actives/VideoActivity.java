@@ -54,10 +54,6 @@ public class VideoActivity extends BaseActivity {
      * 视频播放回调消息
      */
     public static final int MESSAGE_START_PLAY_VIDEO = DmbPlayerConstant.MESSAGE_START_PLAY_VIDEO.getDmbConstantValue();
-    /**
-     * 监听信号更新的 message 类型
-     */
-    private final int MESSAGE_UPDATE_SIGNAL = DmbPlayerConstant.MESSAGE_UPDATE_SIGNAL.getDmbConstantValue();
     private static final String TAG = "VideoActivity";
     /**
      * 解码后一个MPEG-TS包的大小
@@ -67,6 +63,10 @@ public class VideoActivity extends BaseActivity {
      * 输出流计量倍数
      */
     private static final Integer DEFAULT_MPEG_TS_STREAM_SIZE_TIMES = DmbPlayerConstant.DEFAULT_MPEG_TS_STREAM_SIZE_TIMES.getDmbConstantValue();
+    /**
+     * 监听信号更新的 message 类型
+     */
+    private final int MESSAGE_UPDATE_SIGNAL = DmbPlayerConstant.MESSAGE_UPDATE_SIGNAL.getDmbConstantValue();
     /**
      * 自定义的视频播放组件
      */

@@ -1,6 +1,5 @@
 package cn.edu.cqupt.dmb.player.actives;
 
-import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
