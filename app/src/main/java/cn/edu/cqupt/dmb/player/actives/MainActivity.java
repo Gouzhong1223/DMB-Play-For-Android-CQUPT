@@ -78,6 +78,9 @@ public class MainActivity extends FragmentActivity {
      */
     private SceneMapper sceneMapper;
 
+    private SceneDatabase sceneDatabase;
+    private CustomSettingDatabase customSettingDatabase;
+
     /**
      * 根据预设场景类型获取对应的 Activity
      * {"视频", "轮播图", "音频", "安全信息", "课表"}
@@ -137,12 +140,14 @@ public class MainActivity extends FragmentActivity {
      * 初始化数据库
      */
     private void initDataBase() {
+        customSettingDatabase = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
+                .allowMainThreadQueries().build();
         //new a database
-        customSettingMapper = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
-                .allowMainThreadQueries().build().getCustomSettingMapper();
+        customSettingMapper = customSettingDatabase.getCustomSettingMapper();
         //new a database
-        sceneMapper = Room.databaseBuilder(this, SceneDatabase.class, "scene_database")
-                .allowMainThreadQueries().build().getSceneMapper();
+        sceneDatabase = Room.databaseBuilder(this, SceneDatabase.class, "scene_database")
+                .allowMainThreadQueries().build();
+        sceneMapper = sceneDatabase.getSceneMapper();
     }
 
     /**
@@ -224,6 +229,8 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        customSettingDatabase.close();
+        sceneDatabase.close();
         unregisterReceiver(dmbBroadcastReceiver);
     }
 

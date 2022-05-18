@@ -84,6 +84,8 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
      */
     private ClassPresenterSelector presenterSelector;
 
+    private SceneDatabase sceneDatabase;
+
     /**
      * 背景控制器
      */
@@ -122,9 +124,10 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
      * 初始化数据库
      */
     private void initDataBase() {
+        sceneDatabase = Room.databaseBuilder(requireContext(), SceneDatabase.class, "scene_database")
+                .allowMainThreadQueries().build();
         //new a database
-        sceneMapper = Room.databaseBuilder(requireContext(), SceneDatabase.class, "scene_database")
-                .allowMainThreadQueries().build().getSceneMapper();
+        sceneMapper = sceneDatabase.getSceneMapper();
     }
 
     /**
@@ -330,5 +333,11 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
                 requireActivity().startActivity(intent, bundle);
             }
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        sceneDatabase.close();
+        super.onDestroyView();
     }
 }

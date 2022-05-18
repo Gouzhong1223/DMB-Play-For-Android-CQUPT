@@ -83,6 +83,10 @@ public class PlaySettingFragment extends Fragment {
      */
     private CustomSettingMapper customSettingMapper;
 
+    private CustomSettingDatabase customSettingDatabase;
+
+    private SceneDatabase sceneDatabase;
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -99,13 +103,14 @@ public class PlaySettingFragment extends Fragment {
      * 初始化数据库
      */
     private void initDataBase() {
+        sceneDatabase = Room.databaseBuilder(context, SceneDatabase.class, "scene_database")
+                .allowMainThreadQueries().build();
         //new a database
-        sceneMapper = Room.databaseBuilder(context, SceneDatabase.class, "scene_database")
-                .allowMainThreadQueries().build().getSceneMapper();
-
+        sceneMapper = sceneDatabase.getSceneMapper();
+        customSettingDatabase = Room.databaseBuilder(context, CustomSettingDatabase.class, "custom_setting_database")
+                .allowMainThreadQueries().build();
         //new a database
-        customSettingMapper = Room.databaseBuilder(context, CustomSettingDatabase.class, "custom_setting_database")
-                .allowMainThreadQueries().build().getCustomSettingMapper();
+        customSettingMapper = customSettingDatabase.getCustomSettingMapper();
     }
 
     @Override
@@ -310,5 +315,12 @@ public class PlaySettingFragment extends Fragment {
                 customSettingMapper.updateCustomSetting(customSetting);
             }
         });
+    }
+
+    @Override
+    public void onDestroy() {
+        customSettingDatabase.close();
+        sceneDatabase.close();
+        super.onDestroy();
     }
 }

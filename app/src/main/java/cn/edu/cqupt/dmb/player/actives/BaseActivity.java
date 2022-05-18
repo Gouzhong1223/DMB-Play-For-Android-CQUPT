@@ -55,6 +55,10 @@ public class BaseActivity extends FragmentActivity {
      * 输入缓冲流
      */
     protected BufferedInputStream bufferedInputStream;
+    /**
+     * 数据库
+     */
+    private CustomSettingDatabase customSettingDatabase;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,9 +91,10 @@ public class BaseActivity extends FragmentActivity {
      * 初始化数据库
      */
     private void initDataBase() {
+        customSettingDatabase = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
+                .allowMainThreadQueries().build();
         //new a database
-        customSettingMapper = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
-                .allowMainThreadQueries().build().getCustomSettingMapper();
+        customSettingMapper = customSettingDatabase.getCustomSettingMapper();
     }
 
     /**
@@ -110,6 +115,13 @@ public class BaseActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         DataReadWriteUtil.inMainActivity = true;
+        try {
+            pipedOutputStream.close();
+            bufferedInputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        customSettingDatabase.close();
         super.onDestroy();
     }
 }

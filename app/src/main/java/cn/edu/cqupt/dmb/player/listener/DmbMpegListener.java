@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
  * @Author : Gouzhong
@@ -55,6 +56,9 @@ public class DmbMpegListener implements DmbListener {
     @Override
     public void onSuccess(String fileName, byte[] tpegData, int length) {
         try {
+            if (DataReadWriteUtil.inMainActivity) {
+                return;
+            }
             // 将已经解码的TS流写到输出流里面去
             pipedOutputStream.write(tpegData, 0, length);
             pipedOutputStream.flush();
