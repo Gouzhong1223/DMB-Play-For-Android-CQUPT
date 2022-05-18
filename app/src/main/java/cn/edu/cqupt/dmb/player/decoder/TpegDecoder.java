@@ -111,7 +111,6 @@ public class TpegDecoder extends AbstractDmbDecoder {
                     }
                     break;
                 default:
-                    Log.e(TAG, "未知的 TPEG 类型");
                     break;
             }
         }
@@ -160,7 +159,6 @@ public class TpegDecoder extends AbstractDmbDecoder {
             }
         } catch (IOException e) {
             Log.e(TAG, "readTpegFrame: 缓冲流被关闭了");
-//            e.printStackTrace();
         }
         return true;
     }
