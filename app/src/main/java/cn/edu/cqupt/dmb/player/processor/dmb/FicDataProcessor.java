@@ -2,6 +2,7 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import android.util.Log;
 
+import java.io.PipedOutputStream;
 import java.util.concurrent.TimeUnit;
 
 import cn.edu.cqupt.dmb.player.common.DangleType;
@@ -65,6 +66,11 @@ public class FicDataProcessor implements DataProcessing {
      * Dangle 实例
      */
     Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
+
+    @Override
+    public void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
+        this.processData(usbData, dangleType);
+    }
 
     @Override
     public void processData(byte[] usbData, DangleType dangleType) {

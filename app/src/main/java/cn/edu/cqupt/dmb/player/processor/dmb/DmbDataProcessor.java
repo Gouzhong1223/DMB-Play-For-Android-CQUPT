@@ -28,7 +28,7 @@ public class DmbDataProcessor implements DataProcessing {
     /**
      * USB 数据输出流
      */
-    private PipedOutputStream pipedOutputStream;
+    private volatile PipedOutputStream pipedOutputStream;
 
 
     @Override

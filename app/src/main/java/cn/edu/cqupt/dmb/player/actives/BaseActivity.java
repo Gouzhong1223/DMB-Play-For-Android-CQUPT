@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 import androidx.room.Room;
 
 import java.io.BufferedInputStream;
@@ -16,11 +17,12 @@ import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
 import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
 import cn.edu.cqupt.dmb.player.domain.CustomSetting;
 import cn.edu.cqupt.dmb.player.domain.SceneVO;
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : 这个是抽象的 Activity ,里面包含了一些通用的初始化方法
  * @Date : create by QingSong in 2022-05-18 13:14
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
@@ -28,32 +30,32 @@ import cn.edu.cqupt.dmb.player.domain.SceneVO;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class BaseActivity extends Activity {
+public class BaseActivity extends FragmentActivity {
 
     /**
      * 选中的使用场景配置
      */
-    private SceneVO selectedSceneVO;
+    protected SceneVO selectedSceneVO;
     /**
      * 操作自定义设置的 Mapper
      */
-    private CustomSettingMapper customSettingMapper;
+    protected CustomSettingMapper customSettingMapper;
     /**
      * 自定义的轮播图数量设置
      */
-    private CustomSetting defaultCarouselNumSetting;
+    protected CustomSetting defaultCarouselNumSetting;
     /**
      * 是否显示信号的设置
      */
-    private CustomSetting defaultSignalShowSetting;
+    protected CustomSetting defaultSignalShowSetting;
     /**
      * PIP 输出流
      */
-    private PipedOutputStream pipedOutputStream;
+    protected PipedOutputStream pipedOutputStream;
     /**
      * 输入缓冲流
      */
-    private BufferedInputStream bufferedInputStream;
+    protected BufferedInputStream bufferedInputStream;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,6 +66,8 @@ public class BaseActivity extends Activity {
         initDataBase();
         // 加载默认设置
         loadCustomSetting();
+        // 初始化 PIP 管道
+        initPip();
     }
 
     /**
@@ -106,6 +110,7 @@ public class BaseActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        DataReadWriteUtil.inMainActivity = true;
         super.onDestroy();
     }
 }

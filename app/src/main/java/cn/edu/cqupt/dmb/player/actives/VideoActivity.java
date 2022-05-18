@@ -1,7 +1,6 @@
 package cn.edu.cqupt.dmb.player.actives;
 
 
-import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +16,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.room.Room;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -25,14 +23,9 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.R;
-import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
-import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
-import cn.edu.cqupt.dmb.player.domain.CustomSetting;
-import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.frame.DmbMediaDataSource;
 import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
@@ -55,7 +48,7 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
  * @author qingsong
  */
 @RequiresApi(api = Build.VERSION_CODES.R)
-public class VideoActivity extends Activity {
+public class VideoActivity extends BaseActivity {
 
     /**
      * 视频播放回调消息
@@ -94,28 +87,6 @@ public class VideoActivity extends Activity {
      * 已经解码的MPEG-TS视频输出流
      */
     private PipedOutputStream mpegTsPipedOutputStream;
-    /**
-     * 当前选择打开视频的场景设置
-     */
-    private SceneVO selectedSceneVO;
-
-    /**
-     * 操作自定义设置的 Mapper
-     */
-    private CustomSettingMapper customSettingMapper;
-
-    /**
-     * 是否显示信号的设置
-     */
-    private CustomSetting defaultSignalShowSetting;
-    /**
-     * PIP 输出流
-     */
-    private PipedOutputStream pipedOutputStream;
-    /**
-     * 输入缓冲流
-     */
-    private BufferedInputStream bufferedInputStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,54 +96,16 @@ public class VideoActivity extends Activity {
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_video);
-        // 获取父传递过来的参数
-        selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
-        // 初始化数据库 Mapper
-        initDataBase();
-        // 加载自定义设置
-        loadCustomSetting();
-        initPip();
         // 初始化View
         initView();
         // 开始接收 DMB 数据
         UsbUtil.startReceiveDmbData(pipedOutputStream);
         // 开始MPEG-TS解码
         try {
-            startMpegTsCodec();
+            startMpegTsDecode();
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * 初始化管道流
-     */
-    private void initPip() {
-        PipedInputStream pipedInputStream = new PipedInputStream(1024 * 1024 * 10);
-        pipedOutputStream = new PipedOutputStream();
-        try {
-            pipedOutputStream.connect(pipedInputStream);
-            bufferedInputStream = new BufferedInputStream(pipedInputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 初始化数据库
-     */
-    private void initDataBase() {
-        //new a database
-        customSettingMapper = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
-                .allowMainThreadQueries().build().getCustomSettingMapper();
-    }
-
-    /**
-     * 加载自定义设置
-     */
-    private void loadCustomSetting() {
-        // 查询信号显示设置
-        defaultSignalShowSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.OPEN_SIGNAL.getKey());
     }
 
     /**
@@ -196,7 +129,7 @@ public class VideoActivity extends Activity {
      * 这里开一个线程去执行 MPEG-TS 的解码任务<br/>
      * 已经解码的MPEG-TS流会被放进缓冲流
      */
-    private void startMpegTsCodec() throws Exception {
+    private void startMpegTsDecode() throws Exception {
         // 构造已解码的TS输入流
         mpegTsPipedInputStream = new PipedInputStream(DEFAULT_MPEG_TS_PACKET_SIZE_DECODE * DEFAULT_MPEG_TS_STREAM_SIZE_TIMES);
         // 构造已解码的TS输出流

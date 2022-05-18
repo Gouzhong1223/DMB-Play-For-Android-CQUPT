@@ -103,13 +103,14 @@ public class ReceiveUsbDataTask implements Runnable {
                     // 从数据处理器的静态工程获取数据处理器
                     DataProcessing dataProcessor = DataProcessingFactory.getDataProcessor(packetBuf[3]);
                     // 处理数据
-                    dataProcessor.processData(packetBuf, dangleType);
+                    dataProcessor.processData(packetBuf, dangleType, pipedOutputStream);
                 }
             } else {
                 DataProcessing dataProcessor = DataProcessingFactory.getDataProcessor(bytes[3]);
-                dataProcessor.processData(bytes, dangleType);
+                dataProcessor.processData(bytes, dangleType, pipedOutputStream);
             }
         }
+        Log.i(TAG, "run: 从 USB 接收数据的任务被关闭了");
     }
 }
 

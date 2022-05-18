@@ -28,8 +28,9 @@ public interface DataProcessing {
     /**
      * 处理 DMB 数据
      *
-     * @param usbData    从 USB 中读取到的一段 DMB 数据
-     * @param dangleType Dangel 类型
+     * @param usbData           从 USB 中读取到的一段 DMB 数据
+     * @param pipedOutputStream USB PIP 输出流
+     * @param dangleType        Dangel 类型
      */
     default void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
     }

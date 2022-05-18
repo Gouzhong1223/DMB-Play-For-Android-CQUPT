@@ -5,8 +5,6 @@ import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
@@ -38,7 +36,7 @@ public class TpegDecoder extends AbstractDmbDecoder {
     private static final int LAST_FRAME = 3;
     private static final String TAG = "TpegDecoder";
 
-    public TpegDecoder(DmbListener listener, Context context,  BufferedInputStream bufferedInputStream) {
+    public TpegDecoder(DmbListener listener, Context context, BufferedInputStream bufferedInputStream) {
         super(bufferedInputStream, listener, context);
     }
 
@@ -150,6 +148,10 @@ public class TpegDecoder extends AbstractDmbDecoder {
             int nLeft = 108;
             int pos = 4;
             while (nLeft > 0) {
+                // 寻找 TPEG 数据包同步字节
+                if (DataReadWriteUtil.inMainActivity) {
+                    return false;
+                }
                 if ((nRead = bufferedInputStream.read(bytes, pos, nLeft)) <= 0) {
                     return false;
                 }
@@ -157,7 +159,8 @@ public class TpegDecoder extends AbstractDmbDecoder {
                 pos += nRead;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "readTpegFrame: 缓冲流被关闭了");
+//            e.printStackTrace();
         }
         return true;
     }

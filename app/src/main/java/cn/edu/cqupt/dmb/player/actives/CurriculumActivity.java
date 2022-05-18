@@ -1,7 +1,6 @@
 package cn.edu.cqupt.dmb.player.actives;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -15,26 +14,14 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.room.Room;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.R;
-import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
-import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
-import cn.edu.cqupt.dmb.player.domain.CustomSetting;
-import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.listener.DmbCurriculumListener;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
-import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
@@ -42,7 +29,7 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
  *
  * @author qingsong
  */
-public class CurriculumActivity extends Activity {
+public class CurriculumActivity extends BaseActivity {
 
     public static final int MESSAGE_UPDATE_CURRICULUM = DmbPlayerConstant.MESSAGE_UPDATE_CURRICULUM.getDmbConstantValue();
     private static final String TAG = "CurriculumActivity";
@@ -66,29 +53,6 @@ public class CurriculumActivity extends Activity {
      * 课表更新监听器
      */
     private DmbCurriculumListener dmbCurriculumListener;
-    /**
-     * 选中的使用场景配置
-     */
-    private SceneVO selectedSceneVO;
-
-    /**
-     * 操作自定义设置的 Mapper
-     */
-    private CustomSettingMapper customSettingMapper;
-
-    /**
-     * 是否显示信号的设置
-     */
-    private CustomSetting defaultSignalShowSetting;
-    /**
-     * PIP 输出流
-     */
-    private PipedOutputStream pipedOutputStream;
-    /**
-     * 输入缓冲流
-     */
-    private BufferedInputStream bufferedInputStream;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,50 +61,12 @@ public class CurriculumActivity extends Activity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_curriculum);
-        // 获取父传递过来的参数
-        selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
-        // 初始化数据库 Mapper
-        initDataBase();
-        // 加载自定义设置
-        loadCustomSetting();
-        initPip();
         // 初始化组件
         initView();
         // 开始解码 TPEG 生成 TPEG
         startDecodeCurriculum();
         // 开始接收 DMB 数据
         UsbUtil.startReceiveDmbData(pipedOutputStream);
-    }
-
-    /**
-     * 初始化管道流
-     */
-    private void initPip() {
-        PipedInputStream pipedInputStream = new PipedInputStream(1024 * 1024 * 10);
-        pipedOutputStream = new PipedOutputStream();
-        try {
-            pipedOutputStream.connect(pipedInputStream);
-            bufferedInputStream = new BufferedInputStream(pipedInputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 初始化数据库
-     */
-    private void initDataBase() {
-        //new a database
-        customSettingMapper = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
-                .allowMainThreadQueries().build().getCustomSettingMapper();
-    }
-
-    /**
-     * 加载自定义设置
-     */
-    private void loadCustomSetting() {
-        // 查询信号显示设置
-        defaultSignalShowSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.OPEN_SIGNAL.getKey());
     }
 
     /**
@@ -168,12 +94,6 @@ public class CurriculumActivity extends Activity {
         tpegDecoder.start();
     }
 
-    @Override
-    protected void onDestroy() {
-        DataReadWriteUtil.inMainActivity = true;
-        super.onDestroy();
-    }
-
     /**
      * 监听课表生成的 Handler<br/>
      * 关于为什么重载这个构造方法,详情参见<p>https://www.codeleading.com/article/66486105877/<p/>
@@ -194,6 +114,7 @@ public class CurriculumActivity extends Activity {
                 if (bitmap != null) {
                     Log.i(TAG, "重新设置了一下课表");
                     imageView.setImageBitmap(bitmap);
+                    imageView.setBackground(null);
                 } else {
                     Log.e(TAG, "生成课表 Bitmap 错误!");
                 }

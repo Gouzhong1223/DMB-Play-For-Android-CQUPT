@@ -76,7 +76,7 @@ public class DmbCarouselListener implements DmbListener {
         } else {
             Log.e(TAG, Thread.currentThread().getName() + "线程生成 bitmap 错误啦!");
             // 20、20分别是图的宽度与高度
-            YuvImage yuvimage = new YuvImage(fileBuffer, ImageFormat.NV21, 20, 20, null);
+            YuvImage yuvimage = new YuvImage(fileBuffer, ImageFormat.YUY2, 20, 20, null);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             // 80--JPG图片的质量[0-100],100最高
             yuvimage.compressToJpeg(new Rect(0, 0, 20, 20), 80, byteArrayOutputStream);

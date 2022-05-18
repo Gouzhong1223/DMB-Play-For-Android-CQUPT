@@ -2,6 +2,8 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import android.util.Log;
 
+import java.io.PipedOutputStream;
+
 import cn.edu.cqupt.dmb.player.common.DangleType;
 
 /**
@@ -18,6 +20,11 @@ import cn.edu.cqupt.dmb.player.common.DangleType;
 public class FrequencySetSuccessProcessor implements DataProcessing {
 
     private static final String TAG = "FrequencySetSuccessProcessor";
+
+    @Override
+    public void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
+        this.processData(usbData, dangleType);
+    }
 
     @Override
     public void processData(byte[] usbData, DangleType dangleType) {

@@ -12,17 +12,12 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentActivity;
-import androidx.room.Room;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.collect.EvictingQueue;
 import com.youth.banner.Banner;
 import com.youth.banner.indicator.CircleIndicator;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.Queue;
 
@@ -31,24 +26,18 @@ import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
-import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
-import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
-import cn.edu.cqupt.dmb.player.domain.CustomSetting;
-import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.listener.DmbCarouselListener;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
-import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
  * @author qingsong
  */
-public class CarouselActivity extends FragmentActivity {
+public class CarouselActivity extends BaseActivity {
 
     private static final String TAG = "CarouselActivity";
     /**
@@ -71,30 +60,6 @@ public class CarouselActivity extends FragmentActivity {
      * 信号组件
      */
     private ImageView signalImageView;
-    /**
-     * 选中的使用场景配置
-     */
-    private SceneVO selectedSceneVO;
-    /**
-     * 操作自定义设置的 Mapper
-     */
-    private CustomSettingMapper customSettingMapper;
-    /**
-     * 自定义的轮播图数量设置
-     */
-    private CustomSetting defaultCarouselNumSetting;
-    /**
-     * 是否显示信号的设置
-     */
-    private CustomSetting defaultSignalShowSetting;
-    /**
-     * PIP 输出流
-     */
-    private PipedOutputStream pipedOutputStream;
-    /**
-     * 输入缓冲流
-     */
-    private BufferedInputStream bufferedInputStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,57 +68,12 @@ public class CarouselActivity extends FragmentActivity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_carousel);
-        // 获取父传递过来的参数
-        selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
-        // 初始化数据库 Mapper
-        initDataBase();
-        // 加载默认设置
-        loadCustomSetting();
         // 初始化组件
         initView();
-        initPip();
         // 开始执行轮播图解码
         startDecodeTpeg();
         // 开始接收 DMB 数据
         UsbUtil.startReceiveDmbData(pipedOutputStream);
-    }
-
-    /**
-     * 初始化管道流
-     */
-    private void initPip() {
-        PipedInputStream pipedInputStream = new PipedInputStream(1024 * 1024 * 10);
-        pipedOutputStream = new PipedOutputStream();
-        try {
-            pipedOutputStream.connect(pipedInputStream);
-            bufferedInputStream = new BufferedInputStream(pipedInputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * 初始化数据库
-     */
-    private void initDataBase() {
-        //new a database
-        customSettingMapper = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
-                .allowMainThreadQueries().build().getCustomSettingMapper();
-    }
-
-    /**
-     * 加载自定义设置
-     */
-    private void loadCustomSetting() {
-        // 查询轮播图数量设置
-        defaultCarouselNumSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.DEFAULT_CAROUSEL_NUM.getKey());
-        if (defaultCarouselNumSetting == null) {
-            defaultCarouselNumSetting = new CustomSetting();
-            // 没有设置的话,默认设置成 5 张
-            defaultCarouselNumSetting.setSettingValue(5L);
-        }
-        // 查询信号显示设置
-        defaultSignalShowSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.OPEN_SIGNAL.getKey());
     }
 
     /**
@@ -189,7 +109,7 @@ public class CarouselActivity extends FragmentActivity {
      */
     public void useBanner() {
         //添加生命周期观察者
-        banner.addBannerLifecycleObserver(this)
+        banner.addBannerLifecycleObserver((LifecycleOwner) this)
                 .setAdapter(new ImageAdapter(BannerDataBean.getHelloViewData()))
                 .setIndicator(new CircleIndicator(this));
     }
@@ -197,7 +117,6 @@ public class CarouselActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         banner.stop();
-        DataReadWriteUtil.inMainActivity = true;
         super.onDestroy();
     }
 
