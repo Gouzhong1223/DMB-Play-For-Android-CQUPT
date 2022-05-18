@@ -4,6 +4,8 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.util.Log;
 
+import java.io.PipedOutputStream;
+
 import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessing;
@@ -50,6 +52,11 @@ public class ReceiveUsbDataTask implements Runnable {
     private final DangleType dangleType;
 
     /**
+     * PIP 输出流
+     */
+    private final PipedOutputStream pipedOutputStream;
+
+    /**
      * 定时任务构造器
      *
      * @param bytes               用于存储从USB中读取到的数据
@@ -57,13 +64,15 @@ public class ReceiveUsbDataTask implements Runnable {
      * @param usbDeviceConnection 已经打开的USB链接
      * @param readTime            从 USB 中的读取次数
      * @param dangleType          Dangel 类型
+     * @param pipedOutputStream   PIP输出流
      */
-    public ReceiveUsbDataTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection, Integer readTime, DangleType dangleType) {
+    public ReceiveUsbDataTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection, Integer readTime, DangleType dangleType, PipedOutputStream pipedOutputStream) {
         this.bytes = bytes;
         this.usbEndpointIn = usbEndpointIn;
         this.usbDeviceConnection = usbDeviceConnection;
         this.readTime = readTime;
         this.dangleType = dangleType;
+        this.pipedOutputStream = pipedOutputStream;
     }
 
     @Override

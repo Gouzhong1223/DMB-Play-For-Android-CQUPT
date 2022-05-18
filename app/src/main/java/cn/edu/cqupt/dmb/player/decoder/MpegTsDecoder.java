@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -34,8 +35,8 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
     private static final Integer TS_PACKET_188_SIZE = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_DECODE.getDmbConstantValue();
     private static final String TAG = "MpegTsDecoder";
 
-    public MpegTsDecoder(DmbListener dmbListener, Context context) throws Exception {
-        super(dmbListener, context);
+    public MpegTsDecoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream) throws Exception {
+        super(bufferedInputStream, dmbListener, context);
         if (!(dmbListener instanceof DmbMpegListener)) {
             // 如果监听器类型不对就直接抛异常!
             throw new Exception("错误的监听器类型!MPEG解码器构造只能接收DmbMpegListener类型的监听器!");
@@ -104,7 +105,7 @@ public class MpegTsDecoder extends AbstractDmbDecoder {
                 continue;
             }
             byte[] mpegTsPacket = new byte[TS_PACKET_188_SIZE];
-            if (readMpegTsPacket(BUFFERED_INPUT_STREAM, mpegTsPacket)) {
+            if (readMpegTsPacket(bufferedInputStream, mpegTsPacket)) {
                 // 读取成功之后直接调用监听器的 success 方法
                 if (DEBUG) {
                     Log.i(TAG, "run: 接收到一个 MPEG-TS 包" + ConvertUtils.bytes2hex(mpegTsPacket));

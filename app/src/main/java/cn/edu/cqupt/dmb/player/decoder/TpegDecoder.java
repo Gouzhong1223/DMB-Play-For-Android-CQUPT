@@ -3,7 +3,10 @@ package cn.edu.cqupt.dmb.player.decoder;
 import android.content.Context;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
@@ -35,8 +38,8 @@ public class TpegDecoder extends AbstractDmbDecoder {
     private static final int LAST_FRAME = 3;
     private static final String TAG = "TpegDecoder";
 
-    public TpegDecoder(DmbListener listener, Context context) {
-        super(listener, context);
+    public TpegDecoder(DmbListener listener, Context context,  BufferedInputStream bufferedInputStream) {
+        super(bufferedInputStream, listener, context);
     }
 
     @Override
@@ -130,7 +133,10 @@ public class TpegDecoder extends AbstractDmbDecoder {
         int nRead;
         try {
             // 寻找 TPEG 数据包同步字节
-            while ((nRead = BUFFERED_INPUT_STREAM.read(bytes, 3, 1)) > 0) {
+            if (DataReadWriteUtil.inMainActivity) {
+                return false;
+            }
+            while ((nRead = bufferedInputStream.read(bytes, 3, 1)) > 0) {
                 if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
                     break;
                 }
@@ -144,7 +150,7 @@ public class TpegDecoder extends AbstractDmbDecoder {
             int nLeft = 108;
             int pos = 4;
             while (nLeft > 0) {
-                if ((nRead = BUFFERED_INPUT_STREAM.read(bytes, pos, nLeft)) <= 0) {
+                if ((nRead = bufferedInputStream.read(bytes, pos, nLeft)) <= 0) {
                     return false;
                 }
                 nLeft -= nRead;

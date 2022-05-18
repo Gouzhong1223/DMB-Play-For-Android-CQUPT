@@ -5,6 +5,7 @@ import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -30,8 +31,8 @@ public class Mp2Decoder extends AbstractDmbDecoder {
     private byte[] mp2Buffer;
     private byte[] pcmBuffer;
 
-    public Mp2Decoder(DmbListener dmbListener, Context context) {
-        super(dmbListener, context);
+    public Mp2Decoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream) {
+        super(bufferedInputStream, dmbListener, context);
     }
 
     @Override
@@ -68,12 +69,12 @@ public class Mp2Decoder extends AbstractDmbDecoder {
     }
 
     private int readMp2Frame() throws IOException {
-        BUFFERED_INPUT_STREAM.read(mp2Buffer, 0, 2);
+        bufferedInputStream.read(mp2Buffer, 0, 2);
         while (isMp2Head(mp2Buffer)) {
             mp2Buffer[0] = mp2Buffer[1];
-            BUFFERED_INPUT_STREAM.read(mp2Buffer, 1, 1);
+            bufferedInputStream.read(mp2Buffer, 1, 1);
         }
-        int ret = BUFFERED_INPUT_STREAM.read(mp2Buffer, 2, 382);
+        int ret = bufferedInputStream.read(mp2Buffer, 2, 382);
         return ret + 2;
     }
 
@@ -86,7 +87,7 @@ public class Mp2Decoder extends AbstractDmbDecoder {
     private boolean readTpegFrame(byte[] bytes) {
         int nRead;
         try {
-            while ((nRead = (BUFFERED_INPUT_STREAM).read(bytes, 3, 1)) > 0) {
+            while ((nRead = (bufferedInputStream).read(bytes, 3, 1)) > 0) {
                 if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
                     break;
                 }
@@ -100,7 +101,7 @@ public class Mp2Decoder extends AbstractDmbDecoder {
             int nLeft = 108;
             int pos = 4;
             while (nLeft > 0) {
-                if ((nRead = ((InputStream) TpegDecoder.BUFFERED_INPUT_STREAM).read(bytes, pos, nLeft)) <= 0) {
+                if ((nRead = ((InputStream) bufferedInputStream).read(bytes, pos, nLeft)) <= 0) {
                     return false;
                 }
                 nLeft -= nRead;

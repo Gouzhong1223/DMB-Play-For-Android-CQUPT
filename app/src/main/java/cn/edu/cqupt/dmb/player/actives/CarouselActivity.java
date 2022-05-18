@@ -19,6 +19,10 @@ import com.google.common.collect.EvictingQueue;
 import com.youth.banner.Banner;
 import com.youth.banner.indicator.CircleIndicator;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.Queue;
 
@@ -83,6 +87,14 @@ public class CarouselActivity extends FragmentActivity {
      * 是否显示信号的设置
      */
     private CustomSetting defaultSignalShowSetting;
+    /**
+     * PIP 输出流
+     */
+    private PipedOutputStream pipedOutputStream;
+    /**
+     * 输入缓冲流
+     */
+    private BufferedInputStream bufferedInputStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,10 +111,25 @@ public class CarouselActivity extends FragmentActivity {
         loadCustomSetting();
         // 初始化组件
         initView();
-        // 开始接收 DMB 数据
-        UsbUtil.startReceiveDmbData();
+        initPip();
         // 开始执行轮播图解码
         startDecodeTpeg();
+        // 开始接收 DMB 数据
+        UsbUtil.startReceiveDmbData(pipedOutputStream);
+    }
+
+    /**
+     * 初始化管道流
+     */
+    private void initPip() {
+        PipedInputStream pipedInputStream = new PipedInputStream(1024 * 1024 * 10);
+        pipedOutputStream = new PipedOutputStream();
+        try {
+            pipedOutputStream.connect(pipedInputStream);
+            bufferedInputStream = new BufferedInputStream(pipedInputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -139,7 +166,7 @@ public class CarouselActivity extends FragmentActivity {
         UsbUtil.restDangle(FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true), selectedSceneVO);
         // 开始执行 TPEG 解码的任务
         // 构造TPEG解码器
-        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper()), bannerCache), this);
+        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper()), bannerCache), this, bufferedInputStream);
         tpegDecoder.start();
     }
 

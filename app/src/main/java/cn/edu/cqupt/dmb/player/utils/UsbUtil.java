@@ -8,6 +8,7 @@ import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
 
+import java.io.PipedOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -106,13 +107,13 @@ public class UsbUtil {
     /**
      * 开始接收 DMB 数据
      */
-    public static void startReceiveDmbData() {
+    public static void startReceiveDmbData(PipedOutputStream pipedOutputStream) {
         // 设置为非主页
         DataReadWriteUtil.inMainActivity = false;
         // 新开一个线程去接收 Dangle 接收器发过来的数据
         // 开始前根据 Dangle 的类型,选择数据接收容器
         new Thread(new ReceiveUsbDataTask(dangleType == DangleType.STM32 ? BYTES_STM32 : BYTES_NUC, usbEndpointIn,
-                usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType)).start();
+                usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType, pipedOutputStream)).start();
         Log.i(TAG, "startReceiveDmbData: 开始从 USB 中接收数据");
     }
 

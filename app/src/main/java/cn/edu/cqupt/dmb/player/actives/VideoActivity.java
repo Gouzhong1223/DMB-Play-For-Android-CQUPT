@@ -85,15 +85,15 @@ public class VideoActivity extends Activity {
     /**
      * 已经解码的MPEG-TS视频缓冲流
      */
-    private BufferedInputStream bufferedInputStream;
+    private BufferedInputStream mPegTsBufferedInputStream;
     /**
      * 已经解码的MPEG-TS视频输入流
      */
-    private PipedInputStream pipedInputStream;
+    private PipedInputStream mpegTsPipedInputStream;
     /**
      * 已经解码的MPEG-TS视频输出流
      */
-    private PipedOutputStream pipedOutputStream;
+    private PipedOutputStream mpegTsPipedOutputStream;
     /**
      * 当前选择打开视频的场景设置
      */
@@ -108,6 +108,14 @@ public class VideoActivity extends Activity {
      * 是否显示信号的设置
      */
     private CustomSetting defaultSignalShowSetting;
+    /**
+     * PIP 输出流
+     */
+    private PipedOutputStream pipedOutputStream;
+    /**
+     * 输入缓冲流
+     */
+    private BufferedInputStream bufferedInputStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,14 +131,29 @@ public class VideoActivity extends Activity {
         initDataBase();
         // 加载自定义设置
         loadCustomSetting();
+        initPip();
         // 初始化View
         initView();
         // 开始接收 DMB 数据
-        UsbUtil.startReceiveDmbData();
+        UsbUtil.startReceiveDmbData(pipedOutputStream);
         // 开始MPEG-TS解码
         try {
             startMpegTsCodec();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 初始化管道流
+     */
+    private void initPip() {
+        PipedInputStream pipedInputStream = new PipedInputStream(1024 * 1024 * 10);
+        pipedOutputStream = new PipedOutputStream();
+        try {
+            pipedOutputStream.connect(pipedInputStream);
+            bufferedInputStream = new BufferedInputStream(pipedInputStream);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -175,21 +198,21 @@ public class VideoActivity extends Activity {
      */
     private void startMpegTsCodec() throws Exception {
         // 构造已解码的TS输入流
-        pipedInputStream = new PipedInputStream(DEFAULT_MPEG_TS_PACKET_SIZE_DECODE * DEFAULT_MPEG_TS_STREAM_SIZE_TIMES);
+        mpegTsPipedInputStream = new PipedInputStream(DEFAULT_MPEG_TS_PACKET_SIZE_DECODE * DEFAULT_MPEG_TS_STREAM_SIZE_TIMES);
         // 构造已解码的TS输出流
-        pipedOutputStream = new PipedOutputStream();
+        mpegTsPipedOutputStream = new PipedOutputStream();
         try {
             // 连接输入输出流
-            pipedOutputStream.connect(pipedInputStream);
+            mpegTsPipedOutputStream.connect(mpegTsPipedInputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }
         // 构造已解码的TS缓冲流
-        bufferedInputStream = new BufferedInputStream(pipedInputStream);
+        mPegTsBufferedInputStream = new BufferedInputStream(mpegTsPipedInputStream);
         // 构造视频监听器,传入视频输出流以及回调类
-        DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), pipedOutputStream);
+        DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), mpegTsPipedOutputStream);
         // 构造解码器
-        MpegTsDecoder mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this);
+        MpegTsDecoder mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this, bufferedInputStream);
         mpegTsDecoder.start();
     }
 
@@ -198,7 +221,7 @@ public class VideoActivity extends Activity {
      */
     private void playVideo() {
         // 构造自定义的数据源
-        DmbMediaDataSource dmbMediaDataSource = new DmbMediaDataSource(bufferedInputStream);
+        DmbMediaDataSource dmbMediaDataSource = new DmbMediaDataSource(mPegTsBufferedInputStream);
         // 设置MPEG-TS播放器的数据源为自定义数据源
         videoPlayerFrame.setDataSource(dmbMediaDataSource);
         try {
@@ -231,9 +254,9 @@ public class VideoActivity extends Activity {
 
     private void closeStream() {
         try {
-            pipedOutputStream.close();
-            pipedInputStream.close();
-            bufferedInputStream.close();
+            mpegTsPipedOutputStream.close();
+            mpegTsPipedInputStream.close();
+            mPegTsBufferedInputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

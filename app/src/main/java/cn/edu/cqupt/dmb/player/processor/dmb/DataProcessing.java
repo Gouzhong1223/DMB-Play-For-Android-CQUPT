@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.processor.dmb;
 
+import java.io.PipedOutputStream;
+
 import cn.edu.cqupt.dmb.player.common.DangleType;
 
 /**
@@ -22,4 +24,13 @@ public interface DataProcessing {
      * @param dangleType Dangel 类型
      */
     void processData(byte[] usbData, DangleType dangleType);
+
+    /**
+     * 处理 DMB 数据
+     *
+     * @param usbData    从 USB 中读取到的一段 DMB 数据
+     * @param dangleType Dangel 类型
+     */
+    default void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
+    }
 }

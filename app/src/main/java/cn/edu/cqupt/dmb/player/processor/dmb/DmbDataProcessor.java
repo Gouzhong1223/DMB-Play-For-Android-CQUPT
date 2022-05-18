@@ -7,7 +7,6 @@ import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.decoder.AbstractDmbDecoder;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
@@ -29,15 +28,13 @@ public class DmbDataProcessor implements DataProcessing {
     /**
      * USB 数据输出流
      */
-    private static final PipedOutputStream PIPED_OUTPUT_STREAM = new PipedOutputStream();
+    private PipedOutputStream pipedOutputStream;
 
-    static {
-        try {
-            // 直接获取抽象解码器的 pip 输出流
-            PIPED_OUTPUT_STREAM.connect(AbstractDmbDecoder.getPipedInputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+    @Override
+    public void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
+        this.pipedOutputStream = pipedOutputStream;
+        this.processData(usbData, dangleType);
     }
 
     @Override
@@ -53,12 +50,12 @@ public class DmbDataProcessor implements DataProcessing {
                 // 如果现在没有活跃的使用场景,就直接抛弃当前接收到的数据并返回
                 return;
             }
-            PIPED_OUTPUT_STREAM.write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
+            pipedOutputStream.write(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), dataLength);
             if (!DataReadWriteUtil.initFlag) {
                 DataReadWriteUtil.initFlag = true;
             }
             // 写完 flush 一下
-            PIPED_OUTPUT_STREAM.flush();
+            pipedOutputStream.flush();
         } catch (IOException e) {
             Log.e(TAG, "处理 DMB 数据出错啦!---" + e);
             e.printStackTrace();

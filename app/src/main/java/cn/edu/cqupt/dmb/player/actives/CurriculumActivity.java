@@ -17,6 +17,11 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.room.Room;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
@@ -75,6 +80,14 @@ public class CurriculumActivity extends Activity {
      * 是否显示信号的设置
      */
     private CustomSetting defaultSignalShowSetting;
+    /**
+     * PIP 输出流
+     */
+    private PipedOutputStream pipedOutputStream;
+    /**
+     * 输入缓冲流
+     */
+    private BufferedInputStream bufferedInputStream;
 
 
     @Override
@@ -90,12 +103,27 @@ public class CurriculumActivity extends Activity {
         initDataBase();
         // 加载自定义设置
         loadCustomSetting();
+        initPip();
         // 初始化组件
         initView();
-        // 开始接收 DMB 数据
-        UsbUtil.startReceiveDmbData();
         // 开始解码 TPEG 生成 TPEG
         startDecodeCurriculum();
+        // 开始接收 DMB 数据
+        UsbUtil.startReceiveDmbData(pipedOutputStream);
+    }
+
+    /**
+     * 初始化管道流
+     */
+    private void initPip() {
+        PipedInputStream pipedInputStream = new PipedInputStream(1024 * 1024 * 10);
+        pipedOutputStream = new PipedOutputStream();
+        try {
+            pipedOutputStream.connect(pipedInputStream);
+            bufferedInputStream = new BufferedInputStream(pipedInputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -136,7 +164,7 @@ public class CurriculumActivity extends Activity {
         UsbUtil.restDangle(FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true), selectedSceneVO);
         dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()), selectedSceneVO);
         // 构造TPEG解码器
-        TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListener, this);
+        TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListener, this, bufferedInputStream);
         tpegDecoder.start();
     }
 

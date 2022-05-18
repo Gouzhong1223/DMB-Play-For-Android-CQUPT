@@ -1,8 +1,5 @@
 package cn.edu.cqupt.dmb.player.utils;
 
-import java.io.BufferedInputStream;
-import java.io.PipedInputStream;
-
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -32,50 +29,4 @@ public class DataReadWriteUtil {
      * 是否在主页
      */
     public static volatile boolean inMainActivity = true;
-    /**
-     * DataReadWriteUtil 单例对象
-     */
-    private static volatile DataReadWriteUtil dataReadWriteUtil;
-    /**
-     * USB 数据的 PIP 输入流
-     */
-    private final PipedInputStream pipedInputStream;
-    /**
-     * USB 数据的输入缓冲流
-     */
-    private final BufferedInputStream bufferedInputStream;
-
-    /**
-     * 构造方法
-     *
-     * @param pipedInputStream pip 输入流
-     */
-    public DataReadWriteUtil(PipedInputStream pipedInputStream) {
-        this.pipedInputStream = pipedInputStream;
-        this.bufferedInputStream = new BufferedInputStream(pipedInputStream);
-    }
-
-    /**
-     * 获取 DataReadWriteUtil 的单例对象
-     *
-     * @return DataReadWriteUtil 单例对象
-     */
-    public static DataReadWriteUtil getInstance() {
-        if (dataReadWriteUtil == null) {
-            synchronized (DataReadWriteUtil.class) {
-                if (dataReadWriteUtil == null) {
-                    dataReadWriteUtil = new DataReadWriteUtil(new PipedInputStream(1024 * 1024 * 10));
-                }
-            }
-        }
-        return dataReadWriteUtil;
-    }
-
-    public PipedInputStream getPipedInputStream() {
-        return pipedInputStream;
-    }
-
-    public BufferedInputStream getBufferedInputStream() {
-        return bufferedInputStream;
-    }
 }
