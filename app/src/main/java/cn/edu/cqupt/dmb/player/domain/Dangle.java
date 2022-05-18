@@ -113,10 +113,10 @@ public class Dangle {
             e.printStackTrace();
         }
         if (ret1 && ret2 && ret3 && ret4) {
-            Log.i(TAG, "Clear register success");
+            Log.i(TAG, "clearRegister: 清除 Dangle 设置成功!");
             return;
         }
-        Log.i(TAG, "Clear register fail");
+        Log.e(TAG, "clearRegister: 清除 Dangle 设置失败!");
     }
 
     /**
@@ -273,7 +273,7 @@ public class Dangle {
         cmd[15] = (byte) ((frequency) & 0xff);
         int ret = write(cmd);
         if (ret != cmd.length) {
-            Log.e(TAG, "set frequency fail");
+            Log.e(TAG, "setFrequency: 设置 Dangle 频点失败");
             return;
         }
         Log.i(TAG, "set frequency success!");
@@ -284,12 +284,5 @@ public class Dangle {
             return -1;
         }
         return usbDeviceConnection.bulkTransfer(usbEndpointOut, bytes, bytes.length, 500);
-    }
-
-    public synchronized int read(byte[] bytes) {
-        if (usbDeviceConnection == null || usbEndpointIn == null) {
-            return -1;
-        }
-        return usbDeviceConnection.bulkTransfer(usbEndpointIn, bytes, bytes.length, 500);
     }
 }

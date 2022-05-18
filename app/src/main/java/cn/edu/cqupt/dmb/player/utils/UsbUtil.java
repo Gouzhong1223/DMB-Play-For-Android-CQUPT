@@ -85,10 +85,11 @@ public class UsbUtil {
      */
     public static void restDangle(FicDecoder ficDecoder, SceneVO selectedSceneVO) {
         // 先清除 dangle 的设置
+        Log.i(TAG, "restDangle: 重置 Dangle");
         dangle.clearRegister();
         // 重新设置 dangle 的工作频点
-        Log.i(TAG, "重置的频点是:" + selectedSceneVO.getFrequency());
-        dangle.setFrequency(selectedSceneVO.getFrequency());
+        Log.i(TAG, "restDangle: 重置的频点是:" + selectedSceneVO.getFrequency());
+        dangle.setFrequency((int) selectedSceneVO.getFrequency());
         // 清空 ficDecoder 的ChannelInfo
         ficDecoder.resetChannelInfos();
         try {
@@ -144,9 +145,11 @@ public class UsbUtil {
             usbDeviceConnection.claimInterface(usbInterface, true);
             dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
             // 先清除Dangle的设置
+            Log.i(TAG, "initUsb: 初始化 USB 设备,清除 Dangle 设置");
             dangle.clearRegister();
             if (defaultSceneInfo != null) {
-                dangle.setFrequency(defaultSceneInfo.getFrequency());
+                Log.i(TAG, "initUsb: 初始化 USB 设备,重置频点为:" + defaultSceneInfo.getFrequency());
+                dangle.setFrequency((int) defaultSceneInfo.getFrequency());
             }
         }
     }
