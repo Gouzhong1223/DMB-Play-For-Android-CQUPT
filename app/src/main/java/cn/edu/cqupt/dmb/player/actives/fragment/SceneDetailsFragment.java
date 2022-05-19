@@ -181,7 +181,7 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
         actionAdapter.add(
                 new Action(
                         ACTION_WATCH_TRAILER,
-                        getResources().getString(R.string.watch_trailer_1),
+                        getResources().getString(R.string.start_play),
                         getResources().getString(R.string.watch_trailer_2)));
         row.setActionsAdapter(actionAdapter);
 
