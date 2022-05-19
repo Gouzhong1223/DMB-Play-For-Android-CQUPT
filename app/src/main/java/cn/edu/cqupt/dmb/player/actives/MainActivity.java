@@ -15,6 +15,7 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -279,6 +280,7 @@ public class MainActivity extends FragmentActivity {
                 intent.putExtra(DetailsActivity.SCENE_VO, getSceneVO(defaultScene));
                 // 获取对应的工作场景
                 intent.setClass(MainActivity.this, getActivityBySceneType(defaultScene.getSceneType()));
+                Toast.makeText(MainActivity.this, "正在跳转...", Toast.LENGTH_SHORT).show();
                 // 跳转
                 startActivity(intent);
             }

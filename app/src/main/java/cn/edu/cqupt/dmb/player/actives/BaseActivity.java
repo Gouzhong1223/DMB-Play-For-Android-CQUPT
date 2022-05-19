@@ -1,6 +1,7 @@
 package cn.edu.cqupt.dmb.player.actives;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
@@ -71,6 +72,7 @@ public class BaseActivity extends FragmentActivity {
         loadCustomSetting();
         // 初始化 PIP 管道
         initPip();
+        Toast.makeText(this, "正在初始化...", Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -123,5 +125,6 @@ public class BaseActivity extends FragmentActivity {
         }
         customSettingDatabase.close();
         super.onDestroy();
+        Toast.makeText(this, "已退出...", Toast.LENGTH_SHORT).show();
     }
 }

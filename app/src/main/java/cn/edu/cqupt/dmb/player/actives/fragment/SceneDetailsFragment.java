@@ -218,6 +218,7 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
                 }
                 Intent intent = new Intent(getActivity(), MainActivity.getActivityBySceneType(selectedSceneVO.getSceneType()));
                 intent.putExtra(DetailsActivity.SCENE_VO, selectedSceneVO);
+                Toast.makeText(requireContext(), "正在跳转...", Toast.LENGTH_SHORT).show();
                 startActivity(intent);
             } else {
                 Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
@@ -311,6 +312,12 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
         return Math.round((float) dp * density);
     }
 
+    @Override
+    public void onDestroyView() {
+        sceneDatabase.close();
+        super.onDestroyView();
+    }
+
     private final class ItemViewClickedListener implements OnItemViewClickedListener {
         @Override
         public void onItemClicked(
@@ -333,11 +340,5 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
                 requireActivity().startActivity(intent, bundle);
             }
         }
-    }
-
-    @Override
-    public void onDestroyView() {
-        sceneDatabase.close();
-        super.onDestroyView();
     }
 }
