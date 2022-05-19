@@ -37,7 +37,6 @@ public class SceneVO implements Serializable {
      * 描述
      */
     private String description;
-    private String videoUrl;
     private String subTitle;
     private Integer backgroundDrawableId;
     private Integer cardDrawableId;
@@ -101,14 +100,6 @@ public class SceneVO implements Serializable {
         this.description = description;
     }
 
-    public String getVideoUrl() {
-        return videoUrl;
-    }
-
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
-    }
-
     public String getSubTitle() {
         return subTitle;
     }
@@ -144,7 +135,6 @@ public class SceneVO implements Serializable {
                 ", building=" + building +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
-                ", videoUrl='" + videoUrl + '\'' +
                 ", subTitle='" + subTitle + '\'' +
                 ", backgroundDrawableId=" + backgroundDrawableId +
                 ", cardDrawableId=" + cardDrawableId +

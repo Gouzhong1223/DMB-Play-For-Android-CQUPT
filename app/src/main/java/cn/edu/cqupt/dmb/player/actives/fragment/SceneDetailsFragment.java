@@ -266,7 +266,6 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
         sceneVO.setSceneType(sceneInfo.getSceneType());
         configSceneDrawable(sceneVO);
         sceneVO.setSubTitle(sceneInfo.getFrequency() + ":" + sceneInfo.getDeviceId());
-        sceneVO.setVideoUrl("https://commondatastorage.googleapis.com/android-tv/Sample%20videos/Zeitgeist/Zeitgeist%202010_%20Year%20in%20Review.mp4");
         return sceneVO;
     }
 
