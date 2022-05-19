@@ -5,7 +5,7 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : 这个是 TS 视频播放的监听器接口(用于播放器的而不是解码器)
  * @Date : create by QingSong in 2022-04-06 16:48
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8

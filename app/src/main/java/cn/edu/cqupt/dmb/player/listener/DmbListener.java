@@ -3,7 +3,7 @@ package cn.edu.cqupt.dmb.player.listener;
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : 这个是 DMB 数据解码器的监听器接口
  * @Date : create by QingSong in 2022-03-22 21:22
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
