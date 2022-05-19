@@ -9,35 +9,35 @@
     <com.youth.banner.Banner
             android:id="@+id/banner"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"></com.youth.banner.Banner>
+            android:layout_height="match_parent" />
 
-    <TextClock
-            android:id="@+id/tv_time"
-            android:layout_width="255dp"
-            android:layout_height="80dp"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center"
-            android:textAlignment="center"
-            android:format24Hour="HH:mm"
-            android:format12Hour="hh:mm"
-            android:textColor="@color/lb_tv_white"
-            android:textSize="70dp"
-            app:layout_constraintStart_toStartOf="parent" />
+<!--    <TextClock-->
+<!--            android:id="@+id/tv_time"-->
+<!--            android:layout_width="255dp"-->
+<!--            android:layout_height="80dp"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:textAlignment="center"-->
+<!--            android:format24Hour="HH:mm"-->
+<!--            android:format12Hour="hh:mm"-->
+<!--            android:textColor="@color/lb_tv_white"-->
+<!--            android:textSize="70dp"-->
+<!--            app:layout_constraintStart_toStartOf="parent" />-->
 
-    <TextClock
-            android:id="@+id/tv_date"
-            android:layout_width="253dp"
-            android:layout_height="71dp"
-            android:layout_below="@+id/tv_time"
-            android:layout_centerHorizontal="true"
-            android:format24Hour="MM月dd日 EEEE"
-            android:format12Hour="MM月dd日 EEEE"
-            android:textColor="@color/lb_tv_white"
-            android:textSize="20dp"
-            android:textAlignment="center"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_time"
-            app:layout_constraintEnd_toEndOf="@+id/tv_time" />
+<!--    <TextClock-->
+<!--            android:id="@+id/tv_date"-->
+<!--            android:layout_width="253dp"-->
+<!--            android:layout_height="71dp"-->
+<!--            android:layout_below="@+id/tv_time"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            android:format24Hour="MM月dd日 EEEE"-->
+<!--            android:format12Hour="MM月dd日 EEEE"-->
+<!--            android:textColor="@color/lb_tv_white"-->
+<!--            android:textSize="20dp"-->
+<!--            android:textAlignment="center"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tv_time"-->
+<!--            app:layout_constraintEnd_toEndOf="@+id/tv_time" />-->
 
 <!--    <TextView-->
 <!--            android:text="信号显示在这里"-->
@@ -56,5 +56,6 @@
             android:layout_height="50dp"
             tools:ignore="MissingConstraints"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/carousel_signal_description" />
 </androidx.constraintlayout.widget.ConstraintLayout>
