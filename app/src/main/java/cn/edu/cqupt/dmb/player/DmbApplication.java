@@ -4,6 +4,8 @@ import android.app.Application;
 
 import com.xuexiang.xui.XUI;
 
+import cn.edu.cqupt.dmb.player.handler.CrashHandler;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -22,5 +24,7 @@ public class DmbApplication extends Application {
         super.onCreate();
         XUI.init(this);
         XUI.debug(false);
+        CrashHandler crashHandler = CrashHandler.getInstance();
+        crashHandler.init(getApplicationContext());
     }
 }
