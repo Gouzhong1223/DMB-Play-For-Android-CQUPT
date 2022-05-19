@@ -278,31 +278,31 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
     private void configSceneDrawable(SceneVO sceneVO) {
         switch (sceneVO.getSceneType()) {
             case 0: {
-                sceneVO.setCardDrawableId(R.drawable.video);
+                sceneVO.setCardDrawableId(R.drawable.video_icon);
                 sceneVO.setBackgroundDrawableId(R.drawable.video_bg);
                 sceneVO.setDescription("实时视频描述");
                 break;
             }
             case 1: {
-                sceneVO.setCardDrawableId(R.drawable.carousel);
+                sceneVO.setCardDrawableId(R.drawable.carousel_icon);
                 sceneVO.setBackgroundDrawableId(R.drawable.carousel_bg);
                 sceneVO.setDescription("轮播图描述");
                 break;
             }
             case 2: {
-                sceneVO.setCardDrawableId(R.drawable.audio);
+                sceneVO.setCardDrawableId(R.drawable.audio_icon);
                 sceneVO.setBackgroundDrawableId(R.drawable.audio_bg);
                 sceneVO.setDescription("实时音频描述");
                 break;
             }
             case 3: {
-                sceneVO.setCardDrawableId(R.drawable.dormitory);
+                sceneVO.setCardDrawableId(R.drawable.dormitory_icon);
                 sceneVO.setBackgroundDrawableId(R.drawable.dormitory_bg);
                 sceneVO.setDescription("宿舍安全信息描述");
                 break;
             }
             case 4: {
-                sceneVO.setCardDrawableId(R.drawable.curriculum);
+                sceneVO.setCardDrawableId(R.drawable.curriculum_icon);
                 sceneVO.setBackgroundDrawableId(R.drawable.curriculum_bg);
                 sceneVO.setDescription("教学楼课表显示描述");
                 break;
