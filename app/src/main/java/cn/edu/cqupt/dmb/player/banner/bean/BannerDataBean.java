@@ -31,7 +31,7 @@ public class BannerDataBean {
 
     public static List<BannerDataBean> getHelloViewData() {
         List<BannerDataBean> list = new ArrayList<>();
-        list.add(new BannerDataBean(R.drawable.welcom, "这个是一个欢迎页.轮播图刚刚启动的时候会播放这个", 1));
+        list.add(new BannerDataBean(R.mipmap.welcom, "这个是一个欢迎页.轮播图刚刚启动的时候会播放这个", 1));
         return list;
     }
 
