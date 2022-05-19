@@ -5,7 +5,15 @@ import androidx.annotation.NonNull;
 import java.io.Serializable;
 
 /**
- * @author qingsong
+ * @Author : Gouzhong
+ * @Blog : www.gouzhong1223.com
+ * @Description : 这个是 Scene 的 VO 类
+ * @Date : create by QingSong in 2022-05-19 21:24
+ * @Email : qingsong.qs@alibaba-inc.com
+ * @Since : JDK 1.8
+ * @PackageName : cn.edu.cqupt.dmb.player.domain
+ * @ProjectName : DMB Player For Android
+ * @Version : 1.0.0
  */
 public class SceneVO implements Serializable {
     static final long serialVersionUID = 727566175075960653L;
@@ -37,8 +45,17 @@ public class SceneVO implements Serializable {
      * 描述
      */
     private String description;
+    /**
+     * 副标题,频点:ID
+     */
     private String subTitle;
+    /**
+     * 背景图
+     */
     private Integer backgroundDrawableId;
+    /**
+     * 卡片预览图
+     */
     private Integer cardDrawableId;
 
     public SceneVO() {
@@ -141,3 +158,4 @@ public class SceneVO implements Serializable {
                 '}';
     }
 }
+
