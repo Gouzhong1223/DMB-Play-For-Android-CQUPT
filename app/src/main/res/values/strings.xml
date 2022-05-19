@@ -285,4 +285,5 @@
     <string name="title_activity_main2">MainActivity2</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="carousel_signal_description">信号</string>
 </resources>
