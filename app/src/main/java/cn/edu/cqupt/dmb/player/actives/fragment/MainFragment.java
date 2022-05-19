@@ -198,7 +198,7 @@ public class MainFragment extends BrowseSupportFragment {
     private void configSceneDrawable(SceneVO sceneVO) {
         switch (sceneVO.getSceneType()) {
             case 0: {
-                sceneVO.setCardDrawableId(R.drawable.video);
+                sceneVO.setCardDrawableId(R.drawable.video_icon);
                 sceneVO.setBackgroundDrawableId(R.drawable.video_bg);
                 sceneVO.setDescription("实时视频描述");
                 break;
