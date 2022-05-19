@@ -1,10 +1,7 @@
 package cn.edu.cqupt.dmb.player.listener.impl;
 
-import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
-
-import androidx.annotation.RequiresApi;
 
 import java.io.IOException;
 import java.io.PipedOutputStream;
@@ -24,7 +21,6 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-@RequiresApi(api = Build.VERSION_CODES.R)
 public class DmbMpegListener implements DmbListener {
 
     /**

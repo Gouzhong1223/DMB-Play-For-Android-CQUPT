@@ -2,7 +2,6 @@ package cn.edu.cqupt.dmb.player.actives;
 
 
 import android.content.pm.ActivityInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -47,7 +45,6 @@ import cn.edu.cqupt.dmb.player.utils.UsbUtil;
  *
  * @author qingsong
  */
-@RequiresApi(api = Build.VERSION_CODES.R)
 public class VideoActivity extends BaseActivity {
 
     /**

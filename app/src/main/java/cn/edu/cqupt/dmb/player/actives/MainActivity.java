@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.usb.UsbManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,7 +17,6 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -79,17 +77,23 @@ public class MainActivity extends FragmentActivity {
      */
     private SceneMapper sceneMapper;
 
+    /**
+     * 操作预设场景的 Mapper
+     */
     private SceneDatabase sceneDatabase;
+
+    /**
+     * 操作自定义设置的 Mapper
+     */
     private CustomSettingDatabase customSettingDatabase;
 
     /**
-     * 根据预设场景类型获取对应的 Activity
+     * 根据预设场景类型获取对应的 Activity<br/>
      * {"视频", "轮播图", "音频", "安全信息", "课表"}
      *
      * @param sceneType 预设场景类型
      * @return Activity
      */
-    @RequiresApi(api = Build.VERSION_CODES.R)
     public static Class<?> getActivityBySceneType(Integer sceneType) {
         switch (sceneType) {
             case 0: {
@@ -121,7 +125,9 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.activity_main2);
         // 初始化数据库
         initDataBase();
+        // 初始化默认的使用场景
         initDefaultScene();
+        // 在 UI 线程中替换 Fragment
         runOnUiThread(() -> {
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
@@ -254,13 +260,15 @@ public class MainActivity extends FragmentActivity {
         return sceneVO;
     }
 
+    /**
+     * 主要作用于当 USB 就绪并拥有默认使用场景时,自动跳转到对应的使用场景中
+     */
     private class MainHandler extends Handler {
 
         public MainHandler(@NonNull Looper looper) {
             super(looper);
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.R)
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MESSAGE_JUMP_DEFAULT_ACTIVITY) {
@@ -274,9 +282,11 @@ public class MainActivity extends FragmentActivity {
                     return;
                 }
                 if (defaultScene == null) {
+                    // 如果没有设置默认的使用场景就直接忽略广播了
                     return;
                 }
                 Intent intent = new Intent();
+                // 把默认使用场景放置在跳转参数中
                 intent.putExtra(DetailsActivity.SCENE_VO, getSceneVO(defaultScene));
                 // 获取对应的工作场景
                 intent.setClass(MainActivity.this, getActivityBySceneType(defaultScene.getSceneType()));
