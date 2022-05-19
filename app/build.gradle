@@ -13,7 +13,7 @@ android {
         minSdk 26
         targetSdk 32
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -41,6 +41,17 @@ android {
         cmake {
             path file('src/main/cpp/CMakeLists.txt')
             version '3.18.1'
+        }
+    }
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                outputFileName = "DMB Player-" +
+                        defaultConfig.versionName + "-" +
+                        output.baseName + ".apk"
+            }
         }
     }
 
