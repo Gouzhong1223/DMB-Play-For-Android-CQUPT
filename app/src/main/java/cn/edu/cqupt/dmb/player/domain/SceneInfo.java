@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey;
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : 这个是预设场景的数据库实体类
  * @Date : create by QingSong in 2022-05-13 13:21
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8
@@ -18,17 +18,35 @@ import androidx.room.PrimaryKey;
  */
 @Entity(tableName = "scene_info")
 public class SceneInfo {
+    /**
+     * 数据库主键
+     */
     @PrimaryKey
     @ColumnInfo(name = "id")
     private Integer id;
+    /**
+     * 场景名字
+     */
     @ColumnInfo(name = "sceneName")
     private String sceneName;
+    /**
+     * 设备 ID
+     */
     @ColumnInfo(name = "sceneId")
     private Integer deviceId;
+    /**
+     * 频点
+     */
     @ColumnInfo(name = "frequency")
     private Integer frequency;
+    /**
+     * 场景播放类型
+     */
     @ColumnInfo(name = "sceneType")
     private Integer sceneType;
+    /**
+     * 教学楼
+     */
     @ColumnInfo(name = "building")
     private Integer building;
 
