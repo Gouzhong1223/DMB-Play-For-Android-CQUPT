@@ -3,7 +3,6 @@ package cn.edu.cqupt.dmb.player.broadcast;
 import static android.content.ContentValues.TAG;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -21,6 +20,7 @@ import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
+import cn.edu.cqupt.dmb.player.utils.DialogUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
@@ -238,11 +238,12 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * 拔出USB设备之后执行的方法
      */
     private void closeDevice() {
-        new AlertDialog.Builder(
-                context)
-                .setTitle("DMB设备异常")
-                .setMessage("DMB设备已经被拔出,请重新插上DMB设备")
-                .setPositiveButton("确定", null)
+        DialogUtil.generateDialog(context,
+                        "DMB设备异常",
+                        "DMB设备已经被拔出,请重新插上DMB设备",
+                        new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE,
+                                (dialog, which) -> dialog.cancel(),
+                                "确定"))
                 .show();
     }
 
