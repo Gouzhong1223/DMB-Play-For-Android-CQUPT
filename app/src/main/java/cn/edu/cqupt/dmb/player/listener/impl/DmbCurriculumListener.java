@@ -1,8 +1,9 @@
-package cn.edu.cqupt.dmb.player.listener;
+package cn.edu.cqupt.dmb.player.listener.impl;
 
 import android.os.Handler;
 
 import cn.edu.cqupt.dmb.player.domain.SceneVO;
+import cn.edu.cqupt.dmb.player.listener.DmbListener;
 
 /**
  * @Author : Gouzhong

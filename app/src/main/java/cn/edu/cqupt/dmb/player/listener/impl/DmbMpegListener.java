@@ -1,4 +1,4 @@
-package cn.edu.cqupt.dmb.player.listener;
+package cn.edu.cqupt.dmb.player.listener.impl;
 
 import android.os.Build;
 import android.os.Handler;
@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**

@@ -12,7 +12,7 @@ import java.io.InputStream;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
-import cn.edu.cqupt.dmb.player.listener.DmbMpegListener;
+import cn.edu.cqupt.dmb.player.listener.impl.DmbMpegListener;
 import cn.edu.cqupt.dmb.player.utils.ConvertUtils;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 

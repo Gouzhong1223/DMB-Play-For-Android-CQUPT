@@ -1,4 +1,6 @@
-package cn.edu.cqupt.dmb.player.listener;
+package cn.edu.cqupt.dmb.player.listener.impl;
+
+import cn.edu.cqupt.dmb.player.listener.DmbListener;
 
 /**
  * @Author : Gouzhong

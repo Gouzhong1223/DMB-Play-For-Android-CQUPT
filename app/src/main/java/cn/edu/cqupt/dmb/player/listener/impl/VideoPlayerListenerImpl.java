@@ -1,8 +1,9 @@
-package cn.edu.cqupt.dmb.player.listener;
+package cn.edu.cqupt.dmb.player.listener.impl;
 
 import android.util.Log;
 
 import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
+import cn.edu.cqupt.dmb.player.listener.VideoPlayerListener;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 /**

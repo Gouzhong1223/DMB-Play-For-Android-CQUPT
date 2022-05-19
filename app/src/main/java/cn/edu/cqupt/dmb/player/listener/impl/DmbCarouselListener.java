@@ -1,4 +1,4 @@
-package cn.edu.cqupt.dmb.player.listener;
+package cn.edu.cqupt.dmb.player.listener.impl;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +13,7 @@ import java.util.Queue;
 
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
 /**
