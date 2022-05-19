@@ -282,7 +282,12 @@ public class MainActivity extends FragmentActivity {
                 intent.setClass(MainActivity.this, getActivityBySceneType(defaultScene.getSceneType()));
                 Toast.makeText(MainActivity.this, "正在跳转...", Toast.LENGTH_SHORT).show();
                 // 跳转
-                startActivity(intent);
+                try {
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "好像跳转出错了,出错信息是:" + e, Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+                }
             }
         }
     }
