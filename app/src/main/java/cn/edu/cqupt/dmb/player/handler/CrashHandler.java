@@ -111,7 +111,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         // 使用Toast来显示异常信息
         new Thread(() -> {
             Looper.prepare();
-            Toast.makeText(mContext, "很抱歉,程序出现异常,即将退出.", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext, "很抱歉,程序出现异常,即将退出:" + ex, Toast.LENGTH_LONG).show();
             Looper.loop();
         }).start();
         // 收集设备参数信息
@@ -180,7 +180,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             long timestamp = System.currentTimeMillis();
             String time = formatter.format(new Date());
             String fileName = "crash-" + time + "-" + timestamp + ".log";
-            String logPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DMB/";
+            String logPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/cn.edu.cqupt.dmb.player/logs/crash/";
             File dir = new File(logPath);
             if (!dir.exists()) {
                 dir.mkdirs();

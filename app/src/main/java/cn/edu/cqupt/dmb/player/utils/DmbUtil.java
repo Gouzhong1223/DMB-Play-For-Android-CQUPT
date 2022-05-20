@@ -17,7 +17,7 @@ import java.io.File;
  */
 public class DmbUtil {
 
-    public static final String CACHE_DIRECTORY = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DMB/";
+    public static final String CACHE_DIRECTORY = Environment.getExternalStorageDirectory().getAbsolutePath() + "/cn.edu.cqupt.dmb.player/";
     public static final String CHARACTER_SET = "gb2312";
 
     /* init directory */

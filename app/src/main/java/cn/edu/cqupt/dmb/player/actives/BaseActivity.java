@@ -109,6 +109,8 @@ public class BaseActivity extends FragmentActivity {
             defaultCarouselNumSetting = new CustomSetting();
             // 没有设置的话,默认设置成 5 张
             defaultCarouselNumSetting.setSettingValue(5L);
+            defaultCarouselNumSetting.setSettingKey(CustomSettingByKey.DEFAULT_CAROUSEL_NUM.getKey());
+            customSettingMapper.insertCustomSetting(defaultCarouselNumSetting);
         }
         // 查询信号显示设置
         defaultSignalShowSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.OPEN_SIGNAL.getKey());

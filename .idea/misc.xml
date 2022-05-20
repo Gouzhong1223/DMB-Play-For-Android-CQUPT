@@ -56,7 +56,9 @@
         <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/layout/xui_adapter_listview_simple_item.xml" value="0.1" />
         <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/layout/xui_layout_common_list_item.xml" value="0.16711833785004518" />
         <entry key="..\:/gradle-7.0/caches/transforms-3/d5ffb55e42533f1f3ae085be8a99a4a5/transformed/jetified-XUI-1.1.9/res/layout/xui_layout_edit_spinner.xml" value="0.16711833785004518" />
+        <entry key="app/src/main/res/drawable-xhdpi/liner_back.xml" value="0.202" />
         <entry key="app/src/main/res/drawable-xhdpi/ut_scan_progress.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/audio_icon.xml" value="0.202" />
         <entry key="app/src/main/res/drawable/background.xml" value="0.1525" />
         <entry key="app/src/main/res/drawable/default_background.xml" value="0.2695" />
         <entry key="app/src/main/res/drawable/default_selecter.xml" value="0.1525" />

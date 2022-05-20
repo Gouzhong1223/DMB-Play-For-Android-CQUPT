@@ -12,7 +12,8 @@
             android:layout_height="50dp"
             tools:ignore="MissingConstraints"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/video_signal_description" />
     <cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame
             android:id="@+id/video_surface"
             android:layout_width="match_parent"

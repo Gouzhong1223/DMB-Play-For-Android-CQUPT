@@ -148,7 +148,7 @@ public class MainFragment extends BrowseSupportFragment {
         GridItemPresenter mGridPresenter = new GridItemPresenter();
         ArrayObjectAdapter gridRowAdapter = new ArrayObjectAdapter(mGridPresenter);
         gridRowAdapter.add(getResources().getString(R.string.grid_view));
-        gridRowAdapter.add(getString(R.string.error_fragment));
+        gridRowAdapter.add(getString(R.string.crash_log));
         gridRowAdapter.add(getResources().getString(R.string.personal_settings));
         rowsAdapter.add(new ListRow(gridHeader, gridRowAdapter));
 
@@ -330,7 +330,7 @@ public class MainFragment extends BrowseSupportFragment {
                 // 跳转到场景详情界面
                 requireActivity().startActivity(intent, bundle);
             } else if (item instanceof String) {
-                if (((String) item).contains(getString(R.string.error_fragment))) {
+                if (((String) item).contains(getString(R.string.crash_log))) {
                     Intent intent = new Intent(getActivity(), BrowseErrorActivity.class);
                     startActivity(intent);
                 } else if (item.equals(getString(R.string.personal_settings))) {

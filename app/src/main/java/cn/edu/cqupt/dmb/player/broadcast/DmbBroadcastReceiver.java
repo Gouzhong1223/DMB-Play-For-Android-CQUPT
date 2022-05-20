@@ -11,6 +11,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -20,7 +21,6 @@ import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
-import cn.edu.cqupt.dmb.player.utils.DialogUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
@@ -142,6 +142,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                     if (usbDevice != null) {
                         Log.i(TAG, Thread.currentThread().getName() + "线程现在DataReadWriteUtil.USB_READY被设置为 true");
+                        Toast.makeText(context, "USB已插入...", Toast.LENGTH_SHORT).show();
                         DataReadWriteUtil.USB_READY = true;
                         // 发送跳转到默认场景的消息
                         handler.sendEmptyMessage(MESSAGE_JUMP_DEFAULT_ACTIVITY);
@@ -238,13 +239,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * 拔出USB设备之后执行的方法
      */
     private void closeDevice() {
-        DialogUtil.generateDialog(context,
-                        "DMB设备异常",
-                        "DMB设备已经被拔出,请重新插上DMB设备",
-                        new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE,
-                                (dialog, which) -> dialog.cancel(),
-                                "确定"))
-                .show();
+        Toast.makeText(context, "USB设备已被拔出...", Toast.LENGTH_SHORT).show();
     }
 
     /**
