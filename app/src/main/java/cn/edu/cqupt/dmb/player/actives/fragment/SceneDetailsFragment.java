@@ -219,12 +219,7 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
                 Intent intent = new Intent(getActivity(), MainActivity.getActivityBySceneType(selectedSceneVO.getSceneType()));
                 intent.putExtra(DetailsActivity.SCENE_VO, selectedSceneVO);
                 Toast.makeText(requireContext(), "正在跳转...", Toast.LENGTH_SHORT).show();
-                try {
-                    startActivity(intent);
-                } catch (Exception e) {
-                    Toast.makeText(requireContext(), "好像跳转出错了,出错信息是:" + e, Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-                }
+                startActivity(intent);
             } else {
                 Toast.makeText(getActivity(), action.toString(), Toast.LENGTH_SHORT).show();
             }
