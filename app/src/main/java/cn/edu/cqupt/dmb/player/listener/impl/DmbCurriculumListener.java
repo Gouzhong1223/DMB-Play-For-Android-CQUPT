@@ -1,6 +1,7 @@
 package cn.edu.cqupt.dmb.player.listener.impl;
 
 import android.os.Handler;
+import android.util.Log;
 
 import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
@@ -18,18 +19,27 @@ import cn.edu.cqupt.dmb.player.listener.DmbListener;
  */
 public class DmbCurriculumListener implements DmbListener {
 
+    /**
+     * 更新课表的广播
+     */
     public static final int MESSAGE_UPDATE_PICTURE = 0x100;
     private static final String TAG = "DmbCurriculumListener";
-    private final Handler handler;
-    private final SceneVO selectedSceneVO;
     /**
-     * 教学楼数据源
+     * 课表显示回调
      */
-    private final String[] building = new String[]{"二教", "三教", "四教", "五教", "八教"};
+    private final Handler handler;
+    /**
+     * 选中的播放场景
+     */
+    private final SceneVO selectedSceneVO;
+
     /**
      * 文件缓冲区
      */
     private final byte[] fileBuffer = new byte[1024 * 1024 * 2];
+    /**
+     * 有效数据长度
+     */
     private Integer length;
 
     public DmbCurriculumListener(Handler handler, SceneVO selectedSceneVO) {
@@ -39,8 +49,10 @@ public class DmbCurriculumListener implements DmbListener {
 
     @Override
     public void onSuccess(String fileName, byte[] bytes, int length) {
+        // 获取教学楼编号
         Integer building = getBuilding(selectedSceneVO.getBuilding());
         if (building == -1) {
+            Log.e(TAG, "onSuccess: 未知的教学楼编号");
             return;
         }
         if (!fileName.contains(building.toString())) {
@@ -49,9 +61,16 @@ public class DmbCurriculumListener implements DmbListener {
         }
         this.length = length;
         System.arraycopy(bytes, 0, fileBuffer, 0, length);
+        // 发送一条更新课表的广播
         handler.sendEmptyMessage(MESSAGE_UPDATE_PICTURE);
     }
 
+    /**
+     * 根据教学楼顺序获取教学楼编号
+     *
+     * @param build 教学楼顺序
+     * @return 教学路编号
+     */
     private Integer getBuilding(Integer build) {
         switch (build) {
             case 0: {
