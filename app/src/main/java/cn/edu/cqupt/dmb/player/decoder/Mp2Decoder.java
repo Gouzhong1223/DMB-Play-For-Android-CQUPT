@@ -64,8 +64,9 @@ public class Mp2Decoder extends AbstractDmbDecoder {
     }
 
     private boolean isMp2Head(byte[] bytes) {
-        return bytes[0] == 0xFF;
-//        return (bytes[0] == 0xFF && bytes[1] == 0xFC) || (bytes[0] == 0xFF && bytes[1] == 0xF4);
+        return bytes[0] == (byte) 0xFF;
+//        return (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFC) || (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xF4);
+//        return (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFC) || (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xF4);
     }
 
     private int readMp2Frame() throws IOException {
@@ -84,22 +85,23 @@ public class Mp2Decoder extends AbstractDmbDecoder {
      * @param bytes 承载 MP2 数据包的容器
      * @return 成功返回 true
      */
-    private boolean readTpegFrame(byte[] bytes) {
+    private boolean readMp2Frame(byte[] bytes) {
         int nRead;
         try {
-            while ((nRead = (bufferedInputStream).read(bytes, 3, 1)) > 0) {
-                if (bytes[1] == (byte) 0x01 && bytes[2] == (byte) 0x5b && bytes[3] == (byte) 0xF4) {
+            bytes[0] = bytes[1] = (byte) 0xff;
+            while ((nRead = (bufferedInputStream).read(bytes, 2, 1)) > 0) {
+                if ((bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFC) || (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xF4)) {
                     break;
                 }
-                System.arraycopy(bytes, 1, bytes, 0, 3);
+                System.arraycopy(bytes, 1, bytes, 0, 2);
             }
             if (nRead <= 0) {
                 return false;
             }
             /* read n bytes method, according to unix network programming page 72 */
             /* read left data of the frame */
-            int nLeft = 108;
-            int pos = 4;
+            int nLeft = 382;
+            int pos = 2;
             while (nLeft > 0) {
                 if ((nRead = ((InputStream) bufferedInputStream).read(bytes, pos, nLeft)) <= 0) {
                     return false;
