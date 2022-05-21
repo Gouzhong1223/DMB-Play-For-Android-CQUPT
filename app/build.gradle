@@ -13,7 +13,7 @@ android {
         minSdk 26
         targetSdk 32
         versionCode 1
-        versionName "1.0.0"
+        versionName "1.0.2"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -76,7 +76,7 @@ dependencies {
     implementation 'androidx.leanback:leanback:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation 'com.google.android.material:material:1.6.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     //2.1.0以前jcenter的依赖
     //implementation 'com.youth.banner:banner:2.1.0'
     //现在Maven Central
