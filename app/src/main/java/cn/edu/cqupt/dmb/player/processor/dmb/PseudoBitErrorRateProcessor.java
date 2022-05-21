@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.processor.dmb;
 
+import android.util.Log;
+
 import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.common.DangleType;
@@ -37,6 +39,7 @@ public class PseudoBitErrorRateProcessor implements DataProcessing {
                 ber = 2500;
             } else {
                 ber = bbReg0 * 104 / (32 + bitRate);
+                Log.i(TAG, "processData: 重设 ber 为:" + ber);
             }
         }
     }
@@ -45,19 +48,7 @@ public class PseudoBitErrorRateProcessor implements DataProcessing {
         return ber;
     }
 
-    public int getBitRate() {
-        return bitRate;
-    }
-
     public void setBitRate(int bitRate) {
         this.bitRate = bitRate;
-    }
-
-    public int getBbReg0() {
-        return bbReg0;
-    }
-
-    public int getBbReg3() {
-        return bbReg3;
     }
 }
