@@ -12,7 +12,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.collect.EvictingQueue;
 import com.youth.banner.Banner;
@@ -109,7 +108,7 @@ public class CarouselActivity extends BaseActivity {
      */
     public void useBanner() {
         //添加生命周期观察者
-        banner.addBannerLifecycleObserver((LifecycleOwner) this)
+        banner.addBannerLifecycleObserver(this)
                 .setAdapter(new ImageAdapter(BannerDataBean.getHelloViewData()))
                 .setIndicator(new CircleIndicator(this));
     }
