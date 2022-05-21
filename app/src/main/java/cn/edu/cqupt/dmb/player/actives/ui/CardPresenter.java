@@ -1,4 +1,4 @@
-package cn.edu.cqupt.dmb.player.actives.leanback;
+package cn.edu.cqupt.dmb.player.actives.ui;
 
 import android.graphics.drawable.Drawable;
 import android.util.Log;

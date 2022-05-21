@@ -45,7 +45,7 @@ import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.actives.BrowseErrorActivity;
 import cn.edu.cqupt.dmb.player.actives.DetailsActivity;
 import cn.edu.cqupt.dmb.player.actives.SetupActivity;
-import cn.edu.cqupt.dmb.player.actives.leanback.CardPresenter;
+import cn.edu.cqupt.dmb.player.actives.ui.CardPresenter;
 import cn.edu.cqupt.dmb.player.db.database.SceneDatabase;
 import cn.edu.cqupt.dmb.player.db.mapper.SceneMapper;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
