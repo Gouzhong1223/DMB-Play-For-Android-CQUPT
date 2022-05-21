@@ -9,8 +9,9 @@ import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
+import cn.edu.cqupt.dmb.player.processor.tpeg.TpegDataProcessor;
+import cn.edu.cqupt.dmb.player.processor.tpeg.TpegDataProcessorFactory;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
-import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 
 /**
  * @Author : Gouzhong
@@ -31,10 +32,14 @@ public class TpegDecoder extends AbstractDmbDecoder {
     private static final int TPEG_SIZE = 112;
     private static final int DATA_SIZE = 80;
     private static final int TPEG_INFO_SIZE = 3;
-    private static final int FIRST_FRAME = 2;
-    private static final int MIDDLE_FRAME = 1;
-    private static final int LAST_FRAME = 3;
     private static final String TAG = "TpegDecoder";
+    private final byte[] tpegBuffer = new byte[TPEG_SIZE];
+    private final byte[] tpegData = new byte[DATA_SIZE];
+    private final int[] tpegInfo = new int[TPEG_INFO_SIZE];
+    private final byte[] fileBuffer = new byte[FILE_BUFFER_SIZE];
+    private int total = 0;
+    private boolean isReceiveFirstFrame = false;
+    private String fileName = null;
 
     public TpegDecoder(DmbListener listener, Context context, BufferedInputStream bufferedInputStream) {
         super(bufferedInputStream, listener, context);
@@ -42,13 +47,6 @@ public class TpegDecoder extends AbstractDmbDecoder {
 
     @Override
     public void run() {
-        int total = 0;
-        byte[] tpegBuffer = new byte[TPEG_SIZE];
-        byte[] tpegData = new byte[DATA_SIZE];
-        int[] tpegInfo = new int[TPEG_INFO_SIZE];
-        byte[] fileBuffer = new byte[FILE_BUFFER_SIZE];
-        boolean isReceiveFirstFrame = false;
-        String fileName = null;
         Log.i(TAG, Thread.currentThread().getName() + "线程开始了 TPEG 的解码");
         NativeMethod.tpegInit();
         while (!DataReadWriteUtil.inMainActivity) {
@@ -73,51 +71,41 @@ public class TpegDecoder extends AbstractDmbDecoder {
             Arrays.fill(tpegData, (byte) 0);
             Arrays.fill(tpegInfo, 0);
             NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
-            switch (tpegInfo[0]) {
-                case FIRST_FRAME:
-                    Log.i(TAG, "现在接收到了头帧");
-                    isReceiveFirstFrame = true;
-                    System.arraycopy(tpegData, 0, fileBuffer, 0, tpegInfo[1]);
-                    total = tpegInfo[1] - 35;
-                    try {
-                        fileName = new String(tpegData, 0, 35, DmbUtil.CHARACTER_SET);
-                        fileName = fileName.substring(0, fileName.indexOf(0x00));
-                        if (fileName.equals("")) {
-                            fileName = "教学楼-" + tpegData[20] + ".jpg";
-                            Log.i(TAG, "没有从 TPEG 信息中解码出文件名,所以重命名为:" + fileName);
-                        }
-                        Log.i(TAG, total + " " + fileName);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case MIDDLE_FRAME:
-                    if (total + tpegInfo[1] >= FILE_BUFFER_SIZE) {
-                        total = 0;
-                    } else {
-                        System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
-                        total += tpegInfo[1];
-                    }
-                    break;
-                case LAST_FRAME:
-                    if (isReceiveFirstFrame && total + tpegInfo[1] < FILE_BUFFER_SIZE) {
-                        System.arraycopy(tpegData, 0, fileBuffer, total, tpegInfo[1]);
-                        total += tpegInfo[1];
-                        if (dmbListener != null) {
-                            dmbListener.onSuccess(fileName, fileBuffer, total);
-                        }
-                        isReceiveFirstFrame = false;
-                        fileName = null;
-                    }
-                    break;
-                default:
-                    break;
-            }
+            TpegDataProcessor dataProcessor = TpegDataProcessorFactory.getDataProcessor(tpegInfo[0]);
+            dataProcessor.processData(this, tpegData, fileBuffer, tpegInfo);
         }
         Arrays.fill(tpegBuffer, (byte) 0);
         Arrays.fill(tpegData, (byte) 0);
         Arrays.fill(tpegInfo, (byte) 0);
         Arrays.fill(fileBuffer, (byte) 0);
+    }
+
+    public int getTotal() {
+        return total;
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
+    }
+
+    public boolean isReceiveFirstFrame() {
+        return isReceiveFirstFrame;
+    }
+
+    public void setReceiveFirstFrame(boolean receiveFirstFrame) {
+        isReceiveFirstFrame = receiveFirstFrame;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public DmbListener getDmbListener() {
+        return dmbListener;
     }
 
     /**
