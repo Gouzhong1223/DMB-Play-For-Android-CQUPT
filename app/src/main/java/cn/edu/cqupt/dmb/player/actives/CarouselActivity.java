@@ -115,7 +115,9 @@ public class CarouselActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        banner.stop();
+        if (banner != null) {
+            banner.stop();
+        }
         super.onDestroy();
     }
 

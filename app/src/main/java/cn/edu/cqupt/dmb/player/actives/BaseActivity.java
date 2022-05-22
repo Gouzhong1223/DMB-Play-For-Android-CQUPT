@@ -120,12 +120,18 @@ public class BaseActivity extends FragmentActivity {
     protected void onDestroy() {
         DataReadWriteUtil.inMainActivity = true;
         try {
-            pipedOutputStream.close();
-            bufferedInputStream.close();
+            if (pipedOutputStream != null) {
+                pipedOutputStream.close();
+            }
+            if (bufferedInputStream != null) {
+                bufferedInputStream.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        customSettingDatabase.close();
+        if (customSettingDatabase != null) {
+            customSettingDatabase.close();
+        }
         super.onDestroy();
         Toast.makeText(this, "已退出...", Toast.LENGTH_SHORT).show();
     }

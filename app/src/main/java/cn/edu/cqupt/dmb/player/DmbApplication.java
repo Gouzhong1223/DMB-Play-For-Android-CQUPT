@@ -2,6 +2,7 @@ package cn.edu.cqupt.dmb.player;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
@@ -22,6 +23,8 @@ import androidx.room.Room;
 import com.xuexiang.xui.XUI;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 import cn.edu.cqupt.dmb.player.actives.DetailsActivity;
 import cn.edu.cqupt.dmb.player.actives.MainActivity;
@@ -86,6 +89,10 @@ public class DmbApplication extends Application implements DefaultLifecycleObser
 
     @Override
     public void onCreate() {
+        String curProcessName = getCurrentProcessName(this);
+        if (!curProcessName.equals(getPackageName())) {
+            return;
+        }
         super.onCreate();
         Log.i(TAG, "onCreate: 初始化 XUI");
         XUI.init(this);
@@ -193,6 +200,27 @@ public class DmbApplication extends Application implements DefaultLifecycleObser
         customSettingDatabase.close();
         sceneDatabase.close();
         unregisterReceiver(dmbBroadcastReceiver);
+    }
+
+    /**
+     * 获取当前的进程名
+     *
+     * @param context:上下文
+     * @return :返回值
+     */
+    public String getCurrentProcessName(Context context) {
+        int pid = android.os.Process.myPid();
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningApps = am.getRunningAppProcesses();
+        if (runningApps == null) {
+            return null;
+        }
+        for (ActivityManager.RunningAppProcessInfo procInfo : runningApps) {
+            if (procInfo.pid == pid) {
+                return procInfo.processName;
+            }
+        }
+        return null;
     }
 
     /**
