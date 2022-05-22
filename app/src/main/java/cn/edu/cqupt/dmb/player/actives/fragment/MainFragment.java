@@ -77,7 +77,7 @@ public class MainFragment extends BrowseSupportFragment {
         super.onActivityCreated(savedInstanceState);
         // 初始化数据库
         initDataBase();
-        // 初始化北京管理器
+        // 初始化背景管理器
         prepareBackgroundManager();
         // 初始化 UI
         setupUiElements();
