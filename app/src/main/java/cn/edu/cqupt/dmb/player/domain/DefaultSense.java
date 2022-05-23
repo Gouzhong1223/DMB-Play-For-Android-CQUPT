@@ -16,6 +16,7 @@ import androidx.room.PrimaryKey;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
+@Deprecated
 @Entity(tableName = "default_sense")
 public class DefaultSense {
     @PrimaryKey

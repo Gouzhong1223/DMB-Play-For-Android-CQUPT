@@ -17,6 +17,7 @@ import cn.edu.cqupt.dmb.player.domain.DefaultSense;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
+@Deprecated
 @Database(entities = {DefaultSense.class}, version = 1, exportSchema = false)
 public abstract class DefaultSenseDatabase extends RoomDatabase {
     /**
