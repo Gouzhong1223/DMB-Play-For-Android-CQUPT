@@ -18,7 +18,7 @@
                 android:layout_gravity="center"
                 android:textAlignment="center"
                 android:textSize="35sp"
-                android:text="播放设置"
+                android:text="@string/player_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -30,15 +30,40 @@
                 tools:ignore="UselessParent">
 
             <com.xuexiang.xui.widget.alpha.XUIAlphaTextView
-                    android:text="是否显示信号"
+                    android:text="@string/whether_to_display_the_signal"
                     android:textSize="20sp"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="20dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    tools:ignore="RelativeOverlap" />
 
             <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/SwitchCompat"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+        </RelativeLayout>
+
+        <RelativeLayout
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                tools:ignore="UselessParent">
+
+            <com.xuexiang.xui.widget.alpha.XUIAlphaTextView
+                    android:text="@string/is_show_debug_log"
+                    android:textSize="20sp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:ignore="RelativeOverlap" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/deBugLogSwitchCompat"
                     android:layout_centerVertical="true"
                     android:layout_alignParentEnd="true"
                     android:layout_marginEnd="20dp"
@@ -54,12 +79,13 @@
                 tools:ignore="UselessParent">
 
             <com.xuexiang.xui.widget.alpha.XUIAlphaTextView
-                    android:text="APP启动默认载入场景"
+                    android:text="@string/APP_starts_the_default_loading_scene"
                     android:textSize="20sp"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="20dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    tools:ignore="RelativeOverlap" />
 
             <Spinner
                     android:id="@+id/default_sense_spinner"
@@ -79,12 +105,13 @@
                 tools:ignore="UselessParent">
 
             <com.xuexiang.xui.widget.alpha.XUIAlphaTextView
-                    android:text="轮播图容器数量"
+                    android:text="@string/number_of_carousel_containers"
                     android:textSize="20sp"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="20dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    tools:ignore="RelativeOverlap" />
 
             <Spinner
                     android:id="@+id/carousel_num_spinner"

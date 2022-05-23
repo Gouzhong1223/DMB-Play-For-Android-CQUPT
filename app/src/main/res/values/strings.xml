@@ -287,4 +287,9 @@
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="carousel_signal_description">信号</string>
     <string name="video_signal_description">视频播放信号显示</string>
+    <string name="is_show_debug_log">是否显示调试日志</string>
+    <string name="whether_to_display_the_signal">是否显示信号</string>
+    <string name="player_settings">播放设置</string>
+    <string name="APP_starts_the_default_loading_scene">APP启动默认载入场景</string>
+    <string name="number_of_carousel_containers">轮播图容器数量</string>
 </resources>
