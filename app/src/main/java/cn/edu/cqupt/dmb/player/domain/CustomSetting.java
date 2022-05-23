@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey;
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description :
+ * @Description : 这个是自定义设置的数据库实体
  * @Date : create by QingSong in 2022-05-14 15:40
  * @Email : gouzhong1223@gmail.com
  * @Since : JDK 1.8

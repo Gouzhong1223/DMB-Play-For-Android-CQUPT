@@ -70,6 +70,7 @@
         <entry key="app/src/main/res/drawable/shape.xml" value="0.1525" />
         <entry key="app/src/main/res/drawable/unselected_radius.xml" value="0.1525" />
         <entry key="app/src/main/res/drawable/white.xml" value="0.1525" />
+        <entry key="app/src/main/res/layout/activity_audio.xml" value="0.22310405643738976" />
         <entry key="app/src/main/res/layout/activity_carousel.xml" value="0.335" />
         <entry key="app/src/main/res/layout/activity_curriculum.xml" value="0.17039106145251395" />
         <entry key="app/src/main/res/layout/activity_details.xml" value="0.1" />
