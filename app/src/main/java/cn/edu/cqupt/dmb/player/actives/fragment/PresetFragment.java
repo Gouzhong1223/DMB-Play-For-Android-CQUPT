@@ -1,8 +1,6 @@
 package cn.edu.cqupt.dmb.player.actives.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.Fragment;
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,17 +14,11 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
-import androidx.room.Room;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
-import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
-import cn.edu.cqupt.dmb.player.db.database.SceneDatabase;
-import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
-import cn.edu.cqupt.dmb.player.db.mapper.SceneMapper;
 import cn.edu.cqupt.dmb.player.domain.CustomSetting;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 import cn.edu.cqupt.dmb.player.utils.DialogUtil;
@@ -36,7 +28,7 @@ import cn.edu.cqupt.dmb.player.utils.DialogUtil;
  * @author qingsong
  */
 @SuppressLint("ValidFragment")
-public class PresetFragment extends Fragment {
+public class PresetFragment extends DmbBaseFragment {
 
     private static final String TAG = "PresetFragment";
     /**
@@ -59,22 +51,12 @@ public class PresetFragment extends Fragment {
      * 装载View的上一个背景
      */
     private final HashMap<View, Drawable> preBackground = new HashMap<>();
-    /**
-     * 父Context
-     */
-    private Context context;
+
     /**
      * Fragment的View
      */
     private View rootView;
-    /**
-     * 操作预设的Mapper
-     */
-    private SceneMapper sceneMapper;
-    /**
-     * 操作自定义设置的Mapper
-     */
-    private CustomSettingMapper customSettingMapper;
+
     /**
      * 场景名字输入文本框
      */
@@ -103,36 +85,6 @@ public class PresetFragment extends Fragment {
      * RelativeLayout 布局
      */
     private RelativeLayout buildingRelativeLayout;
-
-
-    @SuppressLint("ValidFragment")
-    public PresetFragment() {
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // 初始化数据库Mapper
-        initDataBase();
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        this.context = context;
-    }
-
-    /**
-     * 初始化数据库
-     */
-    private void initDataBase() {
-        //new a database
-        sceneMapper = Room.databaseBuilder(context, SceneDatabase.class, "scene_database")
-                .allowMainThreadQueries().build().getSceneMapper();
-        //new a database
-        customSettingMapper = Room.databaseBuilder(context, CustomSettingDatabase.class, "custom_setting_database")
-                .allowMainThreadQueries().build().getCustomSettingMapper();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

@@ -1,6 +1,5 @@
 package cn.edu.cqupt.dmb.player.actives.fragment;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -12,14 +11,13 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-
-import androidx.room.Room;
+import android.widget.Toast;
 
 import java.util.List;
 
 import cn.edu.cqupt.dmb.player.R;
-import cn.edu.cqupt.dmb.player.db.database.SceneDatabase;
-import cn.edu.cqupt.dmb.player.db.mapper.SceneMapper;
+import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
+import cn.edu.cqupt.dmb.player.domain.CustomSetting;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 import cn.edu.cqupt.dmb.player.utils.DialogUtil;
 
@@ -27,7 +25,7 @@ import cn.edu.cqupt.dmb.player.utils.DialogUtil;
 /**
  * @author qingsong
  */
-public class SceneManagementFragment extends Fragment {
+public class SceneManagementFragment extends DmbBaseFragment {
 
     private static final String TAG = "SceneManagementFragment";
     /**
@@ -38,38 +36,6 @@ public class SceneManagementFragment extends Fragment {
      * Fragment 的 View
      */
     private View rootView;
-
-    /**
-     * 父Context
-     */
-    private Context context;
-
-    /**
-     * 操作预设场景的 Mapper
-     */
-    private SceneMapper sceneMapper;
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        this.context = context;
-        initDataBase();
-    }
-
-    /**
-     * 初始化数据库
-     */
-    private void initDataBase() {
-        //new a database
-        sceneMapper = Room.databaseBuilder(context, SceneDatabase.class, "scene_database")
-                .allowMainThreadQueries().build().getSceneMapper();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -168,8 +134,17 @@ public class SceneManagementFragment extends Fragment {
     private void configItemLongClickListener(List<String> sceneInfos) {
         sceneListView.setOnItemLongClickListener((adapterView, view, i, l) -> {
             DialogUtil.generateDialog(context, "删除场景设置", "是否要删除名为:" + sceneInfos.get(i) + "的预设？", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.NEGATIVE, (dialog, which) -> dialog.cancel(), "取消"), new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, which) -> {
+                SceneInfo sceneInfo = sceneMapper.selectSceneByScreenName(sceneInfos.get(i));
                 sceneMapper.deleteSceneBySceneName(sceneInfos.get(i));
                 sceneInfos.remove(i);
+                CustomSetting customSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.DEFAULT_SENSE.getKey());
+                if (customSetting != null) {
+                    Integer settingValue = Math.toIntExact(customSetting.getSettingValue());
+                    if (settingValue.equals(sceneInfo.getId())) {
+                        customSettingMapper.deleteCustomSettingById(customSetting.getId());
+                        Toast.makeText(context, "默认设置也被删除了...", Toast.LENGTH_SHORT).show();
+                    }
+                }
                 sceneListView.setAdapter(new ArrayAdapter<>(context, R.layout.dmb_list_item, sceneInfos));
                 dialog.cancel();
             }, "确定")).show();

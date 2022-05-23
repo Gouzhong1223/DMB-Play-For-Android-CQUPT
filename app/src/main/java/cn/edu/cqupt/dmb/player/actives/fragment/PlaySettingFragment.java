@@ -1,8 +1,6 @@
 package cn.edu.cqupt.dmb.player.actives.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.Fragment;
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.room.Room;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,10 +20,6 @@ import java.util.Objects;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
-import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
-import cn.edu.cqupt.dmb.player.db.database.SceneDatabase;
-import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
-import cn.edu.cqupt.dmb.player.db.mapper.SceneMapper;
 import cn.edu.cqupt.dmb.player.domain.CustomSetting;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 
@@ -34,7 +27,7 @@ import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 /**
  * @author qingsong
  */
-public class PlaySettingFragment extends Fragment {
+public class PlaySettingFragment extends DmbBaseFragment {
 
     private final String TAG = "PlaySettingFragment";
 
@@ -54,18 +47,12 @@ public class PlaySettingFragment extends Fragment {
      * 预设名称和ID的Map
      */
     private final HashMap<String, Long> sceneIdMap = new HashMap<>();
-    /**
-     * 父Context
-     */
-    private Context context;
+
     /**
      * Fragment里面的View
      */
     private View rootView;
-    /**
-     * 操作场景的Mapper
-     */
-    private SceneMapper sceneMapper;
+
     /**
      * 默认使用场景下拉框
      */
@@ -79,39 +66,9 @@ public class PlaySettingFragment extends Fragment {
      */
     private SwitchCompat showSignalSwitch;
     /**
-     * 操作默认设置的Mapper
+     * 是否开启调试日志显示
      */
-    private CustomSettingMapper customSettingMapper;
-
-    private CustomSettingDatabase customSettingDatabase;
-
-    private SceneDatabase sceneDatabase;
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        this.context = context;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        initDataBase();
-    }
-
-    /**
-     * 初始化数据库
-     */
-    private void initDataBase() {
-        sceneDatabase = Room.databaseBuilder(context, SceneDatabase.class, "scene_database")
-                .allowMainThreadQueries().build();
-        //new a database
-        sceneMapper = sceneDatabase.getSceneMapper();
-        customSettingDatabase = Room.databaseBuilder(context, CustomSettingDatabase.class, "custom_setting_database")
-                .allowMainThreadQueries().build();
-        //new a database
-        customSettingMapper = customSettingDatabase.getCustomSettingMapper();
-    }
+    private SwitchCompat deBugLogSwitch;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -131,9 +88,11 @@ public class PlaySettingFragment extends Fragment {
      */
     private void initView(View rootView) {
         showSignalSwitch = rootView.findViewById(R.id.SwitchCompat);
+        deBugLogSwitch = rootView.findViewById(R.id.deBugLogSwitchCompat);
         defaultSceneSpinner = rootView.findViewById(R.id.default_sense_spinner);
         carouselNumSpinner = rootView.findViewById(R.id.carousel_num_spinner);
         viewList.add(showSignalSwitch);
+        viewList.add(deBugLogSwitch);
         viewList.add(defaultSceneSpinner);
         viewList.add(carouselNumSpinner);
     }
@@ -189,6 +148,8 @@ public class PlaySettingFragment extends Fragment {
         configDefaultSceneSpinner(sceneNames);
         // 装配信号显示开关组件
         configSwitch();
+        // 装配调试日志开关组件
+        configDeBugLogSwitch();
     }
 
     /**
@@ -317,10 +278,35 @@ public class PlaySettingFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onDestroy() {
-        customSettingDatabase.close();
-        sceneDatabase.close();
-        super.onDestroy();
+    /**
+     * 装配日志显示开关组件
+     */
+    private void configDeBugLogSwitch() {
+        // 查询默认的信号显示设置
+        CustomSetting defaultSignalSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.SHOW_DEBUG_LOG.getKey());
+        if (defaultSignalSetting == null) {
+            deBugLogSwitch.setChecked(false);
+        } else {
+            boolean flag = defaultSignalSetting.getSettingValue() == 1;
+            // 如果有信号显示设置,就初始化一下开关
+            deBugLogSwitch.setChecked(flag);
+        }
+        // 给日志显示开关设置开关监听器
+        deBugLogSwitch.setOnCheckedChangeListener((compoundButton, b) -> {
+            Log.i(TAG, "onCheckedChanged: 现在的设置是:" + b);
+            CustomSetting customSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.SHOW_DEBUG_LOG.getKey());
+            if (customSetting == null) {
+                CustomSetting customSettingRecord = new CustomSetting();
+                customSettingRecord.setSettingKey(CustomSettingByKey.SHOW_DEBUG_LOG.getKey());
+                customSettingRecord.setSettingValue((long) (b ? 1 : 0));
+                // 插入信号显示设置
+                customSettingMapper.insertCustomSetting(customSettingRecord);
+            } else {
+                customSetting.setSettingValue((long) (b ? 1 : 0));
+                // 更新信号显示设置
+                customSettingMapper.updateCustomSetting(customSetting);
+            }
+        });
     }
+
 }

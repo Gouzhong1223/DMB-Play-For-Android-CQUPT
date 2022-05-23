@@ -60,6 +60,7 @@
         <entry key="app/src/main/res/drawable-xhdpi/ut_scan_progress.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/audio_icon.xml" value="0.202" />
         <entry key="app/src/main/res/drawable/background.xml" value="0.1525" />
+        <entry key="app/src/main/res/drawable/debug_log_icon.xml" value="0.203" />
         <entry key="app/src/main/res/drawable/default_background.xml" value="0.2695" />
         <entry key="app/src/main/res/drawable/default_selecter.xml" value="0.1525" />
         <entry key="app/src/main/res/drawable/dormitory_icon.xml" value="0.2695" />
