@@ -14,6 +14,7 @@ package cn.edu.cqupt.dmb.player.common;
 public enum CustomSettingByKey {
     DEFAULT_SENSE("default_sense"),
     DEFAULT_CAROUSEL_NUM("default_carousel_num"),
+    SHOW_DEBUG_LOG("show_debug_log"),
     OPEN_SIGNAL("open_signal");
 
     private final String key;

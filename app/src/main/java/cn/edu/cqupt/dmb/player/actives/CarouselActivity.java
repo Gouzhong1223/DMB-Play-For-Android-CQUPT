@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 
 import com.google.common.collect.EvictingQueue;
+import com.hdl.logcatdialog.LogcatDialog;
 import com.youth.banner.Banner;
 import com.youth.banner.indicator.CircleIndicator;
 
@@ -100,6 +101,12 @@ public class CarouselActivity extends BaseActivity {
         if (defaultSignalShowSetting != null) {
             int showSignal = Math.toIntExact(defaultSignalShowSetting.getSettingValue());
             signalImageView.setVisibility(showSignal == 0 ? View.INVISIBLE : View.VISIBLE);
+        }
+        if (showDebugLogSetting != null) {
+            int showLog = Math.toIntExact(showDebugLogSetting.getSettingValue());
+            if (showLog == 1) {
+                runOnUiThread(() -> new LogcatDialog(CarouselActivity.this).show());
+            }
         }
     }
 

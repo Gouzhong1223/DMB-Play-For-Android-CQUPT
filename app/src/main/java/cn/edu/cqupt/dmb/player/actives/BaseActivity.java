@@ -49,6 +49,10 @@ public class BaseActivity extends FragmentActivity {
      */
     protected CustomSetting defaultSignalShowSetting;
     /**
+     * 是否显示信号的设置
+     */
+    protected CustomSetting showDebugLogSetting;
+    /**
      * PIP 输出流
      */
     protected PipedOutputStream pipedOutputStream;
@@ -114,6 +118,7 @@ public class BaseActivity extends FragmentActivity {
         }
         // 查询信号显示设置
         defaultSignalShowSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.OPEN_SIGNAL.getKey());
+        showDebugLogSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.SHOW_DEBUG_LOG.getKey());
     }
 
     @Override

@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.hdl.logcatdialog.LogcatDialog;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.PipedInputStream;
@@ -115,6 +117,12 @@ public class VideoActivity extends BaseActivity {
         if (defaultSignalShowSetting != null) {
             int showSignal = Math.toIntExact(defaultSignalShowSetting.getSettingValue());
             signalImageView.setVisibility(showSignal == 0 ? View.INVISIBLE : View.VISIBLE);
+        }
+        if (showDebugLogSetting != null) {
+            int showLog = Math.toIntExact(showDebugLogSetting.getSettingValue());
+            if (showLog == 1) {
+                runOnUiThread(() -> new LogcatDialog(VideoActivity.this).show());
+            }
         }
         // 获取Fic解码器
         FicDecoder ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
