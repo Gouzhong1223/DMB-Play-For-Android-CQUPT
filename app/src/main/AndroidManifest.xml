@@ -35,48 +35,56 @@
             android:supportsRtl="true"
             android:theme="@style/DMB_Player_Android">
         <activity
+                android:name=".actives.AudioActivity"
+                android:exported="false"
+                android:screenOrientation="landscape" />
+        <activity
                 android:name=".actives.MainActivity"
                 android:banner="@mipmap/ic_launcher"
                 android:exported="true"
                 android:icon="@mipmap/ic_launcher"
                 android:logo="@mipmap/ic_launcher"
-                android:theme="@style/Theme.Leanback"
-                android:screenOrientation="landscape">
-
+                android:screenOrientation="landscape"
+                android:theme="@style/Theme.Leanback">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <meta-data
                     android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                     android:resource="@xml/device_filter" />
         </activity>
         <activity
                 android:name=".actives.DetailsActivity"
-                android:theme="@style/Theme.Leanback"
-                android:exported="false" />
+                android:exported="false"
+                android:theme="@style/Theme.Leanback" />
         <activity
                 android:name=".actives.BrowseErrorActivity"
-                android:theme="@style/Theme.Leanback"
-                android:exported="false" />
+                android:exported="false"
+                android:theme="@style/Theme.Leanback" />
         <activity
                 android:name=".actives.SetupActivity"
-                android:screenOrientation="landscape"
-                android:exported="false" />
+                android:exported="false"
+                android:screenOrientation="landscape" />
         <activity
                 android:name=".actives.CurriculumActivity"
-                android:exported="false" />
+                android:exported="false"
+                android:screenOrientation="landscape" />
         <activity
                 android:name=".actives.VideoActivity"
-                android:exported="false" />
+                android:exported="false"
+                android:screenOrientation="landscape" />
         <activity
                 android:name=".actives.DormitorySafetyActivity"
-                android:exported="false" />
+                android:exported="false"
+                android:screenOrientation="landscape" />
         <activity
                 android:name=".actives.CarouselActivity"
-                android:exported="false" />
+                android:exported="false"
+                android:screenOrientation="landscape" />
     </application>
 
 </manifest>
