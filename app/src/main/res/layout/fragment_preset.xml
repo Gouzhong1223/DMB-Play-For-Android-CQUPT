@@ -19,7 +19,7 @@
                 android:layout_gravity="center"
                 android:textAlignment="center"
                 android:textSize="35sp"
-                android:text="播放设置"
+                android:text="@string/Playback_settings"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -32,12 +32,13 @@
                 tools:ignore="UselessParent">
 
             <TextView
-                    android:text="预设名称"
+                    android:text="@string/scene_name"
                     android:textSize="20sp"
                     android:layout_marginStart="20dp"
                     android:layout_centerVertical="true"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    tools:ignore="RelativeOverlap" />
 
             <com.xuexiang.xui.widget.edittext.materialedittext.MaterialEditText
                     android:id="@+id/sceneNameEdit"
@@ -48,7 +49,7 @@
                     android:layout_width="200dp"
                     android:height="60dp"
                     android:layout_height="wrap_content"
-                    android:hint="给使用场景取个名字吧" />
+                    android:hint="@string/scene_name_filling_reminder" />
         </RelativeLayout>
 
         <RelativeLayout
@@ -60,12 +61,13 @@
                 tools:ignore="UselessParent">
 
             <TextView
-                    android:text="工作频点"
+                    android:text="@string/working_frequency"
                     android:textSize="20sp"
                     android:layout_marginStart="20dp"
                     android:layout_centerVertical="true"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    tools:ignore="RelativeOverlap" />
 
             <com.xuexiang.xui.widget.edittext.materialedittext.MaterialEditText
                     android:id="@+id/frequencyEdit"
@@ -88,12 +90,13 @@
                 tools:ignore="UselessParent">
 
             <TextView
-                    android:text="设备ID"
+                    android:text="@string/Device_ID"
                     android:textSize="20sp"
                     android:layout_marginStart="20dp"
                     android:layout_centerVertical="true"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    tools:ignore="RelativeOverlap" />
 
             <com.xuexiang.xui.widget.edittext.materialedittext.MaterialEditText
                     android:id="@+id/idEdit"
@@ -116,12 +119,13 @@
                 tools:ignore="UselessParent">
 
             <TextView
-                    android:text="播放类型"
+                    android:text="@string/Play_type"
                     android:textSize="20sp"
                     android:layout_marginStart="20dp"
                     android:layout_centerVertical="true"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    tools:ignore="RelativeOverlap" />
 
             <Spinner
                     style="@style/Material.SpinnerStyle"
@@ -146,12 +150,13 @@
                 tools:ignore="UselessParent">
 
             <TextView
-                    android:text="教学楼"
+                    android:text="@string/teaching_building"
                     android:textSize="20sp"
                     android:layout_marginStart="20dp"
                     android:layout_centerVertical="true"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    tools:ignore="RelativeOverlap" />
 
             <Spinner
                     style="@style/Material.SpinnerStyle"
@@ -175,7 +180,7 @@
 
             <Button
                     android:id="@+id/submit_btn"
-                    android:text="保存"
+                    android:text="@string/save"
                     android:textSize="40sp"
                     android:layout_width="150dp"
                     android:layout_height="80dp"

@@ -292,4 +292,14 @@
     <string name="player_settings">播放设置</string>
     <string name="APP_starts_the_default_loading_scene">APP启动默认载入场景</string>
     <string name="number_of_carousel_containers">轮播图容器数量</string>
+    <string name="class_timetable_signal_picture">课表信号图片</string>
+    <string name="class_Schedule_Welcome_Page">课表欢迎页</string>
+    <string name="scene_name">预设名称</string>
+    <string name="scene_name_filling_reminder">给使用场景取个名字吧</string>
+    <string name="working_frequency">工作频点</string>
+    <string name="Device_ID">设备ID</string>
+    <string name="Play_type">播放类型</string>
+    <string name="teaching_building">教学楼</string>
+    <string name="save">保存</string>
+    <string name="Playback_settings">播放设置</string>
 </resources>

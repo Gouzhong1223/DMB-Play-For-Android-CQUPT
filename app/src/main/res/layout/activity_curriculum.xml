@@ -12,11 +12,13 @@
             android:layout_height="50dp"
             tools:ignore="MissingConstraints"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/class_timetable_signal_picture" />
     <ImageView
             android:id="@+id/curriculum_image_view"
             android:background="@drawable/bacg2k"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:contentDescription="@string/class_Schedule_Welcome_Page" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
