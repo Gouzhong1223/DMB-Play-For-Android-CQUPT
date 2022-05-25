@@ -2,8 +2,6 @@ package cn.edu.cqupt.dmb.player.actives;
 
 import android.os.Bundle;
 
-import androidx.fragment.app.FragmentActivity;
-
 import com.youth.banner.Banner;
 import com.youth.banner.indicator.CircleIndicator;
 
@@ -14,7 +12,7 @@ import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 /**
  * @author qingsong
  */
-public class DormitorySafetyActivity extends FragmentActivity {
+public class DormitorySafetyActivity extends BaseActivity {
 
     private Banner banner;
 
