@@ -234,6 +234,11 @@ public class DmbApplication extends Application implements DefaultLifecycleObser
 
         @Override
         public void handleMessage(@NonNull Message msg) {
+            if (DataReadWriteUtil.selectSceneVO != null) {
+                // 如果已经有了选中播放的场景,就直接跳过了
+                Log.w(TAG, "handleMessage: 已经有选中的播放场景,跳过 USB 自动跳转...");
+                return;
+            }
             if (msg.what == MESSAGE_JUMP_DEFAULT_ACTIVITY) {
                 // 双重检查USB是否连接
                 if (!DataReadWriteUtil.USB_READY) {
@@ -252,7 +257,11 @@ public class DmbApplication extends Application implements DefaultLifecycleObser
                 // 把默认使用场景放置在跳转参数中
                 intent.putExtra(DetailsActivity.SCENE_VO, getSceneVO(defaultScene));
                 // 获取对应的工作场景
-                intent.setClass(getApplicationContext(), MainActivity.getActivityBySceneType(defaultScene.getSceneType()));
+                if (DataReadWriteUtil.selectSceneVO != null) {
+                    intent.setClass(getApplicationContext(), MainActivity.getActivityBySceneType(DataReadWriteUtil.selectSceneVO.getSceneType()));
+                } else {
+                    intent.setClass(getApplicationContext(), MainActivity.getActivityBySceneType(defaultScene.getSceneType()));
+                }
                 intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                 Toast.makeText(getApplicationContext(), "正在跳转...", Toast.LENGTH_SHORT).show();
                 // 跳转
