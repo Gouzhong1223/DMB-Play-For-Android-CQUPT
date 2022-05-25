@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.utils;
 
+import cn.edu.cqupt.dmb.player.domain.SceneVO;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -29,4 +31,8 @@ public class DataReadWriteUtil {
      * 是否在主页
      */
     public static volatile boolean inMainActivity = true;
+    /**
+     * 被选中播放的场景
+     */
+    public static volatile SceneVO selectSceneVO = null;
 }
