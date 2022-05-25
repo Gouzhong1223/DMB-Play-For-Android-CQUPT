@@ -24,7 +24,7 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class TpegDecoder extends AbstractDmbDecoder {
+public class TpegDecoder extends BaseDmbDecoder {
 
 
     /* file size should not be greater than 2M */

@@ -17,7 +17,7 @@ import cn.edu.cqupt.dmb.player.listener.DmbListener;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.4
  */
-public abstract class AbstractDmbDecoder extends Thread {
+public abstract class BaseDmbDecoder extends Thread {
 
     protected static final boolean DEBUG = false;
 
@@ -37,7 +37,7 @@ public abstract class AbstractDmbDecoder extends Thread {
      */
     protected final Context context;
 
-    public AbstractDmbDecoder(BufferedInputStream bufferedInputStream, DmbListener dmbListener, Context context) {
+    public BaseDmbDecoder(BufferedInputStream bufferedInputStream, DmbListener dmbListener, Context context) {
         this.bufferedInputStream = bufferedInputStream;
         this.dmbListener = dmbListener;
         this.context = context;

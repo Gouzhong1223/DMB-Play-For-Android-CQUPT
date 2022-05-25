@@ -27,7 +27,7 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.4
  */
-public class MpegTsDecoder extends AbstractDmbDecoder {
+public class MpegTsDecoder extends BaseDmbDecoder {
 
     /**
      * 一个标准 MPEG-TS 包的的大小
