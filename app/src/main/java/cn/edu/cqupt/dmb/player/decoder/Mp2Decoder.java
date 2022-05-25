@@ -1,13 +1,12 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
 import android.content.Context;
-import android.media.AudioFormat;
-import android.media.AudioTrack;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
@@ -24,12 +23,9 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class Mp2Decoder extends AbstractDmbDecoder {
-    private static final String TAG = "Mp2Decoder";
+public class Mp2Decoder extends BaseDmbDecoder {
 
-    private AudioTrack audioTrack;
-    private byte[] mp2Buffer;
-    private byte[] pcmBuffer;
+    private static final String TAG = "Mp2Decoder";
 
     public Mp2Decoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream) {
         super(bufferedInputStream, dmbListener, context);
@@ -37,46 +33,36 @@ public class Mp2Decoder extends AbstractDmbDecoder {
 
     @Override
     public void run() {
-        init();
+        Log.i(TAG, Thread.currentThread().getName() + "线程现在开始 MP2 解码");
         int[] info = new int[3];
+        byte[] mp2Buffer = new byte[384];
+        byte[] pcmBuffer = new byte[1024 * 1024];
         NativeMethod.mp2DecoderInit();
-        while (DataReadWriteUtil.USB_READY) {
-            try {
-                if (readMp2Frame() != 384) {
-                    Log.e(TAG, "time out");
-                    sleep(100);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+        while (!DataReadWriteUtil.inMainActivity) {
+            if (!DataReadWriteUtil.USB_READY) {
+                // 如果当前 USB 没有就绪,就直接结束当前线程
+                // Log.e(TAG, "现在 USB 还没有就绪!");
+                return;
             }
-            int len = NativeMethod.decodeMp2Frame(mp2Buffer, 384, pcmBuffer, info);
-            audioTrack.write(pcmBuffer, 0, len);
+            if (!DataReadWriteUtil.initFlag) {
+                // 如果目前还没有接收到 DMB 类型的数据,就直接返回
+                // Log.e(TAG, "现在还没有接收到 DMB 类型的数据!");
+                continue;
+            }
+            if (!readMp2Frame(mp2Buffer)) {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Arrays.fill(pcmBuffer, (byte) 0);
+            Arrays.fill(info, 0);
+            int length = NativeMethod.decodeMp2Frame(mp2Buffer, 384, pcmBuffer, info);
+            if (dmbListener != null) {
+                dmbListener.onSuccess(null, pcmBuffer, length);
+            }
         }
-    }
-
-    private void init() {
-        mp2Buffer = new byte[1024];
-        pcmBuffer = new byte[1024 * 1024];
-        int minBufferSize = AudioTrack.getMinBufferSize(48000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-        audioTrack = new AudioTrack(AudioTrack.MODE_STREAM, 48000, AudioFormat.CHANNEL_OUT_STEREO,
-                AudioFormat.ENCODING_PCM_16BIT, minBufferSize * 2, AudioTrack.MODE_STREAM);
-        audioTrack.play();
-    }
-
-    private boolean isMp2Head(byte[] bytes) {
-        return bytes[0] == (byte) 0xFF;
-//        return (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFC) || (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xF4);
-//        return (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFC) || (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xF4);
-    }
-
-    private int readMp2Frame() throws IOException {
-        bufferedInputStream.read(mp2Buffer, 0, 2);
-        while (isMp2Head(mp2Buffer)) {
-            mp2Buffer[0] = mp2Buffer[1];
-            bufferedInputStream.read(mp2Buffer, 1, 1);
-        }
-        int ret = bufferedInputStream.read(mp2Buffer, 2, 382);
-        return ret + 2;
     }
 
     /**
