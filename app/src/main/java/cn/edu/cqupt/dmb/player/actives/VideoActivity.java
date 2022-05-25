@@ -184,7 +184,9 @@ public class VideoActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         // 关闭线程池中的任务
-        videoPlayerFrame.release();
+        if (videoPlayerFrame != null) {
+            videoPlayerFrame.release();
+        }
         closeStream();
         DataReadWriteUtil.inMainActivity = true;
         super.onDestroy();
@@ -192,9 +194,15 @@ public class VideoActivity extends BaseActivity {
 
     private void closeStream() {
         try {
-            mpegTsPipedOutputStream.close();
-            mpegTsPipedInputStream.close();
-            mPegTsBufferedInputStream.close();
+            if (mpegTsPipedOutputStream != null) {
+                mpegTsPipedOutputStream.close();
+            }
+            if (mpegTsPipedInputStream != null) {
+                mpegTsPipedInputStream.close();
+            }
+            if (mPegTsBufferedInputStream != null) {
+                mPegTsBufferedInputStream.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
