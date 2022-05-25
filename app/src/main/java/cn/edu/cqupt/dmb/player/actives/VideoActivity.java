@@ -26,14 +26,14 @@ import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
-import cn.edu.cqupt.dmb.player.frame.DmbMediaDataSource;
-import cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.listener.impl.DmbMpegListener;
 import cn.edu.cqupt.dmb.player.listener.impl.VideoPlayerListenerImpl;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
+import cn.edu.cqupt.dmb.player.video.frame.VideoPlayerFrame;
+import cn.edu.cqupt.dmb.player.video.stream.DmbMediaDataSource;
 
 
 /**

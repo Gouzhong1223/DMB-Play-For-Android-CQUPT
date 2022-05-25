@@ -1,4 +1,4 @@
-package cn.edu.cqupt.dmb.player.frame;
+package cn.edu.cqupt.dmb.player.video.stream;
 
 import android.util.Log;
 
@@ -14,7 +14,7 @@ import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
  * @Date : create by QingSong in 2022-04-13 22:29
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
- * @PackageName : cn.edu.cqupt.dmb.player.frame
+ * @PackageName : cn.edu.cqupt.dmb.player.video.frame
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */

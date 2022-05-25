@@ -14,7 +14,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:contentDescription="@string/video_signal_description" />
-    <cn.edu.cqupt.dmb.player.frame.VideoPlayerFrame
+    <cn.edu.cqupt.dmb.player.video.frame.VideoPlayerFrame
             android:id="@+id/video_surface"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
