@@ -41,6 +41,9 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * 跳转到默认场景的消息
      */
     private static final int MESSAGE_JUMP_DEFAULT_ACTIVITY = DmbPlayerConstant.MESSAGE_JUMP_DEFAULT_ACTIVITY.getDmbConstantValue();
+    /**
+     * 装载三种 Dangle 设备信息的 List
+     */
     private static final ArrayList<DmbUsbDevice> DMB_USB_DEVICES = new ArrayList<>();
     /**
      * 广播单例对象
