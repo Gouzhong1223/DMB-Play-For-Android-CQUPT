@@ -1,5 +1,7 @@
 package cn.edu.cqupt.dmb.player.processor.tpeg;
 
+import android.util.Log;
+
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 
 /**
@@ -16,9 +18,11 @@ import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 public class LastFrameDataProcessor implements TpegDataProcessor {
     /* file size should not be greater than 2M */
     private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 10;
+    private static final String TAG = "LastFrameDataProcessor";
 
     @Override
     public void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo) {
+        Log.i(TAG, "processData: 接收到" + tpegDecoder.getFileName() + "的尾帧...");
         if (tpegDecoder.isReceiveFirstFrame() && tpegDecoder.getTotal() + tpegInfo[1] < FILE_BUFFER_SIZE) {
             System.arraycopy(tpegData, 0, fileBuffer, tpegDecoder.getTotal(), tpegInfo[1]);
             tpegDecoder.setTotal(tpegDecoder.getTotal() + tpegInfo[1]);

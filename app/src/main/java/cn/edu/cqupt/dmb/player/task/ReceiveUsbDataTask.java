@@ -110,6 +110,7 @@ public class ReceiveUsbDataTask implements Runnable {
                 dataProcessor.processData(bytes, dangleType, pipedOutputStream);
             }
         }
+        DataReadWriteUtil.inMainActivity = true;
         Log.i(TAG, "run: 从 USB 接收数据的任务被关闭了");
     }
 }

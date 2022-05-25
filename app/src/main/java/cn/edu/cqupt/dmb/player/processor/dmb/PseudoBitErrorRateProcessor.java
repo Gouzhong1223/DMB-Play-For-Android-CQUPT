@@ -1,7 +1,5 @@
 package cn.edu.cqupt.dmb.player.processor.dmb;
 
-import android.util.Log;
-
 import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.common.DangleType;
@@ -19,7 +17,6 @@ import cn.edu.cqupt.dmb.player.common.DangleType;
  */
 public class PseudoBitErrorRateProcessor implements DataProcessing {
 
-    private static final String TAG = "PseudoBitErrorRateProcessor";
     int bbReg0, bbReg3;
     private volatile int ber;
     private volatile int bitRate;
@@ -31,7 +28,6 @@ public class PseudoBitErrorRateProcessor implements DataProcessing {
 
     @Override
     public void processData(byte[] usbData, DangleType dangleType) {
-//        Log.i(TAG, "现在收到的的数据是伪误码率");
         if (usbData[6] == 0) {
             bbReg0 = ((((int) usbData[8]) & 0x00ff) << 8) + ((int) usbData[9] & 0x00ff);
             bbReg3 = (((int) usbData[14] & 0x00FF) << 8) | (((int) usbData[15]) & 0x00FF);
@@ -39,7 +35,6 @@ public class PseudoBitErrorRateProcessor implements DataProcessing {
                 ber = 2500;
             } else {
                 ber = bbReg0 * 104 / (32 + bitRate);
-                Log.i(TAG, "processData: 重设 ber 为:" + ber);
             }
         }
     }
