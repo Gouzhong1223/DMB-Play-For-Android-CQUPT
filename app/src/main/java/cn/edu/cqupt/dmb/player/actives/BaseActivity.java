@@ -1,6 +1,7 @@
 package cn.edu.cqupt.dmb.player.actives;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -30,8 +31,9 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class BaseActivity extends FragmentActivity {
+public abstract class BaseActivity extends FragmentActivity {
 
+    private static final String TAG = "BaseActivity";
     /**
      * 选中的使用场景配置
      */
@@ -57,6 +59,10 @@ public class BaseActivity extends FragmentActivity {
      */
     protected PipedOutputStream pipedOutputStream;
     /**
+     * PIP输入流
+     */
+    private PipedInputStream pipedInputStream;
+    /**
      * 输入缓冲流
      */
     protected BufferedInputStream bufferedInputStream;
@@ -68,6 +74,7 @@ public class BaseActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DataReadWriteUtil.inMainActivity = true;
         // 获取父传递过来的参数
         selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
         // 初始化数据库 Mapper
@@ -76,14 +83,14 @@ public class BaseActivity extends FragmentActivity {
         loadCustomSetting();
         // 初始化 PIP 管道
         initPip();
-        Toast.makeText(this, "正在初始化...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "正在初始化..." + getLocalClassName(), Toast.LENGTH_LONG).show();
     }
 
     /**
      * 初始化管道流
      */
     private void initPip() {
-        PipedInputStream pipedInputStream = new PipedInputStream(1024 * 1024 * 10);
+        pipedInputStream = new PipedInputStream(1024 * 1024 * 10);
         pipedOutputStream = new PipedOutputStream();
         try {
             pipedOutputStream.connect(pipedInputStream);
@@ -123,13 +130,20 @@ public class BaseActivity extends FragmentActivity {
 
     @Override
     protected void onDestroy() {
+        Log.i(TAG, "onDestroy: 重置 USB 标志位...");
         DataReadWriteUtil.inMainActivity = true;
+        // 重置被选中的播放模块
+        Log.i(TAG, "onDestroy: 重置选中播放的场景...");
+        DataReadWriteUtil.selectSceneVO = null;
         try {
             if (pipedOutputStream != null) {
                 pipedOutputStream.close();
             }
             if (bufferedInputStream != null) {
                 bufferedInputStream.close();
+            }
+            if (pipedInputStream != null) {
+                pipedInputStream.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,6 +152,6 @@ public class BaseActivity extends FragmentActivity {
             customSettingDatabase.close();
         }
         super.onDestroy();
-        Toast.makeText(this, "已退出...", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getLocalClassName() + "已退出...", Toast.LENGTH_LONG).show();
     }
 }
