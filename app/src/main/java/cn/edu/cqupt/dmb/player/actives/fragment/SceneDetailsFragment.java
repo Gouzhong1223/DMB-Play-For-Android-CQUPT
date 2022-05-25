@@ -216,6 +216,9 @@ public class SceneDetailsFragment extends DetailsSupportFragment {
                                     null, "确定")).show();
                     return;
                 }
+                // 设置被选中的播放模块
+                Log.i(TAG, "setupDetailsOverviewRowPresenter: 设置选中场景为" + selectedSceneVO);
+                DataReadWriteUtil.selectSceneVO = selectedSceneVO;
                 Intent intent = new Intent(getActivity(), MainActivity.getActivityBySceneType(selectedSceneVO.getSceneType()));
                 intent.putExtra(DetailsActivity.SCENE_VO, selectedSceneVO);
                 Toast.makeText(requireContext(), "正在跳转...", Toast.LENGTH_SHORT).show();
