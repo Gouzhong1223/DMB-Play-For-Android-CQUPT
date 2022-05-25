@@ -59,13 +59,13 @@ public abstract class BaseActivity extends FragmentActivity {
      */
     protected PipedOutputStream pipedOutputStream;
     /**
-     * PIP输入流
-     */
-    private PipedInputStream pipedInputStream;
-    /**
      * 输入缓冲流
      */
     protected BufferedInputStream bufferedInputStream;
+    /**
+     * PIP输入流
+     */
+    private PipedInputStream pipedInputStream;
     /**
      * 数据库
      */
