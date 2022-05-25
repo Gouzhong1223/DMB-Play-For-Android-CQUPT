@@ -23,7 +23,7 @@ import cn.edu.cqupt.dmb.player.db.mapper.SceneMapper;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class DmbBaseFragment extends Fragment {
+public abstract class DmbBaseFragment extends Fragment {
 
     /**
      * 父 Context
