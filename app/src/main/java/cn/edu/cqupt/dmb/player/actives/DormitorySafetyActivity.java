@@ -19,7 +19,7 @@ public class DormitorySafetyActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sushe);
+        setContentView(R.layout.activity_dormitory);
         initView();
     }
 
