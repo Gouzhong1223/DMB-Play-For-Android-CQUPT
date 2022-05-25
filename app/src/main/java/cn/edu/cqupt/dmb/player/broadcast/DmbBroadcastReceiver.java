@@ -195,7 +195,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
             usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         }
         // 如果当前终端没有USB设备接入,就直接返回
-        if (usbManager.getDeviceList().size() == 0) {
+        if (usbManager.getDeviceList() == null || usbManager.getDeviceList().size() == 0) {
             return;
         }
         for (UsbDevice device : usbManager.getDeviceList().values()) {
