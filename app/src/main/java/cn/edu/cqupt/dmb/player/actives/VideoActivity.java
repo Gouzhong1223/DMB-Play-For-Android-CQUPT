@@ -33,7 +33,6 @@ import cn.edu.cqupt.dmb.player.listener.impl.DmbMpegListener;
 import cn.edu.cqupt.dmb.player.listener.impl.VideoPlayerListenerImpl;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
-import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 
@@ -188,10 +187,12 @@ public class VideoActivity extends BaseActivity {
             videoPlayerFrame.release();
         }
         closeStream();
-        DataReadWriteUtil.inMainActivity = true;
         super.onDestroy();
     }
 
+    /**
+     * 关闭管道流以及输入缓冲流
+     */
     private void closeStream() {
         try {
             if (mpegTsPipedOutputStream != null) {
