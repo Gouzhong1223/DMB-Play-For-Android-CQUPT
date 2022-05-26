@@ -63,7 +63,7 @@ public class ReceiveUsbDataTask implements Runnable {
      * @param usbEndpointIn       读取USB数据的端口
      * @param usbDeviceConnection 已经打开的USB链接
      * @param readTime            从 USB 中的读取次数
-     * @param dangleType          Dangel 类型
+     * @param dangleType          Dangle 类型
      * @param pipedOutputStream   PIP输出流
      */
     public ReceiveUsbDataTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection, Integer readTime, DangleType dangleType, PipedOutputStream pipedOutputStream) {
