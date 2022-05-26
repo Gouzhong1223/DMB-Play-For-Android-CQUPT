@@ -13,7 +13,7 @@ package cn.edu.cqupt.dmb.player.listener;
  */
 public interface DmbListener {
     /**
-     * 这个是 DMB 数据编码成功之后的回调方法
+     * 这个是 DMB 数据解码成功之后的回调方法
      *
      * @param fileName 文件名称
      * @param bytes    文件数组
