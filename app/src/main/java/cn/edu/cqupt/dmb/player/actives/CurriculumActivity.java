@@ -3,14 +3,11 @@ package cn.edu.cqupt.dmb.player.actives;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -54,25 +51,11 @@ public class CurriculumActivity extends BaseActivity {
      */
     private DmbCurriculumListener dmbCurriculumListener;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // 强制全屏,全的不能再全的那种了
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_curriculum);
-        // 初始化组件
-        initView();
-        // 开始解码 TPEG 生成 TPEG
-        startDecodeCurriculum();
-        // 开始接收 DMB 数据
-        UsbUtil.startReceiveDmbData(pipedOutputStream);
-    }
-
     /**
      * 初始化 View
      */
-    private void initView() {
+    @Override
+    public void initView() {
         Log.i(TAG, "正在初始化课表显示组件");
         imageView = findViewById(R.id.curriculum_image_view);
         signalImageView = findViewById(R.id.curriculum_signal);
@@ -85,7 +68,8 @@ public class CurriculumActivity extends BaseActivity {
     /**
      * 开始执行解码线程
      */
-    private void startDecodeCurriculum() {
+    @Override
+    public void startDecode() {
         // 先重置一下 Dangle
         UsbUtil.restDangle(FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true), selectedSceneVO);
         dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()), selectedSceneVO);

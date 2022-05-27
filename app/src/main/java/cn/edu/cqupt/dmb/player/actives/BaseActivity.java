@@ -2,6 +2,8 @@ package cn.edu.cqupt.dmb.player.actives;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -13,12 +15,14 @@ import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
+import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
 import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
 import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
 import cn.edu.cqupt.dmb.player.domain.CustomSetting;
 import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
+import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
  * @Author : Gouzhong
@@ -74,6 +78,10 @@ public abstract class BaseActivity extends FragmentActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 强制全屏,全的不能再全的那种了
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        setContentView(getLayoutResIdByClassName(getLocalClassName()));
         DataReadWriteUtil.inMainActivity = true;
         // 获取父传递过来的参数
         selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
@@ -83,8 +91,46 @@ public abstract class BaseActivity extends FragmentActivity {
         loadCustomSetting();
         // 初始化 PIP 管道
         initPip();
+        // 初始化组件
+        initView();
+        // 开始进行解码
+        startDecode();
+        // 开始接收 DMB 数据
+        UsbUtil.startReceiveDmbData(pipedOutputStream);
+        Log.i(TAG, "onCreate: " + getLocalClassName());
         Toast.makeText(this, "正在初始化..." + getLocalClassName(), Toast.LENGTH_LONG).show();
     }
+
+    /**
+     * 根据类名获取 ResId
+     *
+     * @param className 类名
+     * @return ResId
+     */
+    private int getLayoutResIdByClassName(String className) {
+        switch (className) {
+            case "actives.CarouselActivity":
+                return R.layout.activity_carousel;
+            case "actives.AudioActivity":
+                return R.layout.activity_audio;
+            case "actives.CurriculumActivity":
+                return R.layout.activity_curriculum;
+            case "actives.DormitorySafetyActivity":
+                return R.layout.activity_dormitory;
+            default:
+                return R.layout.activity_video;
+        }
+    }
+
+    /**
+     * 初始化组件
+     */
+    protected abstract void initView();
+
+    /**
+     * 开始解码工作
+     */
+    protected abstract void startDecode();
 
     /**
      * 初始化管道流
@@ -104,8 +150,7 @@ public abstract class BaseActivity extends FragmentActivity {
      * 初始化数据库
      */
     private void initDataBase() {
-        customSettingDatabase = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
-                .allowMainThreadQueries().build();
+        customSettingDatabase = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database").allowMainThreadQueries().build();
         //new a database
         customSettingMapper = customSettingDatabase.getCustomSettingMapper();
     }

@@ -1,14 +1,11 @@
 package cn.edu.cqupt.dmb.player.actives;
 
 
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -61,25 +58,10 @@ public class CarouselActivity extends BaseActivity {
      */
     private ImageView signalImageView;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // 强制全屏,全的不能再全的那种了
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_carousel);
-        // 初始化组件
-        initView();
-        // 开始执行轮播图解码
-        startDecodeTpeg();
-        // 开始接收 DMB 数据
-        UsbUtil.startReceiveDmbData(pipedOutputStream);
-    }
-
     /**
      * 开始解码TPEG
      */
-    private void startDecodeTpeg() {
+    public void startDecode() {
         // 构造轮播图缓存
         bannerCache = EvictingQueue.create(Math.toIntExact(defaultCarouselNumSetting.getSettingValue()));
         // 先重置一下 Dangle
@@ -93,7 +75,8 @@ public class CarouselActivity extends BaseActivity {
     /**
      * 初始化组件
      */
-    private void initView() {
+    @Override
+    public void initView() {
         banner = findViewById(R.id.banner);
         useBanner();
         // 初始化轮播图中的信号显示组件
@@ -115,9 +98,7 @@ public class CarouselActivity extends BaseActivity {
      */
     public void useBanner() {
         //添加生命周期观察者
-        banner.addBannerLifecycleObserver(this)
-                .setAdapter(new ImageAdapter(BannerDataBean.getHelloViewData()))
-                .setIndicator(new CircleIndicator(this));
+        banner.addBannerLifecycleObserver(this).setAdapter(new ImageAdapter(BannerDataBean.getHelloViewData())).setIndicator(new CircleIndicator(this));
     }
 
     @Override
@@ -149,9 +130,7 @@ public class CarouselActivity extends BaseActivity {
                 // 收到三次消息之后才更新一次轮播图,避免性能消耗
                 if (cnt == 3) {
                     banner.stop();
-                    banner.addBannerLifecycleObserver(CarouselActivity.this)
-                            .setAdapter(new BitmapAdapter(new ArrayList<>(bannerCache)))
-                            .setIndicator(new CircleIndicator(CarouselActivity.this)).start();
+                    banner.addBannerLifecycleObserver(CarouselActivity.this).setAdapter(new BitmapAdapter(new ArrayList<>(bannerCache))).setIndicator(new CircleIndicator(CarouselActivity.this)).start();
                     banner.start();
                     // 更新之后重置计数器
                     cnt = 0;

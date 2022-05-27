@@ -2,14 +2,11 @@ package cn.edu.cqupt.dmb.player.actives;
 
 
 import android.content.pm.ActivityInfo;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -86,30 +83,11 @@ public class VideoActivity extends BaseActivity {
      */
     private PipedOutputStream mpegTsPipedOutputStream;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // 强制全屏,全的不能再全的那种了
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_video);
-        // 初始化View
-        initView();
-        // 开始接收 DMB 数据
-        UsbUtil.startReceiveDmbData(pipedOutputStream);
-        // 开始MPEG-TS解码
-        try {
-            startMpegTsDecode();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     /**
      * 初始化组件
      */
-    private void initView() {
+    @Override
+    public void initView() {
         videoPlayerFrame = findViewById(R.id.video_surface);
         videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
         signalImageView = findViewById(R.id.video_signal);
@@ -133,7 +111,8 @@ public class VideoActivity extends BaseActivity {
      * 这里开一个线程去执行 MPEG-TS 的解码任务<br/>
      * 已经解码的MPEG-TS流会被放进缓冲流
      */
-    private void startMpegTsDecode() throws Exception {
+    @Override
+    public void startDecode() {
         // 构造已解码的TS输入流
         mpegTsPipedInputStream = new PipedInputStream(DEFAULT_MPEG_TS_PACKET_SIZE_DECODE * DEFAULT_MPEG_TS_STREAM_SIZE_TIMES);
         // 构造已解码的TS输出流
@@ -149,8 +128,13 @@ public class VideoActivity extends BaseActivity {
         // 构造视频监听器,传入视频输出流以及回调类
         DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), mpegTsPipedOutputStream);
         // 构造解码器
-        MpegTsDecoder mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this, bufferedInputStream);
-        mpegTsDecoder.start();
+        MpegTsDecoder mpegTsDecoder;
+        try {
+            mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this, bufferedInputStream);
+            mpegTsDecoder.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

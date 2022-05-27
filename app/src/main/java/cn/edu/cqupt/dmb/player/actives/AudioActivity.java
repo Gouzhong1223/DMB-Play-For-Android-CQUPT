@@ -2,19 +2,14 @@ package cn.edu.cqupt.dmb.player.actives;
 
 import android.media.AudioFormat;
 import android.media.AudioTrack;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.view.Window;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
-import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.decoder.Mp2Decoder;
 import cn.edu.cqupt.dmb.player.listener.impl.DmbAudioListener;
-import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 public class AudioActivity extends BaseActivity {
 
@@ -23,28 +18,15 @@ public class AudioActivity extends BaseActivity {
      */
     private AudioTrack audioTrack;
 
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // 强制全屏,全的不能再全的那种了
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_audio);
-        // 初始化音频播放器
-        initAudioTrack();
-        // 开始音频解码
-        startDecode();
-        // 开始接收 DMB 数据
-        UsbUtil.startReceiveDmbData(pipedOutputStream);
-    }
-
-    private void initAudioTrack() {
+    public void initView() {
         int minBufferSize = AudioTrack.getMinBufferSize(48000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-        audioTrack = new AudioTrack(AudioTrack.MODE_STREAM, 48000, AudioFormat.CHANNEL_OUT_STEREO,
-                AudioFormat.ENCODING_PCM_16BIT, minBufferSize * 2, AudioTrack.MODE_STREAM);
+        audioTrack = new AudioTrack(AudioTrack.MODE_STREAM, 48000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize * 2, AudioTrack.MODE_STREAM);
     }
 
-    private void startDecode() {
+    @Override
+    public void startDecode() {
         Mp2Decoder mp2Decoder = new Mp2Decoder(new DmbAudioListener(new AudioHandler(Looper.getMainLooper())), this, bufferedInputStream);
         mp2Decoder.start();
         audioTrack.play();
