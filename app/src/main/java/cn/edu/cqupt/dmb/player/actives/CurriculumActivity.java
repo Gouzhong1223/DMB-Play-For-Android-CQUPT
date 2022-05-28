@@ -14,12 +14,10 @@ import androidx.annotation.NonNull;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.listener.impl.DmbCurriculumListener;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
-import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
  * 这个是显示课表的 Activity
@@ -59,6 +57,10 @@ public class CurriculumActivity extends BaseActivity {
         Log.i(TAG, "正在初始化课表显示组件");
         imageView = findViewById(R.id.curriculum_image_view);
         signalImageView = findViewById(R.id.curriculum_signal);
+    }
+
+    @Override
+    public void configView() {
         if (defaultSignalShowSetting != null) {
             int showSignal = Math.toIntExact(defaultSignalShowSetting.getSettingValue());
             signalImageView.setVisibility(showSignal == 0 ? View.INVISIBLE : View.VISIBLE);
@@ -70,8 +72,6 @@ public class CurriculumActivity extends BaseActivity {
      */
     @Override
     public void startDecode() {
-        // 先重置一下 Dangle
-        UsbUtil.restDangle(FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true), selectedSceneVO);
         dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()), selectedSceneVO);
         // 构造TPEG解码器
         TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListener, this, bufferedInputStream);

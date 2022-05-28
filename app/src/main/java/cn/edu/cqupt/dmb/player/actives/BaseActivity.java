@@ -19,6 +19,7 @@ import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.CustomSettingByKey;
 import cn.edu.cqupt.dmb.player.db.database.CustomSettingDatabase;
 import cn.edu.cqupt.dmb.player.db.mapper.CustomSettingMapper;
+import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.domain.CustomSetting;
 import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
@@ -93,6 +94,10 @@ public abstract class BaseActivity extends FragmentActivity {
         initPip();
         // 初始化组件
         initView();
+        // 配置组件
+        configView();
+        // 重置 Dangle 的状态
+        resetDangle();
         // 开始进行解码
         startDecode();
         // 开始接收 DMB 数据
@@ -128,9 +133,24 @@ public abstract class BaseActivity extends FragmentActivity {
     protected abstract void initView();
 
     /**
+     * 配置组件属性
+     */
+    protected abstract void configView();
+
+    /**
      * 开始解码工作
      */
     protected abstract void startDecode();
+
+    /**
+     * 重置 Dangle 的状态
+     */
+    private void resetDangle() {
+        // 获取Fic解码器
+        FicDecoder ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
+        // 重置一下Dangle
+        UsbUtil.restDangle(ficDecoder, selectedSceneVO);
+    }
 
     /**
      * 初始化管道流

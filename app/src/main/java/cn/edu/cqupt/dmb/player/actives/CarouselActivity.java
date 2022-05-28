@@ -24,12 +24,10 @@ import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.listener.impl.DmbCarouselListener;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
-import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
  * @author qingsong
@@ -64,11 +62,9 @@ public class CarouselActivity extends BaseActivity {
     public void startDecode() {
         // 构造轮播图缓存
         bannerCache = EvictingQueue.create(Math.toIntExact(defaultCarouselNumSetting.getSettingValue()));
-        // 先重置一下 Dangle
-        UsbUtil.restDangle(FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true), selectedSceneVO);
-        // 开始执行 TPEG 解码的任务
         // 构造TPEG解码器
         TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper()), bannerCache), this, bufferedInputStream);
+        // 开始执行 TPEG 解码的任务
         tpegDecoder.start();
     }
 
@@ -81,6 +77,10 @@ public class CarouselActivity extends BaseActivity {
         useBanner();
         // 初始化轮播图中的信号显示组件
         signalImageView = findViewById(R.id.carousel_signal);
+    }
+
+    @Override
+    public void configView() {
         if (defaultSignalShowSetting != null) {
             int showSignal = Math.toIntExact(defaultSignalShowSetting.getSettingValue());
             signalImageView.setVisibility(showSignal == 0 ? View.INVISIBLE : View.VISIBLE);

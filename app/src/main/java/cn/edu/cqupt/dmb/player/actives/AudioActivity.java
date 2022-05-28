@@ -5,6 +5,7 @@ import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -13,6 +14,7 @@ import cn.edu.cqupt.dmb.player.listener.impl.DmbAudioListener;
 
 public class AudioActivity extends BaseActivity {
 
+    private static final String TAG = "AudioActivity";
     /**
      * 音频播放器
      */
@@ -23,6 +25,11 @@ public class AudioActivity extends BaseActivity {
     public void initView() {
         int minBufferSize = AudioTrack.getMinBufferSize(48000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
         audioTrack = new AudioTrack(AudioTrack.MODE_STREAM, 48000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize * 2, AudioTrack.MODE_STREAM);
+    }
+
+    @Override
+    public void configView() {
+        Log.i(TAG, "configView: " + getLocalClassName() + "不需要配置组件");
     }
 
     @Override

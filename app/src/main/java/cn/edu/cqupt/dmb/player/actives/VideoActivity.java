@@ -21,14 +21,12 @@ import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.listener.impl.DmbMpegListener;
 import cn.edu.cqupt.dmb.player.listener.impl.VideoPlayerListenerImpl;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
-import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 import cn.edu.cqupt.dmb.player.video.frame.VideoPlayerFrame;
 import cn.edu.cqupt.dmb.player.video.stream.DmbMediaDataSource;
 
@@ -89,8 +87,13 @@ public class VideoActivity extends BaseActivity {
     @Override
     public void initView() {
         videoPlayerFrame = findViewById(R.id.video_surface);
-        videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
         signalImageView = findViewById(R.id.video_signal);
+    }
+
+    @Override
+    public void configView() {
+        // 设置视频播放器的监听器
+        videoPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(videoPlayerFrame));
         if (defaultSignalShowSetting != null) {
             int showSignal = Math.toIntExact(defaultSignalShowSetting.getSettingValue());
             signalImageView.setVisibility(showSignal == 0 ? View.INVISIBLE : View.VISIBLE);
@@ -101,10 +104,6 @@ public class VideoActivity extends BaseActivity {
                 runOnUiThread(() -> new LogcatDialog(VideoActivity.this).show());
             }
         }
-        // 获取Fic解码器
-        FicDecoder ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
-        // 重置一下Dangle
-        UsbUtil.restDangle(ficDecoder, selectedSceneVO);
     }
 
     /**
@@ -113,6 +112,24 @@ public class VideoActivity extends BaseActivity {
      */
     @Override
     public void startDecode() {
+        // 初始化视频元数据管道
+        initVideoPip();
+        // 构造视频监听器,传入视频输出流以及回调类
+        DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), mpegTsPipedOutputStream);
+        // 构造解码器
+        MpegTsDecoder mpegTsDecoder;
+        try {
+            mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this, bufferedInputStream);
+            mpegTsDecoder.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 初始化装载视频的管道
+     */
+    private void initVideoPip() {
         // 构造已解码的TS输入流
         mpegTsPipedInputStream = new PipedInputStream(DEFAULT_MPEG_TS_PACKET_SIZE_DECODE * DEFAULT_MPEG_TS_STREAM_SIZE_TIMES);
         // 构造已解码的TS输出流
@@ -125,16 +142,6 @@ public class VideoActivity extends BaseActivity {
         }
         // 构造已解码的TS缓冲流
         mPegTsBufferedInputStream = new BufferedInputStream(mpegTsPipedInputStream);
-        // 构造视频监听器,传入视频输出流以及回调类
-        DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), mpegTsPipedOutputStream);
-        // 构造解码器
-        MpegTsDecoder mpegTsDecoder;
-        try {
-            mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this, bufferedInputStream);
-            mpegTsDecoder.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
