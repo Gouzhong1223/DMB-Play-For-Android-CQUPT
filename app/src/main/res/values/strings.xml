@@ -302,4 +302,11 @@
     <string name="teaching_building">教学楼</string>
     <string name="save">保存</string>
     <string name="Playback_settings">播放设置</string>
+    <string name="title_activity_dormitory_compose">DormitoryCompose</string>
+    <string name="dormitory_title">学生宿舍数字多媒体安全教育信息平台</string>
+    <string name="kind_tips">温馨提示:</string>
+    <string name="apartment_per_back">公寓行为透视镜背景</string>
+    <string name="clock_back">时间背景</string>
+    <string name="safe_back">安全须知背景</string>
+    <string name="birthday_wishes_background">生日祝福背景</string>
 </resources>
