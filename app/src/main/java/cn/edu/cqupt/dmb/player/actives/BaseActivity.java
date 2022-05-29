@@ -68,6 +68,10 @@ public abstract class BaseActivity extends FragmentActivity {
      */
     protected BufferedInputStream bufferedInputStream;
     /**
+     * Fic解码器
+     */
+    protected FicDecoder ficDecoder;
+    /**
      * PIP输入流
      */
     private PipedInputStream pipedInputStream;
@@ -154,7 +158,7 @@ public abstract class BaseActivity extends FragmentActivity {
      */
     private void resetDangle() {
         // 获取Fic解码器
-        FicDecoder ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
+        ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
         // 重置一下Dangle
         UsbUtil.restDangle(ficDecoder, selectedSceneVO);
     }
