@@ -83,6 +83,13 @@ public abstract class BaseActivity extends FragmentActivity {
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(getLayoutResIdByClassName(getLocalClassName()));
+        initActivity();
+    }
+
+    /**
+     * 初始化 Activity
+     */
+    private void initActivity() {
         DataReadWriteUtil.inMainActivity = true;
         // 获取父传递过来的参数
         selectedSceneVO = (SceneVO) this.getIntent().getSerializableExtra(DetailsActivity.SCENE_VO);
