@@ -63,7 +63,7 @@ public class CarouselActivity extends BaseActivity {
         // 构造轮播图缓存
         bannerCache = EvictingQueue.create(Math.toIntExact(defaultCarouselNumSetting.getSettingValue()));
         // 构造TPEG解码器
-        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper()), bannerCache), this, bufferedInputStream);
+        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper()), bannerCache, this), this, bufferedInputStream);
         // 开始执行 TPEG 解码的任务
         tpegDecoder.start();
     }
