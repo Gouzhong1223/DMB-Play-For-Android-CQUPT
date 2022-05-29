@@ -3,7 +3,19 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         tools:context=".actives.DormitorySafetyActivity">
+
+    <ImageView
+            android:id="@+id/dormitory_signal"
+            android:layout_width="135dp"
+            android:layout_height="50dp"
+            tools:ignore="MissingConstraints"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/carousel_signal_description" />
 
     <LinearLayout
             android:orientation="vertical"
@@ -55,7 +67,7 @@
                     android:background="@drawable/shape_10dp_corners"
                     android:layout_height="match_parent">
 
-                <androidx.constraintlayout.utils.widget.ImageFilterButton
+                <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
             </LinearLayout>
