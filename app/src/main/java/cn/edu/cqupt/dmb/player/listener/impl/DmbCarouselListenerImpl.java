@@ -14,7 +14,7 @@ import java.util.Queue;
 
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.listener.DmbListener;
+import cn.edu.cqupt.dmb.player.listener.CarouselListener;
 import cn.edu.cqupt.dmb.player.utils.GlideUtils;
 
 /**
@@ -28,9 +28,9 @@ import cn.edu.cqupt.dmb.player.utils.GlideUtils;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class DmbCarouselListener implements DmbListener {
+public class DmbCarouselListenerImpl implements CarouselListener {
 
-    private static final String TAG = "DmbCarouselListener";
+    private static final String TAG = "DmbCarouselListenerImpl";
     /**
      * 轮播图图片字节流
      */
@@ -57,15 +57,18 @@ public class DmbCarouselListener implements DmbListener {
      * 发送更新信号消息的计数器,cnt==5 的时候发送一次更新信号消息,发送之后清零
      */
     private int cnt = 0;
+    /**
+     * [备用]装载所有的已经解码的 TPEG 数据
+     */
+    private byte[] alternativeBytes;
 
-    public DmbCarouselListener(Handler handler, Queue<BannerBitmapDataBean> bannerCache, Context context) {
+    public DmbCarouselListenerImpl(Handler handler, Queue<BannerBitmapDataBean> bannerCache, Context context) {
         this.handler = handler;
         this.bannerCache = bannerCache;
         this.context = context;
     }
 
     @Override
-
     public void onSuccess(String fileName, byte[] bytes, int length) {
         cnt++;
         System.arraycopy(bytes, 0, fileBuffer, 0, length);
@@ -93,8 +96,8 @@ public class DmbCarouselListener implements DmbListener {
             try {
                 // 构造输出流
                 FileOutputStream fileOutputStream = new FileOutputStream(imagePath + fileName);
-                // 把图片输入流写到输出流
-                fileOutputStream.write(fileBuffer, 0, length);
+                // 把图片输入流写到输出流(使用备用数组)
+                fileOutputStream.write(alternativeBytes, 0, length + 35);
                 fileOutputStream.flush();
                 // 关闭输出流
                 fileOutputStream.close();
@@ -113,7 +116,7 @@ public class DmbCarouselListener implements DmbListener {
                 handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
             }
             // 删除缓存的文件
-            new File(imagePath + fileName).delete();
+//            new File(imagePath + fileName).delete();
         }
         if (cnt == 5) {
             // 如果现在计数器已经到 5 了,就发送一次更新信号的消息
@@ -126,6 +129,12 @@ public class DmbCarouselListener implements DmbListener {
 
     @Override
     public void onReceiveMessage(String msg) {
+        Log.i(TAG, "onReceiveMessage: 空实现");
+    }
 
+    @Override
+    public void onSuccess(String fileName, byte[] bytes, int length, byte[] alternativeBytes) {
+        this.alternativeBytes = alternativeBytes;
+        this.onSuccess(fileName, bytes, length);
     }
 }
