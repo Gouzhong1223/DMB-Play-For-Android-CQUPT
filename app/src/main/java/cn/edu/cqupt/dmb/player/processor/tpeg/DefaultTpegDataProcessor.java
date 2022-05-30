@@ -15,7 +15,7 @@ import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
  */
 public class DefaultTpegDataProcessor implements TpegDataProcessor {
     @Override
-    public void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo) {
+    public void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo, byte[] alternativeBytes) {
 
     }
 }

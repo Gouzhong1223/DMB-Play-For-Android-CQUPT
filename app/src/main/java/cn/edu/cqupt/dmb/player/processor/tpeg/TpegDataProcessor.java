@@ -22,5 +22,5 @@ public interface TpegDataProcessor {
      * @param fileBuffer  装载已解码的数据
      * @param tpegInfo    TPEG 数据信息
      */
-    void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo);
+    void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo, byte[] alternativeBytes);
 }

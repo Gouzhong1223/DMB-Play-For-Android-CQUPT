@@ -3,6 +3,7 @@ package cn.edu.cqupt.dmb.player.processor.tpeg;
 import android.util.Log;
 
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
+import cn.edu.cqupt.dmb.player.listener.CarouselListener;
 
 /**
  * @Author : Gouzhong
@@ -21,14 +22,22 @@ public class LastFrameDataProcessor implements TpegDataProcessor {
     private static final String TAG = "LastFrameDataProcessor";
 
     @Override
-    public void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo) {
+    public void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo, byte[] alternativeBytes) {
         Log.i(TAG, "processData: 接收到" + tpegDecoder.getFileName() + "的尾帧...");
         if (tpegDecoder.isReceiveFirstFrame() && tpegDecoder.getTotal() + tpegInfo[1] < FILE_BUFFER_SIZE) {
             System.arraycopy(tpegData, 0, fileBuffer, tpegDecoder.getTotal(), tpegInfo[1]);
             tpegDecoder.setTotal(tpegDecoder.getTotal() + tpegInfo[1]);
+
+            System.arraycopy(tpegData, 0, alternativeBytes, tpegDecoder.getAlternativeTotal(), tpegInfo[1]);
+            tpegDecoder.setAlternativeTotal(tpegDecoder.getAlternativeTotal() + tpegInfo[1]);
+
             if (tpegDecoder.getDmbListener() != null) {
-                tpegDecoder.getDmbListener().onSuccess(tpegDecoder.getFileName(), fileBuffer, tpegDecoder.getTotal());
+                CarouselListener dmbListener = (CarouselListener) tpegDecoder.getDmbListener();
+                dmbListener.onSuccess(tpegDecoder.getFileName(), fileBuffer, tpegDecoder.getTotal(), alternativeBytes);
             }
+
+            tpegDecoder.setAlternativeTotal(0);
+            tpegDecoder.setTotal(0);
             tpegDecoder.setReceiveFirstFrame(false);
             tpegDecoder.setFileName(null);
         }

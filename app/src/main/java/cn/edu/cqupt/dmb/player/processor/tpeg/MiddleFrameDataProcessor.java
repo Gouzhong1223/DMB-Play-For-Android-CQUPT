@@ -19,12 +19,15 @@ public class MiddleFrameDataProcessor implements TpegDataProcessor {
     private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 10;
 
     @Override
-    public void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo) {
+    public void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo, byte[] alternativeBytes) {
         if (tpegDecoder.getTotal() + tpegInfo[1] >= FILE_BUFFER_SIZE) {
             tpegDecoder.setTotal(0);
         } else {
             System.arraycopy(tpegData, 0, fileBuffer, tpegDecoder.getTotal(), tpegInfo[1]);
             tpegDecoder.setTotal(tpegDecoder.getTotal() + tpegInfo[1]);
+
+            System.arraycopy(tpegData, 0, alternativeBytes, tpegDecoder.getAlternativeTotal(), tpegInfo[1]);
+            tpegDecoder.setAlternativeTotal(tpegDecoder.getAlternativeTotal() + tpegInfo[1]);
         }
     }
 }

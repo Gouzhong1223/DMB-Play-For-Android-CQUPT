@@ -29,16 +29,54 @@ public class TpegDecoder extends BaseDmbDecoder {
 
     /* file size should not be greater than 2M */
     private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 10;
+    /**
+     * 单个 TPEG 数据包的长度
+     */
     private static final int TPEG_SIZE = 112;
+    /**
+     * 单个 TPEG 数据包中有效的数据长度
+     */
     private static final int DATA_SIZE = 80;
+    /**
+     * TPEG 信息数组长度
+     */
     private static final int TPEG_INFO_SIZE = 3;
     private static final String TAG = "TpegDecoder";
+    /**
+     * 装载接收到的 TPEG 数据帧
+     */
     private final byte[] tpegBuffer = new byte[TPEG_SIZE];
+    /**
+     * 装载已经解码的 TPEG 数据帧
+     */
     private final byte[] tpegData = new byte[DATA_SIZE];
+    /**
+     * 装载 TPEG 数据包信息
+     */
     private final int[] tpegInfo = new int[TPEG_INFO_SIZE];
+    /**
+     * 装载所有的已经解码的 TPEG 数据
+     */
     private final byte[] fileBuffer = new byte[FILE_BUFFER_SIZE];
+    /**
+     * [备用]装载所有的已经解码的 TPEG 数据
+     */
+    private final byte[] alternativeBytes = new byte[FILE_BUFFER_SIZE];
+    /**
+     * 一个fileBuffer中有效的 TPEG 数据包长度
+     */
     private int total = 0;
+    /**
+     * [备用]一个fileBuffer中有效的 TPEG 数据包长度
+     */
+    private int alternativeTotal = 0;
+    /**
+     * 是否接收到了第一帧
+     */
     private boolean isReceiveFirstFrame = false;
+    /**
+     * 文件名
+     */
     private String fileName = null;
 
     public TpegDecoder(DmbListener listener, Context context, BufferedInputStream bufferedInputStream) {
@@ -72,12 +110,13 @@ public class TpegDecoder extends BaseDmbDecoder {
             Arrays.fill(tpegInfo, 0);
             NativeMethod.decodeTpegFrame(tpegBuffer, tpegData, tpegInfo);
             TpegDataProcessor dataProcessor = TpegDataProcessorFactory.getDataProcessor(tpegInfo[0]);
-            dataProcessor.processData(this, tpegData, fileBuffer, tpegInfo);
+            dataProcessor.processData(this, tpegData, fileBuffer, tpegInfo, alternativeBytes);
         }
         Arrays.fill(tpegBuffer, (byte) 0);
         Arrays.fill(tpegData, (byte) 0);
         Arrays.fill(tpegInfo, (byte) 0);
         Arrays.fill(fileBuffer, (byte) 0);
+        Arrays.fill(alternativeBytes, (byte) 0);
     }
 
     public int getTotal() {
@@ -94,6 +133,14 @@ public class TpegDecoder extends BaseDmbDecoder {
 
     public void setReceiveFirstFrame(boolean receiveFirstFrame) {
         isReceiveFirstFrame = receiveFirstFrame;
+    }
+
+    public int getAlternativeTotal() {
+        return alternativeTotal;
+    }
+
+    public void setAlternativeTotal(int alternativeTotal) {
+        this.alternativeTotal = alternativeTotal;
     }
 
     public String getFileName() {

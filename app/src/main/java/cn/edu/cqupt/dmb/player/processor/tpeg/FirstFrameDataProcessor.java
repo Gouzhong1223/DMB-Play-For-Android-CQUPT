@@ -20,11 +20,13 @@ public class FirstFrameDataProcessor implements TpegDataProcessor {
     private static final String TAG = "FirstFrameDataProcessor";
 
     @Override
-    public void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo) {
+    public void processData(TpegDecoder tpegDecoder, byte[] tpegData, byte[] fileBuffer, int[] tpegInfo, byte[] alternativeBytes) {
         Log.i(TAG, "现在接收到了头帧");
         tpegDecoder.setReceiveFirstFrame(true);
         System.arraycopy(tpegData, 0, fileBuffer, 0, tpegInfo[1]);
         tpegDecoder.setTotal(tpegInfo[1] - 35);
+        System.arraycopy(tpegData, 0, alternativeBytes, 0, tpegInfo[1]);
+        tpegDecoder.setAlternativeTotal(tpegInfo[1]);
         try {
             tpegDecoder.setFileName(new String(tpegData, 0, 35, DmbUtil.CHARACTER_SET));
             tpegDecoder.setFileName(tpegDecoder.getFileName().substring(0, tpegDecoder.getFileName().indexOf(0x00)));
