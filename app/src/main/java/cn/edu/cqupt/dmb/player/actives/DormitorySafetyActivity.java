@@ -25,7 +25,7 @@ import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
-import cn.edu.cqupt.dmb.player.listener.impl.DmbDormitoryListener;
+import cn.edu.cqupt.dmb.player.listener.impl.DmbDormitoryListenerImpl;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
 
@@ -82,11 +82,7 @@ public class DormitorySafetyActivity extends BaseActivity {
     public void startDecode() {
         // 构造轮播图缓存
         bannerCache = EvictingQueue.create(Math.toIntExact(defaultCarouselNumSetting.getSettingValue()));
-        TpegDecoder tpegDecoder = new TpegDecoder(
-                new DmbDormitoryListener(
-                        new DormitoryHandler(Looper.getMainLooper())
-                        , bannerCache, this),
-                this, bufferedInputStream);
+        TpegDecoder tpegDecoder = new TpegDecoder(new DmbDormitoryListenerImpl(new DormitoryHandler(Looper.getMainLooper()), bannerCache, this), this, bufferedInputStream);
         tpegDecoder.start();
     }
 

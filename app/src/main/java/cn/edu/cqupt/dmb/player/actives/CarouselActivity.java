@@ -25,7 +25,7 @@ import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
-import cn.edu.cqupt.dmb.player.listener.impl.DmbCarouselListener;
+import cn.edu.cqupt.dmb.player.listener.impl.DmbCarouselListenerImpl;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
 
@@ -63,7 +63,7 @@ public class CarouselActivity extends BaseActivity {
         // 构造轮播图缓存
         bannerCache = EvictingQueue.create(Math.toIntExact(defaultCarouselNumSetting.getSettingValue()));
         // 构造TPEG解码器
-        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListener(new CarouselHandler(Looper.getMainLooper()), bannerCache, this), this, bufferedInputStream);
+        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListenerImpl(new CarouselHandler(Looper.getMainLooper()), bannerCache, this), this, bufferedInputStream);
         // 开始执行 TPEG 解码的任务
         tpegDecoder.start();
     }
