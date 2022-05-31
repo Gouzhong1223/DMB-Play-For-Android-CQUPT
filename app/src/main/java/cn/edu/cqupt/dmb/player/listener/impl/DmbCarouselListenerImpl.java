@@ -52,6 +52,10 @@ public class DmbCarouselListenerImpl implements CarouselListener {
      */
     private final Queue<BannerBitmapDataBean> bannerCache;
     /**
+     * 调用解码器的上下文
+     */
+    private final Context context;
+    /**
      * 发送更新信号消息的计数器,cnt==5 的时候发送一次更新信号消息,发送之后清零
      */
     private int cnt = 0;
@@ -59,11 +63,6 @@ public class DmbCarouselListenerImpl implements CarouselListener {
      * [备用]装载所有的已经解码的 TPEG 数据
      */
     private byte[] alternativeBytes;
-
-    /**
-     * 调用解码器的上下文
-     */
-    private final Context context;
 
     public DmbCarouselListenerImpl(Handler handler, Queue<BannerBitmapDataBean> bannerCache, Context context) {
         this.handler = handler;
