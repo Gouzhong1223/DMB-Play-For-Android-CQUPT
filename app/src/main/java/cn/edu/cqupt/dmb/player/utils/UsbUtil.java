@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cn.edu.cqupt.dmb.player.broadcast.DmbBroadcastReceiver;
-import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.common.DongleType;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
-import cn.edu.cqupt.dmb.player.domain.Dangle;
+import cn.edu.cqupt.dmb.player.domain.Dongle;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 import cn.edu.cqupt.dmb.player.domain.SceneVO;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
@@ -64,32 +64,32 @@ public class UsbUtil {
      */
     public static UsbDeviceConnection usbDeviceConnection;
     /**
-     * Dangle 实例
+     * Dongle 实例
      */
-    private static Dangle dangle;
+    private static Dongle dongle;
     /**
-     * Dangel 类型
+     * Dongle 类型
      */
-    private static DangleType dangleType;
+    private static DongleType dongleType;
 
-    public UsbUtil(DangleType dangleType) {
-        UsbUtil.dangleType = dangleType;
+    public UsbUtil(DongleType dongleType) {
+        UsbUtil.dongleType = dongleType;
     }
 
     /**
-     * 重置一些 dangle,主要是清除设置,重新设置频点为默认场景的频点,清理一下ChannelInfo<br/>
+     * 重置一些 dongle,主要是清除设置,重新设置频点为默认场景的频点,清理一下ChannelInfo<br/>
      * 然后把 FicDataProcessor.isSelectId 设置为 false
      *
      * @param ficDecoder      ficDecoder
      * @param selectedSceneVO 工作场景
      */
-    public static void restDangle(FicDecoder ficDecoder, SceneVO selectedSceneVO) {
-        // 先清除 dangle 的设置
-        Log.i(TAG, "restDangle: 重置 Dangle");
-        dangle.clearRegister();
-        // 重新设置 dangle 的工作频点
-        Log.i(TAG, "restDangle: 重置的频点是:" + selectedSceneVO.getFrequency());
-        dangle.setFrequency(selectedSceneVO.getFrequency());
+    public static void restdongle(FicDecoder ficDecoder, SceneVO selectedSceneVO) {
+        // 先清除 dongle 的设置
+        Log.i(TAG, "restdongle: 重置 Dongle");
+        dongle.clearRegister();
+        // 重新设置 dongle 的工作频点
+        Log.i(TAG, "restdongle: 重置的频点是:" + selectedSceneVO.getFrequency());
+        dongle.setFrequency(selectedSceneVO.getFrequency());
         // 清空 ficDecoder 的ChannelInfo
         ficDecoder.resetChannelInfos();
         try {
@@ -107,10 +107,10 @@ public class UsbUtil {
     public static void startReceiveDmbData(PipedOutputStream pipedOutputStream) {
         // 设置为非主页
         DataReadWriteUtil.inMainActivity = false;
-        // 新开一个线程去接收 Dangle 接收器发过来的数据
-        // 开始前根据 Dangle 的类型,选择数据接收容器
-        new Thread(new ReceiveUsbDataTask(dangleType == DangleType.STM32 ? BYTES_STM32 : BYTES_NUC, usbEndpointIn,
-                usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dangleType, pipedOutputStream)).start();
+        // 新开一个线程去接收 Dongle 接收器发过来的数据
+        // 开始前根据 Dongle 的类型,选择数据接收容器
+        new Thread(new ReceiveUsbDataTask(dongleType == DongleType.STM32 ? BYTES_STM32 : BYTES_NUC, usbEndpointIn,
+                usbDeviceConnection, DmbPlayerConstant.DMB_READ_TIME.getDmbConstantValue(), dongleType, pipedOutputStream)).start();
         Log.i(TAG, "startReceiveDmbData: 开始从 USB 中接收数据");
     }
 
@@ -143,13 +143,13 @@ public class UsbUtil {
             usbDeviceConnection = manager.openDevice(usbDevice);
             // 获取读写USB权限
             usbDeviceConnection.claimInterface(usbInterface, true);
-            dangle = new Dangle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
-            // 先清除Dangle的设置
-            Log.i(TAG, "initUsb: 初始化 USB 设备,清除 Dangle 设置");
-            dangle.clearRegister();
+            dongle = new Dongle(usbEndpointIn, usbEndpointOut, usbDeviceConnection);
+            // 先清除dongle的设置
+            Log.i(TAG, "initUsb: 初始化 USB 设备,清除 Dongle 设置");
+            dongle.clearRegister();
             if (defaultSceneInfo != null) {
                 Log.i(TAG, "initUsb: 初始化 USB 设备,重置频点为:" + defaultSceneInfo.getFrequency());
-                dangle.setFrequency(defaultSceneInfo.getFrequency());
+                dongle.setFrequency(defaultSceneInfo.getFrequency());
             }
         }
     }

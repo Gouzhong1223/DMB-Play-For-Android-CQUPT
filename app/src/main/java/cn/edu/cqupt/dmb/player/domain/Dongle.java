@@ -8,7 +8,7 @@ import android.util.Log;
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description : Dangle 交互类
+ * @Description : Dongle 交互类
  * @Date : create by QingSong in 2022-03-15 14:08
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
@@ -16,10 +16,10 @@ import android.util.Log;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class Dangle {
+public class Dongle {
 
 
-    private static final String TAG = "Dangle";
+    private static final String TAG = "Dongle";
 
     /**
      * 写入USB数据的Endpoint
@@ -36,14 +36,14 @@ public class Dangle {
      */
     private final UsbDeviceConnection usbDeviceConnection;
 
-    public Dangle(UsbEndpoint usbEndpointIn, UsbEndpoint usbEndpointOut, UsbDeviceConnection usbDeviceConnection) {
+    public Dongle(UsbEndpoint usbEndpointIn, UsbEndpoint usbEndpointOut, UsbDeviceConnection usbDeviceConnection) {
         this.usbEndpointOut = usbEndpointOut;
         this.usbEndpointIn = usbEndpointIn;
         this.usbDeviceConnection = usbDeviceConnection;
     }
 
     /**
-     * 清空Dangle寄存器，初始化Dangle，在设置频点和节目之前，需要先执行初始化操作
+     * 清空dongle寄存器，初始化dongle，在设置频点和节目之前，需要先执行初始化操作
      */
     public void clearRegister() {
         byte[] clearBBChReg = {
@@ -113,10 +113,10 @@ public class Dangle {
             e.printStackTrace();
         }
         if (ret1 && ret2 && ret3 && ret4) {
-            Log.i(TAG, "clearRegister: 清除 Dangle 设置成功!");
+            Log.i(TAG, "clearRegister: 清除 Dongle 设置成功!");
             return;
         }
-        Log.e(TAG, "clearRegister: 清除 Dangle 设置失败!");
+        Log.e(TAG, "clearRegister: 清除 Dongle 设置失败!");
     }
 
     /**
@@ -232,14 +232,14 @@ public class Dangle {
         boolean ret1 = (write(bb_cmd) == bb_cmd.length);
         try {
             Thread.currentThread();
-            Thread.sleep(200); /* wait for dangle handle this command */
+            Thread.sleep(200); /* wait for dongle handle this command */
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         boolean ret2 = (write(mcu_cmd) == mcu_cmd.length);
         try {
             Thread.currentThread();
-            Thread.sleep(200); /* wait for dangle handle this command */
+            Thread.sleep(200); /* wait for dongle handle this command */
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -251,7 +251,7 @@ public class Dangle {
     }
 
     /**
-     * set frequency, that is write a command to dangle
+     * set frequency, that is write a command to dongle
      */
     public void setFrequency(int frequency) {
         byte[] cmd = new byte[48];
@@ -273,7 +273,7 @@ public class Dangle {
         cmd[15] = (byte) ((frequency) & 0xff);
         int ret = write(cmd);
         if (ret != cmd.length) {
-            Log.e(TAG, "setFrequency: 设置 Dangle 频点失败");
+            Log.e(TAG, "setFrequency: 设置 Dongle 频点失败");
             return;
         }
         Log.i(TAG, "set frequency success!");

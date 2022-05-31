@@ -4,7 +4,7 @@ import android.util.Log;
 
 import java.io.PipedOutputStream;
 
-import cn.edu.cqupt.dmb.player.common.DangleType;
+import cn.edu.cqupt.dmb.player.common.DongleType;
 
 /**
  * @Author : Gouzhong
@@ -22,12 +22,12 @@ public class FrequencySetSuccessProcessor implements DataProcessing {
     private static final String TAG = "FrequencySetSuccessProcessor";
 
     @Override
-    public void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
-        this.processData(usbData, dangleType);
+    public void processData(byte[] usbData, DongleType dongleType, PipedOutputStream pipedOutputStream) {
+        this.processData(usbData, dongleType);
     }
 
     @Override
-    public void processData(byte[] usbData, DangleType dangleType) {
+    public void processData(byte[] usbData, DongleType dongleType) {
         Log.i(TAG, "现在接收到的是0x09,类型为频点设置成功返回信息");
     }
 }

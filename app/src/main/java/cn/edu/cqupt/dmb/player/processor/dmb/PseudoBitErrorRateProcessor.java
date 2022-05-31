@@ -2,7 +2,7 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import java.io.PipedOutputStream;
 
-import cn.edu.cqupt.dmb.player.common.DangleType;
+import cn.edu.cqupt.dmb.player.common.DongleType;
 
 /**
  * @Author : Gouzhong
@@ -22,12 +22,12 @@ public class PseudoBitErrorRateProcessor implements DataProcessing {
     private volatile int bitRate;
 
     @Override
-    public void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
-        this.processData(usbData, dangleType);
+    public void processData(byte[] usbData, DongleType dongleType, PipedOutputStream pipedOutputStream) {
+        this.processData(usbData, dongleType);
     }
 
     @Override
-    public void processData(byte[] usbData, DangleType dangleType) {
+    public void processData(byte[] usbData, DongleType dongleType) {
         if (usbData[6] == 0) {
             bbReg0 = ((((int) usbData[8]) & 0x00ff) << 8) + ((int) usbData[9] & 0x00ff);
             bbReg3 = (((int) usbData[14] & 0x00FF) << 8) | (((int) usbData[15]) & 0x00FF);

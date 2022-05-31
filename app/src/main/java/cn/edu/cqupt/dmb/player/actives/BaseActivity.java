@@ -107,8 +107,8 @@ public abstract class BaseActivity extends FragmentActivity {
         initView();
         // 配置组件
         configView();
-        // 重置 Dangle 的状态
-        resetDangle();
+        // 重置 Dongle 的状态
+        resetdongle();
         // 开始进行解码
         startDecode();
         // 开始接收 DMB 数据
@@ -154,13 +154,13 @@ public abstract class BaseActivity extends FragmentActivity {
     protected abstract void startDecode();
 
     /**
-     * 重置 Dangle 的状态
+     * 重置 Dongle 的状态
      */
-    private void resetDangle() {
+    private void resetdongle() {
         // 获取Fic解码器
         ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
-        // 重置一下Dangle
-        UsbUtil.restDangle(ficDecoder, selectedSceneVO);
+        // 重置一下dongle
+        UsbUtil.restdongle(ficDecoder, selectedSceneVO);
     }
 
     /**

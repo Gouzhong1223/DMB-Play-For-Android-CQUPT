@@ -4,7 +4,7 @@ import android.util.Log;
 
 import java.io.PipedOutputStream;
 
-import cn.edu.cqupt.dmb.player.common.DangleType;
+import cn.edu.cqupt.dmb.player.common.DongleType;
 
 /**
  * @Author : Gouzhong
@@ -22,12 +22,12 @@ public class DefaultDataProcessor implements DataProcessing {
     private static final String TAG = "DefaultDataProcessor";
 
     @Override
-    public void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
-        this.processData(usbData, dangleType);
+    public void processData(byte[] usbData, DongleType dongleType, PipedOutputStream pipedOutputStream) {
+        this.processData(usbData, dongleType);
     }
 
     @Override
-    public void processData(byte[] usbData, DangleType dangleType) {
+    public void processData(byte[] usbData, DongleType dongleType) {
         Log.e(TAG, "接收到类型未知的数据,无法处理!");
     }
 }

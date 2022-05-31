@@ -2,7 +2,7 @@ package cn.edu.cqupt.dmb.player.processor.dmb;
 
 import java.io.PipedOutputStream;
 
-import cn.edu.cqupt.dmb.player.common.DangleType;
+import cn.edu.cqupt.dmb.player.common.DongleType;
 
 /**
  * @Author : Gouzhong
@@ -21,17 +21,17 @@ public interface DataProcessing {
      * 处理 DMB 数据
      *
      * @param usbData    从 USB 中读取到的一段 DMB 数据
-     * @param dangleType Dangel 类型
+     * @param dongleType Dongle 类型
      */
-    void processData(byte[] usbData, DangleType dangleType);
+    void processData(byte[] usbData, DongleType dongleType);
 
     /**
      * 处理 DMB 数据
      *
      * @param usbData           从 USB 中读取到的一段 DMB 数据
      * @param pipedOutputStream USB PIP 输出流
-     * @param dangleType        Dangel 类型
+     * @param dongleType        Dongle 类型
      */
-    default void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
+    default void processData(byte[] usbData, DongleType dongleType, PipedOutputStream pipedOutputStream) {
     }
 }

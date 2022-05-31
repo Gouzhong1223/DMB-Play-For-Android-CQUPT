@@ -5,8 +5,8 @@ import android.util.Log;
 import java.io.IOException;
 import java.io.PipedOutputStream;
 
-import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.common.DongleType;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
@@ -32,15 +32,15 @@ public class DmbDataProcessor implements DataProcessing {
 
 
     @Override
-    public void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
+    public void processData(byte[] usbData, DongleType dongleType, PipedOutputStream pipedOutputStream) {
         this.pipedOutputStream = pipedOutputStream;
-        this.processData(usbData, dangleType);
+        this.processData(usbData, dongleType);
     }
 
     @Override
-    public void processData(byte[] usbData, DangleType dangleType) {
+    public void processData(byte[] usbData, DongleType dongleType) {
         int dataLength;
-        if (dangleType == DangleType.STM32) {
+        if (dongleType == DongleType.STM32) {
             dataLength = (((int) usbData[7]) & 0x0FF);
         } else {
             dataLength = (((int) usbData[6] & 0x0FF) << 8) | (((int) usbData[7]) & 0x0FF);

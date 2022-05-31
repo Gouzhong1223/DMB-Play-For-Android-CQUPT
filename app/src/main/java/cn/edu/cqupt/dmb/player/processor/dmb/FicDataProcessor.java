@@ -5,11 +5,11 @@ import android.util.Log;
 import java.io.PipedOutputStream;
 import java.util.concurrent.TimeUnit;
 
-import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.common.DongleType;
 import cn.edu.cqupt.dmb.player.decoder.FicDecoder;
 import cn.edu.cqupt.dmb.player.domain.ChannelInfo;
-import cn.edu.cqupt.dmb.player.domain.Dangle;
+import cn.edu.cqupt.dmb.player.domain.Dongle;
 import cn.edu.cqupt.dmb.player.utils.UsbUtil;
 
 /**
@@ -63,19 +63,19 @@ public class FicDataProcessor implements DataProcessing {
      */
     ChannelInfo channelInfo;
     /**
-     * Dangle 实例
+     * Dongle 实例
      */
-    Dangle dangle = new Dangle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
+    Dongle dongle = new Dongle(UsbUtil.usbEndpointIn, UsbUtil.usbEndpointOut, UsbUtil.usbDeviceConnection);
 
     @Override
-    public void processData(byte[] usbData, DangleType dangleType, PipedOutputStream pipedOutputStream) {
-        this.processData(usbData, dangleType);
+    public void processData(byte[] usbData, DongleType dongleType, PipedOutputStream pipedOutputStream) {
+        this.processData(usbData, dongleType);
     }
 
     @Override
-    public void processData(byte[] usbData, DangleType dangleType) {
+    public void processData(byte[] usbData, DongleType dongleType) {
         // 从接收到的数据中的第八位开始拷贝fic数据,长度为32
-        if (dangleType == DangleType.STM32) {
+        if (dongleType == DongleType.STM32) {
             System.arraycopy(usbData, DmbPlayerConstant.DEFAULT_DATA_READ_OFFSET.getDmbConstantValue(), ficBuf, 0, DmbPlayerConstant.DEFAULT_FIC_SIZE.getDmbConstantValue());
             // 调用ficDecoder解码器解码fic数据
             ficDecoder.decode(ficBuf);
@@ -85,7 +85,7 @@ public class FicDataProcessor implements DataProcessing {
                 // 这里需要获取重新设置pseudoBitErrorRateProcessor中的BitRate方便展示信号
                 pseudoBitErrorRateProcessor.setBitRate(channelInfo.subChOrganization[6]);
                 // 提取出来之后再写回到USB中,也就是设置ChannelInfo
-                new Thread(() -> isSelectId = dangle.SetChannel(channelInfo)).start();
+                new Thread(() -> isSelectId = dongle.SetChannel(channelInfo)).start();
                 if (!isSelectId) {
                     Log.e(TAG, "设置channelInfo失败!这是往 USB 中设置的时候出错啦!" + channelInfo);
                 }
@@ -106,8 +106,8 @@ public class FicDataProcessor implements DataProcessing {
                     if (isSelectId) {
                         continue;
                     }
-                    // 老 Dangle 最好不要用多线程的方式设置子信道
-                    isSelectId = dangle.SetChannel(channelInfo);
+                    // 老 Dongle 最好不要用多线程的方式设置子信道
+                    isSelectId = dongle.SetChannel(channelInfo);
                     if (!isSelectId) {
                         Log.e(TAG, "设置channelInfo失败!这是往 USB 中设置的时候出错啦!" + channelInfo);
                     }

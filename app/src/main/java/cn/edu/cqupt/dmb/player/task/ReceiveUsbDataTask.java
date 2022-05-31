@@ -6,8 +6,8 @@ import android.util.Log;
 
 import java.io.PipedOutputStream;
 
-import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.common.DongleType;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessing;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
@@ -42,14 +42,14 @@ public class ReceiveUsbDataTask implements Runnable {
     private final UsbDeviceConnection usbDeviceConnection;
 
     /**
-     * STM32型号 Dangle 单次 IO 从 USB 中读取数据的次数
+     * STM32型号 Dongle 单次 IO 从 USB 中读取数据的次数
      */
     private final Integer readTime;
 
     /**
-     * Dangle 类型
+     * Dongle 类型
      */
-    private final DangleType dangleType;
+    private final DongleType dongleType;
 
     /**
      * PIP 输出流
@@ -63,15 +63,15 @@ public class ReceiveUsbDataTask implements Runnable {
      * @param usbEndpointIn       读取USB数据的端口
      * @param usbDeviceConnection 已经打开的USB链接
      * @param readTime            从 USB 中的读取次数
-     * @param dangleType          Dangle 类型
+     * @param dongleType          Dongle 类型
      * @param pipedOutputStream   PIP输出流
      */
-    public ReceiveUsbDataTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection, Integer readTime, DangleType dangleType, PipedOutputStream pipedOutputStream) {
+    public ReceiveUsbDataTask(byte[] bytes, UsbEndpoint usbEndpointIn, UsbDeviceConnection usbDeviceConnection, Integer readTime, DongleType dongleType, PipedOutputStream pipedOutputStream) {
         this.bytes = bytes;
         this.usbEndpointIn = usbEndpointIn;
         this.usbDeviceConnection = usbDeviceConnection;
         this.readTime = readTime;
-        this.dangleType = dangleType;
+        this.dongleType = dongleType;
         this.pipedOutputStream = pipedOutputStream;
     }
 
@@ -92,7 +92,7 @@ public class ReceiveUsbDataTask implements Runnable {
                 }
                 continue;
             }
-            if (dangleType == DangleType.STM32) {
+            if (dongleType == DongleType.STM32) {
                 byte[] packetBuf = new byte[DmbPlayerConstant.DEFAULT_DMB_DATA_SIZE.getDmbConstantValue()];
                 // 由于 bytes 中包含 DmbPlayerConstant.DMB_READ_TIME 个 DMB 数据包,所以这里采用一个循环的方式分包,分成 DmbPlayerConstant.DMB_READ_TIME 个
                 // 20220324更新,这里从 USB 中读取的次数现在依赖于成员变量 READ_TIME
@@ -103,11 +103,11 @@ public class ReceiveUsbDataTask implements Runnable {
                     // 从数据处理器的静态工程获取数据处理器
                     DataProcessing dataProcessor = DataProcessingFactory.getDataProcessor(packetBuf[3]);
                     // 处理数据
-                    dataProcessor.processData(packetBuf, dangleType, pipedOutputStream);
+                    dataProcessor.processData(packetBuf, dongleType, pipedOutputStream);
                 }
             } else {
                 DataProcessing dataProcessor = DataProcessingFactory.getDataProcessor(bytes[3]);
-                dataProcessor.processData(bytes, dangleType, pipedOutputStream);
+                dataProcessor.processData(bytes, dongleType, pipedOutputStream);
             }
         }
         DataReadWriteUtil.inMainActivity = true;

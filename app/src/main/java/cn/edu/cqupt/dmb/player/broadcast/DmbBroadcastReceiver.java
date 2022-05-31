@@ -16,8 +16,8 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import cn.edu.cqupt.dmb.player.common.DangleType;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
+import cn.edu.cqupt.dmb.player.common.DongleType;
 import cn.edu.cqupt.dmb.player.domain.SceneInfo;
 import cn.edu.cqupt.dmb.player.processor.dmb.FicDataProcessor;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
@@ -42,7 +42,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      */
     private static final int MESSAGE_JUMP_DEFAULT_ACTIVITY = DmbPlayerConstant.MESSAGE_JUMP_DEFAULT_ACTIVITY.getDmbConstantValue();
     /**
-     * 装载三种 Dangle 设备信息的 List
+     * 装载三种 Dongle 设备信息的 List
      */
     private static final ArrayList<DmbUsbDevice> DMB_USB_DEVICES = new ArrayList<>();
     /**
@@ -51,16 +51,16 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
     @SuppressLint("StaticFieldLeak")
     private static volatile DmbBroadcastReceiver dmbBroadcastReceiver;
     /**
-     * Dangle 设备类型
+     * Dongle 设备类型
      */
-    private static DangleType dangleType;
+    private static DongleType dongleType;
 
     static {
-        // STM32 型号 Dangle
+        // STM32 型号 Dongle
         DMB_USB_DEVICES.add(new DmbUsbDevice(1155, 22336));
-        // NUC 型号 Dangle
+        // NUC 型号 Dongle
         DMB_USB_DEVICES.add(new DmbUsbDevice(1003, 24868));
-        // AT 型号 Dangle
+        // AT 型号 Dongle
         DMB_USB_DEVICES.add(new DmbUsbDevice(1046, 20497));
     }
 
@@ -106,9 +106,9 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
     }
 
     /**
-     * 校验当前插入设备的 USB 是否是合法的 Dangle 设备
+     * 校验当前插入设备的 USB 是否是合法的 Dongle 设备
      *
-     * @param dmbUsbDevice Dangle
+     * @param dmbUsbDevice Dongle
      * @return 合法->true
      */
     public static boolean checkUsbDevice(DmbUsbDevice dmbUsbDevice) {
@@ -116,9 +116,9 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
             boolean compare = usbDevice.compare(dmbUsbDevice);
             if (compare) {
                 if (usbDevice.VID == 1155) {
-                    dangleType = DangleType.STM32;
+                    dongleType = DongleType.STM32;
                 } else {
-                    dangleType = DangleType.NUC;
+                    dongleType = DongleType.NUC;
                 }
                 return true;
             }
@@ -249,7 +249,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
      * 插入USB设备并且通过权限申请之后执行的方法
      */
     private void openDevice() {
-        UsbUtil usbUtil = new UsbUtil(dangleType);
+        UsbUtil usbUtil = new UsbUtil(dongleType);
         // 开始从USB中读取数据
         usbUtil.initUsb(usbManager, defaultSceneInfo);
     }
@@ -264,7 +264,7 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
     }
 
     /**
-     * 自定义装载 Dangle VID 和 PID 的类
+     * 自定义装载 Dongle VID 和 PID 的类
      */
     public static class DmbUsbDevice {
         /**
@@ -290,9 +290,9 @@ public class DmbBroadcastReceiver extends BroadcastReceiver {
         }
 
         /**
-         * 比较两个 Dangle 设备是否是同一类
+         * 比较两个 Dongle 设备是否是同一类
          *
-         * @param dmbUsbDevice Dangle 设备
+         * @param dmbUsbDevice Dongle 设备
          * @return 同一类->true
          */
         private boolean compare(DmbUsbDevice dmbUsbDevice) {
