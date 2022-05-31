@@ -10,7 +10,7 @@ import java.util.Queue;
 
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.listener.DmbListener;
+import cn.edu.cqupt.dmb.player.listener.CarouselListener;
 import cn.edu.cqupt.dmb.player.utils.DmbUtil;
 import cn.edu.cqupt.dmb.player.utils.GlideUtils;
 
@@ -25,9 +25,9 @@ import cn.edu.cqupt.dmb.player.utils.GlideUtils;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class DmbDormitoryListener implements DmbListener {
+public class DmbDormitoryListenerImpl implements CarouselListener {
 
-    private static final String TAG = "DmbDormitoryListener";
+    private static final String TAG = "DmbDormitoryListenerImpl";
     /**
      * 处理更新轮播图的消息类型
      */
@@ -58,8 +58,12 @@ public class DmbDormitoryListener implements DmbListener {
      * 发送更新信号消息的计数器,cnt==5 的时候发送一次更新信号消息,发送之后清零
      */
     private int cnt = 0;
+    /**
+     * [备用]装载所有的已经解码的 TPEG 数据
+     */
+    private byte[] alternativeBytes;
 
-    public DmbDormitoryListener(Handler handler, Queue<BannerBitmapDataBean> bannerCache, Context context) {
+    public DmbDormitoryListenerImpl(Handler handler, Queue<BannerBitmapDataBean> bannerCache, Context context) {
         this.handler = handler;
         this.bannerCache = bannerCache;
         this.context = context;
@@ -105,5 +109,11 @@ public class DmbDormitoryListener implements DmbListener {
     @Override
     public void onReceiveMessage(String msg) {
         Log.i(TAG, "onReceiveMessage: 空实现");
+    }
+
+    @Override
+    public void onSuccess(String fileName, byte[] bytes, int length, byte[] alternativeBytes) {
+        this.alternativeBytes = alternativeBytes;
+        this.onSuccess(fileName, bytes, length);
     }
 }

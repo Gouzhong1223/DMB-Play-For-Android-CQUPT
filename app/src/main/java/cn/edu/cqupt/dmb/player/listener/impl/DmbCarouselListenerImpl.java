@@ -1,11 +1,12 @@
 package cn.edu.cqupt.dmb.player.listener.impl;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +16,6 @@ import java.util.Queue;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.listener.CarouselListener;
-import cn.edu.cqupt.dmb.player.utils.GlideUtils;
 
 /**
  * @Author : Gouzhong
@@ -35,7 +35,9 @@ public class DmbCarouselListenerImpl implements CarouselListener {
      * 轮播图图片字节流
      */
     private final byte[] fileBuffer = new byte[1024 * 1024 * 10];
-
+    /**
+     * 自定义回调
+     */
     private final Handler handler;
     /**
      * 处理更新轮播图的消息类型
@@ -50,10 +52,6 @@ public class DmbCarouselListenerImpl implements CarouselListener {
      */
     private final Queue<BannerBitmapDataBean> bannerCache;
     /**
-     * 播放器上下文
-     */
-    private final Context context;
-    /**
      * 发送更新信号消息的计数器,cnt==5 的时候发送一次更新信号消息,发送之后清零
      */
     private int cnt = 0;
@@ -62,10 +60,9 @@ public class DmbCarouselListenerImpl implements CarouselListener {
      */
     private byte[] alternativeBytes;
 
-    public DmbCarouselListenerImpl(Handler handler, Queue<BannerBitmapDataBean> bannerCache, Context context) {
+    public DmbCarouselListenerImpl(Handler handler, Queue<BannerBitmapDataBean> bannerCache) {
         this.handler = handler;
         this.bannerCache = bannerCache;
-        this.context = context;
     }
 
     @Override
@@ -105,18 +102,21 @@ public class DmbCarouselListenerImpl implements CarouselListener {
                 e.printStackTrace();
             }
             // 重新加载 bitmap
-            bitmap = GlideUtils.loadBitMap(context, imagePath + fileName);
+            ImageLoader imageLoader = ImageLoader.getInstance();
+            bitmap = imageLoader.loadImageSync(imagePath + fileName);
             if (bitmap == null) {
                 Log.i(TAG, "onSuccess: 第二次生成 bitmap 还是出错了...");
             } else {
                 Log.i(TAG, "onSuccess: 第二次生成 bitmap 成功");
+                // 重新设置 bitmap
+                bannerBitmapDataBean.setImageRes(bitmap);
                 // 添加到有界队列中
                 bannerCache.add(bannerBitmapDataBean);
                 // 添加一张轮播图之后,发送一次更新轮播图的消息
                 handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
             }
             // 删除缓存的文件
-//            new File(imagePath + fileName).delete();
+            new File(imagePath + fileName).delete();
         }
         if (cnt == 5) {
             // 如果现在计数器已经到 5 了,就发送一次更新信号的消息
