@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
-import cn.edu.cqupt.dmb.player.listener.impl.DmbCurriculumListener;
+import cn.edu.cqupt.dmb.player.listener.impl.DmbCurriculumListenerImpl;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
 
@@ -47,7 +47,7 @@ public class CurriculumActivity extends BaseActivity {
     /**
      * 课表更新监听器
      */
-    private DmbCurriculumListener dmbCurriculumListener;
+    private DmbCurriculumListenerImpl dmbCurriculumListenerImpl;
 
     /**
      * 初始化 View
@@ -72,9 +72,9 @@ public class CurriculumActivity extends BaseActivity {
      */
     @Override
     public void startDecode() {
-        dmbCurriculumListener = new DmbCurriculumListener(new CurriculumHandler(Looper.getMainLooper()), selectedSceneVO);
+        dmbCurriculumListenerImpl = new DmbCurriculumListenerImpl(new CurriculumHandler(Looper.getMainLooper()), selectedSceneVO);
         // 构造TPEG解码器
-        TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListener, this, bufferedInputStream);
+        TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListenerImpl, this, bufferedInputStream);
         tpegDecoder.start();
     }
 
@@ -92,8 +92,8 @@ public class CurriculumActivity extends BaseActivity {
         @Override
         public void handleMessage(@NonNull Message msg) {
             if (msg.what == MESSAGE_UPDATE_CURRICULUM) {
-                byte[] fileBuffer = dmbCurriculumListener.getFileBuffer();
-                Integer length = dmbCurriculumListener.getLength();
+                byte[] fileBuffer = dmbCurriculumListenerImpl.getFileBuffer();
+                Integer length = dmbCurriculumListenerImpl.getLength();
                 Bitmap bitmap = BitmapFactory.decodeByteArray(fileBuffer, 0, length);
                 if (bitmap != null) {
                     Log.i(TAG, "重新设置了一下课表");

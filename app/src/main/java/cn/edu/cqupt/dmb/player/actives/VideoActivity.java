@@ -23,7 +23,7 @@ import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
-import cn.edu.cqupt.dmb.player.listener.impl.DmbMpegListener;
+import cn.edu.cqupt.dmb.player.listener.impl.DmbMpegListenerImpl;
 import cn.edu.cqupt.dmb.player.listener.impl.VideoPlayerListenerImpl;
 import cn.edu.cqupt.dmb.player.processor.dmb.DataProcessingFactory;
 import cn.edu.cqupt.dmb.player.processor.dmb.PseudoBitErrorRateProcessor;
@@ -115,7 +115,7 @@ public class VideoActivity extends BaseActivity {
         // 初始化视频元数据管道
         initVideoPip();
         // 构造视频监听器,传入视频输出流以及回调类
-        DmbListener videoPlayerListener = new DmbMpegListener(new VideoHandler(Looper.getMainLooper()), mpegTsPipedOutputStream);
+        DmbListener videoPlayerListener = new DmbMpegListenerImpl(new VideoHandler(Looper.getMainLooper()), mpegTsPipedOutputStream);
         // 构造解码器
         MpegTsDecoder mpegTsDecoder;
         try {

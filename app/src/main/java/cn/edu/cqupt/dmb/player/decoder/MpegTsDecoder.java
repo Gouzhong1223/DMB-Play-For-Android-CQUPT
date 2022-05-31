@@ -12,7 +12,7 @@ import java.io.InputStream;
 
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
-import cn.edu.cqupt.dmb.player.listener.impl.DmbMpegListener;
+import cn.edu.cqupt.dmb.player.listener.impl.DmbMpegListenerImpl;
 import cn.edu.cqupt.dmb.player.utils.ConvertUtils;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
@@ -37,7 +37,7 @@ public class MpegTsDecoder extends BaseDmbDecoder {
 
     public MpegTsDecoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream) throws Exception {
         super(bufferedInputStream, dmbListener, context);
-        if (!(dmbListener instanceof DmbMpegListener)) {
+        if (!(dmbListener instanceof DmbMpegListenerImpl)) {
             // 如果监听器类型不对就直接抛异常!
             throw new Exception("错误的监听器类型!MPEG解码器构造只能接收DmbMpegListener类型的监听器!");
         }

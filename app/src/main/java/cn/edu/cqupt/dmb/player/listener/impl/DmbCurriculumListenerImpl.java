@@ -17,13 +17,13 @@ import cn.edu.cqupt.dmb.player.listener.DmbListener;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class DmbCurriculumListener implements DmbListener {
+public class DmbCurriculumListenerImpl implements DmbListener {
 
     /**
      * 更新课表的广播
      */
     public static final int MESSAGE_UPDATE_PICTURE = 0x100;
-    private static final String TAG = "DmbCurriculumListener";
+    private static final String TAG = "DmbCurriculumListenerImpl";
     /**
      * 课表显示回调
      */
@@ -42,7 +42,7 @@ public class DmbCurriculumListener implements DmbListener {
      */
     private Integer length;
 
-    public DmbCurriculumListener(Handler handler, SceneVO selectedSceneVO) {
+    public DmbCurriculumListenerImpl(Handler handler, SceneVO selectedSceneVO) {
         this.handler = handler;
         this.selectedSceneVO = selectedSceneVO;
     }

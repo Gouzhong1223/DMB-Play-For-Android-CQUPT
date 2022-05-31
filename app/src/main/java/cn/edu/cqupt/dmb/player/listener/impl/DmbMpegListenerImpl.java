@@ -21,13 +21,13 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class DmbMpegListener implements DmbListener {
+public class DmbMpegListenerImpl implements DmbListener {
 
     /**
      * 开始播放视频的消息
      */
     public static final int MESSAGE_START_PLAY_VIDEO = DmbPlayerConstant.MESSAGE_START_PLAY_VIDEO.getDmbConstantValue();
-    private static final String TAG = "DmbMpegListener";
+    private static final String TAG = "DmbMpegListenerImpl";
 
     /**
      * 自定义的视频播放回调
@@ -45,7 +45,7 @@ public class DmbMpegListener implements DmbListener {
     private boolean sendMsg = false;
 
 
-    public DmbMpegListener(Handler handler, PipedOutputStream pipedOutputStream) {
+    public DmbMpegListenerImpl(Handler handler, PipedOutputStream pipedOutputStream) {
         this.handler = handler;
         this.pipedOutputStream = pipedOutputStream;
     }
