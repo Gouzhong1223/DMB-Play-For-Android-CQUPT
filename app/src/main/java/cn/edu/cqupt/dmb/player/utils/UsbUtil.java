@@ -83,12 +83,12 @@ public class UsbUtil {
      * @param ficDecoder      ficDecoder
      * @param selectedSceneVO 工作场景
      */
-    public static void restdongle(FicDecoder ficDecoder, SceneVO selectedSceneVO) {
+    public static void restDongle(FicDecoder ficDecoder, SceneVO selectedSceneVO) {
         // 先清除 dongle 的设置
-        Log.i(TAG, "restdongle: 重置 Dongle");
+        Log.i(TAG, "restDongle: 重置 Dongle");
         dongle.clearRegister();
         // 重新设置 dongle 的工作频点
-        Log.i(TAG, "restdongle: 重置的频点是:" + selectedSceneVO.getFrequency());
+        Log.i(TAG, "restDongle: 重置的频点是:" + selectedSceneVO.getFrequency());
         dongle.setFrequency(selectedSceneVO.getFrequency());
         // 清空 ficDecoder 的ChannelInfo
         ficDecoder.resetChannelInfos();

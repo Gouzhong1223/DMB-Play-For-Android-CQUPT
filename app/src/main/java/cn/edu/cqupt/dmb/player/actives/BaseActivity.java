@@ -160,7 +160,7 @@ public abstract class BaseActivity extends FragmentActivity {
         // 获取Fic解码器
         ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
         // 重置一下dongle
-        UsbUtil.restdongle(ficDecoder, selectedSceneVO);
+        UsbUtil.restDongle(ficDecoder, selectedSceneVO);
     }
 
     /**
