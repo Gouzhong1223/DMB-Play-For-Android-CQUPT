@@ -1,12 +1,11 @@
 package cn.edu.cqupt.dmb.player.listener.impl;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
-
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,6 +15,7 @@ import java.util.Queue;
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.listener.CarouselListener;
+import cn.edu.cqupt.dmb.player.utils.GlideUtils;
 
 /**
  * @Author : Gouzhong
@@ -60,9 +60,15 @@ public class DmbCarouselListenerImpl implements CarouselListener {
      */
     private byte[] alternativeBytes;
 
-    public DmbCarouselListenerImpl(Handler handler, Queue<BannerBitmapDataBean> bannerCache) {
+    /**
+     * 调用解码器的上下文
+     */
+    private final Context context;
+
+    public DmbCarouselListenerImpl(Handler handler, Queue<BannerBitmapDataBean> bannerCache, Context context) {
         this.handler = handler;
         this.bannerCache = bannerCache;
+        this.context = context;
     }
 
     @Override
@@ -101,9 +107,7 @@ public class DmbCarouselListenerImpl implements CarouselListener {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            // 重新加载 bitmap
-            ImageLoader imageLoader = ImageLoader.getInstance();
-            bitmap = imageLoader.loadImageSync(imagePath + fileName);
+            bitmap = GlideUtils.loadBitMap(context, imagePath + fileName);
             if (bitmap == null) {
                 Log.i(TAG, "onSuccess: 第二次生成 bitmap 还是出错了...");
             } else {
