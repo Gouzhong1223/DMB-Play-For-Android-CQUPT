@@ -108,7 +108,7 @@ public abstract class BaseActivity extends FragmentActivity {
         // 配置组件
         configView();
         // 重置 Dongle 的状态
-        resetdongle();
+        resetDongle();
         // 开始进行解码
         startDecode();
         // 开始接收 DMB 数据
@@ -156,7 +156,7 @@ public abstract class BaseActivity extends FragmentActivity {
     /**
      * 重置 Dongle 的状态
      */
-    private void resetdongle() {
+    private void resetDongle() {
         // 获取Fic解码器
         ficDecoder = FicDecoder.getInstance(selectedSceneVO.getDeviceId(), true);
         // 重置一下dongle
