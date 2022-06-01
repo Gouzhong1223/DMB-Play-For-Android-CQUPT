@@ -15,7 +15,8 @@ public enum CustomSettingByKey {
     DEFAULT_SENSE("default_sense"),
     DEFAULT_CAROUSEL_NUM("default_carousel_num"),
     SHOW_DEBUG_LOG("show_debug_log"),
-    OPEN_SIGNAL("open_signal");
+    OPEN_SIGNAL("open_signal"),
+    AUDIO_OUTPUT_MODE("audio_output_mode");
 
     private final String key;
 

@@ -13,6 +13,8 @@ import android.widget.Spinner;
 
 import androidx.appcompat.widget.SwitchCompat;
 
+import com.xuexiang.xui.widget.alpha.XUIAlphaTextView;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,6 +72,16 @@ public class PlaySettingFragment extends DmbBaseFragment {
      */
     private SwitchCompat deBugLogSwitch;
 
+    /**
+     * 音频输出模式文本组件
+     */
+    private XUIAlphaTextView audioModeTextView;
+
+    /**
+     * 音频输出模式切换开关
+     */
+    private SwitchCompat audioOutputModeSwitchCompat;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (rootView == null) {
@@ -91,10 +103,13 @@ public class PlaySettingFragment extends DmbBaseFragment {
         deBugLogSwitch = rootView.findViewById(R.id.deBugLogSwitchCompat);
         defaultSceneSpinner = rootView.findViewById(R.id.default_sense_spinner);
         carouselNumSpinner = rootView.findViewById(R.id.carousel_num_spinner);
+        audioModeTextView = rootView.findViewById(R.id.Audio_output_modeTextView);
+        audioOutputModeSwitchCompat = rootView.findViewById(R.id.audioOutputModeSwitchCompat);
         viewList.add(showSignalSwitch);
         viewList.add(deBugLogSwitch);
         viewList.add(defaultSceneSpinner);
         viewList.add(carouselNumSpinner);
+        viewList.add(audioOutputModeSwitchCompat);
     }
 
     /**
@@ -150,6 +165,52 @@ public class PlaySettingFragment extends DmbBaseFragment {
         configSwitch();
         // 装配调试日志开关组件
         configDeBugLogSwitch();
+        configAudioModeComponent();
+    }
+
+    /**
+     * 装配音频输出模式组件
+     */
+    @SuppressLint("SetTextI18n")
+    private void configAudioModeComponent() {
+        CustomSetting audioOutputModeSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.AUDIO_OUTPUT_MODE.getKey());
+        if (audioOutputModeSetting != null) {
+            if (audioOutputModeSetting.getSettingValue() == 0L) {
+                audioModeTextView.setText("音频输出模式:扬声器");
+                audioOutputModeSwitchCompat.setChecked(false);
+            } else {
+                audioModeTextView.setText("音频输出模式:HDMI");
+                audioOutputModeSwitchCompat.setChecked(true);
+            }
+        } else {
+            audioModeTextView.setText("音频输出模式:扬声器");
+        }
+
+        audioOutputModeSwitchCompat.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            CustomSetting audioModeRecord = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.AUDIO_OUTPUT_MODE.getKey());
+            if (audioModeRecord == null) {
+                audioModeRecord = new CustomSetting();
+                audioModeRecord.setSettingKey(CustomSettingByKey.AUDIO_OUTPUT_MODE.getKey());
+                if (isChecked) {
+                    audioModeTextView.setText("音频输出模式:HDMI");
+                    audioModeRecord.setSettingValue(1L);
+                } else {
+                    audioModeTextView.setText("音频输出模式:扬声器");
+                    audioModeRecord.setSettingValue(0L);
+                }
+                customSettingMapper.insertCustomSetting(audioModeRecord);
+            } else {
+                if (isChecked) {
+                    audioModeTextView.setText("音频输出模式:HDMI");
+                    audioModeRecord.setSettingValue(1L);
+                } else {
+                    audioModeTextView.setText("音频输出模式:扬声器");
+                    audioModeRecord.setSettingValue(0L);
+                }
+                customSettingMapper.updateCustomSetting(audioModeRecord);
+            }
+
+        });
     }
 
     /**

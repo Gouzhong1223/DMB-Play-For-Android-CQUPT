@@ -72,6 +72,32 @@
         </RelativeLayout>
 
         <RelativeLayout
+                android:layout_marginTop="20dp"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                tools:ignore="UselessParent">
+
+            <com.xuexiang.xui.widget.alpha.XUIAlphaTextView
+                    android:id="@+id/Audio_output_modeTextView"
+                    android:text="@string/Audio_output_mode"
+                    android:textSize="20sp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:ignore="RelativeOverlap" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/audioOutputModeSwitchCompat"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="20dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
                 android:id="@+id/playSettingRelativeLayout2"
                 android:layout_marginTop="20dp"
                 android:layout_width="match_parent"
