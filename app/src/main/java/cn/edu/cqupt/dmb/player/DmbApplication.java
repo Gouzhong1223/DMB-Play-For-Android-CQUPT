@@ -179,17 +179,15 @@ public class DmbApplication extends Application implements DefaultLifecycleObser
         if (audioModeSetting == null) {
             audioManager.setParameters("audio_devices_out_active=AUDIO_CODEC");
             Log.i(TAG, "initAudioManager: audioModeSetting is null,set audio_devices_out_active=AUDIO_CODEC");
-        }
-        if (audioModeSetting != null) {
+        } else {
             if (audioModeSetting.getSettingValue() == 0L) {
                 audioManager.setParameters("audio_devices_out_active=AUDIO_CODEC");
                 Log.i(TAG, "initAudioManager: audioModeSetting.getSettingValue() == 0L,set audio_devices_out_active=AUDIO_CODEC");
             } else {
                 audioManager.setParameters("audio_devices_out_active=AUDIO_HDMI,AUDIO_CODEC");
-                Log.i(TAG, "initAudioManager: audioModeSetting.getSettingValue() != 0L,set audio_devices_out_active=AUDIO_HDMI,AUDIO_CODEC");
+                Log.i(TAG, "initAudioManager: audioModeSetting.getSettingValue() == 1L,set audio_devices_out_active=AUDIO_HDMI,AUDIO_CODEC");
             }
         }
-
         Log.i(TAG, "initAudioManager: " + audioManager.getParameters("audio_devices_out_active"));
         Log.i(TAG, "initAudioManager: " + Arrays.toString(audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)));
         MediaRouter mediaRouter = (MediaRouter) getSystemService(Context.MEDIA_ROUTER_SERVICE);
