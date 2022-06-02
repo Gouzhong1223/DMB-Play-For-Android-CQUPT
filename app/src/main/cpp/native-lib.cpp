@@ -3,7 +3,6 @@
 #include "mp2decoder.h"
 #include "tpegdec.h"
 #include "tpeg.h"
-#include "mpeg_dec.h"
 #include "ts_rs.h"
 
 extern "C"

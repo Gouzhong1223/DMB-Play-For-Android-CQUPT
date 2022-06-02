@@ -53,7 +53,6 @@ add_library(
         native-lib.cpp
         rs.c
         tpeg.c
-        mpeg_dec.cpp
         ts_rs.cpp)
 #
 #add_library(
