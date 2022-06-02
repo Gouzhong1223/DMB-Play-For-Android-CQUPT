@@ -1,7 +1,9 @@
 package cn.edu.cqupt.dmb.player.actives.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.SwitchCompat;
 
@@ -82,6 +85,11 @@ public class PlaySettingFragment extends DmbBaseFragment {
      */
     private SwitchCompat audioOutputModeSwitchCompat;
 
+    /**
+     * 音频管理器
+     */
+    private AudioManager audioManager;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if (rootView == null) {
@@ -110,6 +118,7 @@ public class PlaySettingFragment extends DmbBaseFragment {
         viewList.add(defaultSceneSpinner);
         viewList.add(carouselNumSpinner);
         viewList.add(audioOutputModeSwitchCompat);
+        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
     /**
@@ -209,8 +218,26 @@ public class PlaySettingFragment extends DmbBaseFragment {
                 }
                 customSettingMapper.updateCustomSetting(audioModeRecord);
             }
-
+            // 切换一下音频输出设备
+            switchAudioOutputDevice(isChecked);
         });
+    }
+
+    /**
+     * 切换音频输出设备
+     *
+     * @param isChecked 是否选中
+     */
+    private void switchAudioOutputDevice(boolean isChecked) {
+        if (isChecked) {
+            audioManager.setParameters("audio_devices_out_active=AUDIO_HDMI");
+            Log.i(TAG, "switchAudioOutputDevice: 选中HDMI");
+            Toast.makeText(context, "选中HDMI输出", Toast.LENGTH_SHORT).show();
+        } else {
+            audioManager.setParameters("audio_devices_out_active=AUDIO_CODEC");
+            Log.i(TAG, "switchAudioOutputDevice: 选中扬声器");
+            Toast.makeText(context, "选中扬声器输出", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
