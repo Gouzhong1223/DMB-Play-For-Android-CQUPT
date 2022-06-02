@@ -121,13 +121,11 @@ public class DmbApplication extends Application implements DefaultLifecycleObser
      * 初始化数据库
      */
     private void initDataBase() {
-        customSettingDatabase = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database")
-                .allowMainThreadQueries().build();
+        customSettingDatabase = Room.databaseBuilder(this, CustomSettingDatabase.class, "custom_setting_database").allowMainThreadQueries().build();
         //new a database
         customSettingMapper = customSettingDatabase.getCustomSettingMapper();
         //new a database
-        sceneDatabase = Room.databaseBuilder(this, SceneDatabase.class, "scene_database")
-                .allowMainThreadQueries().build();
+        sceneDatabase = Room.databaseBuilder(this, SceneDatabase.class, "scene_database").allowMainThreadQueries().build();
         sceneMapper = sceneDatabase.getSceneMapper();
     }
 
@@ -187,8 +185,8 @@ public class DmbApplication extends Application implements DefaultLifecycleObser
                 audioManager.setParameters("audio_devices_out_active=AUDIO_CODEC");
                 Log.i(TAG, "initAudioManager: audioModeSetting.getSettingValue() == 0L,set audio_devices_out_active=AUDIO_CODEC");
             } else {
-                audioManager.setParameters("audio_devices_out_active=AUDIO_HDMI");
-                Log.i(TAG, "initAudioManager: audioModeSetting.getSettingValue() == 1L,set audio_devices_out_active=AUDIO_HDMI");
+                audioManager.setParameters("audio_devices_out_active=AUDIO_HDMI,AUDIO_CODEC");
+                Log.i(TAG, "initAudioManager: audioModeSetting.getSettingValue() != 0L,set audio_devices_out_active=AUDIO_HDMI,AUDIO_CODEC");
             }
         }
 
