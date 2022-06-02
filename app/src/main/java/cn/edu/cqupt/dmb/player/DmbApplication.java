@@ -1,6 +1,7 @@
 package cn.edu.cqupt.dmb.player;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.media.MediaRouter.ROUTE_TYPE_LIVE_AUDIO;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -9,6 +10,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbManager;
+import android.media.AudioManager;
+import android.media.MediaRouter;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -24,6 +27,7 @@ import com.xuexiang.xui.XUI;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 
 import cn.edu.cqupt.dmb.player.actives.DetailsActivity;
@@ -104,6 +108,8 @@ public class DmbApplication extends Application implements DefaultLifecycleObser
         initDataBase();
         // 初始化默认使用场景
         initDefaultScene();
+        // 初始化音频设备
+        initAudioManager();
         // 构造Handler
         MainHandler mainHandler = new MainHandler(Looper.getMainLooper());
         // 尝试打开 USB
@@ -160,6 +166,41 @@ public class DmbApplication extends Application implements DefaultLifecycleObser
         if (defaultSceneSetting != null) {
             defaultScene = sceneMapper.selectSceneById(Math.toIntExact(defaultSceneSetting.getSettingValue()));
         }
+    }
+
+    /**
+     * 初始化音频设备
+     */
+    private void initAudioManager() {
+        CustomSetting audioModeSetting = customSettingMapper.selectCustomSettingByKey(CustomSettingByKey.AUDIO_OUTPUT_MODE.getKey());
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        if (audioManager == null) {
+            Log.e(TAG, "initAudioManager: audioManager is null");
+            return;
+        }
+        if (audioModeSetting == null) {
+            audioManager.setParameters("audio_devices_out_active=AUDIO_CODEC");
+            Log.i(TAG, "initAudioManager: audioModeSetting is null,set audio_devices_out_active=AUDIO_CODEC");
+        }
+        if (audioModeSetting != null) {
+            if (audioModeSetting.getSettingValue() == 0L) {
+                audioManager.setParameters("audio_devices_out_active=AUDIO_CODEC");
+                Log.i(TAG, "initAudioManager: audioModeSetting.getSettingValue() == 0L,set audio_devices_out_active=AUDIO_CODEC");
+            } else {
+                audioManager.setParameters("audio_devices_out_active=AUDIO_HDMI");
+                Log.i(TAG, "initAudioManager: audioModeSetting.getSettingValue() == 1L,set audio_devices_out_active=AUDIO_HDMI");
+            }
+        }
+
+        Log.i(TAG, "initAudioManager: " + audioManager.getParameters("audio_devices_out_active"));
+        Log.i(TAG, "initAudioManager: " + Arrays.toString(audioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)));
+        MediaRouter mediaRouter = (MediaRouter) getSystemService(Context.MEDIA_ROUTER_SERVICE);
+        if (mediaRouter == null) {
+            Log.e(TAG, "initAudioManager: mediaRouter is null");
+            return;
+        }
+        MediaRouter.RouteInfo selectedRoute = mediaRouter.getSelectedRoute(ROUTE_TYPE_LIVE_AUDIO);
+        Log.d(TAG, "initAudioManager: " + selectedRoute.getName());
     }
 
     /**
@@ -242,11 +283,7 @@ public class DmbApplication extends Application implements DefaultLifecycleObser
             if (msg.what == MESSAGE_JUMP_DEFAULT_ACTIVITY) {
                 // 双重检查USB是否连接
                 if (!DataReadWriteUtil.USB_READY) {
-                    new AlertDialog.Builder(getApplicationContext(),
-                            com.xuexiang.xui.R.style.Base_Theme_MaterialComponents_Light_Dialog_MinWidth)
-                            .setTitle("缺少DMB设备")
-                            .setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!")
-                            .setPositiveButton("确定", null).show();
+                    new AlertDialog.Builder(getApplicationContext(), com.xuexiang.xui.R.style.Base_Theme_MaterialComponents_Light_Dialog_MinWidth).setTitle("缺少DMB设备").setMessage("当前没有读取到任何的DMB设备信息,请插上DMB设备!").setPositiveButton("确定", null).show();
                     return;
                 }
                 if (defaultScene == null) {
