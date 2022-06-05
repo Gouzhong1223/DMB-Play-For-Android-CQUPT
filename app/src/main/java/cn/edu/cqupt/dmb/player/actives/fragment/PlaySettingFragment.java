@@ -174,6 +174,7 @@ public class PlaySettingFragment extends DmbBaseFragment {
         configSwitch();
         // 装配调试日志开关组件
         configDeBugLogSwitch();
+        // 装配音频输出模式组件
         configAudioModeComponent();
     }
 
