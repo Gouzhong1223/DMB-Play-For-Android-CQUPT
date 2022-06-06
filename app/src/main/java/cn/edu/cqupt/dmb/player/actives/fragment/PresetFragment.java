@@ -281,13 +281,13 @@ public class PresetFragment extends DmbBaseFragment {
             return false;
         }
 
-        // 根据频点和ID查询场景信息
-        SceneInfo sceneInfo1 = sceneMapper.selectSceneBySceneIdAndFrequency(Integer.parseInt(id), Integer.parseInt(frequency));
-        if (sceneInfo1 != null) {
-            // 如果已经有相同的组合则提示预设信息重复
-            DialogUtil.generateDialog(context, "这个预设已经有啦！", "有一个叫：" + sceneInfo1.getSceneName() + "的预设里面的终端编号和工作频点和你现在的设置是一样的，不用重复提交啦！", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
-            return false;
-        }
+//        // 根据频点和ID查询场景信息
+//        SceneInfo sceneInfo1 = sceneMapper.selectSceneBySceneIdAndFrequency(Integer.parseInt(id), Integer.parseInt(frequency));
+//        if (sceneInfo1 != null) {
+//            // 如果已经有相同的组合则提示预设信息重复
+//            DialogUtil.generateDialog(context, "这个预设已经有啦！", "有一个叫：" + sceneInfo1.getSceneName() + "的预设里面的终端编号和工作频点和你现在的设置是一样的，不用重复提交啦！", new DialogUtil.DialogButton(DialogUtil.DialogButtonEnum.POSITIVE, (dialog, index) -> dialog.cancel(), "确定")).show();
+//            return false;
+//        }
         return true;
     }
 }
