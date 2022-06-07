@@ -22,11 +22,19 @@ public class BannerBitmapDataBean {
     private Bitmap imageRes;
     private String title;
     private int viewType;
+    private long loopTime;
 
     public BannerBitmapDataBean(Bitmap imageRes, String title, int viewType) {
         this.imageRes = imageRes;
         this.title = title;
         this.viewType = viewType;
+    }
+
+    public BannerBitmapDataBean(Bitmap imageRes, String title, int viewType, long loopTime) {
+        this.imageRes = imageRes;
+        this.title = title;
+        this.viewType = viewType;
+        this.loopTime = loopTime;
     }
 
     public Bitmap getImageRes() {
@@ -53,14 +61,18 @@ public class BannerBitmapDataBean {
         this.viewType = viewType;
     }
 
+    public long getLoopTime() {
+        return loopTime;
+    }
+
+    public void setLoopTime(long loopTime) {
+        this.loopTime = loopTime;
+    }
+
     @NonNull
     @Override
     public String toString() {
-        return "BannerBitmapDataBean{" +
-                "imageRes=" + imageRes +
-                ", title='" + title + '\'' +
-                ", viewType=" + viewType +
-                '}';
+        return "BannerBitmapDataBean{" + "imageRes=" + imageRes + ", title='" + title + '\'' + ", viewType=" + viewType + ", loopTime=" + loopTime + '}';
     }
 
     @Override
@@ -68,11 +80,11 @@ public class BannerBitmapDataBean {
         if (this == o) return true;
         if (!(o instanceof BannerBitmapDataBean)) return false;
         BannerBitmapDataBean that = (BannerBitmapDataBean) o;
-        return viewType == that.viewType && imageRes.equals(that.imageRes) && title.equals(that.title);
+        return viewType == that.viewType && imageRes.equals(that.imageRes) && title.equals(that.title) && loopTime == that.loopTime;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(imageRes, title, viewType);
+        return Objects.hash(imageRes, title, viewType, loopTime);
     }
 }
