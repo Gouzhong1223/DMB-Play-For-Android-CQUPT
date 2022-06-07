@@ -10,6 +10,8 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Objects;
 import java.util.Queue;
 
 import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
@@ -31,6 +33,8 @@ import cn.edu.cqupt.dmb.player.utils.GlideUtils;
 public class DmbCarouselListenerImpl implements CarouselListener {
 
     private static final String TAG = "DmbCarouselListenerImpl";
+    public static final String IMAGES_PATH = "/cn.edu.cqupt.dmb.player/images/";
+    public static final String DAB_JPG_NAME = "dab.jpg";
     /**
      * 轮播图图片字节流
      */
@@ -64,6 +68,11 @@ public class DmbCarouselListenerImpl implements CarouselListener {
      */
     private byte[] alternativeBytes;
 
+    /**
+     * 装载轮播图中已有的图片名字,用于去重
+     */
+    private final HashSet<String> loadImageNames = new HashSet<>();
+
     public DmbCarouselListenerImpl(Handler handler, Queue<BannerBitmapDataBean> bannerCache, Context context) {
         this.handler = handler;
         this.bannerCache = bannerCache;
@@ -73,20 +82,34 @@ public class DmbCarouselListenerImpl implements CarouselListener {
     @Override
     public void onSuccess(String fileName, byte[] bytes, int length) {
         cnt++;
+        if (Objects.equals(fileName, DAB_JPG_NAME)) {
+            // 重命名图片
+            fileName = "dmb" + (length) + ".jpg";
+            Log.i(TAG, "onSuccess: fileName 为 dab.jpg, 重命名为 dmb" + (length) + ".jpg");
+        }
         System.arraycopy(bytes, 0, fileBuffer, 0, length);
         // 根据数据源生生成 bitmap
         Bitmap bitmap = BitmapFactory.decodeByteArray(fileBuffer, 0, length);
         // 构造 bannerBitmapDataBean
         BannerBitmapDataBean bannerBitmapDataBean = new BannerBitmapDataBean(bitmap, fileName, 1);
         if (bitmap != null) {
+            // 判断是否已经加载过这一张图片了
+            if (loadImageNames.contains(fileName)) {
+                Log.i(TAG, "onSuccess: 跳过了一张重复的图片");
+                return;
+            }
+            // 把文件名添加到 Set 集合中
+            loadImageNames.add(fileName);
+            Log.i(TAG, "onSuccess: 去重集合中加载了一张图片");
             // 添加到有界队列中
             bannerCache.add(bannerBitmapDataBean);
             // 添加一张轮播图之后,发送一次更新轮播图的消息
+            Log.i(TAG, "onSuccess: 发送一次更新轮播图的消息");
             handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
         } else {
-            Log.e(TAG, Thread.currentThread().getName() + "线程生成 bitmap 错误啦!");
+            Log.e(TAG, Thread.currentThread().getName() + "线程第一次生成 bitmap 错误啦!");
             // 构造缓存图片路径
-            String imagePath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/cn.edu.cqupt.dmb.player/images/";
+            String imagePath = Environment.getExternalStorageDirectory().getAbsolutePath() + IMAGES_PATH;
             File imageDir = new File(imagePath);
             // 校验缓存图片路径是否存在
             if (!imageDir.exists()) {
@@ -94,7 +117,8 @@ public class DmbCarouselListenerImpl implements CarouselListener {
             }
 
             // 重命名图片
-            fileName = "dmb.jpg";
+            fileName = "dmb" + (length + 35) + ".jpg";
+            Log.i(TAG, "onSuccess: fileName 为 dab.jpg, 重命名为 dmb" + (length + 35) + ".jpg");
             try {
                 // 构造输出流
                 FileOutputStream fileOutputStream = new FileOutputStream(imagePath + fileName);
@@ -108,14 +132,24 @@ public class DmbCarouselListenerImpl implements CarouselListener {
             }
             bitmap = GlideUtils.loadBitMap(context, imagePath + fileName);
             if (bitmap == null) {
-                Log.i(TAG, "onSuccess: 第二次生成 bitmap 还是出错了...");
+                Log.e(TAG, "onSuccess: 第二次生成 bitmap 还是出错了...");
             } else {
                 Log.i(TAG, "onSuccess: 第二次生成 bitmap 成功");
                 // 重新设置 bitmap
                 bannerBitmapDataBean.setImageRes(bitmap);
+                // 重新设置文件名
+                bannerBitmapDataBean.setTitle(fileName);
+                // 判断是否已经加载过这一张图片了
+                if (loadImageNames.contains(fileName)) {
+                    Log.i(TAG, "onSuccess: 跳过了一张重复的图片");
+                }
+                // 把文件名添加到 Set 集合中
+                loadImageNames.add(fileName);
+                Log.i(TAG, "onSuccess: 去重集合中加载了一张图片");
                 // 添加到有界队列中
                 bannerCache.add(bannerBitmapDataBean);
                 // 添加一张轮播图之后,发送一次更新轮播图的消息
+                Log.i(TAG, "onSuccess: 发送一次更新轮播图的消息");
                 handler.sendEmptyMessage(MESSAGE_UPDATE_CAROUSEL);
             }
             // 删除缓存的文件
