@@ -16,7 +16,6 @@ import com.youth.banner.Banner;
 import com.youth.banner.indicator.CircleIndicator;
 
 import java.util.ArrayList;
-import java.util.Queue;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
@@ -46,7 +45,7 @@ public class CarouselActivity extends BaseActivity {
     /**
      * 轮播图缓存
      */
-    Queue<BannerBitmapDataBean> bannerCache;
+    EvictingQueue<BannerBitmapDataBean> bannerCache;
     /**
      * 轮播图组件
      */
@@ -62,8 +61,9 @@ public class CarouselActivity extends BaseActivity {
     public void startDecode() {
         // 构造轮播图缓存
         bannerCache = EvictingQueue.create(Math.toIntExact(defaultCarouselNumSetting.getSettingValue()));
+        CarouselHandler carouselHandler = new CarouselHandler(Looper.getMainLooper());
         // 构造TPEG解码器
-        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListenerImpl(new CarouselHandler(Looper.getMainLooper()), bannerCache, this), this, bufferedInputStream);
+        TpegDecoder tpegDecoder = new TpegDecoder(new DmbCarouselListenerImpl(carouselHandler, bannerCache, this), this, bufferedInputStream, carouselHandler);
         // 开始执行 TPEG 解码的任务
         tpegDecoder.start();
     }

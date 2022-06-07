@@ -114,12 +114,13 @@ public class VideoActivity extends BaseActivity {
     public void startDecode() {
         // 初始化视频元数据管道
         initVideoPip();
+        VideoHandler videoHandler = new VideoHandler(Looper.getMainLooper());
         // 构造视频监听器,传入视频输出流以及回调类
-        DmbListener videoPlayerListener = new DmbMpegListenerImpl(new VideoHandler(Looper.getMainLooper()), mpegTsPipedOutputStream);
+        DmbListener videoPlayerListener = new DmbMpegListenerImpl(videoHandler, mpegTsPipedOutputStream);
         // 构造解码器
         MpegTsDecoder mpegTsDecoder;
         try {
-            mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this, bufferedInputStream);
+            mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this, bufferedInputStream, videoHandler);
             mpegTsDecoder.start();
         } catch (Exception e) {
             e.printStackTrace();
@@ -234,6 +235,11 @@ public class VideoActivity extends BaseActivity {
                     signalImageView.setImageResource(R.drawable.singlemark4);
                 } else if (ber >= 0) {
                     signalImageView.setImageResource(R.drawable.singlemark5);
+                }
+            } else if (msg.what == 0x77) {
+                // 接收到关闭 Activity 的消息
+                if (!VideoActivity.this.isDestroyed()) {
+                    VideoActivity.this.onDestroy();
                 }
             }
         }

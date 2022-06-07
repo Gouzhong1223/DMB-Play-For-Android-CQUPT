@@ -72,9 +72,10 @@ public class CurriculumActivity extends BaseActivity {
      */
     @Override
     public void startDecode() {
-        dmbCurriculumListenerImpl = new DmbCurriculumListenerImpl(new CurriculumHandler(Looper.getMainLooper()), selectedSceneVO);
+        CurriculumHandler curriculumHandler = new CurriculumHandler(Looper.getMainLooper());
+        dmbCurriculumListenerImpl = new DmbCurriculumListenerImpl(curriculumHandler, selectedSceneVO);
         // 构造TPEG解码器
-        TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListenerImpl, this, bufferedInputStream);
+        TpegDecoder tpegDecoder = new TpegDecoder(dmbCurriculumListenerImpl, this, bufferedInputStream, curriculumHandler);
         tpegDecoder.start();
     }
 

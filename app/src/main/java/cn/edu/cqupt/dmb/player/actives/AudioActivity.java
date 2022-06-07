@@ -34,7 +34,8 @@ public class AudioActivity extends BaseActivity {
 
     @Override
     public void startDecode() {
-        Mp2Decoder mp2Decoder = new Mp2Decoder(new DmbAudioListener(new AudioHandler(Looper.getMainLooper())), this, bufferedInputStream);
+        AudioHandler audioHandler = new AudioHandler(Looper.getMainLooper());
+        Mp2Decoder mp2Decoder = new Mp2Decoder(new DmbAudioListener(audioHandler), this, bufferedInputStream, audioHandler);
         mp2Decoder.start();
         audioTrack.play();
     }

@@ -82,7 +82,8 @@ public class DormitorySafetyActivity extends BaseActivity {
     public void startDecode() {
         // 构造轮播图缓存
         bannerCache = EvictingQueue.create(Math.toIntExact(defaultCarouselNumSetting.getSettingValue()));
-        TpegDecoder tpegDecoder = new TpegDecoder(new DmbDormitoryListenerImpl(new DormitoryHandler(Looper.getMainLooper()), bannerCache, this), this, bufferedInputStream);
+        DormitoryHandler dormitoryHandler = new DormitoryHandler(Looper.getMainLooper());
+        TpegDecoder tpegDecoder = new TpegDecoder(new DmbDormitoryListenerImpl(dormitoryHandler, bannerCache, this), this, bufferedInputStream, dormitoryHandler);
         tpegDecoder.start();
     }
 
