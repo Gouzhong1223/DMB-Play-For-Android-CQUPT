@@ -44,7 +44,7 @@ public class MainActivity extends FragmentActivity {
                 return CarouselActivity.class;
             }
             case 2: {
-                return null;
+                return AudioActivity.class;
             }
             case 3: {
                 return DormitorySafetyActivity.class;
