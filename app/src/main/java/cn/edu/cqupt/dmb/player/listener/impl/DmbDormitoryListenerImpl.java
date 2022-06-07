@@ -72,8 +72,6 @@ public class DmbDormitoryListenerImpl implements CarouselListener {
     @Override
     public void onSuccess(String fileName, byte[] bytes, int length) {
         cnt++;
-        // 生成轮播图的文件名
-        fileName = DmbUtil.CACHE_DIRECTORY + fileName;
         System.arraycopy(bytes, 0, fileBuffer, 0, length);
         // 根据数据源生生成 bitmap
         Bitmap bitmap = BitmapFactory.decodeByteArray(fileBuffer, 0, length);
