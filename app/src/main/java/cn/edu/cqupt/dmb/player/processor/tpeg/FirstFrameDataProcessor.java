@@ -31,10 +31,16 @@ public class FirstFrameDataProcessor implements TpegDataProcessor {
             tpegDecoder.setFileName(new String(tpegData, 0, 35, DmbUtil.CHARACTER_SET));
             tpegDecoder.setFileName(tpegDecoder.getFileName().substring(0, tpegDecoder.getFileName().indexOf(0x00)));
             if (tpegDecoder.getFileName().equals("")) {
-                tpegDecoder.setFileName("教学楼-" + tpegData[20] + ".jpg");
-                Log.i(TAG, "没有从 TPEG 信息中解码出文件名,所以重命名为:" + tpegDecoder.getFileName());
+                if (tpegData[20] != 0) {
+                    tpegDecoder.setFileName("教学楼-" + tpegData[20] + ".jpg");
+                    Log.i(TAG, "processData: 接收到一张课表图片, 图片名称为: " + tpegDecoder.getFileName());
+                } else {
+                    tpegDecoder.setFileName("dab.jpg");
+                    Log.i(TAG, "processData: 接收到一张没有文件名的图片, 图片重命名为: " + tpegDecoder.getFileName());
+                }
+            } else {
+                Log.i(TAG, "processData: 接收到的文件名为：" + tpegDecoder.getFileName());
             }
-            Log.i(TAG, tpegDecoder.getTotal() + " " + tpegDecoder.getFileName());
         } catch (Exception e) {
             e.printStackTrace();
         }
