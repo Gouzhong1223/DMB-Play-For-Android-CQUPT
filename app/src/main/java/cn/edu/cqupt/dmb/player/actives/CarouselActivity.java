@@ -113,10 +113,6 @@ public class CarouselActivity extends BaseActivity {
      * 自定义回调器
      */
     private class CarouselHandler extends Handler {
-        /**
-         * 计数器
-         */
-        private int cnt = 0;
 
         public CarouselHandler(@NonNull Looper looper) {
             super(looper);
@@ -126,15 +122,9 @@ public class CarouselActivity extends BaseActivity {
         public void handleMessage(@NonNull Message msg) {
             // 更新轮播图的消息
             if (msg.what == MESSAGE_UPDATE_CAROUSEL) {
-                cnt++;
-                // 收到三次消息之后才更新一次轮播图,避免性能消耗
-                if (cnt == 3) {
-                    banner.stop();
-                    banner.addBannerLifecycleObserver(CarouselActivity.this).setAdapter(new BitmapAdapter(new ArrayList<>(bannerCache))).setIndicator(new CircleIndicator(CarouselActivity.this)).start();
-                    banner.start();
-                    // 更新之后重置计数器
-                    cnt = 0;
-                }
+                banner.stop();
+                banner.addBannerLifecycleObserver(CarouselActivity.this).setAdapter(new BitmapAdapter(new ArrayList<>(bannerCache))).setIndicator(new CircleIndicator(CarouselActivity.this)).start();
+                banner.start();
             } else if (msg.what == MESSAGE_UPDATE_SIGNAL) {
                 // 如果没有进行信号显示设置或者关闭信号显示就直接跳过广播处理
                 if (defaultSignalShowSetting == null || defaultSignalShowSetting.getSettingValue() == 0L) {
