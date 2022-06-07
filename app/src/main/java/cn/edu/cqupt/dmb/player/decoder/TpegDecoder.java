@@ -1,6 +1,7 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -27,8 +28,8 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 public class TpegDecoder extends BaseDmbDecoder {
 
 
-    /* file size should not be greater than 2M */
-    private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 10;
+    /* file size should not be greater than 3M */
+    private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 3;
     /**
      * 单个 TPEG 数据包的长度
      */
@@ -79,8 +80,8 @@ public class TpegDecoder extends BaseDmbDecoder {
      */
     private String fileName = null;
 
-    public TpegDecoder(DmbListener listener, Context context, BufferedInputStream bufferedInputStream) {
-        super(bufferedInputStream, listener, context);
+    public TpegDecoder(DmbListener listener, Context context, BufferedInputStream bufferedInputStream, Handler handler) {
+        super(bufferedInputStream, listener, context, handler);
     }
 
     @Override

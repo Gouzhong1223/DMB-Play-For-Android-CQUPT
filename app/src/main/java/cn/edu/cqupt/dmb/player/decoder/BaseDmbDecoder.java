@@ -1,6 +1,7 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
 import android.content.Context;
+import android.os.Handler;
 
 import java.io.BufferedInputStream;
 
@@ -37,10 +38,16 @@ public abstract class BaseDmbDecoder extends Thread {
      */
     protected final Context context;
 
-    public BaseDmbDecoder(BufferedInputStream bufferedInputStream, DmbListener dmbListener, Context context) {
+    /**
+     * 自定义回调器
+     */
+    protected final Handler handler;
+
+    public BaseDmbDecoder(BufferedInputStream bufferedInputStream, DmbListener dmbListener, Context context, Handler handler) {
         this.bufferedInputStream = bufferedInputStream;
         this.dmbListener = dmbListener;
         this.context = context;
+        this.handler = handler;
     }
 
 }

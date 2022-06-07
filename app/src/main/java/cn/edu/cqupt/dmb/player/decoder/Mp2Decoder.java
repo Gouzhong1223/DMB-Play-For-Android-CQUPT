@@ -1,6 +1,7 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
@@ -27,8 +28,8 @@ public class Mp2Decoder extends BaseDmbDecoder {
 
     private static final String TAG = "Mp2Decoder";
 
-    public Mp2Decoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream) {
-        super(bufferedInputStream, dmbListener, context);
+    public Mp2Decoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream, Handler handler) {
+        super(bufferedInputStream, dmbListener, context, handler);
     }
 
     @Override

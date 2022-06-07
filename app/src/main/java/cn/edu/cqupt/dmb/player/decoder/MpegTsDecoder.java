@@ -2,6 +2,7 @@ package cn.edu.cqupt.dmb.player.decoder;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
@@ -35,8 +36,8 @@ public class MpegTsDecoder extends BaseDmbDecoder {
     private static final Integer TS_PACKET_188_SIZE = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_DECODE.getDmbConstantValue();
     private static final String TAG = "MpegTsDecoder";
 
-    public MpegTsDecoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream) throws Exception {
-        super(bufferedInputStream, dmbListener, context);
+    public MpegTsDecoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream, Handler handler) throws Exception {
+        super(bufferedInputStream, dmbListener, context, handler);
         if (!(dmbListener instanceof DmbMpegListenerImpl)) {
             // 如果监听器类型不对就直接抛异常!
             throw new Exception("错误的监听器类型!MPEG解码器构造只能接收DmbMpegListener类型的监听器!");
@@ -98,6 +99,7 @@ public class MpegTsDecoder extends BaseDmbDecoder {
         while (!DataReadWriteUtil.inMainActivity) {
             if (!DataReadWriteUtil.USB_READY) {
                 // 如果当前 USB 没有就绪,就直接结束当前线程
+                handler.sendEmptyMessage(0x77);
                 return;
             }
             if (!DataReadWriteUtil.initFlag) {
@@ -113,6 +115,6 @@ public class MpegTsDecoder extends BaseDmbDecoder {
                 dmbListener.onSuccess(null, mpegTsPacket, mpegTsPacket.length);
             }
         }
-
+        handler.sendEmptyMessage(0x77);
     }
 }
