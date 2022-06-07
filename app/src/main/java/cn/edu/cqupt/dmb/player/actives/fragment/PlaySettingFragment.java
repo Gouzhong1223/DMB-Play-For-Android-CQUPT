@@ -231,7 +231,7 @@ public class PlaySettingFragment extends DmbBaseFragment {
      */
     private void switchAudioOutputDevice(boolean isChecked) {
         if (isChecked) {
-            audioManager.setParameters("audio_devices_out_active=AUDIO_HDMI,AUDIO_CODEC");
+            audioManager.setParameters("audio_devices_out_active=AUDIO_HDMI");
             Log.i(TAG, "switchAudioOutputDevice: 选中HDMI");
             Toast.makeText(context, "选中HDMI输出", Toast.LENGTH_SHORT).show();
         } else {
