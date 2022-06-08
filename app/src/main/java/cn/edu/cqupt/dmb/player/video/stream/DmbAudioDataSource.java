@@ -18,34 +18,29 @@
 
 package cn.edu.cqupt.dmb.player.video.stream;
 
+import android.media.MediaDataSource;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 
-import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
-
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description : 这是自定义的DMB视频源
- * @Date : create by QingSong in 2022-04-13 22:29
+ * @Description : DMB 实时音频数据源
+ * @Date : create by QingSong in 2022-06-07 22:13
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
- * @PackageName : cn.edu.cqupt.dmb.player.video.frame
+ * @PackageName : cn.edu.cqupt.dmb.player.video.stream
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class DmbMediaDataSource implements IMediaDataSource {
+public class DmbAudioDataSource extends MediaDataSource {
 
-    private static final String TAG = "DmbMediaDataSource";
-
-    /**
-     * MPEG-TS视频数据源输入缓冲流
-     */
+    private static final String TAG = "DmbAudioDataSource";
     private final BufferedInputStream bufferedInputStream;
 
-    public DmbMediaDataSource(BufferedInputStream bufferedInputStream) {
+    public DmbAudioDataSource(BufferedInputStream bufferedInputStream) {
         this.bufferedInputStream = bufferedInputStream;
     }
 

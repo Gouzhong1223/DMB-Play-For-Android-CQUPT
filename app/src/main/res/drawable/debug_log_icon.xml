@@ -1,3 +1,21 @@
+<!--
+  ~
+  ~              Copyright 2022 By Gouzhong1223
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  ~
+  -->
+
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="1024dp"
@@ -10,7 +28,7 @@
   <path
       android:pathData="M413.5,412.3l-30.5,-17.6 -19.1,11.4c-5.5,3.3 -9.9,10.4 -9.9,15.9v29.2l27.9,16.1Z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="391.3"
           android:startY="398.1"
           android:endX="365"
@@ -31,7 +49,7 @@
   <path
       android:pathData="M376.8,729.9V689.1l-22.7,-9.2s-0.5,35.4 0,39.2 3,4.3 3,4.3l23.3,12.1v-0.3C378.2,734.8 376.8,732.9 376.8,729.9Z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="367.1"
           android:startY="684.7"
           android:endX="367.1"
@@ -54,7 +72,7 @@
   <path
       android:pathData="M642.4,265.6l0,0l27.8,-16.5l-27.8,16.5z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="1527.5"
           android:startY="7755.4"
           android:endX="1540.7"
@@ -77,7 +95,7 @@
   <path
       android:pathData="M667.8,228.8l-0.1,0c-1.8,-1 -4.5,-0.8 -7.5,1l-38.5,22.9 20.7,13 27.8,-16.5L683,241.5c2.9,-1.7 5.5,-2 7.3,-1.1l0,0Z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="664.2"
           android:startY="227.3"
           android:endX="647.1"
@@ -114,7 +132,7 @@
   <path
       android:pathData="M471.1,308.6l9.3,7.3c-1.7,-1.3 -4.5,-1.1 -7.6,0.6l-9.3,-7.3C466.6,307.5 469.4,307.4 471.1,308.6Z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="442.9"
           android:startY="312.6"
           android:endX="481.4"
@@ -165,7 +183,7 @@
   <path
       android:pathData="M453,414.5l-9.3,-7.3c-1.3,-1 -2.1,-2.8 -2,-5.2l9.3,7.3C451,411.7 451.7,413.5 453,414.5Z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="443.4"
           android:startY="408.3"
           android:endX="469.9"
@@ -182,7 +200,7 @@
     <path
         android:pathData="M453,414.5l-9.3,-7.3c-1.3,-1 -2.1,-2.8 -2,-5.2l9.3,7.3c-0.1,2.5 0.7,4.2 2,5.2">
       <aapt:attr name="android:fillColor">
-        <gradient 
+        <gradient
             android:startX="443.4"
             android:startY="408.3"
             android:endX="469.9"
@@ -200,7 +218,7 @@
   <path
       android:pathData="M463.5,321.5l-9.3,-7.2l9.3,-5l9.3,7.2l-9.3,5z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="456.9"
           android:startY="317.4"
           android:endX="469.3"
@@ -214,7 +232,7 @@
   <path
       android:pathData="M453.1,337.6l-9.3,-7.3c0.2,-5.7 4.9,-12.9 10.4,-16.1l9.3,7.3C458,324.7 453.4,331.9 453.1,337.6Z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="449.7"
           android:startY="330"
           android:endX="458.5"
@@ -284,7 +302,7 @@
   <path
       android:pathData="M472.8,316.5c5.5,-3.2 9.8,-1.1 9.6,4.6l-2.1,71.7c-0.2,5.7 -4.9,12.9 -10.4,16.1l-9.3,5c-5.5,3.2 -9.8,1.1 -9.6,-4.6l2.1,-71.7c0.2,-5.7 4.9,-12.9 10.4,-16.1Z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="445.1"
           android:startY="371.1"
           android:endX="488.6"

@@ -1,3 +1,21 @@
+<!--
+  ~
+  ~              Copyright 2022 By Gouzhong1223
+  ~
+  ~    Licensed under the Apache License, Version 2.0 (the "License");
+  ~    you may not use this file except in compliance with the License.
+  ~    You may obtain a copy of the License at
+  ~
+  ~        http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~    Unless required by applicable law or agreed to in writing, software
+  ~    distributed under the License is distributed on an "AS IS" BASIS,
+  ~    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~    See the License for the specific language governing permissions and
+  ~    limitations under the License.
+  ~
+  -->
+
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="1200dp"
@@ -42,7 +60,7 @@
   <path
       android:pathData="M1058.1,902.9h-84.1c11.8,-7.8 19.6,-21.1 19.6,-36.3l0,0H238l0,0c0,15.2 7.8,28.5 19.6,36.3H173.5c-3.7,0 -6.8,3 -6.8,6.8c0,3.7 3,6.8 6.8,6.8h884.6c3.7,0 6.8,-3 6.8,-6.8C1064.8,905.9 1061.8,902.9 1058.1,902.9z">
     <aapt:attr name="android:fillColor">
-      <gradient 
+      <gradient
           android:startX="166.8"
           android:startY="891.5"
           android:endX="1064.8"

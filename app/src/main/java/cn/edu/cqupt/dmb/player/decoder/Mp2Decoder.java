@@ -1,6 +1,27 @@
+/*
+ *
+ *              Copyright 2022 By Gouzhong1223
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ *
+ */
+
 package cn.edu.cqupt.dmb.player.decoder;
 
 import android.content.Context;
+import android.media.MediaCodec;
+import android.media.MediaDataSource;
+import android.media.MediaExtractor;
 import android.os.Handler;
 import android.util.Log;
 
@@ -28,13 +49,24 @@ public class Mp2Decoder extends BaseDmbDecoder {
 
     private static final String TAG = "Mp2Decoder";
 
-    public Mp2Decoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream, Handler handler) {
+    private final MediaDataSource audioMediaDataSource;
+    private MediaExtractor extractor;
+    private MediaCodec mediaCodec;
+
+    public Mp2Decoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream, Handler handler, MediaDataSource audioMediaDataSource) {
         super(bufferedInputStream, dmbListener, context, handler);
+        this.audioMediaDataSource = audioMediaDataSource;
     }
 
     @Override
     public void run() {
         Log.i(TAG, Thread.currentThread().getName() + "线程现在开始 MP2 解码");
+        extractor = new MediaExtractor();
+        try {
+            extractor.setDataSource(audioMediaDataSource);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         int[] info = new int[3];
         byte[] mp2Buffer = new byte[384];
         byte[] pcmBuffer = new byte[1024 * 1024];
