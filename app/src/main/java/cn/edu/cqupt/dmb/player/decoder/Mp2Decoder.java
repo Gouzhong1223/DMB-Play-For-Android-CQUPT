@@ -19,19 +19,15 @@
 package cn.edu.cqupt.dmb.player.decoder;
 
 import android.content.Context;
-import android.media.MediaCodec;
-import android.media.MediaDataSource;
-import android.media.MediaExtractor;
 import android.os.Handler;
 import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
-import cn.edu.cqupt.dmb.player.jni.NativeMethod;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
+import cn.edu.cqupt.dmb.player.utils.ConvertUtils;
 import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
 
 /**
@@ -49,28 +45,15 @@ public class Mp2Decoder extends BaseDmbDecoder {
 
     private static final String TAG = "Mp2Decoder";
 
-    private final MediaDataSource audioMediaDataSource;
-    private MediaExtractor extractor;
-    private MediaCodec mediaCodec;
 
-    public Mp2Decoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream, Handler handler, MediaDataSource audioMediaDataSource) {
+    public Mp2Decoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream, Handler handler) {
         super(bufferedInputStream, dmbListener, context, handler);
-        this.audioMediaDataSource = audioMediaDataSource;
     }
 
     @Override
     public void run() {
         Log.i(TAG, Thread.currentThread().getName() + "线程现在开始 MP2 解码");
-        extractor = new MediaExtractor();
-        try {
-            extractor.setDataSource(audioMediaDataSource);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        int[] info = new int[3];
         byte[] mp2Buffer = new byte[384];
-        byte[] pcmBuffer = new byte[1024 * 1024];
-        NativeMethod.mp2DecoderInit();
         while (!DataReadWriteUtil.inMainActivity) {
             if (!DataReadWriteUtil.USB_READY) {
                 // 如果当前 USB 没有就绪,就直接结束当前线程
@@ -82,20 +65,17 @@ public class Mp2Decoder extends BaseDmbDecoder {
                 // Log.e(TAG, "现在还没有接收到 DMB 类型的数据!");
                 continue;
             }
-            if (!readMp2Frame(mp2Buffer)) {
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            if (readMp2Frame(mp2Buffer)) {
+                // 读取成功之后直接调用监听器的 success 方法
+                if (DEBUG) {
+                    Log.i(TAG, "run: 接收到一个 MPEG-TS 包" + ConvertUtils.bytes2hex(mp2Buffer));
                 }
-            }
-            Arrays.fill(pcmBuffer, (byte) 0);
-            Arrays.fill(info, 0);
-            int length = NativeMethod.decodeMp2Frame(mp2Buffer, 384, pcmBuffer, info);
-            if (dmbListener != null) {
-                dmbListener.onSuccess(null, pcmBuffer, length);
+                dmbListener.onSuccess(null, mp2Buffer, mp2Buffer.length);
             }
         }
+        // 解码结束后发送关闭消息
+        Log.i(TAG, "run: 解码结束,发送关闭消息");
+        handler.sendEmptyMessage(0x77);
     }
 
     /**
@@ -107,20 +87,20 @@ public class Mp2Decoder extends BaseDmbDecoder {
     private boolean readMp2Frame(byte[] bytes) {
         int nRead;
         try {
-            bytes[0] = bytes[1] = (byte) 0xff;
-            while ((nRead = (bufferedInputStream).read(bytes, 2, 1)) > 0) {
-                if ((bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFC) || (bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xF4)) {
+            bytes[0] = bytes[1] = bytes[2] = (byte) 0xFF;
+            while ((nRead = bufferedInputStream.read(bytes, 3, 1)) > 0) {
+                if ((bytes[0] == (byte) 0xFF && bytes[1] == (byte) 0xFC && bytes[2] == (byte) 0x84)) {
                     break;
                 }
-                System.arraycopy(bytes, 1, bytes, 0, 2);
+                System.arraycopy(bytes, 1, bytes, 0, 3);
             }
             if (nRead <= 0) {
                 return false;
             }
             /* read n bytes method, according to unix network programming page 72 */
             /* read left data of the frame */
-            int nLeft = 382;
-            int pos = 2;
+            int nLeft = 380;
+            int pos = 4;
             while (nLeft > 0) {
                 if ((nRead = ((InputStream) bufferedInputStream).read(bytes, pos, nLeft)) <= 0) {
                     return false;

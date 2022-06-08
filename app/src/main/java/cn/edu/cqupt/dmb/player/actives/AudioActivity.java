@@ -18,51 +18,160 @@
 
 package cn.edu.cqupt.dmb.player.actives;
 
-import android.media.AudioFormat;
-import android.media.AudioTrack;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.hdl.logcatdialog.LogcatDialog;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+
+import cn.edu.cqupt.dmb.player.R;
+import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.Mp2Decoder;
-import cn.edu.cqupt.dmb.player.listener.impl.DmbAudioListener;
+import cn.edu.cqupt.dmb.player.listener.impl.DmbAudioListenerImpl;
+import cn.edu.cqupt.dmb.player.listener.impl.VideoPlayerListenerImpl;
+import cn.edu.cqupt.dmb.player.video.frame.VideoPlayerFrame;
+import cn.edu.cqupt.dmb.player.video.stream.DmbMediaDataSource;
 
 public class AudioActivity extends BaseActivity {
 
     private static final String TAG = "AudioActivity";
+
     /**
-     * 音频播放器
+     * 音频播放回调消息
      */
-    private AudioTrack audioTrack;
+    public static final int MESSAGE_START_PLAY_AUDIO = DmbPlayerConstant.MESSAGE_START_PLAY_VIDEO.getDmbConstantValue();
+
+
+    /**
+     * 自定义的音频播放组件
+     */
+    private VideoPlayerFrame audioPlayerFrame = null;
+
+    /**
+     * 信号显示组件
+     */
+    private ImageView signalImageView;
+    /**
+     * 已经解码的MP2音频缓冲流
+     */
+    private BufferedInputStream mp2BufferedInputStream;
+    /**
+     * 已经解码的MP2音频输入流
+     */
+    private PipedInputStream mp2PipedInputStream;
+    /**
+     * 已经解码的MP2音频输出流
+     */
+    private PipedOutputStream mp2PipedOutputStream;
 
 
     @Override
     public void initView() {
-        int minBufferSize = AudioTrack.getMinBufferSize(48000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT);
-        audioTrack = new AudioTrack(AudioTrack.MODE_STREAM, 48000, AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize * 2, AudioTrack.MODE_STREAM);
+        audioPlayerFrame = findViewById(R.id.audioPlayerFrame);
+        signalImageView = findViewById(R.id.audio_signal);
     }
 
     @Override
     public void configView() {
-        Log.i(TAG, "configView: " + getLocalClassName() + "不需要配置组件");
+        // 设置音频播放器的监听器
+        audioPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(audioPlayerFrame));
+        if (defaultSignalShowSetting != null) {
+            int showSignal = Math.toIntExact(defaultSignalShowSetting.getSettingValue());
+            signalImageView.setVisibility(showSignal == 0 ? View.INVISIBLE : View.VISIBLE);
+        }
+        if (showDebugLogSetting != null) {
+            int showLog = Math.toIntExact(showDebugLogSetting.getSettingValue());
+            if (showLog == 1) {
+                runOnUiThread(() -> new LogcatDialog(AudioActivity.this).show());
+            }
+        }
     }
 
     @Override
     public void startDecode() {
+        // 初始化音频元数据管道
+        initAudioPip();
         AudioHandler audioHandler = new AudioHandler(Looper.getMainLooper());
-        Mp2Decoder mp2Decoder = new Mp2Decoder(new DmbAudioListener(audioHandler), this, bufferedInputStream, audioHandler, null);
+        DmbAudioListenerImpl dmbAudioListener = new DmbAudioListenerImpl(audioHandler, mp2PipedOutputStream);
+        // 构造解码器
+        Mp2Decoder mp2Decoder = new Mp2Decoder(dmbAudioListener, this, bufferedInputStream, audioHandler);
+        // 开始解码
         mp2Decoder.start();
-        audioTrack.play();
+    }
+
+    /**
+     * 播放音频
+     */
+    private void playAudio() {
+        // 构造自定义的数据源
+        DmbMediaDataSource dmbMediaDataSource = new DmbMediaDataSource(mp2BufferedInputStream);
+        // 设置MP2播放器的数据源为自定义数据源
+        audioPlayerFrame.setDataSource(dmbMediaDataSource);
+        try {
+            // 加载数据源
+            audioPlayerFrame.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+            onDestroy();
+            Log.e(TAG, "播放音频失败啦！");
+            Toast.makeText(this, "播放失败", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * 初始化装载音频的管道
+     */
+    private void initAudioPip() {
+        // 构造已解码的MP2输入流
+        mp2PipedInputStream = new PipedInputStream(1024 * 1024 * 2);
+        // 构造已解码的MP2输出流
+        mp2PipedOutputStream = new PipedOutputStream();
+        try {
+            // 连接输入输出流
+            mp2PipedOutputStream.connect(mp2PipedInputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 构造已解码的MP2缓冲流
+        mp2BufferedInputStream = new BufferedInputStream(mp2PipedInputStream);
+    }
+
+    /**
+     * 关闭管道流以及输入缓冲流
+     */
+    private void closeStream() {
+        try {
+            if (mp2PipedOutputStream != null) {
+                mp2PipedOutputStream.close();
+            }
+            if (mp2PipedInputStream != null) {
+                mp2PipedInputStream.close();
+            }
+            if (mp2BufferedInputStream != null) {
+                mp2BufferedInputStream.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onDestroy() {
-        if (audioTrack != null) {
-            audioTrack.stop();
+        if (audioPlayerFrame != null) {
+            audioPlayerFrame.release();
         }
+        closeStream();
         super.onDestroy();
     }
 
@@ -77,12 +186,8 @@ public class AudioActivity extends BaseActivity {
 
         @Override
         public void handleMessage(@NonNull Message msg) {
-            if (msg.what == 0x95) {
-                byte[] pcmBytes = (byte[]) msg.obj;
-                if (pcmBytes == null) {
-                    return;
-                }
-                audioTrack.write(pcmBytes, 0, pcmBytes.length);
+            if (msg.what == MESSAGE_START_PLAY_AUDIO) {
+                playAudio();
             }
         }
     }
