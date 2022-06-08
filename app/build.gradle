@@ -12,6 +12,7 @@ android {
         targetSdk 32
         versionCode 1
         versionName "1.0.3"
+        flavorDimensions "versionCode"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
@@ -23,6 +24,17 @@ android {
             }
         }
 
+    }
+
+    buildscript {
+        splits {
+            abi {
+                enable true
+                reset()
+                include 'x86', 'x86_64', 'armeabi-v7a', 'armv5', 'arm64'
+                universalApk false
+            }
+        }
     }
 
 
@@ -43,11 +55,14 @@ android {
         variant.outputs.all { output ->
             def outputFile = output.outputFile
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                outputFileName = "DMB Player-" +
-                        defaultConfig.versionName + "-" +
-                        output.baseName + ".apk"
+                outputFileName = "DMB Player-" + defaultConfig.versionName + "-" + output.baseName + ".apk"
             }
         }
+    }
+
+    productFlavors {
+        all32 { minSdkVersion 25 }
+        all64 { minSdkVersion 21 }
     }
 
     compileOptions {
@@ -97,14 +112,27 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:1.10.19'
 
     // ijkplayer 播放器依赖
-    implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
-    implementation 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.8'
+//    implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
+//    implementation 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.8'
+//
+//    implementation 'tv.danmaku.ijk.media:ijkplayer-x86:0.8.8'
+//    implementation 'tv.danmaku.ijk.media:ijkplayer-x86_64:0.8.8'
+//
+//    implementation 'tv.danmaku.ijk.media:ijkplayer-armv5:0.8.8'
+//    implementation 'tv.danmaku.ijk.media:ijkplayer-arm64:0.8.8'
 
-    implementation 'tv.danmaku.ijk.media:ijkplayer-x86:0.8.8'
-    implementation 'tv.danmaku.ijk.media:ijkplayer-x86_64:0.8.8'
+    implementation project(':ijkplayer-java')
+//    implementation project(':ijkplayer-exo')
 
-    implementation 'tv.danmaku.ijk.media:ijkplayer-armv5:0.8.8'
-    implementation 'tv.danmaku.ijk.media:ijkplayer-arm64:0.8.8'
+    all32Implementation project(':ijkplayer-armv5')
+    all32Implementation project(':ijkplayer-armv7a')
+    all32Implementation project(':ijkplayer-x86')
+
+    all64Implementation project(':ijkplayer-armv5')
+    all64Implementation project(':ijkplayer-armv7a')
+    all64Implementation project(':ijkplayer-arm64')
+    all64Implementation project(':ijkplayer-x86')
+    all64Implementation project(':ijkplayer-x86_64')
 
     implementation 'com.qmuiteam:qmui:2.0.0-alpha10'
 

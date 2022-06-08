@@ -4,10 +4,13 @@ pluginManagement {
             url 'https://maven.aliyun.com/repository/public/'
         }
         maven { url "https://jitpack.io" }
-        mavenCentral()
-        google()
-        gradlePluginPortal()
-        jcenter()
+        maven { url 'https://maven.aliyun.com/repository/google' }
+
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+
+        maven { url 'https://maven.aliyun.com/repository/public' }
+
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
     }
 }
 dependencyResolutionManagement {
@@ -17,11 +20,22 @@ dependencyResolutionManagement {
             url 'https://maven.aliyun.com/repository/public/'
         }
         maven { url "https://jitpack.io" }
-        mavenCentral()
-        google()
-        gradlePluginPortal()
-        jcenter()
+        maven { url 'https://maven.aliyun.com/repository/google' }
+
+        maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
+
+        maven { url 'https://maven.aliyun.com/repository/public' }
+
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
     }
 }
 rootProject.name = "DMB Player For Android"
 include ':app'
+
+include ':ijkplayer-armv5', ':ijkplayer-x86_64'
+include ':ijkplayer-armv7a'
+include ':ijkplayer-arm64'
+include ':ijkplayer-x86'
+
+include ':ijkplayer-java'
+include ':ijkplayer-exo'
