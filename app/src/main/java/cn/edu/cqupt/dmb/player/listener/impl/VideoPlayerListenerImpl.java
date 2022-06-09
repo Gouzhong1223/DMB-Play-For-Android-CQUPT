@@ -20,14 +20,14 @@ package cn.edu.cqupt.dmb.player.listener.impl;
 
 import android.util.Log;
 
-import cn.edu.cqupt.dmb.player.listener.VideoPlayerListener;
+import cn.edu.cqupt.dmb.player.listener.DmbPlayerListener;
 import cn.edu.cqupt.dmb.player.video.frame.VideoPlayerFrame;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
- * @Description : 这个是 VideoPlayerListener 监听器的实现类
+ * @Description : 这个是 DmbPlayerListener 监听器的实现类
  * @Date : create by QingSong in 2022-04-06 20:08
  * @Email : qingsong.qs@alibaba-inc.com
  * @Since : JDK 1.8
@@ -35,7 +35,7 @@ import tv.danmaku.ijk.media.player.IMediaPlayer;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class VideoPlayerListenerImpl implements VideoPlayerListener {
+public class VideoPlayerListenerImpl implements DmbPlayerListener {
 
     private static final String TAG = "VideoPlayerListenerImpl";
 

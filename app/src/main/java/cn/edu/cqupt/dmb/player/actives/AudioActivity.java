@@ -38,9 +38,9 @@ import java.io.PipedOutputStream;
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.Mp2Reader;
+import cn.edu.cqupt.dmb.player.listener.impl.AudioPlayerListenerImpl;
 import cn.edu.cqupt.dmb.player.listener.impl.DmbAudioListenerImpl;
-import cn.edu.cqupt.dmb.player.listener.impl.VideoPlayerListenerImpl;
-import cn.edu.cqupt.dmb.player.video.frame.VideoPlayerFrame;
+import cn.edu.cqupt.dmb.player.video.frame.AudioPlayerFrame;
 import cn.edu.cqupt.dmb.player.video.stream.DmbMediaDataSource;
 
 public class AudioActivity extends BaseActivity {
@@ -53,7 +53,7 @@ public class AudioActivity extends BaseActivity {
     /**
      * 自定义的音频播放组件
      */
-    private VideoPlayerFrame audioPlayerFrame = null;
+    private AudioPlayerFrame audioPlayerFrame = null;
 
     /**
      * 信号显示组件
@@ -82,7 +82,7 @@ public class AudioActivity extends BaseActivity {
     @Override
     public void configView() {
         // 设置音频播放器的监听器
-        audioPlayerFrame.setVideoListener(new VideoPlayerListenerImpl(audioPlayerFrame));
+        audioPlayerFrame.setVideoListener(new AudioPlayerListenerImpl(audioPlayerFrame));
         if (defaultSignalShowSetting != null) {
             int showSignal = Math.toIntExact(defaultSignalShowSetting.getSettingValue());
             signalImageView.setVisibility(showSignal == 0 ? View.INVISIBLE : View.VISIBLE);

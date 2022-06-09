@@ -29,7 +29,7 @@ import android.widget.FrameLayout;
 
 import java.io.IOException;
 
-import cn.edu.cqupt.dmb.player.listener.VideoPlayerListener;
+import cn.edu.cqupt.dmb.player.listener.DmbPlayerListener;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
@@ -74,15 +74,15 @@ public class VideoPlayerFrame extends FrameLayout {
     /**
      * 播放监听器
      */
-    private VideoPlayerListener videoPlayerListener;
+    private DmbPlayerListener dmbPlayerListener;
     /**
      * 创建一个 IMediaPlayer 的前置处理监听器
      */
     private final IMediaPlayer.OnPreparedListener onPreparedListener = new IMediaPlayer.OnPreparedListener() {
         @Override
         public void onPrepared(IMediaPlayer iMediaPlayer) {
-            if (videoPlayerListener != null) {
-                videoPlayerListener.onPrepared(iMediaPlayer);
+            if (dmbPlayerListener != null) {
+                dmbPlayerListener.onPrepared(iMediaPlayer);
             }
         }
     };
@@ -140,8 +140,7 @@ public class VideoPlayerFrame extends FrameLayout {
                 Log.i(TAG, "surfaceDestroyed");
             }
         });
-        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT
-                , LayoutParams.MATCH_PARENT, Gravity.CENTER);
+        LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, Gravity.CENTER);
         addView(surfaceView, 0, layoutParams);
     }
 
@@ -158,8 +157,8 @@ public class VideoPlayerFrame extends FrameLayout {
     /**
      * 设置自己的player回调
      */
-    public void setVideoListener(VideoPlayerListener listener) {
-        videoPlayerListener = listener;
+    public void setVideoListener(DmbPlayerListener listener) {
+        dmbPlayerListener = listener;
     }
 
     /**
