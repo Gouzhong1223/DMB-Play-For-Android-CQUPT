@@ -37,7 +37,7 @@ import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.decoder.Mp2Decoder;
+import cn.edu.cqupt.dmb.player.decoder.Mp2Reader;
 import cn.edu.cqupt.dmb.player.listener.impl.DmbAudioListenerImpl;
 import cn.edu.cqupt.dmb.player.listener.impl.VideoPlayerListenerImpl;
 import cn.edu.cqupt.dmb.player.video.frame.VideoPlayerFrame;
@@ -45,14 +45,11 @@ import cn.edu.cqupt.dmb.player.video.stream.DmbMediaDataSource;
 
 public class AudioActivity extends BaseActivity {
 
-    private static final String TAG = "AudioActivity";
-
     /**
      * 音频播放回调消息
      */
     public static final int MESSAGE_START_PLAY_AUDIO = DmbPlayerConstant.MESSAGE_START_PLAY_VIDEO.getDmbConstantValue();
-
-
+    private static final String TAG = "AudioActivity";
     /**
      * 自定义的音频播放组件
      */
@@ -105,9 +102,9 @@ public class AudioActivity extends BaseActivity {
         AudioHandler audioHandler = new AudioHandler(Looper.getMainLooper());
         DmbAudioListenerImpl dmbAudioListener = new DmbAudioListenerImpl(audioHandler, mp2PipedOutputStream);
         // 构造解码器
-        Mp2Decoder mp2Decoder = new Mp2Decoder(dmbAudioListener, this, bufferedInputStream, audioHandler);
+        Mp2Reader mp2Reader = new Mp2Reader(dmbAudioListener, this, bufferedInputStream, audioHandler);
         // 开始解码
-        mp2Decoder.start();
+        mp2Reader.start();
     }
 
     /**

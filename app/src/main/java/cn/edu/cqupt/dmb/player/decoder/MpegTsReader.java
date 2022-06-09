@@ -46,15 +46,15 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.4
  */
-public class MpegTsDecoder extends BaseDmbDecoder {
+public class MpegTsReader extends BaseDmbDecoder {
 
     /**
      * 一个标准 MPEG-TS 包的的大小
      */
     private static final Integer TS_PACKET_188_SIZE = DmbPlayerConstant.DEFAULT_MPEG_TS_PACKET_SIZE_DECODE.getDmbConstantValue();
-    private static final String TAG = "MpegTsDecoder";
+    private static final String TAG = "MpegTsReader";
 
-    public MpegTsDecoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream, Handler handler) throws Exception {
+    public MpegTsReader(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream, Handler handler) throws Exception {
         super(bufferedInputStream, dmbListener, context, handler);
         if (!(dmbListener instanceof DmbMpegListenerImpl)) {
             // 如果监听器类型不对就直接抛异常!
@@ -77,14 +77,7 @@ public class MpegTsDecoder extends BaseDmbDecoder {
             bytes[0] = bytes[1] = bytes[2] = (byte) 0xff;
             // 寻找TS包头
             while ((nRead = inputStream.read(bytes, 3, 1)) > 0) {
-                if (bytes[0] == (byte) 0x47
-                        && (bytes[1] == (byte) 0x40
-                        || bytes[1] == (byte) 0x41
-                        || bytes[1] == (byte) 0x50
-                        || bytes[1] == (byte) 0x01)
-                        && (bytes[2] == (byte) 0x00
-                        || bytes[2] == (byte) 0x11
-                        || bytes[2] == 0x01)) {
+                if (bytes[0] == (byte) 0x47 && (bytes[1] == (byte) 0x40 || bytes[1] == (byte) 0x41 || bytes[1] == (byte) 0x50 || bytes[1] == (byte) 0x01) && (bytes[2] == (byte) 0x00 || bytes[2] == (byte) 0x11 || bytes[2] == 0x01)) {
                     break;
                 }
                 System.arraycopy(bytes, 1, bytes, 0, 3);

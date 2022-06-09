@@ -39,7 +39,7 @@ import java.io.PipedOutputStream;
 
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
-import cn.edu.cqupt.dmb.player.decoder.MpegTsDecoder;
+import cn.edu.cqupt.dmb.player.decoder.MpegTsReader;
 import cn.edu.cqupt.dmb.player.listener.DmbListener;
 import cn.edu.cqupt.dmb.player.listener.impl.DmbMpegListenerImpl;
 import cn.edu.cqupt.dmb.player.listener.impl.VideoPlayerListenerImpl;
@@ -136,10 +136,10 @@ public class VideoActivity extends BaseActivity {
         // 构造视频监听器,传入视频输出流以及回调类
         DmbListener videoPlayerListener = new DmbMpegListenerImpl(videoHandler, mpegTsPipedOutputStream);
         // 构造解码器
-        MpegTsDecoder mpegTsDecoder;
+        MpegTsReader mpegTsReader;
         try {
-            mpegTsDecoder = new MpegTsDecoder(videoPlayerListener, this, bufferedInputStream, videoHandler);
-            mpegTsDecoder.start();
+            mpegTsReader = new MpegTsReader(videoPlayerListener, this, bufferedInputStream, videoHandler);
+            mpegTsReader.start();
         } catch (Exception e) {
             e.printStackTrace();
         }

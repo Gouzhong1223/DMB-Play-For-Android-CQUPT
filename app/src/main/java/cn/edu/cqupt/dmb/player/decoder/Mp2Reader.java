@@ -41,12 +41,12 @@ import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
  * @ProjectName : DMB Player For Android
  * @Version : 1.0.0
  */
-public class Mp2Decoder extends BaseDmbDecoder {
+public class Mp2Reader extends BaseDmbDecoder {
 
-    private static final String TAG = "Mp2Decoder";
+    private static final String TAG = "Mp2Reader";
 
 
-    public Mp2Decoder(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream, Handler handler) {
+    public Mp2Reader(DmbListener dmbListener, Context context, BufferedInputStream bufferedInputStream, Handler handler) {
         super(bufferedInputStream, dmbListener, context, handler);
     }
 
