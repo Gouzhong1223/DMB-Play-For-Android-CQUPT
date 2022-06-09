@@ -36,23 +36,6 @@ public class NativeMethod {
     }
 
     /**
-     * 初始化 Mp2 解码器
-     */
-    public static native void mp2DecoderInit();
-
-    /**
-     * 对一个 MP2 帧进行解码
-     *
-     * @param in   需要译码的数组
-     * @param len  译码长度
-     * @param out  译码完成的数组
-     * @param info 消息类型
-     * @return 译码长度
-     */
-    public static native int decodeMp2Frame(byte[] in, int len, byte[] out, int[] info);
-
-
-    /**
      * TPEG 解码器初始化
      */
     public static native void tpegInit();
@@ -68,12 +51,4 @@ public class NativeMethod {
      * @param info 用于存储消息类型
      */
     public static native void decodeTpegFrame(byte[] in, byte[] out, int[] info);
-
-    /**
-     * 对 MPEG-TS 包进行 RS 解码
-     *
-     * @param in  输入数组
-     * @param out 输出数组
-     */
-    public static native void mpegRsDecode(byte[] in, byte[] out);
 }

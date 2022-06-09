@@ -49,11 +49,10 @@ add_library(
         #        DmbCoder.cpp
         crc.c
         interleaver.c
-        mp2decoder.cpp
         native-lib.cpp
         rs.c
         tpeg.c
-        ts_rs.cpp)
+)
 #
 #add_library(
 #        # Sets the name of the library.
