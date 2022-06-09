@@ -93,6 +93,13 @@ public class DmbCarouselListenerImpl implements CarouselListener {
      */
     private byte[] alternativeBytes;
 
+    /**
+     * 构造方法
+     *
+     * @param handler     自定义回调
+     * @param bannerCache 轮播图 FIFO 队列
+     * @param context     调用解码器的上下文
+     */
     public DmbCarouselListenerImpl(Handler handler, EvictingQueue<BannerBitmapDataBean> bannerCache, Context context) {
         this.handler = handler;
         this.bannerCache = bannerCache;
@@ -101,6 +108,7 @@ public class DmbCarouselListenerImpl implements CarouselListener {
 
     @Override
     public void onSuccess(String fileName, byte[] bytes, int length) {
+        // 计数器自增
         cnt++;
         if (Objects.equals(fileName, DAB_JPG_NAME)) {
             // 重命名图片
@@ -129,6 +137,7 @@ public class DmbCarouselListenerImpl implements CarouselListener {
             Log.i(TAG, "onSuccess: fileName 为 dab.jpg, 重命名为 dmb" + (length + 35) + ".jpg");
             // 写出文件流
             writeImageSource(fileName, length, imagePath);
+            // 重新加载图片
             bitmap = GlideUtils.loadBitMap(context, imagePath + fileName);
             if (bitmap == null) {
                 Log.e(TAG, "onSuccess: 第二次生成 bitmap 还是出错了...");
