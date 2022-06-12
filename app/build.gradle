@@ -32,7 +32,7 @@ android {
                 enable true
                 reset()
                 include 'x86', 'x86_64', 'armeabi-v7a', 'armv5', 'arm64'
-                universalApk false
+                universalApk true
             }
         }
     }
