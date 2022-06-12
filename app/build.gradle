@@ -94,7 +94,8 @@ dependencies {
     //2.1.0以前jcenter的依赖
     //implementation 'com.youth.banner:banner:2.1.0'
     //现在Maven Central
-    implementation 'io.github.youth5201314:banner:2.2.2'
+//    implementation 'io.github.youth5201314:banner:2.2.2'
+    implementation project(':banner')
     // 新版本使用
     implementation 'com.google.guava:guava:24.1-jre'
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
