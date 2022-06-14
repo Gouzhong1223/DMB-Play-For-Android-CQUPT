@@ -28,6 +28,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.common.collect.EvictingQueue;
+import com.youth.banner.bean.BannerBitmapDataBean;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,7 +36,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Objects;
 
-import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.listener.CarouselListener;
 import cn.edu.cqupt.dmb.player.utils.GlideUtils;

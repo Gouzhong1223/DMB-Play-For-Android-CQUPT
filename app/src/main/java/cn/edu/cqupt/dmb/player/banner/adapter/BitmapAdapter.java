@@ -25,10 +25,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.youth.banner.adapter.BannerAdapter;
+import com.youth.banner.bean.BannerBitmapDataBean;
 
 import java.util.List;
 
-import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 
 /**
  * @Author : Gouzhong
@@ -52,9 +52,7 @@ public class BitmapAdapter extends BannerAdapter<BannerBitmapDataBean, BitmapAda
     public BannerViewHolder onCreateHolder(ViewGroup parent, int viewType) {
         ImageView imageView = new ImageView(parent.getContext());
         //注意，必须设置为match_parent，这个是viewpager2强制要求的
-        imageView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
+        imageView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         return new BannerViewHolder(imageView);
     }

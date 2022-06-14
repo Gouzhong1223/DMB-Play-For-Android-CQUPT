@@ -16,14 +16,15 @@
  *
  */
 
-package cn.edu.cqupt.dmb.player.banner.bean;
+package com.youth.banner.bean;
 
+
+import com.youth.banner.R;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import cn.edu.cqupt.dmb.player.R;
 
 /**
  * @Author : Gouzhong

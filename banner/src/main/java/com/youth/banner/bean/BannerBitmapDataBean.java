@@ -16,7 +16,7 @@
  *
  */
 
-package cn.edu.cqupt.dmb.player.banner.bean;
+package com.youth.banner.bean;
 
 import android.graphics.Bitmap;
 

@@ -26,10 +26,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.youth.banner.adapter.BannerAdapter;
+import com.youth.banner.bean.BannerDataBean;
 
 import java.util.List;
-
-import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 
 
 /**

@@ -32,6 +32,7 @@ import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.youth.banner.adapter.BannerAdapter;
+import com.youth.banner.bean.BannerBitmapDataBean;
 import com.youth.banner.config.BannerConfig;
 import com.youth.banner.config.IndicatorConfig;
 import com.youth.banner.indicator.Indicator;
@@ -182,15 +183,8 @@ public class Banner<T, BA extends BannerAdapter<T, ? extends RecyclerView.ViewHo
     private void initIndicatorAttr() {
         if (indicatorMargin != 0) {
             setIndicatorMargins(new IndicatorConfig.Margins(indicatorMargin));
-        } else if (indicatorMarginLeft != 0
-                || indicatorMarginTop != 0
-                || indicatorMarginRight != 0
-                || indicatorMarginBottom != 0) {
-            setIndicatorMargins(new IndicatorConfig.Margins(
-                    indicatorMarginLeft,
-                    indicatorMarginTop,
-                    indicatorMarginRight,
-                    indicatorMarginBottom));
+        } else if (indicatorMarginLeft != 0 || indicatorMarginTop != 0 || indicatorMarginRight != 0 || indicatorMarginBottom != 0) {
+            setIndicatorMargins(new IndicatorConfig.Margins(indicatorMarginLeft, indicatorMarginTop, indicatorMarginRight, indicatorMarginBottom));
         }
         if (indicatorSpace > 0) {
             setIndicatorSpace(indicatorSpace);
@@ -222,9 +216,7 @@ public class Banner<T, BA extends BannerAdapter<T, ? extends RecyclerView.ViewHo
         }
 
         int action = ev.getActionMasked();
-        if (action == MotionEvent.ACTION_UP
-                || action == MotionEvent.ACTION_CANCEL
-                || action == MotionEvent.ACTION_OUTSIDE) {
+        if (action == MotionEvent.ACTION_UP || action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_OUTSIDE) {
             start();
         } else if (action == MotionEvent.ACTION_DOWN) {
             stop();
@@ -773,8 +765,7 @@ public class Banner<T, BA extends BannerAdapter<T, ? extends RecyclerView.ViewHo
         if (scale < 1 && scale > 0) {
             addPageTransformer(new ScaleInTransformer(scale));
         }
-        setRecyclerViewPadding(leftItemWidth > 0 ? BannerUtils.dp2px(leftItemWidth + pageMargin) : 0,
-                rightItemWidth > 0 ? BannerUtils.dp2px(rightItemWidth + pageMargin) : 0);
+        setRecyclerViewPadding(leftItemWidth > 0 ? BannerUtils.dp2px(leftItemWidth + pageMargin) : 0, rightItemWidth > 0 ? BannerUtils.dp2px(rightItemWidth + pageMargin) : 0);
         return this;
     }
 
@@ -954,8 +945,18 @@ public class Banner<T, BA extends BannerAdapter<T, ? extends RecyclerView.ViewHo
                     return;
                 }
                 int next = (banner.getCurrentItem() + 1) % count;
+                // 获取当前的 Banner 元素
+                Object currentBanner = banner.getAdapter().getData(banner.getCurrentItem());
+                // 设置 Banner 停留时间为默认时间
+                long currentLoopTime = banner.mLoopTime;
+                if (currentBanner instanceof BannerBitmapDataBean) {
+                    if (((BannerBitmapDataBean) currentBanner).getLoopTime() >= 0) {
+                        // 重新设置 Banner 的停留时间
+                        currentLoopTime = ((BannerBitmapDataBean) currentBanner).getLoopTime();
+                    }
+                }
                 banner.setCurrentItem(next);
-                banner.postDelayed(banner.mLoopTask, banner.mLoopTime);
+                banner.postDelayed(banner.mLoopTask, currentLoopTime);
             }
         }
     }

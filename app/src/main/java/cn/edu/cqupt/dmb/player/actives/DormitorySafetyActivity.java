@@ -31,6 +31,8 @@ import androidx.annotation.NonNull;
 import com.google.common.collect.EvictingQueue;
 import com.hdl.logcatdialog.LogcatDialog;
 import com.youth.banner.Banner;
+import com.youth.banner.bean.BannerBitmapDataBean;
+import com.youth.banner.bean.BannerDataBean;
 import com.youth.banner.indicator.CircleIndicator;
 
 import java.util.ArrayList;
@@ -39,8 +41,6 @@ import java.util.Queue;
 import cn.edu.cqupt.dmb.player.R;
 import cn.edu.cqupt.dmb.player.banner.adapter.BitmapAdapter;
 import cn.edu.cqupt.dmb.player.banner.adapter.ImageAdapter;
-import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
-import cn.edu.cqupt.dmb.player.banner.bean.BannerDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.listener.impl.DmbDormitoryListenerImpl;

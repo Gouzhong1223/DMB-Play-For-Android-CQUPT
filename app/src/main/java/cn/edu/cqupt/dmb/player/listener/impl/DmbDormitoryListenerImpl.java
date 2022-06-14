@@ -24,9 +24,10 @@ import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.util.Log;
 
+import com.youth.banner.bean.BannerBitmapDataBean;
+
 import java.util.Queue;
 
-import cn.edu.cqupt.dmb.player.banner.bean.BannerBitmapDataBean;
 import cn.edu.cqupt.dmb.player.common.DmbPlayerConstant;
 import cn.edu.cqupt.dmb.player.listener.CarouselListener;
 import cn.edu.cqupt.dmb.player.utils.GlideUtils;
