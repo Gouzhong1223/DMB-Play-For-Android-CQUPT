@@ -91,8 +91,4 @@ public class DmbAudioListenerImpl implements DmbListener {
         }
     }
 
-    @Override
-    public void onReceiveMessage(String msg) {
-        Log.i(TAG, "onReceiveMessage: 无实现...");
-    }
 }

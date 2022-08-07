@@ -111,11 +111,6 @@ public class DmbCurriculumListenerImpl implements DmbListener {
         return -1;
     }
 
-    @Override
-    public void onReceiveMessage(String msg) {
-
-    }
-
     public byte[] getFileBuffer() {
         return fileBuffer;
     }

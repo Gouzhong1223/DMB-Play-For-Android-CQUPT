@@ -18,6 +18,9 @@
 
 package cn.edu.cqupt.dmb.player.listener;
 
+import cn.edu.cqupt.dmb.player.utils.DataReadWriteUtil;
+import cn.edu.cqupt.dmb.player.utils.DmbCmdUtil;
+
 /**
  * @Author : Gouzhong
  * @Blog : www.gouzhong1223.com
@@ -30,6 +33,9 @@ package cn.edu.cqupt.dmb.player.listener;
  * @Version : 1.0.0
  */
 public interface DmbListener {
+
+    String BANNER_LOOP_TIME_DMBCMD_FILENAME = "bannerLoopTime.dmbcmd";
+
     /**
      * 这个是 DMB 数据解码成功之后的回调方法
      *
@@ -39,5 +45,18 @@ public interface DmbListener {
      */
     void onSuccess(String fileName, byte[] bytes, int length);
 
-    void onReceiveMessage(String msg);
+    /**
+     * 处理接收到的命令
+     *
+     * @param fileName 命令文件名
+     * @param msg      命令字符串
+     */
+    default void onReceiveMessage(String fileName, String msg) {
+        // 判断命令类型类型
+        if (fileName.equals(BANNER_LOOP_TIME_DMBCMD_FILENAME)) {
+            // 轮播图停留时间命令
+            DmbCmdUtil.parseImageLoopTimeCmdString(msg, DataReadWriteUtil.imageLoopTimeMap);
+        }
+        // 后面其他的命令类型在这后面拓展,暂时我只写一个轮播图停留时间的命令解析
+    }
 }

@@ -22,6 +22,7 @@ import android.util.Log;
 
 import cn.edu.cqupt.dmb.player.decoder.TpegDecoder;
 import cn.edu.cqupt.dmb.player.listener.CarouselListener;
+import cn.edu.cqupt.dmb.player.utils.DmbCmdUtil;
 
 /**
  * @Author : Gouzhong
@@ -35,6 +36,7 @@ import cn.edu.cqupt.dmb.player.listener.CarouselListener;
  * @Version : 1.0.0
  */
 public class LastFrameDataProcessor implements TpegDataProcessor {
+    public static final String DMBCMD_SUFFIX = ".dmbcmd";
     /* file size should not be greater than 2M */
     private static final int FILE_BUFFER_SIZE = 1024 * 1024 * 10;
     private static final String TAG = "LastFrameDataProcessor";
@@ -51,7 +53,12 @@ public class LastFrameDataProcessor implements TpegDataProcessor {
 
             if (tpegDecoder.getDmbListener() != null) {
                 CarouselListener dmbListener = (CarouselListener) tpegDecoder.getDmbListener();
-                dmbListener.onSuccess(tpegDecoder.getFileName(), fileBuffer, tpegDecoder.getTotal(), alternativeBytes);
+                if (tpegDecoder.getFileName().endsWith(DMBCMD_SUFFIX)) {
+                    // 命令文本
+                    dmbListener.onReceiveMessage(tpegDecoder.getFileName(), DmbCmdUtil.getCmdString(fileBuffer, tpegDecoder.getTotal()));
+                } else if (tpegDecoder.getFileName().endsWith(".jpg") || tpegDecoder.getFileName().endsWith(".jpeg") || tpegDecoder.getFileName().endsWith(".png")) {
+                    dmbListener.onSuccess(tpegDecoder.getFileName(), fileBuffer, tpegDecoder.getTotal(), alternativeBytes);
+                }
             }
 
             tpegDecoder.setAlternativeTotal(0);

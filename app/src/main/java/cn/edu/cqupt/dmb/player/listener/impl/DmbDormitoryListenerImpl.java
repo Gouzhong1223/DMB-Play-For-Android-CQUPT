@@ -123,11 +123,6 @@ public class DmbDormitoryListenerImpl implements CarouselListener {
     }
 
     @Override
-    public void onReceiveMessage(String msg) {
-        Log.i(TAG, "onReceiveMessage: 空实现");
-    }
-
-    @Override
     public void onSuccess(String fileName, byte[] bytes, int length, byte[] alternativeBytes) {
         this.alternativeBytes = alternativeBytes;
         this.onSuccess(fileName, bytes, length);

@@ -240,7 +240,7 @@ public class Banner<T, BA extends BannerAdapter<T, ? extends RecyclerView.ViewHo
                 float endY = event.getY();
                 float distanceX = Math.abs(endX - mStartX);
                 float distanceY = Math.abs(endY - mStartY);
-                if (getViewPager2().getOrientation() == HORIZONTAL) {
+                if (getViewPager2().getOrientation() == ViewPager2.ORIENTATION_HORIZONTAL) {
                     mIsViewPager2Drag = distanceX > mTouchSlop && distanceX > distanceY;
                 } else {
                     mIsViewPager2Drag = distanceY > mTouchSlop && distanceY > distanceX;
@@ -600,9 +600,21 @@ public class Banner<T, BA extends BannerAdapter<T, ? extends RecyclerView.ViewHo
      * 开始轮播
      */
     public Banner start() {
+        long loopTime = mLoopTime;
         if (mIsAutoLoop) {
             stop();
-            postDelayed(mLoopTask, mLoopTime);
+            if (this.getItemCount() != 0) {
+                Object data = this.getAdapter().getData(0);
+                if (data instanceof BannerBitmapDataBean) {
+                    BannerBitmapDataBean bean = (BannerBitmapDataBean) data;
+                    if (bean.getLoopTime() != 0) {
+                        loopTime = bean.getLoopTime();
+                    } else {
+                        loopTime = mLoopTime;
+                    }
+                }
+            }
+            postDelayed(mLoopTask, loopTime);
         }
         return this;
     }
@@ -930,6 +942,7 @@ public class Banner<T, BA extends BannerAdapter<T, ? extends RecyclerView.ViewHo
     }
 
     static class AutoLoopTask implements Runnable {
+        private static final String TAG = "Banner";
         private final WeakReference<Banner> reference;
 
         AutoLoopTask(Banner banner) {
@@ -941,21 +954,32 @@ public class Banner<T, BA extends BannerAdapter<T, ? extends RecyclerView.ViewHo
             Banner banner = reference.get();
             if (banner != null && banner.mIsAutoLoop) {
                 int count = banner.getItemCount();
+                // 如果元素为 0 就直接返回了
                 if (count == 0) {
                     return;
                 }
+                // 获取下一个元素的坐标
                 int next = (banner.getCurrentItem() + 1) % count;
                 // 获取当前的 Banner 元素
-                Object currentBanner = banner.getAdapter().getData(banner.getCurrentItem());
+                Object currentBanner = banner.getAdapter().getData(banner.getCurrentItem() - 1 % count);
                 // 设置 Banner 停留时间为默认时间
                 long currentLoopTime = banner.mLoopTime;
                 if (currentBanner instanceof BannerBitmapDataBean) {
-                    if (((BannerBitmapDataBean) currentBanner).getLoopTime() >= 0) {
+                    // 如果强转成功之后尝试获取一下自定义的停留时间
+                    if (((BannerBitmapDataBean) currentBanner).getLoopTime() != 0) {
                         // 重新设置 Banner 的停留时间
-                        currentLoopTime = ((BannerBitmapDataBean) currentBanner).getLoopTime();
+                        long loopTime = ((BannerBitmapDataBean) currentBanner).getLoopTime();
+                        if (loopTime == 0) {
+                            // 如果自定义停留时间为 0 就设置为默认的
+                            currentLoopTime = banner.mLoopTime;
+                        } else {
+                            // 如果自定义停留时间不为 0 就设置为自定义的
+                            currentLoopTime = loopTime;
+                        }
                     }
                 }
                 banner.setCurrentItem(next);
+                // 经过 currentLoopTime 时间后替换为 next 指向的元素
                 banner.postDelayed(banner.mLoopTask, currentLoopTime);
             }
         }

@@ -87,9 +87,4 @@ public class DmbMpegListenerImpl implements DmbListener {
             Log.i(TAG, "onSuccess: 发送了一条播放视频的消息");
         }
     }
-
-    @Override
-    public void onReceiveMessage(String msg) {
-
-    }
 }

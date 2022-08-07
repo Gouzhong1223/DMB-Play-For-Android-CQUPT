@@ -40,7 +40,7 @@ public class BannerBitmapDataBean {
     private Bitmap imageRes;
     private String title;
     private int viewType;
-    private long loopTime;
+    private long loopTime = 0;
 
     public BannerBitmapDataBean(Bitmap imageRes, String title, int viewType) {
         this.imageRes = imageRes;
@@ -98,7 +98,7 @@ public class BannerBitmapDataBean {
         if (this == o) return true;
         if (!(o instanceof BannerBitmapDataBean)) return false;
         BannerBitmapDataBean that = (BannerBitmapDataBean) o;
-        return viewType == that.viewType && imageRes.equals(that.imageRes) && title.equals(that.title) && loopTime == that.loopTime;
+        return title.equals(that.title) && loopTime == that.loopTime;
     }
 
     @Override

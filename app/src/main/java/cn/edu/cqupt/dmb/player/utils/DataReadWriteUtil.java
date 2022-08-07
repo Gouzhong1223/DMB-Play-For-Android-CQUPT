@@ -18,6 +18,8 @@
 
 package cn.edu.cqupt.dmb.player.utils;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 import cn.edu.cqupt.dmb.player.domain.SceneVO;
 
 /**
@@ -53,4 +55,9 @@ public class DataReadWriteUtil {
      * 被选中播放的场景
      */
     public static volatile SceneVO selectSceneVO = null;
+
+    /**
+     * 装载图片轮播时间的 Map 缓存
+     */
+    public static ConcurrentHashMap<String, String> imageLoopTimeMap = new ConcurrentHashMap<>();
 }
